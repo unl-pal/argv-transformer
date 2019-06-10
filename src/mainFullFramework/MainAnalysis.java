@@ -94,7 +94,7 @@ public class MainAnalysis {
 
 		Logger.defaultLogger.exitContext("FILTER");
 		
-		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "temp");
+		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "../temp");
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 				
@@ -134,7 +134,7 @@ public class MainAnalysis {
 		
 		long endTime = System.currentTimeMillis();
 		
-		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, "temp", benchmarkDir);
+		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, "../temp", benchmarkDir);
 
 		Logger.defaultLogger.enterContext("JPF");
 
@@ -261,15 +261,27 @@ public class MainAnalysis {
 	}
 	
 
-	private static boolean compile(File file) {
-		// TODO: check if build exists, if it doesn't, create it as a directory
-		String command = "javac -d build/ " + file;
+	private static boolean compile(File file) throws IOException {
+		File buildDir = new File("build");
+
+		if (buildDir.exists()) {
+			try {
+				org.apache.commons.io.FileUtils.forceDelete(buildDir);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
-		if(secondCompile) {
+		org.apache.commons.io.FileUtils.forceMkdir(buildDir);
+
+		// TODO: check if build exists, if it doesn't, create it as a directory
+		String command = "javac -g -d build/ " + file;
+
+//		if(secondCompile) {
 			printWriter.println("-----------------------------------------------------------------------------------------------");
 			printWriter.println(command);
 
-		}
+//		}
 		boolean success = false;
 		try {
 			Process pro = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });

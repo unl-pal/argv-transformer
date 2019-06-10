@@ -100,7 +100,7 @@ public class Downloader {
 			}
 			downloadedGitProjects.add(p);
 
-			csvWriter.append(p.getArchiveURL().toString() + "\n");
+			csvWriter.append(p.getArchiveURL().toString() + ",\n");
 			if (download) {
 				try {
 					p.downloadTo(destinationDir);

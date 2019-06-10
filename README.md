@@ -25,4 +25,6 @@ Given a CSV of GitHub repositories (as gathered by RepoReaper), this program wil
  
 ## ADDITIONAL FILES
 
+ * dataset.csv - First 5,000 entries (each entry is a GitHub project url with metadata) from RepoReaper dataset.
+ * filtered-dataset.csv - 250 Java projects with min and max loc of 100 and 10,000
  * config.properties - Properties for running the full framework (i.e. downloading, filtering, transforming). 

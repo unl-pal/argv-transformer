@@ -93,10 +93,11 @@ public class TypeChecker {
 			return (allowedType(((ParameterizedType) type).getType()) && allowedArgTypes);
 		}
 		
-		return (type.isPrimitiveType() 
-				|| javaImportTypes.contains(type.toString())
-				|| classTypes.contains(type.toString())
-				|| inJavaLangLibrary(type));
+//		return (type.isPrimitiveType() 
+//				|| javaImportTypes.contains(type.toString())
+//				|| classTypes.contains(type.toString())
+//				|| inJavaLangLibrary(type));
+		return (type.isPrimitiveType());
 	}
 	
 	public boolean checkStaticTypes(String name) {

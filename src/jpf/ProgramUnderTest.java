@@ -97,6 +97,7 @@ public class ProgramUnderTest {
 	 * @throws ClassNotFoundException 
 	 */
 	private void setupModClass() throws ClassNotFoundException {
+		System.out.println(className);
 			currClass = Repository.lookupClass(className);
 			modClass = new ClassGen(currClass);
 			modMethods = modClass.getMethods();

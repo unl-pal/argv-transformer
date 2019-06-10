@@ -60,15 +60,16 @@ public class Downloader {
 	 * @param projectCount
 	 * @param projectDirPath
 	 */
-	public void downloadProjects(int projectCount, File downloadDir) {
-		// don't download them again
-		if (downloadDir.exists()) {
-			if (!downloadDir.isDirectory()) {
-				System.err.println("ERROR: " + downloadDir + " exists but is not a directory. Aborting.");
+	public void downloadProjects(int projectCount, String projectDirPath) {
+		File projectDir = new File(projectDirPath);
+		
+		if (projectDir.exists()) {
+			if (!projectDir.isDirectory()) {
+				System.err.println("ERROR: " + projectDirPath + " exists but is not a directory. Aborting.");
 				System.exit(1);
 			}
 		} else {
-			downloadDir.mkdir();
+			projectDir.mkdir();
 		}
 		
 		if(suitableGitProjects.size() < projectCount) {
@@ -80,7 +81,7 @@ public class Downloader {
 			GitProject p = suitableGitProjects.get(i);
 			Logger.defaultLogger.log("Project " + (i) + ": ", 0);
 			boolean download = true;
-			File destinationDir = new File(downloadDir.getPath() + File.separator + p.getRepository());
+			File destinationDir = new File(projectDir.getPath() + File.separator + p.getRepository());
 			p.setProjectDir(destinationDir);
 			if (destinationDir.exists()) {
 				if (destinationDir.isDirectory()) {

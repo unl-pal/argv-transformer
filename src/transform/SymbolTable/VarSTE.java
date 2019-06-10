@@ -11,6 +11,7 @@ public class VarSTE extends SymbolSTE {
 		super(name, SymbolType.VAR_STE);
 		this.type = type;
 		resolvable = true;
+		fieldVar = false;
 	}
 	
 	public Type getVarType() {

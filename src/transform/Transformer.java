@@ -44,7 +44,6 @@ public class Transformer {
 		while (itr.hasNext()) {
 			
 			File file = (File) itr.next();
-			
 			try {
 				String source = new String(Files.readAllBytes(file.toPath()));
 				ASTParser parser = ASTParser.newParser(AST.JLS3);
@@ -55,17 +54,17 @@ public class Transformer {
 				AST ast = cu.getAST();
 				ASTRewrite rewriter = ASTRewrite.create(ast);
 
-				SymbolTableVisitor symTableVisitor = new SymbolTableVisitor();
-				cu.accept(symTableVisitor);
-				SymbolTable rootScope = symTableVisitor.getRoot();
-
-				TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope);
-				cu.accept(typeTableVisitor);
-				TypeTable typeTable = typeTableVisitor.getTypeTable();
-
 				TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
 				cu.accept(typeCollectVisitor);
 				TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
+				
+				SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
+				cu.accept(symTableVisitor);
+				SymbolTable rootScope = symTableVisitor.getRoot();
+
+				TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
+				cu.accept(typeTableVisitor);
+				TypeTable typeTable = typeTableVisitor.getTypeTable();
 
 				TypeCheckingVisitor typeCheckingVisitor = new TypeCheckingVisitor(rootScope, rewriter, typeTable,
 						typeChecker);
@@ -82,6 +81,8 @@ public class Transformer {
 				out.close();
 
 			} catch (Exception e) {
+				e.printStackTrace();
+				
 				System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
 			}
 		}

@@ -3,6 +3,7 @@ package download;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +60,11 @@ public class Downloader {
 	 * 
 	 * @param projectCount
 	 * @param projectDirPath
+	 * @throws IOException 
 	 */
-	public void downloadProjects(int projectCount, String projectDirPath) {
+	public void downloadProjects(int projectCount, String projectDirPath) throws IOException {
+		FileWriter csvWriter = new FileWriter("filtered-dataset.csv");  
+
 		File projectDir = new File(projectDirPath);
 		
 		if (projectDir.exists()) {
@@ -95,6 +99,8 @@ public class Downloader {
 				destinationDir.mkdirs();
 			}
 			downloadedGitProjects.add(p);
+
+			csvWriter.append(p.getArchiveURL().toString() + "\n");
 			if (download) {
 				try {
 					p.downloadTo(destinationDir);
@@ -106,6 +112,8 @@ public class Downloader {
 			}
 			
 		}
+		
+		csvWriter.flush();
 	}
 	
 	public List<GitProject> getDownloadedGitProjects(){

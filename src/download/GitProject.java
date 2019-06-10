@@ -3,6 +3,7 @@ package download;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -64,6 +65,7 @@ public class GitProject {
 	 * @param randomForestOrg
 	 * @param scoreBasedUtl
 	 * @param randomForestUtl
+	 * @throws IOException 
 	 */
 	public GitProject(String repository,
 			String language,
@@ -81,7 +83,7 @@ public class GitProject {
 			boolean scoreBasedOrg,
 			boolean randomForestOrg,
 			boolean scoreBasedUtl,
-			boolean randomForestUtl) {
+			boolean randomForestUtl) throws IOException {
 		this.repository = repository;
 		this.language = language;
 		this.architecture = architecture;
@@ -272,6 +274,7 @@ public class GitProject {
 	 * @throws IOException
 	 */
 	public void downloadTo(File destination) throws IOException {
+
 		if (!destination.isDirectory()) {
 			throw new IOException("Destination location "+destination.getPath()+" is not a directory");
 		}
@@ -280,6 +283,7 @@ public class GitProject {
 		}
 
 		URL url = getArchiveURL();
+
 		Logger.defaultLogger.enterContext("DOWNLOAD");
 		try {
 			Logger.defaultLogger.logln("Downloading "+url.toString(),1);

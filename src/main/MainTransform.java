@@ -31,10 +31,10 @@ public class MainTransform {
 	public static void main(String[] args) throws IOException {
 		printWriter = new PrintWriter(System.out, true);
 		
-		String source = "/home/MariaPaquin/project/database";
+		String source = "database";
 		File srcDir = new File(source);
 
-		String dest = "/home/MariaPaquin/project/benchmarks";
+		String dest = "benchmarks";
 		File destDir = new File(dest);
 
 		if (destDir.exists()) {

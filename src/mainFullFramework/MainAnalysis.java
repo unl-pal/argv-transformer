@@ -51,7 +51,7 @@ public class MainAnalysis {
 
 	
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
-			String downloadDir, String tempDir, String benchmarkDir) throws IOException {
+			String downloadDir, String benchmarkDir) throws IOException {
 		
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
@@ -94,7 +94,7 @@ public class MainAnalysis {
 
 		Logger.defaultLogger.exitContext("FILTER");
 		
-		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, tempDir);
+		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "temp");
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 				
@@ -134,11 +134,11 @@ public class MainAnalysis {
 		
 		long endTime = System.currentTimeMillis();
 		
-		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, tempDir, benchmarkDir);
+		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, "temp", benchmarkDir);
 
 		Logger.defaultLogger.enterContext("JPF");
 
-		runJPF(successfulCompilesAfterTransform);
+	//	runJPF(successfulCompilesAfterTransform);
 		
 		Logger.defaultLogger.exitContext("JPF");
 

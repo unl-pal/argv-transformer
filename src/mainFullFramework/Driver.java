@@ -23,7 +23,6 @@ public class Driver {
 	
 	public static void main(String[] args) {
 		File configFile = new File("config.properties");
-		
 		try {
 			FileReader reader = new FileReader(configFile);
 			Properties props = new Properties();
@@ -33,13 +32,12 @@ public class Driver {
 			int minLoc = Integer.parseInt(props.getProperty("minLoc", DEFAULT_MIN_LOC));
 			int maxLoc = Integer.parseInt(props.getProperty("maxLoc", DEFAULT_MAX_LOC));
 			String downloadDir = props.getProperty("downloadDir");
-			String tempDir = props.getProperty("tempDir");
 			String benchmarkDir = props.getProperty("benchmarkDir");
 			String filename = props.getProperty("csv");
+
 			int	debugLevel = Integer.parseInt(props.getProperty("debugLevel", "-1"));
 
-			MainAnalysis.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, tempDir, benchmarkDir);
-			
+			MainAnalysis.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);

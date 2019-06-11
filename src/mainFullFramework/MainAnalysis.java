@@ -94,7 +94,7 @@ public class MainAnalysis {
 
 		Logger.defaultLogger.exitContext("FILTER");
 		
-		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "../temp");
+		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "temp");
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 				
@@ -134,7 +134,7 @@ public class MainAnalysis {
 		
 		long endTime = System.currentTimeMillis();
 		
-		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, "../temp", benchmarkDir);
+		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, "temp", benchmarkDir);
 
 		Logger.defaultLogger.enterContext("JPF");
 

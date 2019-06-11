@@ -347,7 +347,7 @@ public class GitProject {
 		addDirectory(projectDir);
 	}
 	
-	public void addFile(File f) {
+	private void addFile(File f) {
 		files.add(f);
 	}
 	

@@ -14,20 +14,29 @@ import logging.Logger;
 /**
  * Class for downloading GitHub projects that meet filter specifications.
  * 
- *  @author mariapaquin
+ * @author mariapaquin
  */
 public class Downloader {
-	
+
 	private String filename;
 	private List<GitProject> suitableGitProjects;
-	private List<GitProject> downloadedGitProjects;
+	private List<GitProject> gitProjects;
 	private ProjectDatabase database;
-	
+
+	/**
+	 * Create a new Downloader.
+	 * 
+	 * @param filename Filename of CSV in the format of dataset.csv from RepoReapers
+	 */
 	public Downloader(String filename) {
 		this.filename = filename;
-		downloadedGitProjects = new ArrayList<GitProject>();
+		gitProjects = new ArrayList<GitProject>();
 	}
-	
+
+	/**
+	 * Create a new project database and add all projects from a CSV file to this
+	 * database.
+	 */
 	public void createProjectDatabase() {
 		database = new ProjectDatabase();
 		FileReader in = null;
@@ -35,8 +44,7 @@ public class Downloader {
 		try {
 			in = new FileReader(filename);
 		} catch (FileNotFoundException e) {
-			
-			System.err.println("File not found: "+filename);
+			System.err.println("File not found: " + filename);
 			System.exit(1);
 		}
 
@@ -48,25 +56,30 @@ public class Downloader {
 		}
 	}
 
+	/**
+	 * Filter GitHub projects according to the filtering criteria.
+	 * 
+	 * @param minLinesOfCode Minimum number of lines of code for projects.
+	 * @param maxLinesOfCode Maximum number of lines of code for projects.
+	 */
 	public void filterProjects(int minLoc, int maxLoc) {
-		JavaProjectFilter filter = new JavaProjectFilter(minLoc,maxLoc,0);
-		suitableGitProjects = database.getFilteredList(filter);		
+		JavaProjectFilter filter = new JavaProjectFilter(minLoc, maxLoc, 0);
+		suitableGitProjects = database.getFilteredList(filter);
 	}
 
-
 	/**
-	 * Downloads each project to a newly created or existing 
-	 * directory with the path projectDirPath. 
+	 * Download each project to a newly created or existing directory with the path
+	 * projectDirPath.
 	 * 
-	 * @param projectCount
-	 * @param projectDirPath
-	 * @throws IOException 
+	 * @param projectCount   Number of projects to download.
+	 * @param projectDirPath Directory to download the projects in.
+	 * @throws IOException
 	 */
 	public void downloadProjects(int projectCount, String projectDirPath) throws IOException {
-		FileWriter csvWriter = new FileWriter("filtered-dataset.csv");  
+		FileWriter csvWriter = new FileWriter("filtered-dataset.csv");
 
 		File projectDir = new File(projectDirPath);
-		
+
 		if (projectDir.exists()) {
 			if (!projectDir.isDirectory()) {
 				System.err.println("ERROR: " + projectDirPath + " exists but is not a directory. Aborting.");
@@ -75,8 +88,8 @@ public class Downloader {
 		} else {
 			projectDir.mkdir();
 		}
-		
-		if(suitableGitProjects.size() < projectCount) {
+
+		if (suitableGitProjects.size() < projectCount) {
 			System.err.println("Result set smaller than user specified project count. Aborting.");
 			System.exit(1);
 		}
@@ -98,7 +111,7 @@ public class Downloader {
 			} else {
 				destinationDir.mkdirs();
 			}
-			downloadedGitProjects.add(p);
+			gitProjects.add(p);
 
 			csvWriter.append(p.getArchiveURL().toString() + ",\n");
 			if (download) {
@@ -106,17 +119,22 @@ public class Downloader {
 					p.downloadTo(destinationDir);
 				} catch (IOException e) {
 					Logger.errorLogger.logln(p + " does not exist! Skipping.", 0);
-					downloadedGitProjects.remove(p);
+					gitProjects.remove(p);
 					continue;
 				}
 			}
-			
 		}
-		
+
 		csvWriter.flush();
+		csvWriter.close();
 	}
-	
-	public List<GitProject> getDownloadedGitProjects(){
-		return downloadedGitProjects;
+
+	/**
+	 * Get collection of all GitProjects.
+	 * 
+	 * @return A collection of GitProjects.
+	 */
+	public List<GitProject> getGitProjects() {
+		return gitProjects;
 	}
 }

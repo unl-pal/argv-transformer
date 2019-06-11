@@ -15,7 +15,6 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
-import logging.Logger;
 import transform.SymbolTable.SymbolTable;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
@@ -29,21 +28,36 @@ public class Transformer {
 	private ArrayList<File> files;
 	private File directory;
 
+	/**
+	 * Create a new Transformer. 
+	 * 
+	 * @param files A list of files to transform. 
+	 */
 	public Transformer(ArrayList<File> files) {
 		this.files = files;
 	}
 
+	/**
+	 * Create a new Transformer. 
+	 * 
+	 * @param directory A directory containing files to transform. 
+	 */
 	public Transformer(File directory) {
 		this.directory = directory;
 	}
 
+	/**
+	 * Transform each file by editing its AST structure then 
+	 * applying the changes to the source file. 
+	 */
 	public void transformFiles() {
-		Iterator itr = (directory != null ? 
+		Iterator<File> itr = (directory != null ? 
 				FileUtils.iterateFiles(directory, new String[] { "java" }, true): files.iterator());
 		
 		while (itr.hasNext()) {
 			
 			File file = (File) itr.next();
+
 			try {
 				String source = new String(Files.readAllBytes(file.toPath()));
 				ASTParser parser = ASTParser.newParser(AST.JLS3);
@@ -80,9 +94,7 @@ public class Transformer {
 				out.flush();
 				out.close();
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				
+			} catch (Exception e) {				
 				System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
 			}
 		}

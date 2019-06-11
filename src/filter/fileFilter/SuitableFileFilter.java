@@ -8,6 +8,13 @@ import java.util.List;
 import download.GitProject;
 import sourceAnalysis.AnalyzedFile;
 
+/**
+ * Class to find files suitable for symbolic execution.
+ * (i.e. classes that contain methods suitable for symbolic execution).
+ * 
+ * @author mariapaquin
+ *
+ */
 public class SuitableFileFilter {
 	private ArrayList<File> spfSuitableFiles;
 	private int spfSuitableMethods;
@@ -22,16 +29,14 @@ public class SuitableFileFilter {
 	public ArrayList<File> getSuitableFiles() {
 		return spfSuitableFiles;
 	}
-	
+
 	public int getSuitableMethodCount() {
 		return spfSuitableMethods;
 	}
 
 	public void findSuitableFiles() {
 		for (GitProject project : gitProjects) {
-		//	project.collectFilesInProject();	
 			ArrayList<File> files = project.getFiles();
-
 			for (File file : files) {
 				try {
 					SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
@@ -43,7 +48,6 @@ public class SuitableFileFilter {
 							spfSuitableFiles.add(file);
 						}
 					} catch (Exception e) {
-						// what exceptions happen here?
 						continue;
 					}
 				} catch (IOException e) {

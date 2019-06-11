@@ -227,8 +227,10 @@ public class ProgramUnderTest {
 		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/jpf-core/build/jpf-classes.jar";
 		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/jpf-symbc/build/jpf-symbc-classes.jar";
 
-		Scene.v().setSootClassPath(rt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
-				+ ":" + classPath_jpf_core_classes_jar);
+		Scene.v().setSootClassPath(rt_jar + ":" + examples_build);
+		
+//		Scene.v().setSootClassPath(rt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
+//				+ ":" + classPath_jpf_core_classes_jar);
 
 		SootClass sootClass = Scene.v().forceResolve(className, SootClass.BODIES);
 

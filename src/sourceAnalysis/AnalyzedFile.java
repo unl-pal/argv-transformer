@@ -5,12 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Used to track AnalyzedMethods in each file.
- * Keep track of how many methods (if any)
- * are suitable for symbolic execution.
- *
- * Also track here whether the file has a 
- * main method. 
+ * Represents a class file with a collection of AnalyzedMethods. 
+ * Used to track how many methods are suitable for symbolic execution.
+ * 
+ * @author mariapaquin
+ * 
  */
 public class AnalyzedFile {
 	
@@ -77,5 +76,4 @@ public class AnalyzedFile {
 	public boolean isSymbolicSuitable() {
 		return (getSpfSuitableMethodCount() > 0);
 	}
-
 }

@@ -3,25 +3,20 @@ package sourceAnalysis;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 /**
- * Keeps track of whether the method is 
- * symbolic suitable, and other relevant 
- * information.
- * 
- * 	(1) Has only integer parameters
- * 	(2) Has integer operations
- * 		-> if so, how many?
+ * This class represents a method in a Java class. It's used to 
+ * keep track of whether the method is symbolic suitable, and 
+ * other relevant information.
+ *
+ * @author mariapaquin
  *
  */
 public class AnalyzedMethod {
 
 	private String name;
 	private MethodDeclaration node;
-	
 	private boolean hasParameters;
-	
 	private boolean hasOnlyIntParameters;
 	private int intParameterCount;
-	
 	private boolean hasIntOperations;
 	private int intOperationCount;
 

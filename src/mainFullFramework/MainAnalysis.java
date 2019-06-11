@@ -28,20 +28,20 @@ import transform.Transformer;
 
 /**
  *
- * Given a CSV of GitHub repositories (as gathered by RepoReaper),
- * this program will select suitable repositories, download them,
- * search for classes containing SPF-suitable methods, and transform 
- * suitable classes into compilable, benchmark programs. The resulting 
- * benchmarks are run with Java PathFinder. 
+ * Given a CSV of GitHub repositories (as gathered by RepoReaper), this program
+ * will select suitable repositories, download them, search for classes
+ * containing SPF-suitable methods, and transform suitable classes into
+ * compilable, benchmark programs. The resulting benchmarks are run with Java
+ * PathFinder.
  * 
  * @author mariapaquin
  *
  */
 
 public class MainAnalysis {
-	
+
 	private static boolean secondCompile = false;
-	private	static FileWriter fileWriter;
+	private static FileWriter fileWriter;
 	private static PrintWriter printWriter;
 	private static int totalNumFiles;
 	private static int totalNumMethods;
@@ -49,36 +49,47 @@ public class MainAnalysis {
 	private static int compilableSpfSuitableMethodCount;
 	private static int compilableAfterTransformSpfSuitableMethodCount;
 
-	
+	/**
+	 * 
+	 * 
+	 * @param filename
+	 * @param projectCount
+	 * @param minLoc
+	 * @param maxLoc
+	 * @param debugLevel
+	 * @param downloadDir
+	 * @param benchmarkDir
+	 * @throws IOException
+	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
 			String downloadDir, String benchmarkDir) throws IOException {
-		
+
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
-		
+
 		totalNumFiles = 0;
 		totalNumMethods = 0;
 		totalSpfSuitableMethods = 0;
 		compilableSpfSuitableMethodCount = 0;
 		compilableAfterTransformSpfSuitableMethodCount = 0;
-		
+
 		Logger.defaultLogger.setDebugLevel(debugLevel);
 		Logger.defaultLogger.enterContext("MAIN");
-		
+
 		Downloader downloader = new Downloader(filename);
-		
+
 		downloader.createProjectDatabase();
 		downloader.filterProjects(minLoc, maxLoc);
 		downloader.downloadProjects(projectCount, downloadDir);
 
 		long startTime = System.currentTimeMillis();
-		
+
 		List<GitProject> projects = downloader.getGitProjects();
-		
+
 		for (GitProject project : projects) {
 			project.collectFilesInProject();
 		}
-		
+
 		GeneralFileInfo generalInfo = new GeneralFileInfo(projects);
 		totalNumFiles = generalInfo.countFiles();
 		totalNumMethods = generalInfo.countMethods();
@@ -87,79 +98,80 @@ public class MainAnalysis {
 
 		SuitableFileFilter filter = new SuitableFileFilter(projects);
 		filter.findSuitableFiles();
-		
+
 		totalSpfSuitableMethods = filter.getSuitableMethodCount();
 
 		ArrayList<File> spfSuitableFiles = filter.getSuitableFiles();
 
 		Logger.defaultLogger.exitContext("FILTER");
-		
+
 		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "temp");
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-				
-		for(File file: copiedFiles) {
+
+		for (File file : copiedFiles) {
 			Logger.defaultLogger.enterContext("COMPILING");
-			
+
 			boolean success = compile(file);
-			if(success) {
-				compilableSpfSuitableMethodCount += countCompilableSpfSuitableMethodsInFile(file);
+			if (success) {
+				compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
 				successfulCompiles.add(file);
-			}else {
+			} else {
 				unsuccessfulCompiles.add(file);
 			}
 			Logger.defaultLogger.exitContext("COMPILING");
 		}
-				
+
 		secondCompile = true;
-		
+
 		Transformer transformer = new Transformer(unsuccessfulCompiles);
 		transformer.transformFiles();
 
-	
 		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
-				
-		for(File file: copiedFiles) {
+
+		for (File file : copiedFiles) {
 			Logger.defaultLogger.enterContext("SECOND COMPILING");
 			boolean success = compile(file);
-			if(success) {
-				compilableAfterTransformSpfSuitableMethodCount += countCompilableSpfSuitableMethodsInFile(file);
+			if (success) {
+				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
 				successfulCompilesAfterTransform.add(file);
-			}else {
+			} else {
 				unsuccessfulCompilesAfterTransform.add(file);
 			}
 			Logger.defaultLogger.exitContext("SECOND COMPILING");
 		}
-		
+
 		long endTime = System.currentTimeMillis();
-		
-		ArrayList<File> benchmarks = copyFiles(successfulCompilesAfterTransform, "temp", benchmarkDir);
+
+		copyFiles(successfulCompilesAfterTransform, "temp", benchmarkDir);
 
 		Logger.defaultLogger.enterContext("JPF");
 
-	//	runJPF(successfulCompilesAfterTransform);
-		
+		// runJPF(successfulCompilesAfterTransform);
+
 		Logger.defaultLogger.exitContext("JPF");
 
-		System.out.println(""
-				+ "\nTotal files: " + totalNumFiles
-				+ "\nTotal methods: " + totalNumMethods
-				+ "\nFiles suitable for SPF: " + spfSuitableFiles.size()
-				+ "\nMethods suitable for SPF: " + totalSpfSuitableMethods
-				+ "\nFiles with successful compile: " + successfulCompiles.size()
+		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
+				+ "\nFiles suitable for SPF: " + spfSuitableFiles.size() + "\nMethods suitable for SPF: "
+				+ totalSpfSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
 				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
 				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
 				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
-				+ "\n\nTime: " + (endTime - startTime)
-				);
-		
+				+ "\n\nTime: " + (endTime - startTime));
+
 		Logger.defaultLogger.exitContext("MAIN");
 
 		printWriter.close();
 	}
-	
-	private static int countCompilableSpfSuitableMethodsInFile(File file) {
+
+	/**
+	 * Count the number of SPF suitable methods in the file.
+	 * 
+	 * @param file File.
+	 * @return Count of SPF suitable methods.
+	 */
+	private static int countSpfSuitableMethods(File file) {
 		int spfSuitableMethods = 0;
 		try {
 			SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
@@ -173,15 +185,13 @@ public class MainAnalysis {
 	}
 
 	/**
-	 * for each file in successfulCompilesAfterTransform - determine which methods
-	 * are suitable for SPF - for each suitable method - insert/replace main - count
-	 * the number of parameters - insert a call to the method from main - check for
-	 * loops - create jpf config file - run jpf config file
+	 * Run JPF on each file in a list of files.
+	 * 
+	 * @param files Files to run JPF. 
 	 */
 	private static void runJPF(ArrayList<File> files) {
 		for (File file : files) {
 			try {
-//				System.out.println(file.getAbsolutePath());
 				ProgramUnderTest sut = new ProgramUnderTest(file);
 				String className = sut.getClassName();
 
@@ -189,7 +199,6 @@ public class MainAnalysis {
 
 				Method[] methods = sut.getMethods();
 				for (Method method : methods) {
-//					System.out.println(method.getName());
 					String fullMethodName = className + "." + method.getName();
 
 					// skip main
@@ -209,8 +218,7 @@ public class MainAnalysis {
 					boolean boundSearch = sut.checkForLoops(method.getName());
 
 					sut.insertMethodCall(method, numIntArgs);
-					System.out.println(className);
-		//			EmbeddedJPF.runJPF(className, fullMethodName, numIntArgs, boundSearch);
+					// EmbeddedJPF.runJPF(className, fullMethodName, numIntArgs, boundSearch);
 
 					compilableAfterTransformSpfSuitableMethodCount++;
 				}
@@ -221,35 +229,29 @@ public class MainAnalysis {
 				e.printStackTrace();
 				// TODO Auto-generated catch block
 				continue;
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
 			}
 		}
 
 	}
 
 	/**
-	 * Copy files that are suitable for SPF analysis to benchmark program
-	 * directory. Keep the directory structure until we change the names of the
-	 * classes, as some class names might be the same.
+	 * Copy files a list of files from a source directory to a target directory.
 	 * 
-	 * @param spfSuitableFiles
-	 * @param downloadToDir 
-	 * @param tempDir 
-	 * @param directory
-	 * @return 
+	 * @param files Files to copy.
+	 * @param fromDir Source directory.
+	 * @param toDir Target directory.
+	 * @return The list of copied files (updated paths).  
 	 */
-	private static ArrayList<File> copyFiles(ArrayList<File> spfSuitableFiles, String fromDir, String toDir) {
+	private static ArrayList<File> copyFiles(ArrayList<File> files, String fromDir, String toDir) {
 
 		ArrayList<File> copiedFiles = new ArrayList<File>();
-		for (File file : spfSuitableFiles) {
+		for (File file : files) {
 			String newPath = file.getAbsolutePath().replace(fromDir, toDir);
 
 			File destinationFile = new File(newPath);
 			destinationFile.getParentFile().mkdirs();
 			try {
-				if(destinationFile.exists()) {
+				if (destinationFile.exists()) {
 					destinationFile.delete();
 				}
 				FileUtils.copyFile(file, destinationFile);
@@ -260,54 +262,58 @@ public class MainAnalysis {
 		}
 		return copiedFiles;
 	}
-	
 
+	/**
+	 * Compile the file, putting the .class file in build directory.
+	 * 
+	 * @param file File to compile
+	 * @return true if the file compiled successfully, false otherwise.
+	 * @throws IOException
+	 */
 	private static boolean compile(File file) throws IOException {
 		File buildDir = new File("build");
-
 		if (buildDir.exists()) {
 			try {
-				org.apache.commons.io.FileUtils.forceDelete(buildDir);
+				FileUtils.forceDelete(buildDir);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
-		org.apache.commons.io.FileUtils.forceMkdir(buildDir);
 
-		// TODO: check if build exists, if it doesn't, create it as a directory
+		FileUtils.forceMkdir(buildDir);
+
 		String command = "javac -g -d build/ " + file;
 
-//		if(secondCompile) {
-			printWriter.println("-----------------------------------------------------------------------------------------------");
-			printWriter.println(command);
-
-//		}
 		boolean success = false;
 		try {
 			Process pro = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
 			pro.waitFor();
-//			if(secondCompile) {
+
+			// - during development -
+			// keeping track of why files still would not compile after transformation
+			if (secondCompile) {
 				printCompileExitStatus(command + " stdout:", pro.getInputStream());
 				printCompileExitStatus(command + " stderr:", pro.getErrorStream());
-//			}
-	//		Logger.defaultLogger.logln("Compiled file " + file.getPath() +" with exit status " + pro.exitValue(), 1);
+			}
+
+			Logger.defaultLogger.logln("Compiled file " + file.getPath() + " with exit status " + pro.exitValue(), 1);
+
 			if (pro.exitValue() == 0) {
 				success = true;
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return success;
 	}
-	
+
 	private static void printCompileExitStatus(String cmd, InputStream ins) throws Exception {
 		String line = null;
 		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 		while ((line = in.readLine()) != null) {
-			 printWriter.println(line);
+			printWriter.println(line);
 		}
 	}
 }

@@ -7,20 +7,18 @@ import java.util.Properties;
 
 /**
  *
- * Driver for MainAnalysis.
- * Parse command line arguments and start the analysis. 
+ * Driver for MainAnalysis. Parse command line arguments and start the analysis.
  * 
  * @author mariapaquin
  *
  */
 
 public class Driver {
-	
+
 	private final static String DEFAULT_MIN_LOC = "100";
 	private final static String DEFAULT_MAX_LOC = "10000";
 	private final static String DEFAULT_PROJECT_COUNT = "1";
 
-	
 	public static void main(String[] args) {
 		File configFile = new File("config.properties");
 		try {
@@ -34,8 +32,7 @@ public class Driver {
 			String downloadDir = props.getProperty("downloadDir");
 			String benchmarkDir = props.getProperty("benchmarkDir");
 			String filename = props.getProperty("csv");
-
-			int	debugLevel = Integer.parseInt(props.getProperty("debugLevel", "-1"));
+			int debugLevel = Integer.parseInt(props.getProperty("debugLevel", "-1"));
 
 			MainAnalysis.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
 		} catch (IOException exp) {

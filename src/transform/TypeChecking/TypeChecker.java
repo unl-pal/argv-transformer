@@ -10,20 +10,41 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
-
+/**
+ * Class to track what types are in the local type system.
+ * In the current implementation, we are only allowing primitive types. 
+ * In subsequent versions, we will also allow types from the JDK, inner 
+ * class types and the class itself. 
+ * 
+ * @author mariapaquin
+ *
+ */
 public class TypeChecker {
 	private Set<String> javaImportTypes;
 	private Set<String> classTypes;
 
+	/**
+	 * Create a new TypeChecker.
+	 */
 	public TypeChecker() {
 		javaImportTypes = new HashSet<String>();
 		classTypes = new HashSet<String>();
 	}
 	
+	/**
+	 * Add a type to the list of Java class Libraries imported. 
+	 * 
+	 * @param name Name of the Java class. 
+	 */
 	public void addJavaImportType(String name) {
 		javaImportTypes.add(name);
 	}
 	
+	/**
+	 * Add a class type to the list of resolvable class types. 
+	 * 
+	 * @param name Name of the class. 
+	 */
 	public void addClassType(String name) {
 		classTypes.add(name);
 	}
@@ -75,6 +96,13 @@ public class TypeChecker {
 				typeName.equals("Void"));
 	}
 	
+	/**
+	 * Check whether the type is allowed (according to 
+	 * specifications defined in the method).
+	 * 
+	 * @param type
+	 * @return true if the type is allowed, false otherwise.
+	 */
 	public boolean allowedType(Type type) {
 		if(type == null) return false;
 		
@@ -84,6 +112,7 @@ public class TypeChecker {
 		
 		if(type.isParameterizedType()) {
 			boolean allowedArgTypes = true;
+			@SuppressWarnings("unchecked")
 			List<Type> typeArgs = ((ParameterizedType) type).typeArguments();
 			for(Type typeArg : typeArgs) {
 				if(!allowedType(typeArg)) {
@@ -98,10 +127,6 @@ public class TypeChecker {
 //				|| classTypes.contains(type.toString())
 //				|| inJavaLangLibrary(type));
 		return (type.isPrimitiveType());
-	}
-	
-	public boolean checkStaticTypes(String name) {
-		return (javaImportTypes.contains(name) || classTypes.contains(name));
 	}
 	
 }

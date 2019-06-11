@@ -47,8 +47,8 @@ public class Transformer {
 	}
 
 	/**
-	 * Transform each file by editing its AST structure then 
-	 * applying the changes to the source file. 
+	 * Transform each file by editing its AST structure then apply
+	 * modifications to the source file. 
 	 */
 	public void transformFiles() {
 		Iterator<File> itr = (directory != null ? 

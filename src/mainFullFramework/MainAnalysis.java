@@ -13,13 +13,13 @@ import java.util.List;
 import org.apache.bcel.classfile.Method;
 
 import org.apache.bcel.generic.ClassGenException;
+import org.apache.commons.io.FileUtils;
 
 import download.Downloader;
 import download.GitProject;
 import filter.fileFilter.GeneralFileInfo;
 import filter.fileFilter.SuitableFileFilter;
 import filter.fileFilter.SymbolicSuitableMethodFinder;
-import gov.nasa.jpf.util.FileUtils;
 import jpf.EmbeddedJPF;
 import jpf.ProgramUnderTest;
 import logging.Logger;
@@ -73,7 +73,7 @@ public class MainAnalysis {
 
 		long startTime = System.currentTimeMillis();
 		
-		List<GitProject> projects = downloader.getDownloadedGitProjects();
+		List<GitProject> projects = downloader.getGitProjects();
 		
 		for (GitProject project : projects) {
 			project.collectFilesInProject();
@@ -230,7 +230,7 @@ public class MainAnalysis {
 	}
 
 	/**
-	 * TEMPORARY Copy files that are suitable for SPF analysis to benchmark program
+	 * Copy files that are suitable for SPF analysis to benchmark program
 	 * directory. Keep the directory structure until we change the names of the
 	 * classes, as some class names might be the same.
 	 * 
@@ -245,13 +245,14 @@ public class MainAnalysis {
 		ArrayList<File> copiedFiles = new ArrayList<File>();
 		for (File file : spfSuitableFiles) {
 			String newPath = file.getAbsolutePath().replace(fromDir, toDir);
+
 			File destinationFile = new File(newPath);
 			destinationFile.getParentFile().mkdirs();
 			try {
 				if(destinationFile.exists()) {
 					destinationFile.delete();
 				}
-				FileUtils.copyFile(file, destinationFile.getParentFile());
+				FileUtils.copyFile(file, destinationFile);
 				copiedFiles.add(destinationFile);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -286,10 +287,10 @@ public class MainAnalysis {
 		try {
 			Process pro = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
 			pro.waitFor();
-			if(secondCompile) {
+//			if(secondCompile) {
 				printCompileExitStatus(command + " stdout:", pro.getInputStream());
 				printCompileExitStatus(command + " stderr:", pro.getErrorStream());
-			}
+//			}
 	//		Logger.defaultLogger.logln("Compiled file " + file.getPath() +" with exit status " + pro.exitValue(), 1);
 			if (pro.exitValue() == 0) {
 				success = true;

@@ -96,7 +96,6 @@ public class ProgramUnderTest {
 	
 
 	private void setupModClass() throws ClassNotFoundException {
-		System.out.println(className);
 			currClass = Repository.lookupClass(className);
 			modClass = new ClassGen(currClass);
 			modMethods = modClass.getMethods();
@@ -105,7 +104,6 @@ public class ProgramUnderTest {
 	
 
 	public void insertMain() {
-
 		for (int i = 0; i < modMethods.length; i++) {
 			if (modMethods[i].getName().equals("main")) {
 				modClass.removeMethod(modMethods[i]);
@@ -131,7 +129,7 @@ public class ProgramUnderTest {
 		try {
 			JavaClass newClass = modClass.getJavaClass();
 			String newClassName = className.replace(".", "/");
-			newClass.dump("build/" + newClassName + ".class");
+			newClass.dump("bin/" + newClassName + ".class");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -207,7 +205,8 @@ public class ProgramUnderTest {
 		try {
 			JavaClass newClass = modClass.getJavaClass();
 			String newClassName = className.replace(".", "/");
-			newClass.dump("build/examples/" + newClassName + ".class");
+
+			newClass.dump("bin/" + newClassName + ".class");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -222,11 +221,11 @@ public class ProgramUnderTest {
 	 */
 	public boolean checkForLoops(String methodName) {
 		
-		String examples_build = "build/";
+		String examples_build = "bin/";
 		String rt_jar = "/usr/java/jdk1.8.0_161/jre/lib/rt.jar";
 		
-		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/MLForSA_Project/jpf-core/build/jpf-classes.jar";
-		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/MLForSA_Project/jpf-symbc/build/jpf-symbc-classes.jar";
+		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/jpf-core/build/jpf-classes.jar";
+		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/jpf-symbc/build/jpf-symbc-classes.jar";
 
 		Scene.v().setSootClassPath(rt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
 				+ ":" + classPath_jpf_core_classes_jar);

@@ -109,6 +109,17 @@ public class MainAnalysis {
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 
+//		File buildDir = new File("bin");
+//		if (buildDir.exists()) {
+//			try {
+//				FileUtils.forceDelete(buildDir);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+
+//		FileUtils.forceMkdir(buildDir);
+		
 		for (File file : copiedFiles) {
 			Logger.defaultLogger.enterContext("COMPILING");
 
@@ -129,7 +140,7 @@ public class MainAnalysis {
 
 		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
-
+		
 		for (File file : copiedFiles) {
 			Logger.defaultLogger.enterContext("SECOND COMPILING");
 			boolean success = compile(file);
@@ -148,7 +159,9 @@ public class MainAnalysis {
 
 		Logger.defaultLogger.enterContext("JPF");
 
-		// runJPF(successfulCompilesAfterTransform);
+		// TODO: Need to copy class files from build to bin. 
+		// Soot looks for them here. 
+		runJPF(successfulCompilesAfterTransform);
 
 		Logger.defaultLogger.exitContext("JPF");
 
@@ -188,8 +201,9 @@ public class MainAnalysis {
 	 * Run JPF on each file in a list of files.
 	 * 
 	 * @param files Files to run JPF. 
+	 * @throws IOException 
 	 */
-	private static void runJPF(ArrayList<File> files) {
+	private static void runJPF(ArrayList<File> files) throws IOException {
 		for (File file : files) {
 			try {
 				ProgramUnderTest sut = new ProgramUnderTest(file);
@@ -218,7 +232,8 @@ public class MainAnalysis {
 					boolean boundSearch = sut.checkForLoops(method.getName());
 
 					sut.insertMethodCall(method, numIntArgs);
-					// EmbeddedJPF.runJPF(className, fullMethodName, numIntArgs, boundSearch);
+					
+					EmbeddedJPF.runJPF(className, fullMethodName, numIntArgs, boundSearch);
 
 					compilableAfterTransformSpfSuitableMethodCount++;
 				}
@@ -271,18 +286,8 @@ public class MainAnalysis {
 	 * @throws IOException
 	 */
 	private static boolean compile(File file) throws IOException {
-		File buildDir = new File("build");
-		if (buildDir.exists()) {
-			try {
-				FileUtils.forceDelete(buildDir);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 
-		FileUtils.forceMkdir(buildDir);
-
-		String command = "javac -g -d build/ " + file;
+		String command = "javac -g -d bin/ " + file;
 
 		boolean success = false;
 		try {

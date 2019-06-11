@@ -28,7 +28,7 @@ public class EmbeddedJPF {
 		// create the config file
 		String[] jpfArgs = {"-log"};
 		Config config = JPF.createConfig(jpfArgs);
-		config.setProperty("classpath", "${SPF_Transformations}/build");
+		config.setProperty("classpath", "bin");
 		config.setProperty("target", fileClassName);
 
 		// don't stop after finding fist error
@@ -63,11 +63,11 @@ public class EmbeddedJPF {
 	}
 	
 	public static void main(String[] args) {
-		try {
-			runJPF("SPFTest", "SPFTest.test", 2, false);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			runJPF("SPFTest", "SPFTest.test", 2, false);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 }

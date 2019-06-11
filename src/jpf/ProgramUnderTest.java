@@ -31,7 +31,16 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.toolkits.graph.LoopNestTree;
-
+/**
+ * Used to prepare and program for symbolic execution with JPF.
+ * 
+ * - Check for main method
+ * - Check for loops (may need to bound search)
+ * - Inserts method call from main to method(s) to be run with JPF.
+ * 
+ * @author mariapaquin
+ *
+ */
 public class ProgramUnderTest {
 
 	private File file;
@@ -44,20 +53,13 @@ public class ProgramUnderTest {
 	private Method[] modMethods;
 	private ConstantPoolGen constantPool;
 
-	
 	public ProgramUnderTest(File file) throws ClassNotFoundException {
-		
 		this.file = file;
 		className = file.getName().replace(".java", "");
-		
 		checkForPackages();
 		setupModClass();
 	}
 
-	/**
-	 * Determine if the class is in a package, so we can keep track
-	 * of the full method name. 
-	 */
 	private void checkForPackages() {
 		Scanner fileScan;
 		try {
@@ -92,27 +94,16 @@ public class ProgramUnderTest {
 		}
 	}
 	
-	/**
-	 * Set up for BCEL
-	 * @throws ClassNotFoundException 
-	 */
+
 	private void setupModClass() throws ClassNotFoundException {
 		System.out.println(className);
 			currClass = Repository.lookupClass(className);
 			modClass = new ClassGen(currClass);
 			modMethods = modClass.getMethods();
 			constantPool = modClass.getConstantPool();
-
-
 	}
 	
-	/**
-	 * Delete the main method (if it exists). Add a main method to the .class file.
-	 * 
-	 * This is so we can add a method call directly to the SUT. The SUT might not be
-	 * reachable from the existing main method (i.e. no direct/indirect call to
-	 * SUT). This also better isolates the timed execution of the SUT.
-	 */
+
 	public void insertMain() {
 
 		for (int i = 0; i < modMethods.length; i++) {
@@ -150,8 +141,8 @@ public class ProgramUnderTest {
 	 * Insert a call to the SUT from main.
 	 * This will be the only method call from main. 
 	 * 
-	 * @param curr_method
-	 * @param numIntArgs
+	 * @param curr_method 
+	 * @param numIntArgs Number of integer parameters.
 	 */
 	public void insertMethodCall(Method curr_method, int numIntArgs) {
 
@@ -225,10 +216,9 @@ public class ProgramUnderTest {
 
 	/**
 	 * Determine if there are any loops in the method under test.
-	 * If there are, the search depth limit will need to be set.
 	 * 
 	 * @param methodName
-	 * @return boolean, if any loops were found
+	 * @return true if at least one loop was found, false otherwise.
 	 */
 	public boolean checkForLoops(String methodName) {
 		
@@ -266,7 +256,6 @@ public class ProgramUnderTest {
 		if (numLoops != 0) {
 			return true;
 		}
-		
 		return false;
 	}
 	
@@ -274,7 +263,6 @@ public class ProgramUnderTest {
 	public int getNumArgs(Method method) {
 		MethodGen methodGen = new MethodGen(method, modClass.getClassName(), constantPool);
 		int numArgs = methodGen.getArgumentNames().length;
-		
 		return numArgs;
 	}
 
@@ -309,32 +297,25 @@ public class ProgramUnderTest {
 	
 	public String[] getArgNames(Method method) {
 		MethodGen methodGen = new MethodGen(method, modClass.getClassName(), constantPool);
-
 		return methodGen.getArgumentNames();
 	}
 	
 	public String getSignature(Method method) {
 		MethodGen methodGen = new MethodGen(method, modClass.getClassName(), constantPool);
-
 		return methodGen.getSignature();
 	}
 	
 	public LocalVariableGen[] getLocalVariables(Method method) {
 		MethodGen methodGen = new MethodGen(method, modClass.getClassName(), constantPool);
-
 		return methodGen.getLocalVariables();
 	}
 
 	public int getTotalInstructions(Method method) {
-		
 		MethodGen methodGen = new MethodGen(method, modClass.getClassName(), constantPool);
 		InstructionList il = methodGen.getInstructionList();
-
 		return il.getLength();
 	}
 	
-	
-	// Getters
 	public Method[] getMethods() {
 		return modMethods;
 	}

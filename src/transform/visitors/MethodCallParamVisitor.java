@@ -1,22 +1,25 @@
 package transform.visitors;
 
-import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import transform.SymbolTable.ClassSTE;
 import transform.SymbolTable.MethodSTE;
 import transform.SymbolTable.SymbolTable;
-import transform.TypeChecking.TypeChecker;
-
+/**
+ * Visitor class to update method calls after modification 
+ * to method declaration parameters.
+ * 
+ * (Not yet implemented). 
+ * 
+ * @author mariapaquin
+ *
+ */
 public class MethodCallParamVisitor extends ASTVisitor {
 	private SymbolTable root;
 	private Stack<SymbolTable> symbolTableStack;
@@ -31,7 +34,6 @@ public class MethodCallParamVisitor extends ASTVisitor {
 	public ASTRewrite getRewriter() {
 		return rewriter;
 	}
-	
 
 	@Override
 	public boolean visit(CompilationUnit node) {
@@ -69,5 +71,4 @@ public class MethodCallParamVisitor extends ASTVisitor {
 	public void endVisit(MethodDeclaration node) {
 		symbolTableStack.pop();
 	}
-
 }

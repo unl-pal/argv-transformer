@@ -4,26 +4,20 @@ import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
@@ -34,8 +28,8 @@ import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -43,7 +37,6 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -53,7 +46,13 @@ import transform.SymbolTable.SymbolTable;
 import transform.SymbolTable.VarSTE;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
-
+/**
+ * Visitor class for creating a type table. The type table maps 
+ * nodes in the AST to their types. 
+ * 
+ * @author mariapaquin
+ *
+ */
 public class TypeTableVisitor extends ASTVisitor {
 	private TypeTable table;
 	private SymbolTable root;
@@ -61,6 +60,12 @@ public class TypeTableVisitor extends ASTVisitor {
 	private TypeChecker typeChecker;
 	private AST ast;
 
+	/**
+	 * Create a new TypeTableVisitor.
+	 * 
+	 * @param root The root SymbolTable (scope) of the AST.
+	 * @param typeChecker The TypeChecker defining resolvable types. 
+	 */
 	public TypeTableVisitor(SymbolTable root, TypeChecker typeChecker) {
 		table = new TypeTable();
 		symbolTableStack = new Stack<SymbolTable>();
@@ -68,6 +73,10 @@ public class TypeTableVisitor extends ASTVisitor {
 		this.typeChecker = typeChecker;
 	}
 
+	/**
+	 * 
+	 * @return TypeTable
+	 */
 	public TypeTable getTypeTable() {
 		return table;
 	}
@@ -168,17 +177,16 @@ public class TypeTableVisitor extends ASTVisitor {
 		return true;
 	}
 
-	// @Override
-	// public boolean visit(ForStatement node) {
-	//
-	// return true;
-	// }
-	//
-	//
-	// @Override
-	// public void endVisit(ForStatement node) {
-	//
-	// }
+	/*
+	 * @Override public boolean visit(ForStatement node) {
+	 * 
+	 * return true; }
+	 * 
+	 * 
+	 * @Override public void endVisit(ForStatement node) {
+	 * 
+	 * }
+	 */
 
 	@Override
 	public void endVisit(InfixExpression node) {
@@ -228,11 +236,12 @@ public class TypeTableVisitor extends ASTVisitor {
 			}
 		}
 
-//		if (op == Operator.PLUS) {
-//			if (isStringType(lhsType) || isStringType(rhsType)) {
-//				table.setNodeType(node, ast.newSimpleType(ast.newSimpleName("String")));
-//			}
-//		}
+		// string concatenation
+		/*
+		 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
+		 * isStringType(rhsType)) { table.setNodeType(node,
+		 * ast.newSimpleType(ast.newSimpleName("String"))); } }
+		 */
 
 	}
 
@@ -254,10 +263,7 @@ public class TypeTableVisitor extends ASTVisitor {
 		}
 
 		SymbolTable currScope = symbolTableStack.peek();
-		// System.out.println(currScope.getId() + " - " + currScope.getTable());
-
 		String name = getMethodSTEName(node);
-
 		MethodSTE sym = currScope.getMethodSTE(name);
 		SymbolTable newScope = sym.getSymbolTable();
 		symbolTableStack.push(newScope);
@@ -305,7 +311,8 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(NullLiteral node) {
-
+		// TODO: Need to differentiate between 
+		// null literal and unresolvable type
 		return true;
 	}
 
@@ -357,12 +364,11 @@ public class TypeTableVisitor extends ASTVisitor {
 		// TODO: For this we will have to change the scope
 		// to node.getQualifier() and set the type to
 		// the type of node.getName();
-		SymbolTable currScope = symbolTableStack.peek();
-		Type type = null;
-		VarSTE sym = currScope.getVarSTE(node.getQualifier().toString());
-		if (sym != null) {
-			type = sym.getVarType();
-		}
+		/*
+		 * SymbolTable currScope = symbolTableStack.peek(); Type type = null; VarSTE sym
+		 * = currScope.getVarSTE(node.getQualifier().toString()); if (sym != null) {
+		 * type = sym.getVarType(); }
+		 */
 
 		return true;
 	}
@@ -424,6 +430,7 @@ public class TypeTableVisitor extends ASTVisitor {
 		Type type = node.getType();
 		table.setNodeType(node, type);
 
+		@SuppressWarnings("unchecked")
 		List<VariableDeclarationFragment> fragments = node.fragments();
 		for (VariableDeclarationFragment fragment : fragments) {
 			table.setNodeType(fragment, type);
@@ -434,6 +441,7 @@ public class TypeTableVisitor extends ASTVisitor {
 	private String getMethodSTEName(MethodDeclaration node) {
 		String name = node.getName().getIdentifier();
 
+		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		for (SingleVariableDeclaration param : parameters) {
 			Type type = param.getType();

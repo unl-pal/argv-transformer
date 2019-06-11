@@ -25,10 +25,10 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -50,15 +51,11 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
-import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jface.text.BadLocationException;
@@ -66,16 +63,18 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-import com.google.common.reflect.TypeParameter;
-
-import sun.reflect.generics.tree.ReturnType;
 import transform.SymbolTable.ClassSTE;
 import transform.SymbolTable.MethodSTE;
 import transform.SymbolTable.SymbolTable;
 import transform.SymbolTable.VarSTE;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
-
+/**
+ * Visitor class used to find and perform necessary code transformations.
+ * 
+ * @author mariapaquin
+ *
+ */
 public class TypeCheckingVisitor extends ASTVisitor {
 
 	private ASTRewrite rewriter;
@@ -91,6 +90,14 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	private String currMethod;
 	private ArrayList<VarSTE> initializedVars;
 
+	/**
+	 * 
+	 * @param root
+	 * @param rewriter
+	 * @param typeTable
+	 * @param typeChecker
+	 * @throws IOException
+	 */
 	public TypeCheckingVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker)
 			throws IOException {
 		this.root = root;
@@ -114,14 +121,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		} else if (node.getLocationInParent() == WhileStatement.EXPRESSION_PROPERTY) {
 			replaceWithRandomBoolean(node);
 		} else if (node.getLocationInParent() == Assignment.LEFT_HAND_SIDE_PROPERTY) {
-
+			// TODO
 		} else if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
-
+			// TODO
 		}
-
-		// lhs/rhs of assignment
-		// lhs/rhs of infix expression
-		// expr of if statement
 	}
 	
 	@Override
@@ -172,7 +175,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				typeTable.setNodeType(parent, null);
 			}
 		} else if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
-			
+			// TODO
 		}
 	}
 	
@@ -333,10 +336,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(FieldDeclaration node) {
-//		Type type = node.getType();
-//		if (!typeChecker.allowedType(type)) {
 			rewriter.remove(node, null);
-//		}
 		return false;
 	}
 	
@@ -381,6 +381,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithRandomFloat(rhs);
 				typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.FLOAT));
 			}
+			
 			// else replace according to the location in parent
 		} else if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
 			Type type = typeTable.getNodeType(node.getParent());
@@ -412,18 +413,16 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
 				}
 			}
+			
 		} else if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
 			replaceWithRandomBoolean(node);
 			typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+			
 		} else if (node.getLocationInParent() == WhileStatement.EXPRESSION_PROPERTY) {
 			replaceWithRandomBoolean(node);
 			typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 		}
 
-		// rhs of assignment
-		// return statement
-		// if statement expression
-		// for statement expression
 		resetInfixNodeType(node);
 	}
 
@@ -477,9 +476,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		}
 		
 		initializedVars = new ArrayList<VarSTE>();
-
-		String name = getMethodSTEName(node);
 		
+		String name = getMethodSTEName(node);
 		currMethod = name;
 		SymbolTable currScope = symbolTableStack.peek();
 		MethodSTE sym = currScope.getMethodSTE(name);
@@ -515,6 +513,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		}
 	}
 	
+	// stmt rule
 	@Override
 	public boolean visit(MethodInvocation node) {
 		// TODO: Check that the method contains unresolvable types before we remove it.
@@ -537,12 +536,15 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	 */
 	@Override
 	public void endVisit(MethodInvocation node) {
+		
 		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
 			replaceWithRandomBoolean(node);
 			return;
+			
 		} else if (node.getLocationInParent() == WhileStatement.EXPRESSION_PROPERTY) {
 			replaceWithRandomBoolean(node);
 			return;
+			
 		} else if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
 			Expression lhs = ((Assignment) node.getParent()).getLeftHandSide();
 			Type type = typeTable.getNodeType(lhs);
@@ -561,14 +563,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				typeTable.setNodeType(lhs, null);
 			}
 
-			/**
-			 * if the method is used to initialize a variable, try to replace the method
-			 * according to the type of the variable. if the variable is not an integer,
-			 * boolean, or double type, remove the initialization and mark the type of the
-			 * variable as null in the type table so we don't try to use it later.
-			 */
 		} else if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
-
 			VariableDeclarationFragment parent = (VariableDeclarationFragment) node.getParent();
 			Type type = typeTable.getNodeType(parent);
 
@@ -585,6 +580,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				rewriter.remove(node, null);
 				typeTable.setNodeType(parent, null);
 			}
+			
 		} else if (node.getLocationInParent() == CastExpression.EXPRESSION_PROPERTY) {
 			CastExpression parent = (CastExpression) node.getParent();
 			Type type = parent.getType();
@@ -599,30 +595,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithRandomFloat(node);
 				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
 			}
-
-		} else if (node.getLocationInParent() == ReturnStatement.EXPRESSION_PROPERTY) {
-			ASTNode parent = node.getParent();
-			while (!(parent instanceof MethodDeclaration)) {
-				parent = parent.getParent();
-			}
-
-			Type returnType = ((MethodDeclaration) parent).getReturnType2();
-
-			if (returnType != null) {
-				if (isIntegerTypeCode(returnType)) {
-					replaceWithRandomInteger(node);
-				} else if (isBooleanTypeCode(returnType)) {
-					replaceWithRandomBoolean(node);
-				} else if (isFloatingPointTypeCode(returnType)) {
-					replaceWithRandomFloat(node);
-				}
-				// else {
-				// ClassInstanceCreation ci = ast.newClassInstanceCreation();
-				// ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
-				// rewriter.replace(node, ci, null);
-				// }
-			}
-		}
+		} 
 	}
 	
 
@@ -630,6 +603,23 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	public boolean visit(NormalAnnotation node) {
 		rewriter.remove(node, null);
 		return false;
+	}
+	
+	@Override
+	public boolean visit(PostfixExpression node) {
+		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
+			Type type = typeTable.getNodeType(node);
+			if ((type == null) || !typeChecker.allowedType(type)) {
+				ASTNode parent = node.getParent(); // ExpressionStatement
+				if (parent.getParent() instanceof Block) {
+					rewriter.remove(parent, null);
+				} else {
+					rewriter.replace(parent, ast.newBlock(), null);
+				}
+				return false;
+			}
+		}
+		return true;
 	}
 
 	
@@ -649,21 +639,6 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		}
 	}
 	
-	public boolean visit(PostfixExpression node) {
-		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
-			Type type = typeTable.getNodeType(node);
-			if ((type == null) || !typeChecker.allowedType(type)) {
-				ASTNode parent = node.getParent(); // ExpressionStatement
-				if (parent.getParent() instanceof Block) {
-					rewriter.remove(parent, null);
-				} else {
-					rewriter.replace(parent, ast.newBlock(), null);
-				}
-				return false;
-			}
-		}
-		return true;
-	}
 	
 	@Override
 	public void endVisit(QualifiedName node) {
@@ -724,28 +699,23 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithRandomFloat(node.getExpression());
 			}
 			
-//			else if (isStringType(returnType)) {
-//				rewriter.replace(node.getExpression(), ast.newStringLiteral(), null);
-//			}
+			/*
+			 * else if (isStringType(returnType)) { rewriter.replace(node.getExpression(),
+			 * ast.newStringLiteral(), null); }
+			 */
 			
-			// else {
-			// ClassInstanceCreation ci = ast.newClassInstanceCreation();
-			// ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
-			// rewriter.replace(node.getExpression(), ci, null);
-			// }
+			/*
+			 * else { ClassInstanceCreation ci = ast.newClassInstanceCreation();
+			 * ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
+			 * rewriter.replace(node.getExpression(), ci, null); }
+			 */
 		}
 		return;
 	}
-
-	/**
-	 * Here we will check the correct scope for the 
-	 * variable name. If it is a field variable, 
-	 * declare and instantiate the variable at the 
-	 * beginning of the current method. 
-	 */
+	
 	@Override
-	public void endVisit(SimpleName node) {
-
+	public boolean visit(SimpleName node) {
+		
 		if(node.getLocationInParent() == TypeDeclaration.NAME_PROPERTY ||
 				node.getLocationInParent() == MethodDeclaration.NAME_PROPERTY ||
 				node.getLocationInParent() == SingleVariableDeclaration.NAME_PROPERTY ||
@@ -755,7 +725,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				node.getLocationInParent() == SimpleType.NAME_PROPERTY ||
 				node.getLocationInParent() == ImportDeclaration.NAME_PROPERTY ||
 				node.getLocationInParent() == org.eclipse.jdt.core.dom.TypeParameter.NAME_PROPERTY){
-			return;
+			return true;
 		}
 		
 		String name = node.getIdentifier();
@@ -799,7 +769,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					randUsedInProgram = true;
 					initializedVars.add(sym);
 					
-				}else if(isFloatingPointTypeCode(type)) {
+				} else if(isFloatingPointTypeCode(type)) {
 					
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 					randMethodInvocation.setExpression(ast.newSimpleName("rand"));
@@ -871,6 +841,12 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			}
 			
 		}
+		return true;
+	}
+
+	@Override
+	public void endVisit(SimpleName node) {
+		Type type = typeTable.getNodeType(node);
 
 		if (typeChecker.allowedType(type)) {
 			return;
@@ -910,10 +886,6 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		return false;
 	}
 	
-	/**
-	 * Removing every SuperMethodInvocation according to 
-	 * its location in the parent node.
-	 */
 	@Override
 	public void endVisit(SuperMethodInvocation node) {
 		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
@@ -998,6 +970,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	
 	
 	public boolean visit(SwitchStatement node) {
+		// TODO
 		if (node.getParent() instanceof Block) {
 			rewriter.remove(node, null);
 		} else {
@@ -1163,6 +1136,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	private String getMethodSTEName(MethodDeclaration node) {
 		String name = node.getName().getIdentifier();
 
+		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		for (SingleVariableDeclaration param : parameters) {
 			Type type = param.getType();
@@ -1286,11 +1260,12 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			}
 		}
 
-//		if (op == Operator.PLUS) {
-//			if (isStringType(lhsType) || isStringType(rhsType)) {
-//				typeTable.setNodeType(node, ast.newSimpleType(ast.newSimpleName("String")));
-//			}
-//		}
+		// string concatenation
+		/*
+		 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
+		 * isStringType(rhsType)) { typeTable.setNodeType(node,
+		 * ast.newSimpleType(ast.newSimpleName("String"))); } }
+		 */
 		
 	}
 
@@ -1302,7 +1277,6 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		try {
 			String source = new String(Files.readAllBytes(file.toPath()));
 			Document document = new Document(source);
-
 			TextEdit edits = rewriter.rewriteAST(document, null);
 			edits.apply(document);
 			System.out.println(document.get());

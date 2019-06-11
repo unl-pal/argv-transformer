@@ -3,11 +3,9 @@ package transform.visitors;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -22,12 +20,22 @@ import transform.SymbolTable.MethodSTE;
 import transform.SymbolTable.SymbolTable;
 import transform.SymbolTable.VarSTE;
 import transform.TypeChecking.TypeChecker;
-
+/**
+ * Visitor class used to build the symbol table.
+ * 
+ * @author mariapaquin
+ *
+ */
 public class SymbolTableVisitor extends ASTVisitor {
 	private SymbolTable root;
 	private Stack<SymbolTable> symbolTableStack;
 	private TypeChecker typeChecker;
 
+	/**
+	 * Create a new SymbolTableVisitor.
+	 * 
+	 * @param typeChecker TypeChecker defining allowed types.
+	 */
 	public SymbolTableVisitor(TypeChecker typeChecker) {
 		root = new SymbolTable(null);
 		symbolTableStack = new Stack<SymbolTable>();
@@ -48,6 +56,7 @@ public class SymbolTableVisitor extends ASTVisitor {
 	public boolean visit(FieldDeclaration node) {
 		SymbolTable currScope = symbolTableStack.peek();
 		Type type = node.getType();
+		@SuppressWarnings("unchecked")
 		List<VariableDeclarationFragment> fragments = node.fragments();
 		for (VariableDeclarationFragment fragment : fragments) {
 			VarSTE sym = new VarSTE(fragment.getName().getIdentifier(), type);
@@ -74,18 +83,14 @@ public class SymbolTableVisitor extends ASTVisitor {
 		SymbolTable currScope = symbolTableStack.peek();
 		// System.out.println("adding " + node.getName() + " to scope " +
 
-		// Create a SymbolTableElement, add it to currScope
 		String name = getMethodSTEName(node);
-
 		MethodSTE sym = new MethodSTE(name);
-
 		Type returnType = node.getReturnType2();
 		sym.setReturnType(returnType);
-
+		
 		currScope.put(name, sym);
-		// Create a new scope (SymbolTable), and push it onto the stack
+		
 		SymbolTable newScope = new SymbolTable(currScope);
-
 		sym.setSymbolTable(newScope);
 		symbolTableStack.push(newScope);
 
@@ -140,6 +145,7 @@ public class SymbolTableVisitor extends ASTVisitor {
 		Type type = node.getType();
 		SymbolTable currScope = symbolTableStack.peek();
 
+		@SuppressWarnings("unchecked")
 		List<VariableDeclarationFragment> fragments = node.fragments();
 		for (VariableDeclarationFragment fragment : fragments) {
 			VarSTE sym = new VarSTE(fragment.getName().getIdentifier(), type);
@@ -156,8 +162,6 @@ public class SymbolTableVisitor extends ASTVisitor {
 		}
 
 		SymbolTable currScope = symbolTableStack.peek();
-		// System.out.println("adding " + node.getName() + " to scope " +
-		// currScope.getId());
 
 		ClassSTE sym = new ClassSTE(node.getName().getIdentifier());
 		String name = node.getName().getIdentifier();
@@ -182,6 +186,7 @@ public class SymbolTableVisitor extends ASTVisitor {
 		Type type = node.getType();
 		SymbolTable currScope = symbolTableStack.peek();
 
+		@SuppressWarnings("unchecked")
 		List<VariableDeclarationFragment> fragments = node.fragments();
 
 		for (VariableDeclarationFragment fragment : fragments) {
@@ -195,6 +200,7 @@ public class SymbolTableVisitor extends ASTVisitor {
 	private String getMethodSTEName(MethodDeclaration node) {
 		String name = node.getName().getIdentifier();
 
+		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		for (SingleVariableDeclaration param : parameters) {
 			Type type = param.getType();

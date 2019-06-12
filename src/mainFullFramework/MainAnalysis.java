@@ -246,7 +246,6 @@ public class MainAnalysis {
 				continue;
 			}
 		}
-
 	}
 
 	/**

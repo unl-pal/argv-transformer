@@ -11,6 +11,7 @@ public class AssignmentRhsSub_T {
 		if(b != null) {
 			int y;
 			y = (int) Debug.makeSymbolicInteger("y");
+
 			if(x == y) {
 				
 			}

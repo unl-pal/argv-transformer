@@ -1,6 +1,11 @@
 package jpf;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import org.apache.bcel.classfile.Method;
+import org.apache.bcel.generic.ClassGenException;
 
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
@@ -28,8 +33,13 @@ public class EmbeddedJPF {
 		// create the config file
 		String[] jpfArgs = {"-log"};
 		Config config = JPF.createConfig(jpfArgs);
+		
 		config.setProperty("classpath", "bin");
+//		config.setProperty("classpath", "/home/MariaPaquin/jpf-symbc/build/examples");
 		config.setProperty("target", fileClassName);
+		
+		// prints path conditions
+		config.setProperty("symbolic.debug", "true");
 
 		// don't stop after finding fist error
 		config.setProperty("search.multiple_errors", "true");
@@ -63,11 +73,59 @@ public class EmbeddedJPF {
 	}
 	
 	public static void main(String[] args) {
-//		try {
-//			runJPF("SPFTest", "SPFTest.test", 2, false);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			runJPF(new File("./src/tests/NumericExample.java"));
+
+//			runJPF("demo.NumericExample", "demo.NumericExample.test", 2, false);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
+	/**
+	 * Run JPF on each file in a list of files.
+	 * 
+	 * @param files Files to run JPF. 
+	 * @throws IOException 
+	 */
+	private static void runJPF(File file) throws IOException {
+			try {
+				ProgramUnderTest sut = new ProgramUnderTest(file);
+				String className = sut.getClassName();
+
+				sut.insertMain();
+
+				Method[] methods = sut.getMethods();
+				for (Method method : methods) {
+					String fullMethodName = className + "." + method.getName();
+
+					// skip main
+					if (method.getName().equals("main") || method.getName().equals("<init>")
+							|| method.getName().equals("<clinit>") || method.getName().contains("access$")) {
+						continue;
+					}
+
+					// check suitability of method for SPF analysis
+					int numArgs = sut.getNumArgs(method);
+					int numIntArgs = sut.getNumIntArgs(method);
+
+					if (numIntArgs == 0 || numIntArgs != numArgs) {
+						continue;
+					}
+
+					boolean boundSearch = sut.checkForLoops(method.getName());
+
+					sut.insertMethodCall(method, numIntArgs);
+					
+					EmbeddedJPF.runJPF(className, fullMethodName, numIntArgs, boundSearch);
+
+				}
+			} catch (ClassGenException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				// TODO Auto-generated catch block
+			}
+		}
 }

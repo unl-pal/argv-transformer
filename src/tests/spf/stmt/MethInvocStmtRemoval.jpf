@@ -1,9 +1,0 @@
-target=transform.stmt.MethInvocStmtRemoval
-
-classpath=${jpf-symbc}/build/examples
-sourcepath=${jpf-symbc}/src/examples
-
-symbolic.method=transform.stmt.MethInvocStmtRemoval.test(sym)
-
-listener=gov.nasa.jpf.symbc.SymbolicListener
-symbolic.debug=true

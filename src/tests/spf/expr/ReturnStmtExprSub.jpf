@@ -1,0 +1,9 @@
+target=transform.expr.ReturnStmtExprSub
+
+classpath=${jpf-symbc}/build/examples
+sourcepath=${jpf-symbc}/src/examples
+
+symbolic.method=transform.stmt.ReturnStmtExprSub.test()
+
+listener=gov.nasa.jpf.symbc.SymbolicListener
+symbolic.debug=true

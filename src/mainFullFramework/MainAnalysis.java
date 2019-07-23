@@ -10,9 +10,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.bcel.classfile.Method;
-
-import org.apache.bcel.generic.ClassGenException;
 import org.apache.commons.io.FileUtils;
 
 import download.Downloader;
@@ -20,8 +17,6 @@ import download.GitProject;
 import filter.fileFilter.GeneralFileInfo;
 import filter.fileFilter.SuitableFileFilter;
 import filter.fileFilter.SymbolicSuitableMethodFinder;
-import jpf.EmbeddedJPF;
-import jpf.ProgramUnderTest;
 import logging.Logger;
 import sourceAnalysis.AnalyzedFile;
 import transform.Transformer;
@@ -31,8 +26,7 @@ import transform.Transformer;
  * Given a CSV of GitHub repositories (as gathered by RepoReaper), this program
  * will select suitable repositories, download them, search for classes
  * containing SPF-suitable methods, and transform suitable classes into
- * compilable, benchmark programs. The resulting benchmarks are run with Java
- * PathFinder.
+ * compilable, benchmark programs. 
  * 
  * @author mariapaquin
  *
@@ -50,8 +44,6 @@ public class MainAnalysis {
 	private static int compilableAfterTransformSpfSuitableMethodCount;
 
 	/**
-	 * 
-	 * 
 	 * @param filename
 	 * @param projectCount
 	 * @param minLoc
@@ -66,7 +58,7 @@ public class MainAnalysis {
 
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
-
+		
 		totalNumFiles = 0;
 		totalNumMethods = 0;
 		totalSpfSuitableMethods = 0;
@@ -105,20 +97,9 @@ public class MainAnalysis {
 
 		Logger.defaultLogger.exitContext("FILTER");
 
-		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "temp");
+		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "suitablePrgms");
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-
-//		File buildDir = new File("bin");
-//		if (buildDir.exists()) {
-//			try {
-//				FileUtils.forceDelete(buildDir);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-
-//		FileUtils.forceMkdir(buildDir);
 		
 		for (File file : copiedFiles) {
 			Logger.defaultLogger.enterContext("COMPILING");
@@ -142,7 +123,7 @@ public class MainAnalysis {
 		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
 		
 		for (File file : copiedFiles) {
-			Logger.defaultLogger.enterContext("SECOND COMPILING");
+			Logger.defaultLogger.enterContext("RECOMPILING");
 			boolean success = compile(file);
 			if (success) {
 				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
@@ -150,20 +131,12 @@ public class MainAnalysis {
 			} else {
 				unsuccessfulCompilesAfterTransform.add(file);
 			}
-			Logger.defaultLogger.exitContext("SECOND COMPILING");
+			Logger.defaultLogger.exitContext("RECOMPILING");
 		}
 
 		long endTime = System.currentTimeMillis();
 
-		copyFiles(successfulCompilesAfterTransform, "temp", benchmarkDir);
-
-		Logger.defaultLogger.enterContext("JPF");
-
-		// TODO: Need to copy class files from build to bin. 
-		// Soot looks for them here. 
-		runJPF(successfulCompilesAfterTransform);
-
-		Logger.defaultLogger.exitContext("JPF");
+		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
 
 		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
 				+ "\nFiles suitable for SPF: " + spfSuitableFiles.size() + "\nMethods suitable for SPF: "
@@ -198,58 +171,7 @@ public class MainAnalysis {
 	}
 
 	/**
-	 * Run JPF on each file in a list of files.
-	 * 
-	 * @param files Files to run JPF. 
-	 * @throws IOException 
-	 */
-	private static void runJPF(ArrayList<File> files) throws IOException {
-		for (File file : files) {
-			try {
-				ProgramUnderTest sut = new ProgramUnderTest(file);
-				String className = sut.getClassName();
-
-				sut.insertMain();
-
-				Method[] methods = sut.getMethods();
-				for (Method method : methods) {
-					String fullMethodName = className + "." + method.getName();
-
-					// skip main
-					if (method.getName().equals("main") || method.getName().equals("<init>")
-							|| method.getName().equals("<clinit>") || method.getName().contains("access$")) {
-						continue;
-					}
-
-					// check suitability of method for SPF analysis
-					int numArgs = sut.getNumArgs(method);
-					int numIntArgs = sut.getNumIntArgs(method);
-
-					if (numIntArgs == 0 || numIntArgs != numArgs) {
-						continue;
-					}
-
-					boolean boundSearch = sut.checkForLoops(method.getName());
-
-					sut.insertMethodCall(method, numIntArgs);
-					
-					EmbeddedJPF.runJPF(className, fullMethodName, numIntArgs, boundSearch);
-
-					compilableAfterTransformSpfSuitableMethodCount++;
-				}
-			} catch (ClassGenException e) {
-				e.printStackTrace();
-				continue;
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				// TODO Auto-generated catch block
-				continue;
-			}
-		}
-	}
-
-	/**
-	 * Copy files a list of files from a source directory to a target directory.
+	 * Copy a list of files from a source directory to a target directory.
 	 * 
 	 * @param files Files to copy.
 	 * @param fromDir Source directory.
@@ -278,7 +200,7 @@ public class MainAnalysis {
 	}
 
 	/**
-	 * Compile the file, putting the .class file in build directory.
+	 * Compile the file, putting the .class file in build directory if successful.
 	 * 
 	 * @param file File to compile
 	 * @return true if the file compiled successfully, false otherwise.
@@ -286,7 +208,7 @@ public class MainAnalysis {
 	 */
 	private static boolean compile(File file) throws IOException {
 
-		String command = "javac -g -d bin/ " + file;
+		String command = "javac -g -d bin/ -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/ " + file;
 
 		boolean success = false;
 		try {

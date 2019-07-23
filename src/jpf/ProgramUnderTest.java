@@ -45,6 +45,8 @@ public class ProgramUnderTest {
 
 	private File file;
 	private String className;
+	private String fullClassName;
+	private String packageName;
 	
 	private InstructionList il_main;
 	private MethodGen methodGen_main;
@@ -85,7 +87,11 @@ public class ProgramUnderTest {
 			fileScan.close();
 
 			if (packageFound) {
-				className = packageName + "." + className;
+				this.packageName = packageName;
+				fullClassName = packageName + "." + className;
+			} else {
+				fullClassName = className;
+				this.packageName = "-";
 			}
 
 		} catch (FileNotFoundException e) {
@@ -96,7 +102,7 @@ public class ProgramUnderTest {
 	
 
 	private void setupModClass() throws ClassNotFoundException {
-			currClass = Repository.lookupClass(className);
+			currClass = Repository.lookupClass(fullClassName);
 			modClass = new ClassGen(currClass);
 			modMethods = modClass.getMethods();
 			constantPool = modClass.getConstantPool();
@@ -117,7 +123,7 @@ public class ProgramUnderTest {
 
 		// MethodGen is template class for building up a method
 		methodGen_main = new MethodGen(Const.ACC_PUBLIC | Const.ACC_STATIC, Type.VOID,
-				new Type[] { new ArrayType(Type.STRING, 1) }, new String[] { "args" }, "main", className, il_main,
+				new Type[] { new ArrayType(Type.STRING, 1) }, new String[] { "args" }, "main", fullClassName, il_main,
 				constantPool);
 
 		modClass.addMethod(methodGen_main.getMethod());
@@ -128,7 +134,7 @@ public class ProgramUnderTest {
 
 		try {
 			JavaClass newClass = modClass.getJavaClass();
-			String newClassName = className.replace(".", "/");
+			String newClassName = fullClassName.replace(".", "/");
 			newClass.dump("bin/" + newClassName + ".class");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -151,7 +157,7 @@ public class ProgramUnderTest {
 		il_main.dispose();
 
 		// create a constant pool reference to the method
-		MethodGen method_gen = new MethodGen(curr_method, className, constantPool);
+		MethodGen method_gen = new MethodGen(curr_method, fullClassName, constantPool);
 		constantPool.addMethodref(method_gen);
 		int method_ref = constantPool.lookupMethodref(method_gen);
 
@@ -170,7 +176,7 @@ public class ProgramUnderTest {
 
 		} else {
 			// new
-			int class_ref = constantPool.lookupClass(className);
+			int class_ref = constantPool.lookupClass(fullClassName);
 			il_main.append(new NEW(class_ref));
 
 			// duplicate the value on top of the stack
@@ -204,7 +210,7 @@ public class ProgramUnderTest {
 
 		try {
 			JavaClass newClass = modClass.getJavaClass();
-			String newClassName = className.replace(".", "/");
+			String newClassName = fullClassName.replace(".", "/");
 
 			newClass.dump("bin/" + newClassName + ".class");
 		} catch (IOException e) {
@@ -223,16 +229,16 @@ public class ProgramUnderTest {
 		
 		String examples_build = "bin/";
 		String rt_jar = "/usr/java/jdk1.8.0_161/jre/lib/rt.jar";
-		
-		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/jpf-core/build/jpf-classes.jar";
-		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/jpf-symbc/build/jpf-symbc-classes.jar";
+		String jfxrt_jar = "/usr/java/jdk1.8.0_161/jre/lib/ext/jfxrt.jar";
+		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/";
+		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/pathfinder/jpf-core/build/jpf-classes.jar";
 
-		Scene.v().setSootClassPath(rt_jar + ":" + examples_build);
+		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build);
 		
-//		Scene.v().setSootClassPath(rt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
-//				+ ":" + classPath_jpf_core_classes_jar);
+		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
+				+ ":" + classPath_jpf_core_classes_jar);
 
-		SootClass sootClass = Scene.v().forceResolve(className, SootClass.BODIES);
+		SootClass sootClass = Scene.v().forceResolve(fullClassName, SootClass.BODIES);
 
 		Scene.v().loadNecessaryClasses();
 		sootClass.setApplicationClass();
@@ -335,5 +341,13 @@ public class ProgramUnderTest {
 
 	public String getClassName() {
 		return className;
+	}
+	
+	public String getFullClassName() {
+		return fullClassName;
+	}
+	
+	public String getPackageName() {
+		return packageName;
 	}
 }

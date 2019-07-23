@@ -8,5 +8,15 @@ public class NumericExample {
 		} else {
 		}
 	}
+	
+//	public static void test(int a, int b) {
+//	int c = a*a %2;
+//	int d = 1/c;
+//	if (c > 0) {
+//		System.out.println();
+//	} else {
+//		System.out.println();
+//	}
+//}
 
 }

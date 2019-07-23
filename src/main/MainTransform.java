@@ -31,7 +31,7 @@ public class MainTransform {
 	public static void main(String[] args) throws IOException {
 		printWriter = new PrintWriter(System.out, true);
 		
-		String source = "database";
+		String source = "suitablePrgms";
 		File srcDir = new File(source);
 
 		String dest = "benchmarks";

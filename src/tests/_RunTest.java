@@ -31,7 +31,7 @@ class _RunTest {
 
 	@Test
 	public void testAllowedTypesCollector1() throws IOException, MalformedTreeException, BadLocationException {
-		File file = new File("./src/tests/NumericExample.java");
+		File file = new File("./src/tests/FieldDecStmtRemoval.java");
 		String source = new String(Files.readAllBytes(file.toPath()));
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(source.toCharArray());

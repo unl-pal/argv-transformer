@@ -234,10 +234,15 @@ public class TypeCheckingVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(CompilationUnit node) {
+		ImportDeclaration id = ast.newImportDeclaration();
+		id.setName(ast.newName("gov.nasa.jpf.symbc.Debug".split("\\.")));
+		ListRewrite listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
+		listRewrite.insertFirst(id, null);
+		
 		if (!randomImported && randUsedInProgram) {
-			ImportDeclaration id = ast.newImportDeclaration();
+			id = ast.newImportDeclaration();
 			id.setName(ast.newName("java.util.Random".split("\\.")));
-			ListRewrite listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
+			listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
 			listRewrite.insertFirst(id, null);
 		}
 	}
@@ -1027,20 +1032,30 @@ public class TypeCheckingVisitor extends ASTVisitor {
 
 	private void replaceWithRandomBoolean(Expression exp) {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
-		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
-		randMethodInvocation.setName(ast.newSimpleName("nextBoolean"));
+		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
+		randMethodInvocation.setName(ast.newSimpleName("makeSymbolicBoolean"));
+		randMethodInvocation.arguments().add(ast.newStringLiteral());
+
+//		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+//		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
+//		randMethodInvocation.setName(ast.newSimpleName("nextBoolean"));
 		rewriter.replace(exp, randMethodInvocation, null);
-		randUsedInMethod = true;
-		randUsedInProgram = true;
+//		randUsedInMethod = true;
+//		randUsedInProgram = true;
 	}
 
 	private void replaceWithRandomInteger(Expression exp) {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
-		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
-		randMethodInvocation.setName(ast.newSimpleName("nextInt"));
+		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
+		randMethodInvocation.setName(ast.newSimpleName("makeSymbolicInteger"));
+		randMethodInvocation.arguments().add(ast.newStringLiteral());
+		
+//		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+//		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
+//		randMethodInvocation.setName(ast.newSimpleName("nextInt"));
 		rewriter.replace(exp, randMethodInvocation, null);
-		randUsedInMethod = true;
-		randUsedInProgram = true;
+//		randUsedInMethod = true;
+//		randUsedInProgram = true;
 
 	}
 
@@ -1049,6 +1064,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
 		randMethodInvocation.setName(ast.newSimpleName("nextFloat"));
 		rewriter.replace(exp, randMethodInvocation, null);
+		
 		randUsedInMethod = true;
 		randUsedInProgram = true;
 	}

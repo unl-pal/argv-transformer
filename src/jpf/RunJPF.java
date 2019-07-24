@@ -77,7 +77,7 @@ public class RunJPF {
 			writer.flush();
 
 		} catch (Exception e) {
-			writer.append("ERR");
+			writer.append("-1");
 			writer.append("\n");
 			writer.flush();
 			
@@ -138,7 +138,7 @@ public class RunJPF {
 			writerGreen.flush();
 
 		} catch (Exception e) {
-			writerGreen.append("ERR");
+			writerGreen.append("-1");
 			writerGreen.append("\n");
 			writerGreen.flush();
 			

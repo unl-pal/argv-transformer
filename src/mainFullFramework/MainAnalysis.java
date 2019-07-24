@@ -65,6 +65,26 @@ public class MainAnalysis {
 		compilableSpfSuitableMethodCount = 0;
 		compilableAfterTransformSpfSuitableMethodCount = 0;
 
+		File benchmarks = new File(benchmarkDir);
+
+		if (benchmarks.exists()) {
+			try {
+				FileUtils.forceDelete(benchmarks);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		File suitablePrgms = new File("suitablePrgms");
+
+		if (suitablePrgms.exists()) {
+			try {
+				FileUtils.forceDelete(suitablePrgms);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		Logger.defaultLogger.setDebugLevel(debugLevel);
 		Logger.defaultLogger.enterContext("MAIN");
 

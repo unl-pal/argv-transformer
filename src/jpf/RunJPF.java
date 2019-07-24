@@ -1,5 +1,6 @@
 package jpf;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,6 +24,8 @@ public class RunJPF {
 	private static FileWriter writer;
 	private static FileWriter writerGreen;
 	private static FileWriter errorLog;
+	private static BufferedWriter outCacheHits;
+	private static BufferedWriter outInvocations;
 	private static String projectName;
 	private static String packageName;
 	private static String className;
@@ -142,6 +145,14 @@ public class RunJPF {
 			writerGreen.append("\n");
 			writerGreen.flush();
 			
+			outCacheHits.append("-1");
+			outCacheHits.append("\n");
+			outCacheHits.flush();
+			
+			outInvocations.append("-1");
+			outInvocations.append("\n");
+			outInvocations.flush();
+			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
 			errorLog.append("Pathfinder (Green) error:" + e + "\n\n");
@@ -152,18 +163,18 @@ public class RunJPF {
 	public static void main(String[] args) throws IOException {
 		
 		writer = new FileWriter("without-green.csv");
-		writer.append("project,package,class,method,time,constraints,invocations\n");
+		writer.append("project,package,class,method,time\n");
 		writer.flush();
 
 		writerGreen = new FileWriter("with-green.csv");
-		writerGreen.append("project,package,class,method,time,constraints,invocations\n");
+		writerGreen.append("project,package,class,method,time\n");
 		writerGreen.flush();
 		
 		errorLog = new FileWriter("errorLog.txt");
 		errorLog.flush();
 		
-		new FileWriter("CacheHits.txt");
-		new FileWriter("Invocations.txt");
+		outCacheHits = new BufferedWriter(new FileWriter("CacheHits.txt"));
+		outInvocations = new BufferedWriter(new FileWriter("Invocations.txt"));
 
 		String dirName = "/home/MariaPaquin/project/paclab-transformer.git/benchmarks/";
 		File dir = new File(dirName);

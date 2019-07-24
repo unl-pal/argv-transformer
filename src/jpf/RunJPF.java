@@ -66,23 +66,22 @@ public class RunJPF {
 		JPF jpf = new JPF(config);
 
 		try {
+			long startTime = System.currentTimeMillis();
+			jpf.run();
+			long endTime = System.currentTimeMillis();
+			
 			writer.append(projectName + ",");
 			writer.append(packageName + ",");
 			writer.append(className + ",");
 			writer.append(methodName + ",");
-			
-			long startTime = System.currentTimeMillis();
-			jpf.run();
-			long endTime = System.currentTimeMillis();
-
 			writer.append(String.valueOf(endTime - startTime));
 			writer.append("\n");
 			writer.flush();
 
 		} catch (Exception e) {
-			writer.append("-1");
-			writer.append("\n");
-			writer.flush();
+//			writer.append("-1");
+//			writer.append("\n");
+//			writer.flush();
 			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
@@ -126,24 +125,22 @@ public class RunJPF {
 		JPF jpf = new JPF(config);
 
 		try {
+			long startTime = System.currentTimeMillis();
+			jpf.run();
+			long endTime = System.currentTimeMillis();
 			
 			writerGreen.append(projectName + ",");
 			writerGreen.append(packageName + ",");
 			writerGreen.append(className + ",");
 			writerGreen.append(methodName + ",");
-			
-			long startTime = System.currentTimeMillis();
-			jpf.run();
-			long endTime = System.currentTimeMillis();
-
 			writerGreen.append(String.valueOf(endTime - startTime));
 			writerGreen.append("\n");
 			writerGreen.flush();
 
 		} catch (Exception e) {
-			writerGreen.append("-1");
-			writerGreen.append("\n");
-			writerGreen.flush();
+//			writerGreen.append("-1");
+//			writerGreen.append("\n");
+//			writerGreen.flush();
 			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");

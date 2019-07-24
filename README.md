@@ -19,10 +19,6 @@ Directories produced:
  * database - Directory of original GitHub repos. Useful now for developement, will be deleted in final version.
  * suitablePrgms - Directory containing suitable programs extracted from GitHub repos. This is where the transformation of the source code takes place.
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
- 
-The paths for rt.jar and jfxrt.jar need to be added to Soot's classpath in jpf.ProgramUnderTest.java. (Soot is used for loop detection in class file). 
-
-The path for jpf-symbc/build needs to be added to classpath in compile() method.
 
 ## PACKAGES
 
@@ -41,3 +37,13 @@ The path for jpf-symbc/build needs to be added to classpath in compile() method.
  * dataset.csv - First 5,000 entries (each entry is a GitHub project url with metadata) from RepoReaper dataset.
  * filtered-dataset.csv - 250 Java projects with min and max loc of 100 and 10,000
  * config.properties - Properties for running the full framework (i.e. downloading, filtering, transforming). 
+
+## RUNNING
+
+The paths for rt.jar and jfxrt.jar need to be added to Soot's classpath in jpf.ProgramUnderTest.java. (Soot is used for loop detection in class file). 
+
+The path for jpf-symbc/build needs to be added to classpath in compile() method.
+
+For SPF, the environment variable LD_LIBRARY_PATH needs to be set (in Eclipse, Run configurations -> Environment).
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/MariaPaquin/pathfinder/jpf-symbc/lib/64bit:/home/MariaPaquin/pathfinder/jpf-symbc/lib

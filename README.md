@@ -10,10 +10,11 @@ A directory of benchmarks is created, containing the programs that would success
 **mainFullFramework.MainAnalysis.java**
 Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs. The resulting benchmarks are run with Java PathFinder. 
 
-Directories produced from this code: 
-database - Directory of original GitHub repos. Useful now for developement, will be deleted in final version.
-suitablePrgms - Directory containing suitable programs extracted from GitHub repos. This is where the transformation of the source code takes place.
-benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
+Directories produced:
+ 
+ * database - Directory of original GitHub repos. Useful now for developement, will be deleted in final version.
+ * suitablePrgms - Directory containing suitable programs extracted from GitHub repos. This is where the transformation of the source code takes place.
+ * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
  
 The paths for rt.jar and jfxrt.jar need to be added to Soot's classpath in jpf.ProgramUnderTest.java. (Soot is used for loop detection in class file). 
 

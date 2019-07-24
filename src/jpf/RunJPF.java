@@ -63,21 +63,24 @@ public class RunJPF {
 		JPF jpf = new JPF(config);
 
 		try {
-			long startTime = System.currentTimeMillis();
-			jpf.run();
-			long endTime = System.currentTimeMillis();
-
 			writer.append(projectName + ", ");
 			writer.append(packageName + ", ");
 			writer.append(className + ", ");
 			writer.append(methodName + ", ");
+			
+			long startTime = System.currentTimeMillis();
+			jpf.run();
+			long endTime = System.currentTimeMillis();
+
 			writer.append(String.valueOf(endTime - startTime));
-			writer.append(", ");
-			writer.append(", ");
 			writer.append("\n");
 			writer.flush();
 
 		} catch (Exception e) {
+			writer.append("ERR");
+			writer.append("\n");
+			writer.flush();
+			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
 			errorLog.append("Pathfinder error:" + e + "\n\n");
@@ -120,21 +123,25 @@ public class RunJPF {
 		JPF jpf = new JPF(config);
 
 		try {
-			long startTime = System.currentTimeMillis();
-			jpf.run();
-			long endTime = System.currentTimeMillis();
-
+			
 			writerGreen.append(projectName + ", ");
 			writerGreen.append(packageName + ", ");
 			writerGreen.append(className + ", ");
 			writerGreen.append(methodName + ", ");
+			
+			long startTime = System.currentTimeMillis();
+			jpf.run();
+			long endTime = System.currentTimeMillis();
+
 			writerGreen.append(String.valueOf(endTime - startTime));
-			writerGreen.append(", ");
-			writerGreen.append(", ");
 			writerGreen.append("\n");
 			writerGreen.flush();
 
 		} catch (Exception e) {
+			writerGreen.append("ERR");
+			writerGreen.append("\n");
+			writerGreen.flush();
+			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
 			errorLog.append("Pathfinder (Green) error:" + e + "\n\n");
@@ -224,7 +231,10 @@ public class RunJPF {
 				setPackageName(sut.getPackageName());
 				setClassName(sut.getClassName());
 				setMethodName(method.getName());
-
+				
+				errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
+				errorLog.flush();
+				
 				runJPF(fullClassName, fullMethodName, numIntArgs, boundSearch);
 			}
 		} catch (ClassGenException | ClassNotFoundException e) {

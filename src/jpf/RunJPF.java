@@ -63,10 +63,10 @@ public class RunJPF {
 		JPF jpf = new JPF(config);
 
 		try {
-			writer.append(projectName + ", ");
-			writer.append(packageName + ", ");
-			writer.append(className + ", ");
-			writer.append(methodName + ", ");
+			writer.append(projectName + ",");
+			writer.append(packageName + ",");
+			writer.append(className + ",");
+			writer.append(methodName + ",");
 			
 			long startTime = System.currentTimeMillis();
 			jpf.run();
@@ -124,10 +124,10 @@ public class RunJPF {
 
 		try {
 			
-			writerGreen.append(projectName + ", ");
-			writerGreen.append(packageName + ", ");
-			writerGreen.append(className + ", ");
-			writerGreen.append(methodName + ", ");
+			writerGreen.append(projectName + ",");
+			writerGreen.append(packageName + ",");
+			writerGreen.append(className + ",");
+			writerGreen.append(methodName + ",");
 			
 			long startTime = System.currentTimeMillis();
 			jpf.run();
@@ -152,11 +152,11 @@ public class RunJPF {
 	public static void main(String[] args) throws IOException {
 		
 		writer = new FileWriter("without-green.csv");
-		writer.append("project, package, class, method, time, constraints, invocations\n");
+		writer.append("project,package,class,method,time,constraints,invocations\n");
 		writer.flush();
 
 		writerGreen = new FileWriter("with-green.csv");
-		writerGreen.append("project, package, class, method, time, constraints, invocations\n");
+		writerGreen.append("project,package,class,method,time,constraints,invocations\n");
 		writerGreen.flush();
 		
 		errorLog = new FileWriter("errorLog.txt");

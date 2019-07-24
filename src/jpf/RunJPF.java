@@ -3,7 +3,6 @@ package jpf;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.bcel.classfile.Method;
@@ -20,7 +19,7 @@ import logging.Logger;
  * @author mariapaquin
  *
  */
-public class EmbeddedJPF {
+public class RunJPF {
 	private static FileWriter writer;
 	private static FileWriter writerGreen;
 	private static FileWriter errorLog;
@@ -40,20 +39,13 @@ public class EmbeddedJPF {
 	 */
 	public static void runJPF(String fullClassName, String fullMethodName, int numArgs, boolean boundSearch) throws IOException {
 
-		// create the config file
 		String[] jpfArgs = { "-log" };
 		Config config = JPF.createConfig(jpfArgs);
 
 		config.setProperty("classpath", "bin");
 		config.setProperty("target", fullClassName);
-
-		// prints path conditions
-		// config.setProperty("symbolic.debug", "true");
-
-		// don't stop after finding fist error
 		config.setProperty("search.multiple_errors", "true");
 
-		// set the symbolic method
 		String symArgs = "(sym";
 		for (int i = 0; i < numArgs - 1; i++) {
 			symArgs += "#sym";
@@ -61,26 +53,17 @@ public class EmbeddedJPF {
 		symArgs += ")";
 
 		config.setProperty("symbolic.method", fullMethodName + symArgs);
-		// why does this cause problems?
 		config.setProperty("listener", ".symbc.SymbolicListener");
-		
-		config.setProperty("symbolic.green", "false");
-
-		// set the decision procedure
 		config.setProperty("symbolic.dp", "cvc3");
 
-		// if there was a loop in the method, set the search depth limit to bound loop
-		// unwindings
 		if (boundSearch) {
 			config.setProperty("search.depth_limit", "10");
 		}
 
-		long startTime = System.currentTimeMillis();
-
-		// run jpf
 		JPF jpf = new JPF(config);
 
 		try {
+			long startTime = System.currentTimeMillis();
 			jpf.run();
 			long endTime = System.currentTimeMillis();
 
@@ -96,26 +79,21 @@ public class EmbeddedJPF {
 
 		} catch (Exception e) {
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
-			errorLog.append("Pathfinder error:" + e);
+			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
+			errorLog.append("Pathfinder error:" + e + "\n\n");
+			errorLog.flush();
 		}
 	}
 
 	public static void runJPFGreen(String fullClassName, String fullMethodName, int numArgs, boolean boundSearch)
 			throws IOException {
-		// create the config file
 		String[] jpfArgs = { "-log" };
 		Config config = JPF.createConfig(jpfArgs);
 
 		config.setProperty("classpath", "bin");
 		config.setProperty("target", fullClassName);
-
-		// prints path conditions
-		// config.setProperty("symbolic.debug", "true");
-
-		// don't stop after finding fist error
 		config.setProperty("search.multiple_errors", "true");
 
-		// set the symbolic method
 		String symArgs = "(sym";
 		for (int i = 0; i < numArgs - 1; i++) {
 			symArgs += "#sym";
@@ -124,9 +102,9 @@ public class EmbeddedJPF {
 
 		config.setProperty("symbolic.method", fullMethodName + symArgs);
 
+		// green
 		config.setProperty("listener", ".symbc.GreenListener");
 
-		// green
 		config.setProperty("symbolic.green", "true");
 		config.setProperty("green.store", "za.ac.sun.cs.green.store.redis.RedisStore");
 		config.setProperty("green.services", "sat");
@@ -135,18 +113,14 @@ public class EmbeddedJPF {
 		config.setProperty("green.service.sat.canonize", "za.ac.sun.cs.green.service.canonizer.SATCanonizerService");
 		config.setProperty("green.service.sat.cvc3", "za.ac.sun.cs.green.service.cvc3.SATCVC3Service");
 
-		// if there was a loop in the method, set the search depth limit to bound loop
-		// unwindings
 		if (boundSearch) {
 			config.setProperty("search.depth_limit", "10");
 		}
 
-		long startTime = System.currentTimeMillis();
-
-		// run jpf
 		JPF jpf = new JPF(config);
 
 		try {
+			long startTime = System.currentTimeMillis();
 			jpf.run();
 			long endTime = System.currentTimeMillis();
 
@@ -162,7 +136,9 @@ public class EmbeddedJPF {
 
 		} catch (Exception e) {
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
-			errorLog.append("Pathfinder (Green) error:" + e);
+			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
+			errorLog.append("Pathfinder (Green) error:" + e + "\n\n");
+			errorLog.flush();
 		}
 	}
 
@@ -182,7 +158,7 @@ public class EmbeddedJPF {
 		new FileWriter("CacheHits.txt");
 		new FileWriter("Invocations.txt");
 
-		String dirName = "/home/MariaPaquin/project/SPF_Transformations.git/benchmarks/";
+		String dirName = "/home/MariaPaquin/project/paclab-transformer.git/benchmarks/";
 		File dir = new File(dirName);
 
 		Iterator<File> file_itr = FileUtils.iterateFiles(dir, new String[] { "java" }, true);
@@ -239,9 +215,6 @@ public class EmbeddedJPF {
 				if (numIntArgs == 0 || numIntArgs != numArgs) {
 					continue;
 				}
-				
-				errorLog.append(projectName + " " + fullClassName + " " + method.getName() + "\n");
-				errorLog.flush();
 
 				boolean boundSearch = sut.checkForLoops(method.getName());
 
@@ -252,14 +225,13 @@ public class EmbeddedJPF {
 				setClassName(sut.getClassName());
 				setMethodName(method.getName());
 
-				System.out.println("Running JPF...");
 				runJPF(fullClassName, fullMethodName, numIntArgs, boundSearch);
 			}
-		} catch (ClassGenException e) {
-			errorLog.append("Soot error:" + e);
-		} catch (ClassNotFoundException e) {
-			errorLog.append("Soot error:" + e);
-		}
+		} catch (ClassGenException | ClassNotFoundException e) {
+			errorLog.append(file + "\n");
+			errorLog.append("Soot error:" + e + "\n\n");
+			errorLog.flush();
+		} 
 	}
 	
 	private static void runGreen(File file) throws IOException {
@@ -293,9 +265,6 @@ public class EmbeddedJPF {
 				if (numIntArgs == 0 || numIntArgs != numArgs) {
 					continue;
 				}
-				
-				errorLog.append(projectName + " " + fullClassName + " " + method.getName() + "\n");
-				errorLog.flush();
 
 				boolean boundSearch = sut.checkForLoops(method.getName());
 
@@ -306,7 +275,6 @@ public class EmbeddedJPF {
 				setClassName(sut.getClassName());
 				setMethodName(method.getName());
 
-				System.out.println("Running JPF Green...");
 				runJPFGreen(fullClassName, fullMethodName, numIntArgs, boundSearch);
 
 			}

@@ -145,14 +145,6 @@ public class RunJPF {
 			writerGreen.append("\n");
 			writerGreen.flush();
 			
-			outCacheHits.append("-1");
-			outCacheHits.append("\n");
-			outCacheHits.flush();
-			
-			outInvocations.append("-1");
-			outInvocations.append("\n");
-			outInvocations.flush();
-			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
 			errorLog.append("Pathfinder (Green) error:" + e + "\n\n");
@@ -175,6 +167,9 @@ public class RunJPF {
 		
 		outCacheHits = new BufferedWriter(new FileWriter("CacheHits.txt"));
 		outInvocations = new BufferedWriter(new FileWriter("Invocations.txt"));
+		
+		outCacheHits.close();
+		outInvocations.close();
 
 		String dirName = "/home/MariaPaquin/project/paclab-transformer.git/benchmarks/";
 		File dir = new File(dirName);

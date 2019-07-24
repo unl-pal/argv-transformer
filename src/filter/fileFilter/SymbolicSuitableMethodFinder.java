@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -211,6 +212,12 @@ public class SymbolicSuitableMethodFinder {
 		@Override
 		public void endVisit(Block node) {
 			blockStack.pop();
+		}
+		
+		@Override
+		public boolean visit(IfStatement node) {
+			currAnalyzedMethod.setHasConditional(true);
+			return true;
 		}
 
 		@Override

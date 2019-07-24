@@ -19,6 +19,7 @@ public class AnalyzedMethod {
 	private int intParameterCount;
 	private boolean hasIntOperations;
 	private int intOperationCount;
+	private boolean hasConditional;
 
 		
 	public AnalyzedMethod(MethodDeclaration node) {
@@ -67,7 +68,12 @@ public class AnalyzedMethod {
 	}
 	
 	public boolean isSymbolicSuitable() {
-//		return (hasParameters && hasOnlyIntParameters);
-		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
+		return (hasParameters && hasOnlyIntParameters && hasConditional);
+//		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
+	}
+
+	public void setHasConditional(boolean hasConditional) {
+		this.hasConditional = hasConditional;
+		
 	}
 }

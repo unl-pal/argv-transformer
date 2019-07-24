@@ -38,7 +38,7 @@ Directories produced:
  * filtered-dataset.csv - 250 Java projects with min and max loc of 100 and 10,000
  * config.properties - Properties for running the full framework (i.e. downloading, filtering, transforming). 
 
-## RUNNING
+## RUNNING WITH SPF
 
 The paths for rt.jar and jfxrt.jar need to be added to Soot's classpath in jpf.ProgramUnderTest.java. (Soot is used for loop detection in class file). 
 

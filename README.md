@@ -12,7 +12,7 @@ Directories produced:
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
 
 **mainFullFramework.MainAnalysis.java**
-Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs. The resulting benchmarks are run with Java PathFinder. 
+Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs.
 
 Directories produced:
  

@@ -47,6 +47,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchStatement;
@@ -86,6 +87,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	private Stack<SymbolTable> symbolTableStack;
 	private String currMethod;
 	private ArrayList<VarSTE> initializedVars;
+	private int varNum;
 
 	/**
 	 * 
@@ -465,6 +467,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		
 		initializedVars = new ArrayList<VarSTE>();
 		
+		varNum = 0;
+		
 		String name = getMethodSTEName(node);
 		currMethod = name;
 		SymbolTable currScope = symbolTableStack.peek();
@@ -737,7 +741,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicInteger"));
-					randMethodInvocation.arguments().add(ast.newStringLiteral());
+					StringLiteral str = ast.newStringLiteral();
+					str.setLiteralValue("x" + varNum);
+					randMethodInvocation.arguments().add(str);
+					varNum++;
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -757,7 +764,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
-					randMethodInvocation.arguments().add(ast.newStringLiteral());
+					StringLiteral str = ast.newStringLiteral();
+					str.setLiteralValue("x" + varNum);
+					randMethodInvocation.arguments().add(str);
+					varNum++;
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -777,7 +787,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicBoolean"));
-					randMethodInvocation.arguments().add(ast.newStringLiteral());
+					StringLiteral str = ast.newStringLiteral();
+					str.setLiteralValue("x" + varNum);
+					randMethodInvocation.arguments().add(str);
+					varNum++;
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -1010,7 +1023,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 		randMethodInvocation.setName(ast.newSimpleName("makeSymbolicBoolean"));
-		randMethodInvocation.arguments().add(ast.newStringLiteral());
+		StringLiteral str = ast.newStringLiteral();
+		str.setLiteralValue("x" + varNum);
+		randMethodInvocation.arguments().add(str);
+		varNum++;
 
 //		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 //		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
@@ -1024,7 +1040,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 		randMethodInvocation.setName(ast.newSimpleName("makeSymbolicInteger"));
-		randMethodInvocation.arguments().add(ast.newStringLiteral());
+		StringLiteral str = ast.newStringLiteral();
+		str.setLiteralValue("x" + varNum);
+		randMethodInvocation.arguments().add(str);
+		varNum++;
 		
 //		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 //		randMethodInvocation.setExpression(ast.newSimpleName("rand"));
@@ -1039,7 +1058,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 		randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
-		randMethodInvocation.arguments().add(ast.newStringLiteral());
+		StringLiteral str = ast.newStringLiteral();
+		str.setLiteralValue("x" + varNum);
+		randMethodInvocation.arguments().add(str);
+		varNum++;
 		
 		rewriter.replace(exp, randMethodInvocation, null);
 	}

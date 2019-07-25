@@ -227,17 +227,17 @@ public class ProgramUnderTest {
 	 */
 	public boolean checkForLoops(String methodName) {
 		
-		String examples_build = "bin/";
+		String examples_build = "bin";
 		String rt_jar = "/usr/java/jdk1.8.0_161/jre/lib/rt.jar";
 		String jfxrt_jar = "/usr/java/jdk1.8.0_161/jre/lib/ext/jfxrt.jar";
 		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/";
 		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/pathfinder/jpf-core/build/jpf-classes.jar";
 
-		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build);
+//		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build);
 		
 		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
 				+ ":" + classPath_jpf_core_classes_jar);
-
+		
 		SootClass sootClass = Scene.v().forceResolve(fullClassName, SootClass.BODIES);
 
 		Scene.v().loadNecessaryClasses();

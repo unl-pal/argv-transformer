@@ -4,7 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ClassGenException;
@@ -30,6 +33,7 @@ public class RunJPF {
 	private static String packageName;
 	private static String className;
 	private static String methodName;
+	private static ArrayList<MethodUnderTest>  methodList;
 
 	/**
 	 * Create a configuration file for the given class and method, then run JPF.
@@ -156,14 +160,17 @@ public class RunJPF {
 		writer.flush();
 
 		writerGreen = new FileWriter("with-green.csv");
-		writerGreen.append("project,package,class,method,time\n");
+		writerGreen.append("project,package,class,method,time_green\n");
 		writerGreen.flush();
 		
 		errorLog = new FileWriter("errorLog.txt");
 		errorLog.flush();
 		
-		outCacheHits = new BufferedWriter(new FileWriter("CacheHits.txt"));
-		outInvocations = new BufferedWriter(new FileWriter("Invocations.txt"));
+		outCacheHits = new BufferedWriter(new FileWriter("cacheHits.csv"));
+		outCacheHits.append("cacheHits\n");
+
+		outInvocations = new BufferedWriter(new FileWriter("invocations.csv"));
+		outInvocations.append("invocations\n");
 		
 		outCacheHits.close();
 		outInvocations.close();
@@ -173,34 +180,54 @@ public class RunJPF {
 
 		Iterator<File> file_itr = FileUtils.iterateFiles(dir, new String[] { "java" }, true);
 
+		methodList = new ArrayList<MethodUnderTest>(); 
+		
 		file_itr.forEachRemaining(file -> {
 			try {
-				run(file);
+				addMethodsToMethodList(file);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});
 		
-		file_itr = FileUtils.iterateFiles(dir, new String[] { "java" }, true);
-
-		file_itr.forEachRemaining(file -> {
-			try {
-				runGreen(file);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
+		Collections.shuffle(methodList, new Random(1)); 
+		
+		for(MethodUnderTest m: methodList) {
+			run(m);
+		}
+		
+		for(MethodUnderTest m: methodList) {
+			runGreen(m);
+		}
+		
+//		file_itr.forEachRemaining(file -> {
+//			try {
+//				run(file);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		});
+//		
+//		file_itr = FileUtils.iterateFiles(dir, new String[] { "java" }, true);
+//
+//		file_itr.forEachRemaining(file -> {
+//			try {
+//				runGreen(file);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		});
 	}
 
-	private static void run(File file) throws IOException {
-
+	private static void addMethodsToMethodList(File file) throws IOException {
 		String name = file.toString();
 		String delims = "/";
 		String[] tokens = name.split(delims);
 		String projectName = tokens[6];
-
+		
 		try {
 			ProgramUnderTest sut = new ProgramUnderTest(file);
 			String fullClassName = sut.getFullClassName();
@@ -226,19 +253,32 @@ public class RunJPF {
 					continue;
 				}
 
-				boolean boundSearch = sut.checkForLoops(method.getName());
-
-				sut.insertMethodCall(method, numIntArgs);
-
-				setProjectName(projectName);
-				setPackageName(sut.getPackageName());
-				setClassName(sut.getClassName());
-				setMethodName(method.getName());
+				boolean hasLoops = sut.checkForLoops(method.getName());
 				
-				errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
+				MethodUnderTest mut = new MethodUnderTest();
+				
+				mut.setFile(file);
+				mut.setMethod(method);
+				
+				mut.setProgramUnderTest(sut);
+				
+				// logging
+				mut.setProjectName(projectName);
+				mut.setPackageName(sut.getPackageName());
+				mut.setClassName(sut.getClassName());
+				mut.setMethodName(method.getName());
+				
+				// jpf
+				mut.setFullClassName(fullClassName);
+				mut.setFullMethodName(fullMethodName);
+				mut.setNumIntArgs(numIntArgs);
+				mut.setHasLoops(hasLoops);
+				
+				methodList.add(mut);
+				
+				errorLog.append(projectName + " " + fullClassName + " " + method.getName() + "\n");
 				errorLog.flush();
 				
-				runJPF(fullClassName, fullMethodName, numIntArgs, boundSearch);
 			}
 		} catch (ClassGenException | ClassNotFoundException e) {
 			errorLog.append(file + "\n");
@@ -246,56 +286,41 @@ public class RunJPF {
 			errorLog.flush();
 		} 
 	}
-	
-	private static void runGreen(File file) throws IOException {
 
-		String name = file.toString();
-		String delims = "/";
-		String[] tokens = name.split(delims);
-		String projectName = tokens[6];
-
+	private static void run(MethodUnderTest m) throws IOException {
 		try {
-			ProgramUnderTest sut = new ProgramUnderTest(file);
-			String fullClassName = sut.getFullClassName();
-
-			sut.insertMain();
-
-			Method[] methods = sut.getMethods();
-			for (Method method : methods) {
-
-				String fullMethodName = fullClassName + "." + method.getName();
-
-				// skip main
-				if (method.getName().equals("main") || method.getName().equals("<init>")
-						|| method.getName().equals("<clinit>") || method.getName().contains("access$")) {
-					continue;
-				}
-
-				// check suitability of method for SPF analysis
-				int numArgs = sut.getNumArgs(method);
-				int numIntArgs = sut.getNumIntArgs(method);
-
-				if (numIntArgs == 0 || numIntArgs != numArgs) {
-					continue;
-				}
-
-				boolean boundSearch = sut.checkForLoops(method.getName());
-
-				sut.insertMethodCall(method, numIntArgs);
-
-				setProjectName(projectName);
-				setPackageName(sut.getPackageName());
-				setClassName(sut.getClassName());
-				setMethodName(method.getName());
-
-				runJPFGreen(fullClassName, fullMethodName, numIntArgs, boundSearch);
-
-			}
+			ProgramUnderTest sut = m.getProgramUnderTest();
+			sut.insertMethodCall(m.getMethod(), m.getNumIntArgs());
 		} catch (ClassGenException e) {
-			errorLog.append("Soot error:" + e);
-		} catch (ClassNotFoundException e) {
-			errorLog.append("Soot error:" + e);
+			errorLog.append(m.getFile() + "\n");
+			errorLog.append("Soot error:" + e + "\n\n");
+			errorLog.flush();
 		}
+
+		setProjectName(m.getProjectName());
+		setPackageName(m.getPackageName());
+		setClassName(m.getClassName());
+		setMethodName(m.getMethodName());
+
+		runJPF(m.getFullClassName(), m.getFullMethodName(), m.getNumIntArgs(), m.hasLoops());
+	}
+	
+	private static void runGreen(MethodUnderTest m) throws IOException {
+		try {
+			ProgramUnderTest sut = m.getProgramUnderTest();
+			sut.insertMethodCall(m.getMethod(), m.getNumIntArgs());
+		} catch (ClassGenException e) {
+			errorLog.append(m.getFile() + "\n");
+			errorLog.append("Soot error:" + e + "\n\n");
+			errorLog.flush();
+		}
+		
+		setProjectName(m.getProjectName());
+		setPackageName(m.getPackageName());
+		setClassName(m.getClassName());
+		setMethodName(m.getMethodName());
+
+		runJPFGreen(m.getFullClassName(), m.getFullMethodName(), m.getNumIntArgs(), m.hasLoops());
 	}
 
 	public static void setProjectName(String name) {

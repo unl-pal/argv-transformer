@@ -83,10 +83,6 @@ public class RunJPF {
 			writer.flush();
 
 		} catch (Exception e) {
-//			writer.append("-1");
-//			writer.append("\n");
-//			writer.flush();
-			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
 			errorLog.append("Pathfinder error:" + e + "\n\n");
@@ -142,10 +138,6 @@ public class RunJPF {
 			writerGreen.flush();
 
 		} catch (Exception e) {
-//			writerGreen.append("-1");
-//			writerGreen.append("\n");
-//			writerGreen.flush();
-			
 			Logger.errorLogger.logln("Pathfinder encountered an error!", 0);
 			errorLog.append(projectName + " " + fullClassName + " " + methodName + "\n");
 			errorLog.append("Pathfinder (Green) error:" + e + "\n\n");
@@ -191,7 +183,7 @@ public class RunJPF {
 			}
 		});
 
-		Collections.shuffle(methodList, new Random(123)); 
+//		Collections.shuffle(methodList, new Random(123)); 
 //		Collections.shuffle(methodList, new Random(456)); 
 //		Collections.shuffle(methodList, new Random(789)); 
 
@@ -208,25 +200,6 @@ public class RunJPF {
 			runGreen(m);
 		}
 		
-//		file_itr.forEachRemaining(file -> {
-//			try {
-//				run(file);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
-//		
-//		file_itr = FileUtils.iterateFiles(dir, new String[] { "java" }, true);
-//
-//		file_itr.forEachRemaining(file -> {
-//			try {
-//				runGreen(file);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
 	}
 
 	private static void addMethodsToMethodList(File file) throws IOException {
@@ -304,6 +277,7 @@ public class RunJPF {
 		setPackageName(m.getPackageName());
 		setClassName(m.getClassName());
 		setMethodName(m.getMethodSig());
+		
 		runJPF(m.getFullClassName(), m.getFullMethodName(), m.getNumIntArgs(), m.hasLoops());
 	}
 	

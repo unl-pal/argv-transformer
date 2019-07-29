@@ -184,7 +184,6 @@ public class RunJPF {
 		
 		file_itr.forEachRemaining(file -> {
 			try {
-				System.out.println(file);
 				addMethodsToMethodList(file);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -199,7 +198,6 @@ public class RunJPF {
 		for(MethodUnderTest m: methodList) {
 			errorLog.append(m.getProjectName() + " " + m.getFullClassName() + " " + m.getMethodSig() + "\n");
 			errorLog.flush();
-			writer.append(m.getFile().toString() + "\n");
 			writer.flush();
 			run(m);
 		}
@@ -275,7 +273,7 @@ public class RunJPF {
 				mut.setProjectName(projectName);
 				mut.setPackageName(sut.getPackageName());
 				mut.setClassName(sut.getClassName());
-				mut.setMethodSig(method.getSignature());
+				mut.setMethodSig(method.getName() + "." + method.getSignature());
 				
 				// jpf
 				mut.setFullClassName(fullClassName);

@@ -14,7 +14,9 @@ public class MethodUnderTest {
 	private String className;
 	private String fullMethodName;
 	private String methodName;
+	private String methodSig;
 	private Method method;
+
 	private int numIntArgs;
 	private boolean hasLoops;
 	
@@ -77,12 +79,12 @@ public class MethodUnderTest {
 		this.fullMethodName = fullMethodName;
 	}
 	
-	public String getMethodName() {
-		return methodName;
+	public String getMethodSig() {
+		return methodSig;
 	}
 	
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
+	public void setMethodSig(String methodSig) {
+		this.methodSig = methodSig;
 	}
 	
 	public Method getMethod() {
@@ -92,6 +94,7 @@ public class MethodUnderTest {
 	public void setMethod(Method method) {
 		this.method = method;
 	}
+	
 	
 	public int getNumIntArgs() {
 		return numIntArgs;

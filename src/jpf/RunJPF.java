@@ -184,20 +184,29 @@ public class RunJPF {
 		
 		file_itr.forEachRemaining(file -> {
 			try {
+				System.out.println(file);
 				addMethodsToMethodList(file);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});
-		
-		Collections.shuffle(methodList, new Random(1)); 
-		
+
+		Collections.shuffle(methodList, new Random(123)); 
+//		Collections.shuffle(methodList, new Random(456)); 
+//		Collections.shuffle(methodList, new Random(789)); 
+
 		for(MethodUnderTest m: methodList) {
+			errorLog.append(m.getProjectName() + " " + m.getFullClassName() + " " + m.getMethodSig() + "\n");
+			errorLog.flush();
+			writer.append(m.getFile().toString() + "\n");
+			writer.flush();
 			run(m);
 		}
 		
 		for(MethodUnderTest m: methodList) {
+			errorLog.append(m.getProjectName() + " " + m.getFullClassName() + " " + m.getMethodSig() + "\n");
+			errorLog.flush();
 			runGreen(m);
 		}
 		
@@ -266,7 +275,7 @@ public class RunJPF {
 				mut.setProjectName(projectName);
 				mut.setPackageName(sut.getPackageName());
 				mut.setClassName(sut.getClassName());
-				mut.setMethodName(method.getName());
+				mut.setMethodSig(method.getSignature());
 				
 				// jpf
 				mut.setFullClassName(fullClassName);
@@ -274,11 +283,7 @@ public class RunJPF {
 				mut.setNumIntArgs(numIntArgs);
 				mut.setHasLoops(hasLoops);
 				
-				methodList.add(mut);
-				
-				errorLog.append(projectName + " " + fullClassName + " " + method.getName() + "\n");
-				errorLog.flush();
-				
+				methodList.add(mut);				
 			}
 		} catch (ClassGenException | ClassNotFoundException e) {
 			errorLog.append(file + "\n");
@@ -300,8 +305,7 @@ public class RunJPF {
 		setProjectName(m.getProjectName());
 		setPackageName(m.getPackageName());
 		setClassName(m.getClassName());
-		setMethodName(m.getMethodName());
-
+		setMethodName(m.getMethodSig());
 		runJPF(m.getFullClassName(), m.getFullMethodName(), m.getNumIntArgs(), m.hasLoops());
 	}
 	
@@ -318,7 +322,7 @@ public class RunJPF {
 		setProjectName(m.getProjectName());
 		setPackageName(m.getPackageName());
 		setClassName(m.getClassName());
-		setMethodName(m.getMethodName());
+		setMethodName(m.getMethodSig());
 
 		runJPFGreen(m.getFullClassName(), m.getFullMethodName(), m.getNumIntArgs(), m.hasLoops());
 	}

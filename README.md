@@ -46,3 +46,10 @@ The path for jpf-symbc/build needs to be added to classpath in mainFullFramework
 
 For SPF, the environment variable LD_LIBRARY_PATH needs to be set (in Eclipse, Run configurations -> Environment).
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/MariaPaquin/pathfinder/jpf-symbc/lib/64bit:/home/MariaPaquin/pathfinder/jpf-symbc/lib
+
+## TROUBLESHOOTING
+
+The javac version (used in main.MainTransform.java and mainFullFramework.MainAnalysis.java to compile benchmarks) needs to be the same version as JDK for rt.jar set in Soot classpath (in jpf.ProgramUnderTest.java, used for loop detection). 
+
+
+ 

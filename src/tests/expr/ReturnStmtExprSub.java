@@ -1,4 +1,4 @@
-package tests.rules.expr;
+package tests.expr;
 
 import gov.nasa.jpf.symbc.Debug;
 

@@ -1,4 +1,4 @@
-package tests.rules.stmt;
+package tests.stmt;
 
 import gov.nasa.jpf.symbc.Symbolic;
 

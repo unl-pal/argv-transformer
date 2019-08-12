@@ -1,4 +1,5 @@
-package tests.rules.stmt;
+package tests.stmt;
+
 import gov.nasa.jpf.symbc.Debug;
 
 public class FieldDecStmtRemoval_T {

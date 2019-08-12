@@ -1,7 +1,6 @@
-package tests.rules.stmt;
+package tests.stmt;
 
 import gov.nasa.jpf.symbc.Debug;
-import tests.rules.Box;
 
 public class VarDecRemoval {
 

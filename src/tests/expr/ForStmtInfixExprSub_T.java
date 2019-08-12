@@ -1,4 +1,4 @@
-package tests.rules.expr;
+package tests.expr;
 
 public class ForStmtInfixExprSub_T {
 	

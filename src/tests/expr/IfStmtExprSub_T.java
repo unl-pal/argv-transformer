@@ -1,7 +1,6 @@
-package tests.rules.expr;
+package tests.expr;
 
 import gov.nasa.jpf.symbc.Debug;
-import tests.rules.Box;
 
 public class IfStmtExprSub_T {
 	

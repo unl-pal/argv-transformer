@@ -1,4 +1,4 @@
-package filter.projectFilter;
+package filter.project;
 
 import download.GitProject;
 import download.ProjectState;

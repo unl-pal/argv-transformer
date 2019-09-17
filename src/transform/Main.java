@@ -1,4 +1,4 @@
-package main;
+package transform;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,8 +12,6 @@ import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
-import transform.Transformer;
-
 /**
  * Given a directory of Java projects, this program attempts to transform each 
  * .java file in the directory into a compilable benchmark.
@@ -25,10 +23,13 @@ import transform.Transformer;
  * @author mariapaquin
  *
  */
-public class MainTransform {
+public class Main {
 	private static PrintWriter printWriter;
 
 	public static void main(String[] args) throws IOException {
+		
+		// TODO: read in config file, need to set path for jpf symbc build classes
+
 		printWriter = new PrintWriter(System.out, true);
 		
 		String source = "suitablePrgms";
@@ -90,14 +91,14 @@ public class MainTransform {
 	}
 
 	private static boolean compile(File file) {
+		String command = "javac -g -d bin/ -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
 
-		String command = "javac -d build/ " + file;
 		boolean success = false;
 		try {
 			Process pro = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
 			pro.waitFor();
-//			printCompileExitStatus(command + " stdout:", pro.getInputStream());
-//			printCompileExitStatus(command + " stderr:", pro.getErrorStream());
+			printCompileExitStatus(command + " stdout:", pro.getInputStream());
+			printCompileExitStatus(command + " stderr:", pro.getErrorStream());
 			if (pro.exitValue() == 0) {
 				success = true;
 			}

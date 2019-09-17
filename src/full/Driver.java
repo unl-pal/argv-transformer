@@ -1,4 +1,4 @@
-package mainFullFramework;
+package full;
 
 import java.io.File;
 import java.io.FileReader;
@@ -34,7 +34,7 @@ public class Driver {
 			String filename = props.getProperty("csv");
 			int debugLevel = Integer.parseInt(props.getProperty("debugLevel", "-1"));
 
-			MainAnalysis.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
+			Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);

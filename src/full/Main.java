@@ -1,4 +1,4 @@
-package mainFullFramework;
+package full;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,9 +14,9 @@ import org.apache.commons.io.FileUtils;
 
 import download.Downloader;
 import download.GitProject;
-import filter.fileFilter.GeneralFileInfo;
-import filter.fileFilter.SuitableFileFilter;
-import filter.fileFilter.SymbolicSuitableMethodFinder;
+import filter.file.GeneralFileInfo;
+import filter.file.FileFilter;
+import filter.file.SymbolicSuitableMethodFinder;
 import logging.Logger;
 import sourceAnalysis.AnalyzedFile;
 import transform.Transformer;
@@ -32,7 +32,7 @@ import transform.Transformer;
  *
  */
 
-public class MainAnalysis {
+public class Main {
 
 	private static boolean secondCompile = false;
 	private static FileWriter fileWriter;
@@ -108,8 +108,8 @@ public class MainAnalysis {
 
 		Logger.defaultLogger.enterContext("FILTER");
 
-		SuitableFileFilter filter = new SuitableFileFilter(projects);
-		filter.findSuitableFiles();
+		FileFilter filter = new FileFilter(projects);
+		filter.collectSuitableFilesInProjectList();
 
 		totalSpfSuitableMethods = filter.getSuitableMethodCount();
 

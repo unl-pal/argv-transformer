@@ -8,8 +8,7 @@ public class AssignmentRhsSub_T {
 		Box b = new Box();
 		b = (Box) Debug.makeSymbolicRef("box", b);
 		if(b != null) {
-			int y;
-			y = (int) Debug.makeSymbolicInteger("y");
+			int y = Debug.makeSymbolicInteger("y");
 
 			if(x == y) {
 				

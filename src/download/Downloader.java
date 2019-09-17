@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import filter.projectFilter.JavaProjectFilter;
+import filter.project.JavaProjectFilter;
 import logging.Logger;
 
 /**

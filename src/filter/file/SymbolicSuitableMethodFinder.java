@@ -1,4 +1,4 @@
-package filter.fileFilter;
+package filter.file;
 
 import java.io.File;
 import java.io.IOException;

@@ -11,6 +11,10 @@ import filter.file.FileFilter;
 /**
  * Filter a directory full of repositories.
  * 
+ * input: database, a directory of repositories
+ * output: benchmarks, a directory containing only the java files 
+ * suitable for symbolic execution found in the database directory
+ * 
  * @author mariapaquin
  *
  */
@@ -41,5 +45,4 @@ public class Main {
 			}
 		}
 	}
-
 }

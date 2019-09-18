@@ -3,9 +3,9 @@
 ## Main Classes
 
 **filter.Main.java** 
-This program filters a directory of repositories for java programs suitable for symbolic execution. 
+This program filters a directory of repositories for java file suitable for symbolic execution. 
 
-(Suitability is defined in sourceAnalysis.AnalyzedMethod.java by isSymbolicSuitable() method. A java program 
+(Suitability is defined in sourceAnalysis.AnalyzedMethod.java by isSymbolicSuitable() method. A java file 
 is suitable if at least one of its methods is suitable.)
 
 Input:
@@ -15,12 +15,12 @@ Output:
  * suitablePrgms - Directory of repositories containing only java files suitable for analysis (in original directory structure). 
  
 **transform.Main.java** 
-Given a directory of suitable Java programs, this program attempts to transform each file into a compilable benchmark.
+Given a directory of suitable java file, this program attempts to transform each file into a compilable benchmark.
  
 A directory of benchmarks is created, containing the programs that would successfully compile (before or after transformation) in their original directory structure. 
 
 Input:
- * suitablePrgms - Directory of repositories, each of which contains only java classes suitable for analysis. 
+ * suitablePrgms - Directory of repositories containing only java files suitable for symbolic execution. 
  
 Output:
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 

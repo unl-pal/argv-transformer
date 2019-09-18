@@ -17,7 +17,7 @@ Output:
 **transform.Main.java** 
 Given a directory of suitable java files, this program attempts to transform each into a compilable benchmark.
  
-A directory of benchmarks is created, containing the programs that would successfully compile (before or after transformation) in their original directory structure. 
+A directory of benchmarks is created, containing the programs that would successfully compile in their original directory structure. 
 
 Input:
  * suitablePrgms - Directory of repositories containing only java files suitable for symbolic execution. 

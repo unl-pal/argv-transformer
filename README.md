@@ -9,11 +9,8 @@ This program filters a directory of repositories for java programs suitable for 
 is suitable if at least one of its methods is suitable.)
 
 Input:
-
  * database - Directory of repositories. 
-
 Output:
-
  * suitablePrgms - Directory of repositories containing only java files suitable for analysis (in original directory structure). 
  
 **transform.Main.java** 
@@ -22,22 +19,16 @@ Given a directory of suitable Java programs, this program attempts to transform 
 A directory of benchmarks is created, containing the programs that would successfully compile (before or after transformation) in their original directory structure. 
 
 Input:
-
  * suitablePrgms - Directory of repositories, each of which contains only java classes suitable for analysis. 
-
 Output:
-
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
 
 **full.Main.java**
 Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs.
 
 Input:
-
 * CSV of GitHub repositories as gathered by RepoReaper.
-
 Output:
- 
  * database - Directory of GitHub repos that meet project filter specification.
  * suitablePrgms - Directory containing suitable programs extracted from GitHub repos. This is where the transformation of the source code takes place.
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 

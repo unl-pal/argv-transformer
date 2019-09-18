@@ -26,10 +26,7 @@ import org.apache.commons.io.FileUtils;
 public class Main {
 	private static PrintWriter printWriter;
 
-	public static void main(String[] args) throws IOException {
-		
-		// TODO: read in config file, need to set path for jpf symbc build classes
-
+	public static void main(String[] args) throws IOException {		
 		printWriter = new PrintWriter(System.out, true);
 		
 		String source = "suitablePrgms";
@@ -91,6 +88,7 @@ public class Main {
 	}
 
 	private static boolean compile(File file) {
+		
 		String command = "javac -g -d bin/ -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
 
 		boolean success = false;

@@ -21,6 +21,7 @@ import filter.file.FileFilter;
 public class Main {
 
 	public static void main(String[] args) {
+
 		File database = new File("database");
 
 		FileFilter filter = new FileFilter(database);

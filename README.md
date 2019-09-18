@@ -3,7 +3,7 @@
 ## Main Classes
 
 **filter.Main.java** 
-This program filters a directory of repositories for java file suitable for symbolic execution. 
+This program filters a directory of repositories for java files suitable for symbolic execution. 
 
 (Suitability is defined in sourceAnalysis.AnalyzedMethod.java by isSymbolicSuitable() method. A java file 
 is suitable if at least one of its methods is suitable.)
@@ -15,7 +15,7 @@ Output:
  * suitablePrgms - Directory of repositories containing only java files suitable for analysis (in original directory structure). 
  
 **transform.Main.java** 
-Given a directory of suitable java file, this program attempts to transform each file into a compilable benchmark.
+Given a directory of suitable java files, this program attempts to transform each into a compilable benchmark.
  
 A directory of benchmarks is created, containing the programs that would successfully compile (before or after transformation) in their original directory structure. 
 
@@ -23,7 +23,7 @@ Input:
  * suitablePrgms - Directory of repositories containing only java files suitable for symbolic execution. 
  
 Output:
- * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
+ * benchmarks - Directory of compilable, suitable programs (in original directory structure). 
 
 **full.Main.java**
 Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs.
@@ -33,7 +33,7 @@ Input:
 
 Output:
  * database - Directory of GitHub repos that meet project filter specification.
- * suitablePrgms - Directory containing suitable programs extracted from GitHub repos. This is where the transformation of the source code takes place.
+ * suitablePrgms - Directory containing suitable files extracted from GitHub repos. (This is where the transformation of the source code takes place.)
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
 
 ## PACKAGES
@@ -42,9 +42,8 @@ Output:
  * filter - Filtering for relevant projects and files
  * jpf - Running JPF
  * logging - For simple logging
- * main - Transform a directory of suitable programs into compilable benchmarks
- * mainFull - Full framework: filter and download suitable GitHub projects, filter the projects for suitable files, transform those files and run SPF on the resulting benchmarks. 
- * sourceAnalysis - Used to look for files and methods suitable for symbolic execution
+ * full - Contains main for running with full framework, i.e. download, filter, transform, output
+ * sourceAnalysis - Used to track files and methods suitable for symbolic execution
  * tests
  * transform - Transforming files into compilable benchmarks
  

@@ -7,7 +7,7 @@ import java.util.Properties;
 
 /**
  *
- * Driver for MainAnalysis. Parse command line arguments and start the analysis.
+ * Driver for full framework. Parse command line arguments and start the analysis.
  * 
  * @author mariapaquin
  *

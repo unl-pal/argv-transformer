@@ -57,7 +57,7 @@ Output:
 
 The paths for rt.jar and jfxrt.jar need to be added to Soot's classpath in jpf.ProgramUnderTest.java. (Soot is used for loop detection in class file). 
 
-The path for jpf-symbc/build needs to be added to classpath in mainFullFramework.MainAnalysis.compile() method. (For transformations specific to SPF, i.e. using Debug.makeSymbolicInteger() in place of rand.nextInt().)
+The path for jpf-symbc/build needs to be added to classpath in the compile() methods. (For transformations specific to SPF, i.e. using Debug.makeSymbolicInteger() in place of rand.nextInt().)
 
 For SPF, the environment variable LD_LIBRARY_PATH needs to be set (in Eclipse, Run configurations -> Environment).
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/MariaPaquin/pathfinder/jpf-symbc/lib/64bit:/home/MariaPaquin/pathfinder/jpf-symbc/lib

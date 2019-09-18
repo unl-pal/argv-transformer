@@ -12,7 +12,7 @@ import filter.file.FileFilter;
  * Filter a directory full of repositories.
  * 
  * input: database, a directory of repositories
- * output: benchmarks, a directory containing only the java files 
+ * output: suitablePrgms, a directory containing only the java files 
  * suitable for symbolic execution found in the database directory
  * 
  * @author mariapaquin
@@ -31,7 +31,7 @@ public class Main {
 		ArrayList<File> files = filter.getSuitableFiles();
 
 		for (File f : files) {
-			String newPath = f.getAbsolutePath().replace("database", "benchmarks");
+			String newPath = f.getAbsolutePath().replace("database", "suitablePrgms");
 
 			File destinationFile = new File(newPath);
 			destinationFile.getParentFile().mkdirs();

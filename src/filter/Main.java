@@ -10,21 +10,27 @@ import filter.file.FileFilter;
 
 /**
  * Filter a directory full of repositories.
- * 
- * input: database, a directory of repositories
- * output: suitablePrgms, a directory containing only the java files 
- * suitable for symbolic execution found in the database directory
- * 
- * @author mariapaquin
  *
+ * input: database, a directory of repositories
+ * output: suitablePrgms, a directory containing only the java files
+ * suitable for symbolic execution found in the database directory
+ *
+ * @author mariapaquin
  */
 public class Main {
-
 	public static void main(String[] args) {
+		String inputPath = "database";
+		String outputPath = "suitablePrgms";
+ 
+		if (args.length == 2) {
+			inputPath = args[0];
+			outputPath = args[1];
+		}
 
-		File database = new File("database");
-
-		FileFilter filter = new FileFilter(database);
+		File inDir = new File(inputPath);
+		File outDir = new File(outputPath);
+ 
+		FileFilter filter = new FileFilter(inDir);
 
 		filter.collectJavaFiles();
 		filter.collectSymbolicSuitableFiles();
@@ -32,7 +38,7 @@ public class Main {
 		ArrayList<File> files = filter.getSuitableFiles();
 
 		for (File f : files) {
-			String newPath = f.getAbsolutePath().replace("database", "suitablePrgms");
+			String newPath = f.getAbsolutePath().replace(inDir.getAbsolutePath(), outDir.getAbsolutePath());
 
 			File destinationFile = new File(newPath);
 			destinationFile.getParentFile().mkdirs();

@@ -2,8 +2,9 @@ package filter.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -14,9 +15,8 @@ import sourceAnalysis.AnalyzedFile;
 /**
  * Class to find files suitable for symbolic execution.
  * (i.e. classes that contain methods suitable for symbolic execution).
- * 
- * @author mariapaquin
  *
+ * @author mariapaquin
  */
 public class FileFilter {
 	private ArrayList<File> spfSuitableFiles;
@@ -45,30 +45,19 @@ public class FileFilter {
 	public int getSuitableMethodCount() {
 		return spfSuitableMethods;
 	}
-	
+
 	public void collectJavaFiles() {
-		addDirectory(database);
-	}
-	
-	public void addDirectory(File directory) {
-		String path = directory.getAbsolutePath();
-		
-		for (String filename : directory.list()) {
-			File f = new File(path+"/"+filename);
-			if (f.isDirectory()) {
-				// Recursively gather files in subdirectories
-				addDirectory(f);
-			} else {
-				int dotIndex = filename.indexOf(".");
-				if (dotIndex != -1 && filename.substring(dotIndex).equalsIgnoreCase(".java")) {
-					javaFiles.add(f);
-				}
-			}
+		try {
+			Files.find(Paths.get(database.getAbsolutePath()), 999,
+					(p, bfa) -> p.toString().endsWith(".java"))
+				.forEach(p -> javaFiles.add(p.toFile()));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
-	
+
 	public void collectSymbolicSuitableFiles() {
-		for(File file: javaFiles) {
+		for (File file: javaFiles) {
 			try {
 				SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
 				finder.analyze();
@@ -77,7 +66,7 @@ public class FileFilter {
 					spfSuitableMethods += af.getSpfSuitableMethodCount();
 					if (af.isSymbolicSuitable()) {
 						spfSuitableFiles.add(file);
-					} 
+					}
 				} catch (Exception e) {
 					continue;
 				}

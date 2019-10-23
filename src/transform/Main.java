@@ -25,15 +25,23 @@ import org.apache.commons.io.FileUtils;
  */
 public class Main {
 	private static PrintWriter printWriter;
+	private static File buildDir;
 
 	public static void main(String[] args) throws IOException {		
-		printWriter = new PrintWriter(System.out, true);
-		
-		String source = "suitablePrgms";
-		File srcDir = new File(source);
+		buildDir = Files.createTempDirectory("paclab-transform").toFile();
 
+		String source = "suitablePrgms";
 		String dest = "benchmarks";
+ 
+		if (args.length == 2) {
+			source = args[0];
+			dest = args[1];
+		}
+		
+		File srcDir = new File(source);
 		File destDir = new File(dest);
+
+		printWriter = new PrintWriter(System.out, true);
 
 		if (destDir.exists()) {
 			FileUtils.forceDelete(destDir);
@@ -48,8 +56,6 @@ public class Main {
 
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		
-		File buildDir = new File("build");
-
 		if (buildDir.exists()) {
 			try {
 				FileUtils.forceDelete(buildDir);
@@ -89,7 +95,7 @@ public class Main {
 
 	private static boolean compile(File file) {
 		
-		String command = "javac -g -d bin/ -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
+		String command = "javac -g -d " + buildDir.getAbsolutePath() + " -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
 
 		boolean success = false;
 		try {

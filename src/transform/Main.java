@@ -13,31 +13,30 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 
 /**
- * Given a directory of Java projects, this program attempts to transform each 
+ * Given a directory of Java projects, this program attempts to transform each
  * .java file in the directory into a compilable benchmark.
- * 
- * A directory of benchmarks is created, containing the programs that would 
- * successfully compile (before or after transformation) in their original 
- * directory structure. 
- * 
- * @author mariapaquin
  *
+ * A directory of benchmarks is created, containing the programs that would
+ * successfully compile (before or after transformation) in their original
+ * directory structure.
+ *
+ * @author mariapaquin
  */
 public class Main {
 	private static PrintWriter printWriter;
 	private static File buildDir;
 
-	public static void main(String[] args) throws IOException {		
+	public static void main(String[] args) throws IOException {
 		buildDir = Files.createTempDirectory("paclab-transform").toFile();
 
 		String source = "suitablePrgms";
 		String dest = "benchmarks";
- 
+
 		if (args.length == 2) {
 			source = args[0];
 			dest = args[1];
 		}
-		
+
 		File srcDir = new File(source);
 		File destDir = new File(dest);
 
@@ -54,8 +53,6 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-		
 		if (buildDir.exists()) {
 			try {
 				FileUtils.forceDelete(buildDir);
@@ -63,9 +60,10 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		
+
 		FileUtils.forceMkdir(buildDir);
 
+		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
 		file_itr.forEachRemaining(file -> {
@@ -86,15 +84,19 @@ public class Main {
 				try {
 					Files.delete(file.toPath());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		});
+
+		try {
+			FileUtils.forceDelete(buildDir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static boolean compile(File file) {
-		
 		String command = "javac -g -d " + buildDir.getAbsolutePath() + " -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
 
 		boolean success = false;
@@ -109,12 +111,14 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return success;
 	}
-	
+
 	private static void printCompileExitStatus(String cmd, InputStream ins) throws Exception {
 		String line = null;
 		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+
 		while ((line = in.readLine()) != null) {
 			 printWriter.println(line);
 		}

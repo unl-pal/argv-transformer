@@ -94,6 +94,8 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		removeEmptyDirs(destDir);
 	}
 
 	private static boolean compile(File file) {
@@ -122,5 +124,22 @@ public class Main {
 		while ((line = in.readLine()) != null) {
 			 printWriter.println(line);
 		}
+	}
+
+	private static void removeEmptyDirs(File file) {
+		File[] files = file.listFiles();
+		if (files.length > 0) {
+			for (File f : files) {
+				if (f.isDirectory()) {
+					removeEmptyDirs(f);
+				}
+			}
+		}
+		if (file.listFiles().length == 0)
+			try {
+				FileUtils.forceDelete(file);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 }

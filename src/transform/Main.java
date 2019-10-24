@@ -27,7 +27,7 @@ public class Main {
 	private static File buildDir;
 
 	public static void main(String[] args) throws IOException {
-		buildDir = Files.createTempDirectory("paclab-transform").toFile();
+		buildDir = new File(Files.createTempDirectory("paclab-transform").toFile(), "bin");
 
 		String source = "suitablePrgms";
 		String dest = "benchmarks";

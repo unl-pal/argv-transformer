@@ -63,6 +63,7 @@ public class Main {
 
 		FileUtils.forceMkdir(buildDir);
 
+		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
@@ -70,6 +71,8 @@ public class Main {
 			boolean success = compile(file);
 			if (!success) {
 				unsuccessfulCompiles.add(file);
+			} else {
+				successfulCompiles.add(file);
 			}
 		});
 
@@ -86,6 +89,8 @@ public class Main {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			} else {
+				successfulCompiles.add(file);
 			}
 		});
 
@@ -96,6 +101,9 @@ public class Main {
 		}
 
 		removeEmptyDirs(destDir);
+
+		if (successfulCompiles.size() == 0)
+			System.exit(-1);
 	}
 
 	private static boolean compile(File file) {

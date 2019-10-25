@@ -27,7 +27,8 @@ public class Main {
 	private static File buildDir;
 
 	public static void main(String[] args) throws IOException {
-		buildDir = new File(Files.createTempDirectory("paclab-transform").toFile(), "bin");
+		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
+		buildDir = new File(tmpDir, "bin");
 
 		String source = "suitablePrgms";
 		String dest = "benchmarks";
@@ -95,7 +96,7 @@ public class Main {
 		});
 
 		try {
-			FileUtils.forceDelete(buildDir);
+			FileUtils.forceDelete(tmpDir);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

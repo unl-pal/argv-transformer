@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 import org.apache.commons.io.FileUtils;
 
@@ -108,6 +110,14 @@ public class Main {
 	}
 
 	private static boolean compile(File file) {
+		final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null)
+			throw new RuntimeException("Could not get javac - are you running with a JDK or a JRE?");
+
+		return compiler.run(null, null, null, "-g", "-d", buildDir.getAbsolutePath(), "-cp", System.getProperty("java.class.path"), file.toString()) != 0;
+}
+
+	private static boolean compile2(File file) {
 		String command = "javac -g -d " + buildDir.getAbsolutePath() + " -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
 
 		boolean success = false;

@@ -164,6 +164,9 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(node);
 				return;
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+				return;
+			} else if(isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 				return;
 			} else {
@@ -274,15 +277,24 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					replaceWithSymbolicBoolean(elseExpr);
 					typeTable.setNodeType(elseExpr, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 				}
-			} else if (isFloatingPointTypeCode(type)) {
+			} else if(isFloatingPointTypeCode(type)) {
 
-				if (!isFloatingPointTypeCode(typeThenExpr)) {
-					replaceWithSymbolicReal(thenExpr);
+				if(!isFloatingPointTypeCode(typeThenExpr)) {
+					replaceWithSymbolicFloat(thenExpr);
 					typeTable.setNodeType(thenExpr, ast.newPrimitiveType(PrimitiveType.FLOAT));
 				}
-				if (!isFloatingPointTypeCode(typeElseExpr)) {
-					replaceWithSymbolicReal(elseExpr);
+				if(!isFloatingPointTypeCode(typeElseExpr)) {
+					replaceWithSymbolicFloat(elseExpr);
 					typeTable.setNodeType(elseExpr, ast.newPrimitiveType(PrimitiveType.FLOAT));
+				}
+			} else if(isDoubleTypeCode(type)){
+				if(!isDoubleTypeCode(typeThenExpr)) {
+					replaceWithSymbolicReal(thenExpr);
+					typeTable.setNodeType(thenExpr, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+				}
+				if(!isDoubleTypeCode(typeElseExpr)) {
+					replaceWithSymbolicReal(elseExpr);
+					typeTable.setNodeType(elseExpr, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 				}
 			}
 		}
@@ -315,8 +327,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					replaceWithSymbolicBoolean(node);
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 				} else if (isFloatingPointTypeCode(type)) {
-					replaceWithSymbolicReal(node);
+					replaceWithSymbolicFloat(node);
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
+				} else if(isDoubleTypeCode(type)) {
+					replaceWithSymbolicReal(node);
+					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 				}
 			}
 		}
@@ -354,8 +369,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(rhsType)) {
-				replaceWithSymbolicReal(lhs);
+				replaceWithSymbolicFloat(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			} else if(isDoubleTypeCode(rhsType)) {
+				replaceWithSymbolicReal(lhs);
+				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 
 			// if we can infer the type of rhs from lhs
@@ -368,8 +386,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(rhs);
 				typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(lhsType)) {
-				replaceWithSymbolicReal(rhs);
+				replaceWithSymbolicFloat(rhs);
 				typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			} else if(isDoubleTypeCode(lhsType)) {
+				replaceWithSymbolicReal(rhs);
+				typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 			
 			// else replace according to the location in parent
@@ -383,8 +404,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					replaceWithSymbolicBoolean(node);
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 				} else if (isFloatingPointTypeCode(type)) {
-					replaceWithSymbolicReal(node);
+					replaceWithSymbolicFloat(node);
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
+				} else if(isDoubleTypeCode(type)) {
+					replaceWithSymbolicReal(node);
+					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 				}
 			}
 
@@ -399,8 +423,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					replaceWithSymbolicBoolean(node);
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 				} else if (isFloatingPointTypeCode(type)) {
-					replaceWithSymbolicReal(node);
+					replaceWithSymbolicFloat(node);
 					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
+				} else if(isDoubleTypeCode(type)) {
+					replaceWithSymbolicReal(node);
+					typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 				}
 			}
 			
@@ -454,7 +481,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
-
+		
 		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> params = node.parameters();
 		for (SingleVariableDeclaration param : params) {
@@ -541,6 +568,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			} else if (isBooleanTypeCode(type)) {
 				replaceWithSymbolicBoolean(node);
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+			} else if (isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 			} else {
 				if (node.getParent().getParent() instanceof Block) {
@@ -562,6 +591,9 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(node);
 				return;
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+				return;
+			} else if (isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 				return;
 			} else {
@@ -580,8 +612,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(node);
 				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(type)) {
-				replaceWithSymbolicReal(node);
+				replaceWithSymbolicFloat(node);
 				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			} else if (isDoubleTypeCode(type)) {
+				replaceWithSymbolicReal(node);
+				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 		} 
 	}
@@ -638,6 +673,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			} else if (isBooleanTypeCode(type)) {
 				replaceWithSymbolicBoolean(node);
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+			} else if (isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 			}
 		} else if(node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
@@ -649,6 +686,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			} else if (isBooleanTypeCode(type)) {
 				replaceWithSymbolicBoolean(node);
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+			} else if (isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 			}
 		}
@@ -684,6 +723,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			} else if (isBooleanTypeCode(returnType)) {
 				replaceWithSymbolicBoolean(node.getExpression());
 			} else if (isFloatingPointTypeCode(returnType)) {
+				replaceWithSymbolicFloat(node.getExpression());
+			} else if (isDoubleTypeCode(returnType)) {
 				replaceWithSymbolicReal(node.getExpression());
 			}
 			
@@ -701,6 +742,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		return;
 	}
 	
+	// Checking for field variables that need to be initialized
 	@Override
 	public boolean visit(SimpleName node) {
 		
@@ -761,6 +803,37 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					
 				} else if(isFloatingPointTypeCode(type)) {
 					
+					System.out.println(name + " is " + type + " floating type code.");
+					
+					CastExpression castExpression = ast.newCastExpression();
+									
+					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
+					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
+					StringLiteral str = ast.newStringLiteral();
+					str.setLiteralValue("x" + varNum);
+					randMethodInvocation.arguments().add(str);
+					varNum++;
+					
+					castExpression.setExpression(randMethodInvocation);
+					castExpression.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
+					
+					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+					fragment.setName(ast.newSimpleName(name));
+					fragment.setInitializer(castExpression);
+					
+					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
+					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
+					
+					Block block = ((MethodDeclaration) parent).getBody();
+					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+					listRewrite.insertFirst(varDeclaration, null);
+					
+					initializedVars.add(sym);
+				} else if(isDoubleTypeCode(type)) {
+					
+					System.out.println(name + " is " + type + " double type code.");
+					
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
@@ -774,7 +847,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					fragment.setInitializer(randMethodInvocation);
 					
 					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
-					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
+					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.DOUBLE));
 					
 					Block block = ((MethodDeclaration) parent).getBody();
 					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
@@ -898,6 +971,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			} else if (isBooleanTypeCode(type)) {
 				replaceWithSymbolicBoolean(node);
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+			} else if (isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 			} else {
 				if (node.getParent().getParent() instanceof Block) {
@@ -920,6 +995,9 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(node);
 				return;
 			} else if (isFloatingPointTypeCode(type)) {
+				replaceWithSymbolicFloat(node);
+				return;
+			} else if (isDoubleTypeCode(type)) {
 				replaceWithSymbolicReal(node);
 				return;
 			}
@@ -938,8 +1016,11 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				replaceWithSymbolicBoolean(node);
 				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(type)) {
-				replaceWithSymbolicReal(node);
+				replaceWithSymbolicFloat(node);
 				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			}  else if (isDoubleTypeCode(type)) {
+				replaceWithSymbolicReal(node);
+				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 
 		} else if (node.getLocationInParent() == ReturnStatement.EXPRESSION_PROPERTY) {
@@ -956,6 +1037,8 @@ public class TypeCheckingVisitor extends ASTVisitor {
 				} else if (isBooleanTypeCode(returnType)) {
 					replaceWithSymbolicBoolean(node);
 				} else if (isFloatingPointTypeCode(returnType)) {
+					replaceWithSymbolicFloat(node);
+				} else if (isDoubleTypeCode(returnType)) {
 					replaceWithSymbolicReal(node);
 				}
 			}
@@ -1065,6 +1148,23 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		
 		rewriter.replace(exp, randMethodInvocation, null);
 	}
+	
+	// TODO: this needs to be substituted for floating point expressions
+	private void replaceWithSymbolicFloat(Expression exp) {
+		CastExpression castExpression = ast.newCastExpression();
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
+		randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
+		StringLiteral str = ast.newStringLiteral();
+		str.setLiteralValue("x" + varNum);
+		randMethodInvocation.arguments().add(str);
+		varNum++;
+		
+		castExpression.setExpression(randMethodInvocation);
+		castExpression.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
+		
+		rewriter.replace(exp, castExpression, null);
+	}
 
 	private boolean isStringType(Type type) {
 		if(type == null) return false;
@@ -1075,13 +1175,27 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			return false;
 		return (((SimpleName) name).getIdentifier().equals("String"));
 	}
+	
+	private boolean isNumericTypeCode(Type type) {
+		return isFloatingPointTypeCode(type) || 
+				isDoubleTypeCode(type) ||
+				isIntegerTypeCode(type);
+	}
 
 	private boolean isFloatingPointTypeCode(Type type) {
 		if(type == null) return false;
 		if (!type.isPrimitiveType())
 			return false;
 		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-		return (typeCode == PrimitiveType.FLOAT || typeCode == PrimitiveType.DOUBLE);
+		return typeCode == PrimitiveType.FLOAT;
+	}
+	
+	private boolean isDoubleTypeCode(Type type) {
+		if(type == null) return false;
+		if (!type.isPrimitiveType())
+			return false;
+		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+		return typeCode == PrimitiveType.DOUBLE;
 	}
 
 	private boolean isIntegerTypeCode(Type type) {
@@ -1252,12 +1366,12 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		// relational operators
 		if (op == Operator.GREATER || op == Operator.GREATER_EQUALS || op == Operator.LESS || op == Operator.LESS_EQUALS
 				|| op == Operator.EQUALS || op == Operator.NOT_EQUALS) {
-			if ((isIntegerTypeCode(lhsType) || isFloatingPointTypeCode(lhsType))
-					&& (isIntegerTypeCode(rhsType) || isFloatingPointTypeCode(rhsType))) {
+			if (isNumericTypeCode(lhsType) && isNumericTypeCode(rhsType)) {
 				typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			}
 		}
 
+		
 		// arithmetic operators, result in int
 		if (op == Operator.PLUS || op == Operator.MINUS || op == Operator.TIMES || op == Operator.DIVIDE) {
 			if (isIntegerTypeCode(lhsType) && isIntegerTypeCode(rhsType)) {
@@ -1265,11 +1379,22 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			}
 		}
 		
-		// arithmetic operators, result in double
+		// ?? replacing isFloatingPointTypeCode with isDoubleType and isFloatingPoint. 
+				
+		
+		// arithmetic operators, result in float
 		if (op == Operator.PLUS || op == Operator.MINUS || op == Operator.TIMES || op == Operator.DIVIDE) {
 			if ((isIntegerTypeCode(lhsType) && isFloatingPointTypeCode(rhsType)) ||
 					(isFloatingPointTypeCode(lhsType) && isIntegerTypeCode(rhsType))) {
 				typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			}
+		}
+		
+		// arithmetic operators, result in double
+		if (op == Operator.PLUS || op == Operator.MINUS || op == Operator.TIMES || op == Operator.DIVIDE) {
+			if ((isIntegerTypeCode(lhsType) && isDoubleTypeCode(rhsType)) ||
+					(isDoubleTypeCode(lhsType) && isIntegerTypeCode(rhsType))) {
+				typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 		}
 

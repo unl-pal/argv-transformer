@@ -180,7 +180,9 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(ClassInstanceCreation node) {
+
 		Type type = typeTable.getNodeType(node);
+
 		if (!typeChecker.allowedType(type)) {
 			if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
 				Assignment parent = (Assignment) node.getParent();
@@ -203,11 +205,13 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		}
 	}
 	
+	/*
+	 * Remove imports not in java standard library
+	 */
 	@Override
 	public boolean visit(CompilationUnit node) {
 		ast = node.getAST();
 
-		// Remove imports not in java standard library
 		@SuppressWarnings("unchecked")
 		List<ImportDeclaration> imports = node.imports();
 
@@ -469,11 +473,9 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		return false;
 	}
 	
-	/**
+	/*
 	 * Currently, we are removing all methods that have parameters that are not
 	 * integer types.
-	 * 
-	 * This may leave some field variables uninitialized. 
 	 * 
 	 * Eventually (to better preserve the original program structure), we will
 	 * remove non-integer parameters/unresolvable typed parameters and update method
@@ -802,9 +804,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					initializedVars.add(sym);
 					
 				} else if(isFloatingPointTypeCode(type)) {
-					
-					System.out.println(name + " is " + type + " floating type code.");
-					
+										
 					CastExpression castExpression = ast.newCastExpression();
 									
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
@@ -831,9 +831,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 					
 					initializedVars.add(sym);
 				} else if(isDoubleTypeCode(type)) {
-					
-					System.out.println(name + " is " + type + " double type code.");
-					
+										
 					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
 					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
@@ -1149,7 +1147,6 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		rewriter.replace(exp, randMethodInvocation, null);
 	}
 	
-	// TODO: this needs to be substituted for floating point expressions
 	private void replaceWithSymbolicFloat(Expression exp) {
 		CastExpression castExpression = ast.newCastExpression();
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
@@ -1325,8 +1322,6 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	private void checkReturnType(MethodDeclaration node) {
 		Type type = node.getReturnType2();
 		if(!typeChecker.allowedType(type)) {
-//		if ((type != null) && !isVoidTypeCode(type) && !isIntegerTypeCode(type) && !isBooleanTypeCode(type)
-//				&& !isFloatingPointTypeCode(type) && !isStringType(type)) {
 			rewriter.replace(node.getReturnType2(), ast.newSimpleType(ast.newName("Object")), null);
 		}
 	}

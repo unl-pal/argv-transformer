@@ -74,7 +74,7 @@ public class TypeTableVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * 
+	 * Getter for type table.
 	 * @return TypeTable
 	 */
 	public TypeTable getTypeTable() {
@@ -215,13 +215,13 @@ public class TypeTableVisitor extends ASTVisitor {
 		// relational operators
 		if (op == Operator.GREATER || op == Operator.GREATER_EQUALS || op == Operator.LESS || op == Operator.LESS_EQUALS
 				|| op == Operator.EQUALS || op == Operator.NOT_EQUALS) {
-			if ((isIntegerTypeCode(lhsType) || isFloatingPointTypeCode(lhsType))
-					&& (isIntegerTypeCode(rhsType) || isFloatingPointTypeCode(rhsType))) {
+			if ((isNumericTypeCode(lhsType) && isNumericTypeCode(rhsType))) {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			}
 		}
 
-		// arithmetic operators
+		// TODO: need to differentiate between precisions
+		// arithmetic operators, results in integer
 		if (op == Operator.PLUS || op == Operator.MINUS || op == Operator.TIMES || op == Operator.DIVIDE) {
 			if (isIntegerTypeCode(lhsType) && isIntegerTypeCode(rhsType)) {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.INT));
@@ -233,6 +233,14 @@ public class TypeTableVisitor extends ASTVisitor {
 			if ((isIntegerTypeCode(lhsType) && isFloatingPointTypeCode(rhsType)) ||
 					(isFloatingPointTypeCode(lhsType) && isIntegerTypeCode(rhsType))) {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			}
+		}
+		
+		// arithmetic operators, result in double
+		if (op == Operator.PLUS || op == Operator.MINUS || op == Operator.TIMES || op == Operator.DIVIDE) {
+			if ((isIntegerTypeCode(lhsType) && isDoubleTypeCode(rhsType)) ||
+					(isDoubleTypeCode(lhsType) && isIntegerTypeCode(rhsType))) {
+				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 		}
 
@@ -251,6 +259,9 @@ public class TypeTableVisitor extends ASTVisitor {
 		table.setNodeType(node, type);
 	}
 
+	/*
+	 * The type of a method declaration will be its return type. 
+	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
 		@SuppressWarnings("unchecked")
@@ -291,34 +302,46 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(MethodInvocation node) {
-		Expression expr = node.getExpression();
-		if (expr == null) {
-			table.setNodeType(node, null);
-			return;
-		}
-
-		Type type = table.getNodeType(expr);
-		if (type == null) {
-			table.setNodeType(node, null);
-			return;
-		}
-
-		// TODO: Else we want to change the scope and
-		// find the return type of the method node.getName(),
-		// but for now ...
+		
+		/*
+		 * Right now we are just removing all method invocations, so 
+		 * we set the type of the ast node to null (then it will be replaced).
+		 * 
+		 * In future implementation, when we check resolvability of a method 
+		 * invocation before removing it, we need to check the return type 
+		 * of the method being called.
+		 * 
+		 * e.g., for the method invocation table.setNodeType(node, null), we'd 
+		 * need to look for the scope 'table' and find its method symbol table 
+		 * element 'setNodeType.' Then we set the type of table.setNodeType(node, null) 
+		 * to whatever the return type of 'sedtNodeType' is. 
+		 */
+		
+//		Expression expr = node.getExpression();
+//		if (expr == null) {
+//			table.setNodeType(node, null);
+//			return;
+//		}
+//
+//		Type type = table.getNodeType(expr);
+//		if (type == null) {
+//			table.setNodeType(node, null);
+//			return;
+//		}
+		
 		table.setNodeType(node, null);
 	}
 
 	@Override
 	public boolean visit(NullLiteral node) {
-		// TODO: Need to differentiate between 
-		// null literal and unresolvable type
+		// TODO: Need to differentiate between null literal and unresolvable type
 		return true;
 	}
 
 	@Override
 	public boolean visit(NumberLiteral node) {
 		String number = node.getToken();
+		// TODO: How to differentiate between precisions?
 		if (number.contains(".")) {
 			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
 		} else {
@@ -491,13 +514,26 @@ public class TypeTableVisitor extends ASTVisitor {
 		return (((SimpleName) name).getIdentifier().equals("String"));
 	}
 
+	private boolean isDoubleTypeCode(Type type) {
+		if(type == null) return false;
+		if (!type.isPrimitiveType())
+			return false;
+		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+		return typeCode == PrimitiveType.DOUBLE;
+	}
+	
 	private boolean isFloatingPointTypeCode(Type type) {
 		if (!type.isPrimitiveType())
 			return false;
 		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-		return (typeCode == PrimitiveType.FLOAT || typeCode == PrimitiveType.DOUBLE);
+		return (typeCode == PrimitiveType.FLOAT);
 	}
-
+	
+	private boolean isNumericTypeCode(Type type) {
+		return isFloatingPointTypeCode(type) || 
+				isDoubleTypeCode(type) ||
+				isIntegerTypeCode(type);
+	}
 	private boolean isIntegerTypeCode(Type type) {
 		if (type == null) {
 			return false;

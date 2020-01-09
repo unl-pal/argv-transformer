@@ -6,7 +6,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Type;
 /**
  * Class to represent a type table. The type table maps each node 
- * in the program AST to a Type. 
+ * in the program AST to a Type (i.e., org.eclipse.jdt.core.dom.Type)
  * 
  * @author mariapaquin
  *

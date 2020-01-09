@@ -73,6 +73,19 @@ import transform.TypeChecking.TypeTable;
 /**
  * Visitor class used to find and perform necessary code transformations.
  * 
+ * Transformations are done bottom up, i.e., leaf nodes are substituted first.
+ * 
+ * In the current implementation, we're removing all method calls. To keep method 
+ * calls that are resolvable, we'll need to change the scope to infer the return 
+ * type of the method, for example, z = getX() + a.getY();
+ * We need to get the symbol table element of the method getX() to determine its
+ * return type, so that we can infer the type of getX() + a.getY().
+ * 
+ * Will also need to do this when we are updating method parameters.
+ * 
+ * As it is now, we're just removing all method calls, so we only need to change the 
+ * scope by pushing and popping as we enter and leave method declarations. 
+ * 
  * @author mariapaquin
  *
  */
@@ -1201,8 +1214,10 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			return false;
 		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
 		return (typeCode == PrimitiveType.CHAR ||
-				typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
-				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
+				typeCode == PrimitiveType.INT || 
+				typeCode == PrimitiveType.LONG || 
+				typeCode == PrimitiveType.SHORT || 
+				typeCode == PrimitiveType.BYTE);
 	}
 
 	private boolean isBooleanTypeCode(Type type) {
@@ -1374,8 +1389,6 @@ public class TypeCheckingVisitor extends ASTVisitor {
 			}
 		}
 		
-		// ?? replacing isFloatingPointTypeCode with isDoubleType and isFloatingPoint. 
-				
 		
 		// arithmetic operators, result in float
 		if (op == Operator.PLUS || op == Operator.MINUS || op == Operator.TIMES || op == Operator.DIVIDE) {

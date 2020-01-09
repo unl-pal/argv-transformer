@@ -2,7 +2,7 @@ package transform.SymbolTable;
 
 import org.eclipse.jdt.core.dom.Type;
 /**
- * Class representing a method in the symbol table.
+ * Represents a method in the symbol table.
  * 
  * @author mariapaquin
  *
@@ -13,7 +13,8 @@ public class MethodSTE extends SymbolSTE{
 	/**
 	 * Create a new MethodSTE.
 	 * 
-	 * @param name Name of the method.
+	 * @param name Name of the method, which is uniquely represented
+	 * by its name along with parameter types.
 	 */
 	public MethodSTE(String name) {
 		super(name, SymbolType.METHOD_STE);

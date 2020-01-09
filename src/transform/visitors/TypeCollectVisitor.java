@@ -6,11 +6,9 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import transform.TypeChecking.TypeChecker;
 /**
- * Visitor class for collecting resolvable types.
- *  
- * In the current implementation, we are only allowing primitive types, 
- * but in subsequent versions we will allow for types from the JDK, inner 
- * class types and the class itself.
+ * Visitor class for collecting resolvable types. Creates a TypeChecker,
+ * which will keep track of the types that are allowed in the generated 
+ * benchmark.
  *  
  * @author mariapaquin
  *
@@ -25,24 +23,28 @@ public class TypeCollectVisitor  extends ASTVisitor {
 		typeChecker = new TypeChecker();
 	}
 	
+	/**
+	 * Add to allowed types the classes imported from the java standard library
+	 */
 	@Override
 	public boolean visit(ImportDeclaration node) {
 		String importName = node.getName().getFullyQualifiedName();
 		String[] importSplit = importName.split("\\.");
 		String className = importSplit[importSplit.length - 1];
 		if (importName.startsWith("java.") || importName.startsWith("javax.")) {
-			// TODO: The visitor freaks out in the presence of ArrayList types. Haven't
-			// figured out why yet...
-			if (!node.toString().contains(".*;") && !node.toString().equals("ArrayList")) {
+			if (!node.toString().contains(".*;")) {
 				typeChecker.addJavaImportType(className);
 			}
 		}
 		return true;
 	}
 	
+	/**
+	 * Add to allowed types inner classes and the class itself
+	 */
 	@Override
 	public boolean visit(TypeDeclaration node) {
-	//	typeChecker.addClassType(node.getName().getIdentifier());
+		typeChecker.addClassType(node.getName().getIdentifier());
 		return true;
 	}
 	

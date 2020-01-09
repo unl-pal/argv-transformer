@@ -12,9 +12,17 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
 /**
  * Class to track what types are in the local type system.
+ * 
  * In the current implementation, we are only allowing primitive types. 
- * In subsequent versions, we will also allow types from the JDK, inner 
- * class types and the class itself. 
+ * This is because we are declaring/initializing any class variables 
+ * used in a method as local variables. We have predefined definition/
+ * initialization statements for primitive types, but initializing inner 
+ * class types or types from JDK would be trickier, e.g., with correct 
+ * parameters. 
+ * 
+ * In subsequent versions, we will allow types from the JDK, inner 
+ * class types and the class itself. (To do this, switch the commented 
+ * out return statement in the method allowedType(Type type).)
  * 
  * @author mariapaquin
  *
@@ -97,8 +105,8 @@ public class TypeChecker {
 	}
 	
 	/**
-	 * Check whether the type is allowed (according to 
-	 * specifications defined in the method).
+	 * Check whether the type is allowed (according to specifications defined 
+	 * in this method).
 	 * 
 	 * @param type
 	 * @return true if the type is allowed, false otherwise.

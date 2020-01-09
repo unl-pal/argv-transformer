@@ -23,6 +23,10 @@ import transform.TypeChecking.TypeChecker;
 /**
  * Visitor class used to build the symbol table.
  * 
+ * In the current implementation, we are only creating a new SymbolTable, 
+ * i.e., a new scope, for type declarations (classes) and methods. Need to 
+ * create a new scope for all blocks/loop bodies.
+ * 
  * @author mariapaquin
  *
  */
@@ -42,6 +46,10 @@ public class SymbolTableVisitor extends ASTVisitor {
 		this.typeChecker = typeChecker;
 	}
 
+	/**
+	 * 
+	 * @return root, i.e., parent symbol table
+	 */
 	public SymbolTable getRoot() {
 		return root;
 	}
@@ -69,19 +77,27 @@ public class SymbolTableVisitor extends ASTVisitor {
 		return true;
 	}
 
+
 	@Override
 	public boolean visit(MethodDeclaration node) {
 		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> params = node.parameters();
 		for (SingleVariableDeclaration param : params) {
 			Type type = param.getType();
+			/*
+			 * If the method has types that are not allowed, we don't need 
+			 * to create a symbol table for it, since we are going to 
+			 * remove it anyway. This simplifies the process of identifying a 
+			 * method symbol table element based on its generated name (i.e., see 
+			 * the method getMethodSTEName(), where we only consider primitive type 
+			 * parameters).
+			 */
 			if (!typeChecker.allowedType(type)) {
 				return false;
 			}
 		}
 
 		SymbolTable currScope = symbolTableStack.peek();
-		// System.out.println("adding " + node.getName() + " to scope " +
 
 		String name = getMethodSTEName(node);
 		MethodSTE sym = new MethodSTE(name);
@@ -104,6 +120,11 @@ public class SymbolTableVisitor extends ASTVisitor {
 		List<SingleVariableDeclaration> params = node.parameters();
 		for (SingleVariableDeclaration param : params) {
 			Type type = param.getType();
+			/*
+			 * If the method has a parameter type that is not allowed, 
+			 * we did not create a symbol table element for it and thus 
+			 * there is nothing to pop.
+			 */
 			if (!typeChecker.allowedType(type)) {
 				pushedMethod = false;
 			}
@@ -197,6 +218,13 @@ public class SymbolTableVisitor extends ASTVisitor {
 		return true;
 	}
 
+	/**
+	 * Use the method name and its parameters to uniquely name 
+	 * it's symbol table element.
+	 * 
+	 * @param node MethodDeclaration node
+	 * @return the method's name in the symbol table
+	 */
 	private String getMethodSTEName(MethodDeclaration node) {
 		String name = node.getName().getIdentifier();
 

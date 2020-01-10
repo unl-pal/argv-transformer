@@ -3,9 +3,8 @@ package sourceAnalysis;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 /**
- * This class represents a method in a Java class. It's used to 
- * keep track of whether the method is symbolic suitable, and 
- * other relevant information.
+ * Represents a method in a Java class. Used to keep track of whether the 
+ * method is suitable for symbolic execution.
  *
  * @author mariapaquin
  *

@@ -22,7 +22,12 @@ import transform.visitors.TransformVisitor;
 import transform.visitors.TypeTableVisitor;
 import transform.visitors.SymbolTableVisitor;
 import transform.visitors.TypeCollectVisitor;
-
+/**
+ * Class to transform Java files into compilable, SPF suitable benchmarks.
+ * 
+ * @author mariapaquin
+ *
+ */
 public class Transformer {
 
 	private ArrayList<File> files;

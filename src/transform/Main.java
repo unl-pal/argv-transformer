@@ -114,11 +114,13 @@ public class Main {
 		if (compiler == null)
 			throw new RuntimeException("Could not get javac - are you running with a JDK or a JRE?");
 
-		return compiler.run(null, null, null, "-g", "-d", buildDir.getAbsolutePath(), "-cp", System.getProperty("java.class.path"), file.toString()) != 0;
-}
+		return compiler.run(null, null, null, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
+				System.getProperty("java.class.path"), file.toString()) != 0;
+	}
 
 	private static boolean compile2(File file) {
-		String command = "javac -g -d " + buildDir.getAbsolutePath() + " -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
+		String command = "javac -g -d " + buildDir.getAbsolutePath()
+				+ " -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
 
 		boolean success = false;
 		try {
@@ -141,7 +143,7 @@ public class Main {
 		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 
 		while ((line = in.readLine()) != null) {
-			 printWriter.println(line);
+			printWriter.println(line);
 		}
 	}
 

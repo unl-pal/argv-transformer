@@ -73,23 +73,10 @@ import transform.TypeChecking.TypeTable;
 /**
  * Visitor class used to find and perform necessary code transformations.
  * 
- * Transformations are done bottom up, i.e., leaf nodes are substituted first.
- * 
- * In the current implementation, we're removing all method calls. To keep method 
- * calls that are resolvable, we'll need to change the scope to infer the return 
- * type of the method, for example, z = getX() + a.getY();
- * We need to get the symbol table element of the method getX() to determine its
- * return type, so that we can infer the type of getX() + a.getY().
- * 
- * Will also need to do this when we are updating method parameters.
- * 
- * As it is now, we're just removing all method calls, so we only need to change the 
- * scope by pushing and popping as we enter and leave method declarations. 
- * 
  * @author mariapaquin
  *
  */
-public class TypeCheckingVisitor extends ASTVisitor {
+public class TransformVisitor extends ASTVisitor {
 
 	private ASTRewrite rewriter;
 	private AST ast;
@@ -110,7 +97,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 	 * @param typeChecker
 	 * @throws IOException
 	 */
-	public TypeCheckingVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker)
+	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker)
 			throws IOException {
 		this.root = root;
 		this.rewriter = rewriter;
@@ -118,6 +105,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		this.typeChecker = typeChecker;
 	}
 	
+	// expr
 	@Override
 	public void endVisit(ArrayAccess node) {
 		Type type = typeTable.getNodeType(node);
@@ -136,6 +124,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		}
 	}
 	
+	// stmt
 	@Override
 	public boolean visit(Assignment node) {
 		Expression lhs = node.getLeftHandSide();
@@ -159,6 +148,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		return true;
 	}
 	
+	// expr
 	@Override
 	public void endVisit(CastExpression node) {
 		Type castType = typeTable.getNodeType(node);
@@ -480,6 +470,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		}
 	}
 	
+	// stmt
 	@Override
 	public boolean visit(MarkerAnnotation node) {
 		rewriter.remove(node, null);
@@ -558,12 +549,7 @@ public class TypeCheckingVisitor extends ASTVisitor {
 		return false;
 	}
 	
-	/**
-	 * Currently, we are just removing every method invocation.
-	 * 
-	 * Eventually, to better preserve the original program structure, we will check
-	 * if the method invocation is resolvable and only remove those that are not.
-	 */
+	// expr rule
 	@Override
 	public void endVisit(MethodInvocation node) {
 		

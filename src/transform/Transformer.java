@@ -18,7 +18,7 @@ import org.eclipse.text.edits.TextEdit;
 import transform.SymbolTable.SymbolTable;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
-import transform.visitors.TypeCheckingVisitor;
+import transform.visitors.TransformVisitor;
 import transform.visitors.TypeTableVisitor;
 import transform.visitors.SymbolTableVisitor;
 import transform.visitors.TypeCollectVisitor;
@@ -80,7 +80,7 @@ public class Transformer {
 				cu.accept(typeTableVisitor);
 				TypeTable typeTable = typeTableVisitor.getTypeTable();
 
-				TypeCheckingVisitor typeCheckingVisitor = new TypeCheckingVisitor(rootScope, rewriter, typeTable,
+				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
 						typeChecker);
 				cu.accept(typeCheckingVisitor);
 				rewriter = typeCheckingVisitor.getRewriter();

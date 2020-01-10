@@ -1,0 +1,25 @@
+
+Transformations are done bottom up, i.e., leaf nodes are substituted first.
+
+In the current implementation, we're removing all method calls. To keep method 
+calls that are resolvable, we'll need to change the scope to infer the return 
+type of the method, for example, if we have z = getX() + a.getY(),
+we need to get the symbol table element of the method 'getX()' to determine its
+return type, to see if it is resolvable or infer the type of 'getX() + a.getY()' etc.
+
+Will also need to do this when we are updating method parameters.
+
+If a method returns something that is not resolvable, and another method calls it, 
+we should be able to determine from the type table that the return is unresolvable 
+and the method call expression needs to be substituted.
+
+As it is now, we're just removing all method calls, so we only need to change the 
+scope by pushing and popping as we enter and leave method declarations. 
+
+
+Currently, we are removing all methods that have parameters that are not
+integer types.
+
+Eventually (to better preserve the original program structure), we will
+remove non-integer parameters/unresolvable typed parameters and update method
+calls with another pass through the AST.

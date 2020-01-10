@@ -1,28 +1,25 @@
 package jpf;
 
 import java.io.File;
-
 import org.apache.bcel.classfile.Method;
-
+/**
+ * Class used to collect method info for Green solver evaluation.
+ * 
+ * @author mariapaquin
+ *
+ */
 public class MethodUnderTest {
 	private File file;
 	private ProgramUnderTest sut;
-
 	private String projectName;
 	private String packageName;
 	private String fullClassName;
 	private String className;
 	private String fullMethodName;
-	private String methodName;
 	private String methodSig;
 	private Method method;
-
 	private int numIntArgs;
 	private boolean hasLoops;
-	
-	public MethodUnderTest() {
-		
-	}
 	
 	public File getFile() {
 		return file;
@@ -95,7 +92,6 @@ public class MethodUnderTest {
 		this.method = method;
 	}
 	
-	
 	public int getNumIntArgs() {
 		return numIntArgs;
 	}
@@ -111,6 +107,5 @@ public class MethodUnderTest {
 	public void setHasLoops(boolean hasLoops) {
 		this.hasLoops = hasLoops;
 	}
-	
 
 }

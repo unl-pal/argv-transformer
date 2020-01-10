@@ -12,14 +12,10 @@ import java.util.Set;
  * 
  */
 public class AnalyzedFile {
-	
 
 	private File file;
 	private String path;
 	private Set<AnalyzedMethod> analyzedMethods;	
-	private AnalyzedMethod mainMethod;
-	
-	private boolean hasMain;
 	
 	public AnalyzedFile(File file) {
 		this.file = file;
@@ -51,22 +47,6 @@ public class AnalyzedFile {
 	
 	public String getPath() {
 		return path;
-	}
-	
-	public boolean isHasMain() {
-		return hasMain;
-	}
-	
-	public void setHasMain(boolean hasMain) {
-		this.hasMain = hasMain;
-	}
-	
-	public AnalyzedMethod getMainMethod() {
-		return mainMethod;
-	}
-	
-	public void setMainMethod(AnalyzedMethod mainMethod) {
-		this.mainMethod = mainMethod;
 	}
 	
 	public File getFile() {

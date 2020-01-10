@@ -68,8 +68,8 @@ public class AnalyzedMethod {
 	}
 	
 	public boolean isSymbolicSuitable() {
-		return (hasParameters && hasOnlyIntParameters && hasConditional);
-//		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
+//		return (hasParameters && hasOnlyIntParameters && hasConditional);
+		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
 	}
 
 	public void setHasConditional(boolean hasConditional) {

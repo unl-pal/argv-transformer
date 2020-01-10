@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import download.GitProject;
 /**
  * Class to track the number of classes and methods in a GitHub project.
+ * Used in printing statistics. 
  * 
  * @author mariapaquin
  *
@@ -24,12 +25,20 @@ public class GeneralFileInfo {
 	private List<GitProject> gitProjects;
 	private int methodCount;
 
+	/**
+	 * Create new GeneralFileInfo
+	 * @param gitProjects List of GitProjects
+	 */
 	public GeneralFileInfo(List<GitProject> gitProjects) {
 		this.gitProjects = gitProjects;
 		totalFiles = new ArrayList<File>();
 		methodCount = 0;
 	}
 	
+	/**
+	 * Count the total number of files in the list of GitProjects
+	 * @return total number of files
+	 */
 	public int countFiles() {
 		for (GitProject project : gitProjects) {
 			ArrayList<File> files = project.getFiles();
@@ -40,6 +49,11 @@ public class GeneralFileInfo {
 		return totalFiles.size();
 	}
 
+	/**
+	 * Count the total number of methods in the list of GitProjects
+	 * @return total number of methods
+	 * @throws IOException
+	 */
 	public int countMethods() throws IOException {
 
 		for (GitProject project : gitProjects) {

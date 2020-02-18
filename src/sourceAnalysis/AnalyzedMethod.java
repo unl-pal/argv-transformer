@@ -19,6 +19,7 @@ public class AnalyzedMethod {
 	private boolean hasIntOperations;
 	private int intOperationCount;
 	private boolean hasConditional;
+	private boolean hasLoop;
 
 		
 	public AnalyzedMethod(MethodDeclaration node) {
@@ -74,5 +75,17 @@ public class AnalyzedMethod {
 	public void setHasConditional(boolean hasConditional) {
 		this.hasConditional = hasConditional;
 		
+	}
+	
+	public boolean isHasConditional() {
+		return hasConditional;
+	}
+	
+	public void setHasLoop(boolean hasLoop) {
+		this.hasLoop = hasLoop;
+	}
+	
+	public boolean isHasLoop() {
+		return hasLoop;
 	}
 }

@@ -19,6 +19,7 @@ public class AnalyzedMethod {
 	private boolean hasIntOperations;
 	private int intOperationCount;
 	private boolean hasConditional;
+	private int conditionalCount;
 	private boolean hasLoop;
 
 		
@@ -57,6 +58,14 @@ public class AnalyzedMethod {
 	
 	public void setIntOperationCount(int intOperationCount) {
 		this.intOperationCount = intOperationCount;
+	}
+	
+	public int getConditionalCount() {
+		return conditionalCount;
+	}
+	
+	public void setConditionalCount(int conditionalCount) {
+		this.conditionalCount = conditionalCount;
 	}
 	
 	public int getIntParameterCount() {

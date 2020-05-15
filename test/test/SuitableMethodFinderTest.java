@@ -8,8 +8,9 @@ import java.io.IOException;
 import org.junit.Test;
 
 import filter.file.SuitableMethodFinder;
+import sourceAnalysis.AnalyzedMethod;
 
-public class SymbolicSuitableMethodFinderTest {
+public class SuitableMethodFinderTest {
 
 	@Test
 	public void test() {
@@ -19,6 +20,12 @@ public class SymbolicSuitableMethodFinderTest {
 			finder.analyze();
 			System.out.println(finder.getAnalyzedFile().getSpfSuitableMethodCount());
 			System.out.println(finder.getTotalIntOperations());
+			System.out.println(finder.getTotalConditionals());
+			
+			for(AnalyzedMethod m : finder.getAnalyzedFile().getSuitableMethods()) {
+				System.out.println(m.getName() + " " + m.getConditionalCount() + " " + m.getIntOperationCount());
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

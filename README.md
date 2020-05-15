@@ -68,18 +68,20 @@ The javac version (used in main.MainTransform.java and mainFullFramework.MainAna
 
 ## DEV BRANCH ADD ONS
 config file has extended configurations
+
 exprType:
  * X - don't care what type of expression is
  * I - integer type (int, short, byte, long)
  * R - real type (double, float)
  * S - string type (String, char)
+ Currently code also ensures that the arguments to a method of that type too (plus boolean).
 
 minExpr:
  * a minimum number of infix, prefix or postfix expression of the defined type encountered in a method
 
 ifStmt:
  * X - don't care if there is an ifStmt in a method
- * Y - an conditional statement should be present in a method
+ * Y - a conditional statement should be present in a method
  * N - a method should have no ifStmt
  
  ifStmtType -- what expression type should be present in a conditional statement:

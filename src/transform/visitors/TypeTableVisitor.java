@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
@@ -187,6 +188,16 @@ public class TypeTableVisitor extends ASTVisitor {
 	 * 
 	 * }
 	 */
+	
+	@Override
+	public boolean visit(IfStatement node) {
+		Expression e = node.getExpression();
+		//it will always be of a boolean type
+		table.setNodeType(e, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+		//System.out.println("Setting " + e + " to boolean");
+		//System.out.println(table.getNodeType(e));
+		return true;
+	}
 
 	@Override
 	public void endVisit(InfixExpression node) {
@@ -196,7 +207,8 @@ public class TypeTableVisitor extends ASTVisitor {
 		Type lhsType = table.getNodeType(lhs);
 		Type rhsType = table.getNodeType(rhs);
 
-		if (lhsType == null || rhsType == null) {
+		//only set to null when no "upper" inference happened
+		if (table.getNodeType(node) == null && (lhsType == null || rhsType == null)) {
 			table.setNodeType(node, null);
 			return;
 		}
@@ -206,10 +218,14 @@ public class TypeTableVisitor extends ASTVisitor {
 		// boolean operators
 		if (op == Operator.CONDITIONAL_AND || op == Operator.CONDITIONAL_OR || op == Operator.XOR
 				|| op == Operator.EQUALS || op == Operator.NOT_EQUALS) {
-			if (isBooleanTypeCode(lhsType) && isBooleanTypeCode(rhsType)) {
+			//why do we even check that? only boolean nodes can be there
+			//if (isBooleanTypeCode(lhsType) && isBooleanTypeCode(rhsType)) {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				//so are lhsType and rhsType
+				table.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				table.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 				return;
-			}
+			//}
 		}
 
 		// relational operators
@@ -523,7 +539,7 @@ public class TypeTableVisitor extends ASTVisitor {
 	}
 	
 	private boolean isFloatingPointTypeCode(Type type) {
-		if (!type.isPrimitiveType())
+		if (type == null || !type.isPrimitiveType())
 			return false;
 		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
 		return (typeCode == PrimitiveType.FLOAT);

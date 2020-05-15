@@ -73,28 +73,42 @@ public class SuitableMethodFinder {
 	private CType type;
 
 	private AnalyzedFile af;
-	private MethodDeclaration currMethodDeclaration;
+	//private MethodDeclaration currMethodDeclaration;
 	private AnalyzedMethod currAnalyzedMethod;
-	private HashSet<String> classIntVariables;
-	private Stack<HashSet<String>> blockStack;
-	private Stack<Expression> expressionsStack;
-	private ArrayList<String> unprocessedExpressions;
-	private boolean intExpression = true;
-	private HashMap<MethodDeclaration, Integer> intOperationsCount;
+	//private HashSet<String> classIntVariables;
+	//private Stack<HashSet<String>> blockStack;
+	//private Stack<Expression> expressionsStack;
+	//private ArrayList<String> unprocessedExpressions;
+	//private boolean intExpression = true;
+	//private List<AnalyzedMethod> intOperationsCount;
 	private int operationsInExpression;
 	//private AnalyzerVisitor visitor;
 	private TypeTable typeTable;
+	private int minTypeExpr;
+	private int minTypeCond;
 
 	public SuitableMethodFinder(File file) throws IOException {
+		defaultSetUp(file);
+		minTypeExpr = 0;
+		minTypeCond = 0;
+	}
+	
+	private void defaultSetUp(File file) {
 		af = new AnalyzedFile(file);
-		intOperationsCount = new HashMap<MethodDeclaration, Integer>();
-		classIntVariables = new HashSet<String>();
-		blockStack = new Stack<HashSet<String>>();
-		expressionsStack = new Stack<Expression>();
+		//intOperationsCount = new ArrayList<AnalyzedMethod>();
+		//classIntVariables = new HashSet<String>();
+		//blockStack = new Stack<HashSet<String>>();
+		//expressionsStack = new Stack<Expression>();
 		operationsInExpression = 0;
-		unprocessedExpressions = new ArrayList<String>();
+		//unprocessedExpressions = new ArrayList<String>();
 		//setting type to int for now
 		type = CType.INT;
+	}
+	
+	public SuitableMethodFinder(File file, int minExpr, int minCond) throws IOException {
+		defaultSetUp(file);
+		minTypeExpr = minExpr;
+		minTypeCond = minCond;
 	}
 
 	public void analyze() throws IOException {
@@ -106,9 +120,11 @@ public class SuitableMethodFinder {
 		ASTNode node = parser.createAST(null);
 		//infer the types of nodes
 		
+		//collects import types
 		TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
 		node.accept(typeCollectVisitor);
 		TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
+		
 		
 		SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
 		node.accept(symTableVisitor);
@@ -120,12 +136,30 @@ public class SuitableMethodFinder {
 		
 		AnalyzerVisitor visitor = new AnalyzerVisitor();
 		node.accept(visitor);
+		
+		//done with visiting set af
+		//how to determine whether the anlyzed file is suitable?
+		//when \exists at least one suitable method
+		for(AnalyzedMethod m : af.getAnalyzedMethods()) {
+			if(m.getConditionalCount() > minTypeCond && m.getIntOperationCount() > minTypeExpr) {
+				af.addSuitableMethod(m);
+			}
+		}
+		
 	}
 
 	public int getTotalIntOperations() {
 		int count = 0;
-		for (Map.Entry<MethodDeclaration, Integer> entry : intOperationsCount.entrySet()) {
-			count += (int) entry.getValue();
+		for (AnalyzedMethod m : af.getAnalyzedMethods()) {
+			count += m.getIntOperationCount();
+		}
+		return count;
+	}
+	
+	public int getTotalConditionals() {
+		int count = 0;
+		for (AnalyzedMethod m : af.getAnalyzedMethods()) {
+			count += m.getConditionalCount();
 		}
 		return count;
 	}
@@ -137,26 +171,26 @@ public class SuitableMethodFinder {
 	private class AnalyzerVisitor extends ASTVisitor {
 
 
-		@Override
-		public boolean visit(TypeDeclaration node) {
-			blockStack.add(new HashSet<String>());
-			return true;
-		}
+//		@Override
+//		public boolean visit(TypeDeclaration node) {
+//			blockStack.add(new HashSet<String>());
+//			return true;
+//		}
 
-		@Override
-		public boolean visit(FieldDeclaration node) {
-
-			Type type = node.getType();
-			@SuppressWarnings("unchecked")
-			List<VariableDeclarationFragment> instanceVariables = node.fragments();
-
-			if (isIntegerTypeCode(type)) {
-				for (VariableDeclarationFragment variable : instanceVariables) {
-					classIntVariables.add(variable.getName().getIdentifier());
-				}
-			}
-			return false;
-		}
+//		@Override
+//		public boolean visit(FieldDeclaration node) {
+//
+//			Type type = node.getType();
+//			@SuppressWarnings("unchecked")
+//			List<VariableDeclarationFragment> instanceVariables = node.fragments();
+//
+//			if (isIntegerTypeCode(type)) {
+//				for (VariableDeclarationFragment variable : instanceVariables) {
+//					classIntVariables.add(variable.getName().getIdentifier());
+//				}
+//			}
+//			return false;
+//		}
 
 		@Override
 		public boolean visit(Initializer node) {
@@ -194,56 +228,59 @@ public class SuitableMethodFinder {
 			af.addMethod(am);
 
 			checkParameterTypes(am, node);
-			currMethodDeclaration = node;
+			//currMethodDeclaration = node;
 			currAnalyzedMethod = am;
 
-			@SuppressWarnings("unchecked")
-			HashSet<String> liveIntVariables = (HashSet<String>) classIntVariables.clone();
-			@SuppressWarnings("unchecked")
-			List<SingleVariableDeclaration> parameters = (List<SingleVariableDeclaration>) (node.parameters());
-
-			for (SingleVariableDeclaration parameter : parameters) {
-				Type parameterType = parameter.getType();
-				if (!parameterType.isPrimitiveType())
-					continue;
-
-				if (isIntegerTypeCode(parameterType)) {
-					String parameterName = parameter.getName().getIdentifier();
-					liveIntVariables.add(parameterName);
-				}
-			}
-
-			blockStack.push(liveIntVariables);
-			intOperationsCount.put(node, 0);
+//			@SuppressWarnings("unchecked")
+//			HashSet<String> liveIntVariables = (HashSet<String>) classIntVariables.clone();
+			//@SuppressWarnings("unchecked")
+//			List<SingleVariableDeclaration> parameters = (List<SingleVariableDeclaration>) (node.parameters());
+//
+//			for (SingleVariableDeclaration parameter : parameters) {
+//				Type parameterType = parameter.getType();
+//				if (!parameterType.isPrimitiveType())
+//					continue;
+//
+//				if (isIntegerTypeCode(parameterType)) {
+//					String parameterName = parameter.getName().getIdentifier();
+//					liveIntVariables.add(parameterName);
+//				}
+//			}
+//
+//			blockStack.push(liveIntVariables);
 
 			return true;
 		}
 
 		@Override
 		public void endVisit(MethodDeclaration node) {
-			int intOpCount = intOperationsCount.get(currMethodDeclaration);
-			boolean hasIntOps = intOpCount > 0 ? true : false;
-			currAnalyzedMethod.setHasIntOperations(hasIntOps);
-			currAnalyzedMethod.setIntOperationCount(intOpCount);
+			int intOpCount = currAnalyzedMethod.getIntOperationCount();
+			if(intOpCount > 0) {
+				currAnalyzedMethod.setHasIntOperations(true);
+			}
+			
+			if(currAnalyzedMethod.getConditionalCount() > 0) {
+				currAnalyzedMethod.setHasConditional(true);
+			}
 		}
 
 		@Override
 		public boolean visit(Block node) {
-			if (!blockStack.empty()) {
-				HashSet<String> liveIntVariables = blockStack.peek();
-				@SuppressWarnings("unchecked")
-				HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
-				blockStack.push(localVarsClone);
-			} else {
-				blockStack.push(new HashSet<>());
-			}
+//			if (!blockStack.empty()) {
+//				HashSet<String> liveIntVariables = blockStack.peek();
+//				@SuppressWarnings("unchecked")
+//				HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
+//				blockStack.push(localVarsClone);
+//			} else {
+//				blockStack.push(new HashSet<>());
+//			}
 			return true;
 		}
 
-		@Override
-		public void endVisit(Block node) {
-			blockStack.pop();
-		}
+//		@Override
+//		public void endVisit(Block node) {
+//			blockStack.pop();
+//		}
 		
 		
 		@Override
@@ -251,12 +288,15 @@ public class SuitableMethodFinder {
 			//eas we need to check whether the expression is of int type
 			//do we do it here or somewhere else?
 			Expression e = node.getExpression();
-			System.out.println(e.getClass() + " " + hasType(e));
+			boolean hasType = hasType(e);
+			System.out.println(e.getClass() + " " + hasType + " " + typeTable.getNodeType(e));
 			//try to visit it and find out whether it has integer exprssions?
 			//it can be 1) Boolean expression, 2) Infix expression, 3) Conditional expression
 			// other expressions that can return boolean value
 			//let's focus on infix expressions
-			if(e instanceof InfixExpression) {
+			// let's not -- just check whether the expression has required type
+			// that is operands there have type for which analysis is built
+		//--	if(e instanceof InfixExpression) {
 //				InfixExpression infE = (InfixExpression) e;
 //				Expression lE = infE.getLeftOperand();
 //				Type t = typeTable.getNodeType(lE);
@@ -264,10 +304,12 @@ public class SuitableMethodFinder {
 //					currAnalyzedMethod.setHasConditional(true);
 //				}
 				//remember the count before
-				if(hasType(e)) {
-					currAnalyzedMethod.setHasConditional(true);
+				if(hasType) {
+					currAnalyzedMethod.setConditionalCount(currAnalyzedMethod.getConditionalCount()+1);
+					
 				}
-			}
+				
+			//--}
 		
 			//then the visitor will go into expression and count
 			//what it needs to count
@@ -313,144 +355,149 @@ public class SuitableMethodFinder {
 		public boolean visit(ForStatement node) {
 			currAnalyzedMethod.setHasLoop(true);
 			// To handle scope of local variables
-			if (!blockStack.empty()) {
-				HashSet<String> liveIntVariables = blockStack.peek();
-				@SuppressWarnings("unchecked")
-				HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
-				blockStack.push(localVarsClone);
-			} else {
-				blockStack.push(new HashSet<>());
-			}
-
-			@SuppressWarnings("unchecked")
-			List<Expression> initializers = node.initializers();
-
-			for (Expression variable : initializers) {
-				if (variable.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION)
-					continue;
-
-				Type variableType = ((VariableDeclarationExpression) variable).getType();
-
-				if (!variableType.isPrimitiveType())
-					continue;
-
-				if (isIntegerTypeCode(variableType)) {
-					@SuppressWarnings("unchecked")
-					List<VariableDeclarationFragment> fragments = ((VariableDeclarationExpression) variable)
-							.fragments();
-					HashSet<String> liveIntVariables = blockStack.pop();
-
-					for (VariableDeclarationFragment fragment : fragments) {
-						String loopVariable = fragment.getName().getIdentifier();
-						liveIntVariables.add(loopVariable);
-					}
-
-					blockStack.push(liveIntVariables);
-				}
-			}
+//			if (!blockStack.empty()) {
+//				HashSet<String> liveIntVariables = blockStack.peek();
+//				@SuppressWarnings("unchecked")
+//				HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
+//				blockStack.push(localVarsClone);
+//			} else {
+//				blockStack.push(new HashSet<>());
+//			}
+//
+//			@SuppressWarnings("unchecked")
+//			List<Expression> initializers = node.initializers();
+//
+//			for (Expression variable : initializers) {
+//				if (variable.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION)
+//					continue;
+//
+//				Type variableType = ((VariableDeclarationExpression) variable).getType();
+//
+//				if (!variableType.isPrimitiveType())
+//					continue;
+//
+//				if (isIntegerTypeCode(variableType)) {
+//					@SuppressWarnings("unchecked")
+//					List<VariableDeclarationFragment> fragments = ((VariableDeclarationExpression) variable)
+//							.fragments();
+//					HashSet<String> liveIntVariables = blockStack.pop();
+//
+//					for (VariableDeclarationFragment fragment : fragments) {
+//						String loopVariable = fragment.getName().getIdentifier();
+//						liveIntVariables.add(loopVariable);
+//					}
+//
+//					blockStack.push(liveIntVariables);
+//				}
+//			}
 			return true;
 		}
 
 		@Override
 		public void endVisit(ForStatement node) {
-			blockStack.pop();
+			//blockStack.pop();
 		}
 
 		@Override
 		public boolean visit(VariableDeclarationStatement node) {
 
-			Type variableType = node.getType();
-			if (!variableType.isPrimitiveType()) {
-				// right now we are just ignoring non-primitive declarations
-				return true;
-			}
-
-			@SuppressWarnings("unchecked")
-			List<VariableDeclarationFragment> fragments = node.fragments();
-			HashSet<String> liveIntVariables = blockStack.pop();
-
-			if (isIntegerTypeCode(variableType)) {
-				for (VariableDeclarationFragment fragment : fragments) {
-					String variableName = fragment.getName().getIdentifier();
-					liveIntVariables.add(variableName);
-				}
-
-			} else {
-				// Check if we are redefining an instance variable to be non integer
-				for (VariableDeclarationFragment fragment : fragments) {
-					String variableName = fragment.getName().getIdentifier();
-
-					if (isLiveIntVariable(variableName)) {
-						liveIntVariables.remove(variableName);
-					}
-				}
-			}
-
-			blockStack.push(liveIntVariables);
+//			Type variableType = node.getType();
+//			if (!variableType.isPrimitiveType()) {
+//				// right now we are just ignoring non-primitive declarations
+//				return true;
+//			}
+//
+//			@SuppressWarnings("unchecked")
+//			List<VariableDeclarationFragment> fragments = node.fragments();
+//			HashSet<String> liveIntVariables = blockStack.pop();
+//
+//			if (isIntegerTypeCode(variableType)) {
+//				for (VariableDeclarationFragment fragment : fragments) {
+//					String variableName = fragment.getName().getIdentifier();
+//					liveIntVariables.add(variableName);
+//				}
+//
+//			} else {
+//				// Check if we are redefining an instance variable to be non integer
+//				for (VariableDeclarationFragment fragment : fragments) {
+//					String variableName = fragment.getName().getIdentifier();
+//
+//					if (isLiveIntVariable(variableName)) {
+//						liveIntVariables.remove(variableName);
+//					}
+//				}
+//			}
+//
+//			blockStack.push(liveIntVariables);
 
 			return true;
 		}
 
-		@Override
-		public boolean visit(Assignment node) {
-			HashSet<String> liveIntVariables = blockStack.peek();
-			Expression lhs = node.getLeftHandSide();
-			if (!isVariable(lhs)) {
-				return true;
-			}
-			String variableName = lhs.toString();
-			if (liveIntVariables.contains(variableName)) {
-				if (node.getOperator() != Assignment.Operator.ASSIGN) {
-					intOperationsCount.put(currMethodDeclaration, intOperationsCount.get(currMethodDeclaration) + 1);
-				}
-			}
-			return true;
-		}
+//		@Override
+//		public boolean visit(Assignment node) {
+//			HashSet<String> liveIntVariables = blockStack.peek();
+//			Expression lhs = node.getLeftHandSide();
+//			if (!isVariable(lhs)) {
+//				return true;
+//			}
+//			String variableName = lhs.toString();
+//			if (liveIntVariables.contains(variableName)) {
+//				if (node.getOperator() != Assignment.Operator.ASSIGN) {
+//					currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
+//				}
+//			}
+//			return true;
+//		}
 
 		@Override
 		public boolean visit(CastExpression node) {
-			expressionsStack.push(node);
+			//expressionsStack.push(node);
 			return true;
 		}
 
-		@Override
-		public void endVisit(CastExpression node) {
-			Type type = node.getType();
-			intExpression = isIntegerTypeCode(type) ? true : false;
-			expressionsStack.pop();
-
-			if (parentExpression()) {
-				if (intExpression) {
-					intOperationsCount.put(currMethodDeclaration,
-							intOperationsCount.get(currMethodDeclaration) + operationsInExpression);
-				}
-				operationsInExpression = 0;
-				intExpression = true;
-			}
-		}
+//		@Override
+//		public void endVisit(CastExpression node) {
+//			Type type = node.getType();
+//			intExpression = isIntegerTypeCode(type) ? true : false;
+//			//expressionsStack.pop();
+//			//not sure why are we counting casting as an operation
+//			//if (parentExpression()) {
+//				if (intExpression) {
+//					currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
+//				}
+//				operationsInExpression = 0;
+//				intExpression = true;
+//			//}
+//		}
 
 		@Override
 		public boolean visit(InfixExpression node) {
-			expressionsStack.push(node);
+			//expressionsStack.push(node);
 
-			System.out.println(node);
+			System.out.println(" n " + node + "\t" + typeTable.getNodeType(node));
 			Expression lE = node.getLeftOperand();
 			Type lT = typeTable.getNodeType(lE);
 			Expression rE = node.getRightOperand();
 			Type rT = typeTable.getNodeType(rE);
-			if(TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type) {
+			//if the parent node is not a boolean type (no logical connections)
+			//and if lhs and rhs of the required type than its op should some
+			//kind of numerical operator
+			if((TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type)) {
 				
+				//does it matter what type of operand is it?
 			Operator op = node.getOperator();
-			if (op == Operator.PLUS ||
-					op == Operator.MINUS ||
-					op == Operator.DIVIDE ||
-					op == Operator.TIMES ||
-					op == Operator.REMAINDER) {
+//			if (op == Operator.PLUS ||
+//					op == Operator.MINUS ||
+//					op == Operator.DIVIDE ||
+//					op == Operator.TIMES ||
+//					op == Operator.REMAINDER) {
 				// so we count that operations
 				//if the type is int
-				
+			if(!TypeChecker.isBooleanType(typeTable.getNodeType(node))) {
+				System.out.println("op " + op);
 					operationsInExpression++;
-				}
+			}
+				//}
 			} else if( !TypeChecker.isBooleanType(lT) && !TypeChecker.isBooleanType(rT)){
 				// no need to go further if lhs is not of int type and not boolean
 				//since a condition might use logical constructs to build complex expressions
@@ -461,23 +508,23 @@ public class SuitableMethodFinder {
 
 		@Override
 		public void endVisit(InfixExpression node) {
-			expressionsStack.pop();
+			//expressionsStack.pop();
 			if(operationsInExpression > 0) {
-					intOperationsCount.put(currMethodDeclaration,
-							intOperationsCount.get(currMethodDeclaration) + operationsInExpression);
+				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
 					operationsInExpression = 0;
 			}
 		}
 
 		@Override
 		public boolean visit(PrefixExpression node) {
-			expressionsStack.push(node);
-
+			//expressionsStack.push(node);
+			System.out.println("Prefix " + node);
 			Expression operand = node.getOperand();
 			CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
 			if( tOp == type) {
 				//so it is integer
 				operationsInExpression++;
+				System.out.println("preixCount");
 			} else {
 				//no need to go if it is not an int
 				return false;
@@ -488,10 +535,9 @@ public class SuitableMethodFinder {
 
 		@Override
 		public void endVisit(PrefixExpression node) {
-			expressionsStack.pop();
+			//expressionsStack.pop();
 			if(operationsInExpression > 0) {
-					intOperationsCount.put(currMethodDeclaration,
-							intOperationsCount.get(currMethodDeclaration) + operationsInExpression);
+				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
 					operationsInExpression = 0;
 				}
 				
@@ -499,13 +545,14 @@ public class SuitableMethodFinder {
 
 		@Override
 		public boolean visit(PostfixExpression node) {
-			expressionsStack.push(node);
+			//expressionsStack.push(node);
 			//HashSet<String> liveIntVariables = blockStack.peek();
 			Expression operand = node.getOperand();
 			System.out.println("postfix " + node);
 			CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
 			if(tOp == type) {
 				operationsInExpression++;
+				System.out.println("postfix");
 			} else {
 				//no need to go in if it is not an int
 				return false;
@@ -516,10 +563,9 @@ public class SuitableMethodFinder {
 
 		@Override
 		public void endVisit(PostfixExpression node) {
-			expressionsStack.pop();
+			//expressionsStack.pop();
 			if(operationsInExpression > 0) {
-					intOperationsCount.put(currMethodDeclaration,
-							intOperationsCount.get(currMethodDeclaration) + operationsInExpression);
+				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
 			operationsInExpression = 0;
 				}
 				
@@ -567,32 +613,32 @@ public class SuitableMethodFinder {
 				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
 	}
 
-	private boolean isIntegerTypeCode(Type type) {
-		if (!type.isPrimitiveType())
-			return false;
-		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-
-		return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
-				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
-	}
-
-	private boolean isVariable(Expression exp) {
-		return (exp instanceof SimpleName || exp instanceof QualifiedName);
-	}
-
-
-
-	private boolean isLiveIntVariable(String name) {
-		HashSet<String> liveIntVariables = blockStack.peek();
-		if (liveIntVariables.contains(name)) {
-			return true;
-		}
-		return false;
-	}
+//	private boolean isIntegerTypeCode(Type type) {
+//		if (!type.isPrimitiveType())
+//			return false;
+//		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+//
+//		return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
+//				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
+//	}
+//
+//	private boolean isVariable(Expression exp) {
+//		return (exp instanceof SimpleName || exp instanceof QualifiedName);
+//	}
 
 
-	private boolean parentExpression() {
-		return expressionsStack.isEmpty();
-	}
+
+//	private boolean isLiveIntVariable(String name) {
+//		HashSet<String> liveIntVariables = blockStack.peek();
+//		if (liveIntVariables.contains(name)) {
+//			return true;
+//		}
+//		return false;
+//	}
+
+
+//	private boolean parentExpression() {
+//		return expressionsStack.isEmpty();
+//	}
 	}
 }

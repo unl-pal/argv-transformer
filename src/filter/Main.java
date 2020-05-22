@@ -33,7 +33,7 @@ public class Main {
 		FileFilter filter = new FileFilter(inDir);
 
 		filter.collectJavaFiles();
-		filter.collectSymbolicSuitableFiles();
+		filter.collectSuitableFiles();
 
 		ArrayList<File> files = filter.getSuitableFiles();
 

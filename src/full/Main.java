@@ -51,10 +51,14 @@ public class Main {
 	 * @param debugLevel
 	 * @param downloadDir
 	 * @param benchmarkDir
+	 * @param minIfStmt 
+	 * @param ifStmt 
+	 * @param minExpr 
+	 * @param type 
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
-			String downloadDir, String benchmarkDir) throws IOException {
+			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt) throws IOException {
 
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
@@ -108,7 +112,7 @@ public class Main {
 
 		Logger.defaultLogger.enterContext("FILTER");
 
-		FileFilter filter = new FileFilter(projects);
+		FileFilter filter = new FileFilter(projects,type,  minExpr, minIfStmt);
 		filter.collectSuitableFilesInProjectList();
 
 		totalSpfSuitableMethods = filter.getSuitableMethodCount();

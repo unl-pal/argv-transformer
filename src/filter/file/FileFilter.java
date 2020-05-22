@@ -9,6 +9,8 @@ import java.util.List;
 
 import download.GitProject;
 import sourceAnalysis.AnalyzedFile;
+import sourceAnalysis.AnalyzedMethod;
+import transform.TypeChecking.TypeChecker.CType;
 
 /**
  * Class to find java files suitable for symbolic execution.
@@ -21,6 +23,9 @@ public class FileFilter {
 	private File database;
 	private int spfSuitableMethods;
 	private List<GitProject> gitProjects;
+	private CType type;
+	private int minExpr;
+	private int minIfStmt;
 
 	/**
 	 * Create a new FileFilter
@@ -41,6 +46,23 @@ public class FileFilter {
 		spfSuitableFiles = new ArrayList<File>();
 		javaFiles = new ArrayList<File>();
 		spfSuitableMethods = 0;
+	}
+	
+	public FileFilter(List<GitProject> gitProjects, String type, int minExpr, int minIfStmt) {
+		this.gitProjects = gitProjects;
+		spfSuitableFiles = new ArrayList<File>();
+		spfSuitableMethods = 0;
+
+		switch(type) {
+		case "I": this.type = CType.INT; break;
+		case "R" : this.type = CType.REAL; break;
+		case "B" : this.type = CType.BOOLEAN; break;
+		case "S" : this.type = CType.STRING; break;
+		default : this.type = CType.ANY; break;
+		}
+		this.minExpr = minExpr;
+		this.minIfStmt = minIfStmt;
+		
 	}
 
 	/**
@@ -77,20 +99,27 @@ public class FileFilter {
 	 * Use the SymbolicSuitableMethodFinder to search the javaFiles list for files 
 	 * suitable for SPF. Add suitable files to the list spfSuitableFiles.
 	 */
-	public void collectSymbolicSuitableFiles() {
+	public void collectSuitableFiles() {
 		for (File file: javaFiles) {
 			try {
-				SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
+				//SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
+				SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt);
 				finder.analyze();
 				AnalyzedFile af = finder.getAnalyzedFile();
-				try {
-					spfSuitableMethods += af.getSpfSuitableMethodCount();
-					if (af.isSymbolicSuitable()) {
-						spfSuitableFiles.add(file);
-					}
-				} catch (Exception e) {
-					continue;
+				int suitableMethods = af.getSuitableMethods().size();
+				if(suitableMethods > 0) {
+					spfSuitableMethods += af.getSuitableMethods().size();
+					spfSuitableFiles.add(file);
 				}
+				
+//				try {
+//					spfSuitableMethods += af.getSpfSuitableMethodCount();
+//					if (af.isSymbolicSuitable()) {
+//						spfSuitableFiles.add(file);
+//					}
+//				} catch (Exception e) {
+//					continue;
+//				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -103,24 +132,27 @@ public class FileFilter {
 	 */
 	public void collectSuitableFilesInProjectList() {
 		for (GitProject project : gitProjects) {
-			ArrayList<File> files = project.getFiles();
-			for (File file : files) {
-				try {
-					SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
-					finder.analyze();
-					AnalyzedFile af = finder.getAnalyzedFile();
-					try {
-						spfSuitableMethods += af.getSpfSuitableMethodCount();
-						if (af.isSymbolicSuitable()) {
-							spfSuitableFiles.add(file);
-						}
-					} catch (Exception e) {
-						continue;
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			//ArrayList<File> files = project.getFiles();
+			javaFiles = project.getFiles();
+			collectSuitableFiles();
+//			for (File file : files) {
+//				try {
+//					//SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
+//					SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt);
+//					finder.analyze();
+//					AnalyzedFile af = finder.getAnalyzedFile();
+//					try {
+//						spfSuitableMethods += af.getSpfSuitableMethodCount();
+//						if (af.isSymbolicSuitable()) {
+//							spfSuitableFiles.add(file);
+//						}
+//					} catch (Exception e) {
+//						continue;
+//					}
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
 		}
 	}
 

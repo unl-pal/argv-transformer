@@ -105,10 +105,11 @@ public class SuitableMethodFinder {
 		type = CType.INT;
 	}
 	
-	public SuitableMethodFinder(File file, int minExpr, int minCond) throws IOException {
+	public SuitableMethodFinder(File file, CType type, int minExpr, int minCondStmt) throws IOException {
 		defaultSetUp(file);
 		minTypeExpr = minExpr;
-		minTypeCond = minCond;
+		minTypeCond = minCondStmt;
+		this.type = type;
 	}
 
 	public void analyze() throws IOException {

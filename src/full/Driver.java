@@ -18,6 +18,8 @@ public class Driver {
 	private final static String DEFAULT_MIN_LOC = "100";
 	private final static String DEFAULT_MAX_LOC = "10000";
 	private final static String DEFAULT_PROJECT_COUNT = "1";
+	private final static String DEFAULT_MIN_EXPR = "1";
+	private final static String DEFAULT_MIN_IFSTMT = "1";
 
 	public static void main(String[] args) {
 		File configFile = new File("config.properties");
@@ -33,8 +35,15 @@ public class Driver {
 			String benchmarkDir = props.getProperty("benchmarkDir");
 			String filename = props.getProperty("csv");
 			int debugLevel = Integer.parseInt(props.getProperty("debugLevel", "-1"));
+			String type = props.getProperty("type");
+			int minExpr = Integer.parseInt(props.getProperty("minExpr", DEFAULT_MIN_EXPR));
+			boolean ifStmt = props.get("ifStmt").equals("y");
+			//in the future we can add exclusion right now it is either required or don't care how many
+			int minIfStmt = ifStmt?Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT)):0;
 
-			Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
+			//Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
+			Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir,
+					type, minExpr, minIfStmt);
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);

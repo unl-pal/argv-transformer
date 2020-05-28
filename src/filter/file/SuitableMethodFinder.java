@@ -94,6 +94,7 @@ public class SuitableMethodFinder {
 	}
 	
 	private void defaultSetUp(File file) {
+		System.out.println("File\t" + file);
 		af = new AnalyzedFile(file);
 		//intOperationsCount = new ArrayList<AnalyzedMethod>();
 		//classIntVariables = new HashSet<String>();
@@ -178,20 +179,11 @@ public class SuitableMethodFinder {
 //			return true;
 //		}
 
-//		@Override
-//		public boolean visit(FieldDeclaration node) {
-//
-//			Type type = node.getType();
-//			@SuppressWarnings("unchecked")
-//			List<VariableDeclarationFragment> instanceVariables = node.fragments();
-//
-//			if (isIntegerTypeCode(type)) {
-//				for (VariableDeclarationFragment variable : instanceVariables) {
-//					classIntVariables.add(variable.getName().getIdentifier());
-//				}
-//			}
-//			return false;
-//		}
+		@Override
+		public boolean visit(FieldDeclaration node) {
+			
+			return false;
+		}
 
 		@Override
 		public boolean visit(Initializer node) {
@@ -231,6 +223,7 @@ public class SuitableMethodFinder {
 			checkParameterTypes(am, node);
 			//currMethodDeclaration = node;
 			currAnalyzedMethod = am;
+			System.out.println("Method\t" + am.getName());
 
 //			@SuppressWarnings("unchecked")
 //			HashSet<String> liveIntVariables = (HashSet<String>) classIntVariables.clone();
@@ -591,28 +584,30 @@ public class SuitableMethodFinder {
 
 	public boolean hasOnlyIntegerParameters(List<SingleVariableDeclaration> parameters) {
 		for (SingleVariableDeclaration parameter : parameters) {
-			if (!isIntegerParameter(parameter)) {
+			CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
+			if(parType != type && parType != CType.BOOLEAN) {
+			//if (!isIntegerParameter(parameter)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	private boolean isSingleParameter(SingleVariableDeclaration parameter) {
-		return (parameter.getExtraDimensions() == 0 && !parameter.isVarargs());
-	}
+//	private boolean isSingleParameter(SingleVariableDeclaration parameter) {
+//		return (parameter.getExtraDimensions() == 0 && !parameter.isVarargs());
+//	}
 
-	private boolean isIntegerParameter(SingleVariableDeclaration parameter) {
-		if (!isSingleParameter(parameter))
-			return false;
-		Type type = parameter.getType();
-		if (!type.isPrimitiveType())
-			return false;
-
-		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-		return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
-				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
-	}
+//	private boolean isIntegerParameter(SingleVariableDeclaration parameter) {
+//		if (!isSingleParameter(parameter))
+//			return false;
+//		Type type = parameter.getType();
+//		if (!type.isPrimitiveType())
+//			return false;
+//
+//		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+//		return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
+//				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
+//	}
 
 //	private boolean isIntegerTypeCode(Type type) {
 //		if (!type.isPrimitiveType())

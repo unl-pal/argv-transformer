@@ -40,7 +40,7 @@ public class Driver {
 			boolean ifStmt = props.get("ifStmt").equals("y");
 			//in the future we can add exclusion right now it is either required or don't care how many
 			int minIfStmt = ifStmt?Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT)):0;
-
+			System.out.println("Min if Stmt " + minIfStmt);
 			//Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
 			Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir,
 					type, minExpr, minIfStmt);

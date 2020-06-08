@@ -23,7 +23,7 @@ public class SuitableMethodFinderTest {
 			System.out.println(finder.getTotalConditionals());
 			
 			for(AnalyzedMethod m : finder.getAnalyzedFile().getSuitableMethods()) {
-				System.out.println(m.getName() + " " + m.getConditionalCount() + " " + m.getIntOperationCount());
+				System.out.println(m.getName() + " " + m.getTypeConditionalCount() + " " + m.getTypeOperationCount());
 			}
 			
 		} catch (IOException e) {

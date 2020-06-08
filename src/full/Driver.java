@@ -19,7 +19,8 @@ public class Driver {
 	private final static String DEFAULT_MAX_LOC = "10000";
 	private final static String DEFAULT_PROJECT_COUNT = "1";
 	private final static String DEFAULT_MIN_EXPR = "1";
-	private final static String DEFAULT_MIN_IFSTMT = "1";
+	private final static String DEFAULT_MIN_IFSTMT = "0";
+	private final static String DEFAULT_MIN_PARAMS = "0";
 
 	public static void main(String[] args) {
 		File configFile = new File("config.properties");
@@ -37,13 +38,13 @@ public class Driver {
 			int debugLevel = Integer.parseInt(props.getProperty("debugLevel", "-1"));
 			String type = props.getProperty("type");
 			int minExpr = Integer.parseInt(props.getProperty("minExpr", DEFAULT_MIN_EXPR));
-			boolean ifStmt = props.get("ifStmt").equals("y");
 			//in the future we can add exclusion right now it is either required or don't care how many
-			int minIfStmt = ifStmt?Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT)):0;
-			System.out.println("Min if Stmt " + minIfStmt);
+			int minIfStmt = Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT));
+			//Minimum number of parameters of that type
+			int minParams = Integer.parseInt(props.getProperty("minParams", DEFAULT_MIN_PARAMS));
 			//Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
 			Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir,
-					type, minExpr, minIfStmt);
+					type, minExpr, minIfStmt, minParams);
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);

@@ -39,7 +39,7 @@ public class Main {
 	private static PrintWriter printWriter;
 	private static int totalNumFiles;
 	private static int totalNumMethods;
-	private static int totalSpfSuitableMethods;
+	private static int totalSuitableMethods;
 	private static int compilableSpfSuitableMethodCount;
 	private static int compilableAfterTransformSpfSuitableMethodCount;
 
@@ -58,14 +58,14 @@ public class Main {
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
-			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt) throws IOException {
+			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams) throws IOException {
 
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
 		
 		totalNumFiles = 0;
 		totalNumMethods = 0;
-		totalSpfSuitableMethods = 0;
+		totalSuitableMethods = 0;
 		compilableSpfSuitableMethodCount = 0;
 		compilableAfterTransformSpfSuitableMethodCount = 0;
 
@@ -112,16 +112,16 @@ public class Main {
 
 		Logger.defaultLogger.enterContext("FILTER");
 
-		FileFilter filter = new FileFilter(projects,type,  minExpr, minIfStmt);
+		FileFilter filter = new FileFilter(projects,type,  minExpr, minIfStmt, minParams);
 		filter.collectSuitableFilesInProjectList();
 
-		totalSpfSuitableMethods = filter.getSuitableMethodCount();
+		totalSuitableMethods = filter.getSuitableMethodCount();
 
-		ArrayList<File> spfSuitableFiles = filter.getSuitableFiles();
+		ArrayList<File> suitableFiles = filter.getSuitableFiles();
 
 		Logger.defaultLogger.exitContext("FILTER");
 
-		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "suitablePrgms");
+		ArrayList<File> copiedFiles = copyFiles(suitableFiles, downloadDir, "suitablePrgms");
 		ArrayList<File> successfulCompiles = new ArrayList<File>();
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		
@@ -163,8 +163,8 @@ public class Main {
 		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
 
 		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
-				+ "\nFiles suitable for SPF: " + spfSuitableFiles.size() + "\nMethods suitable for SPF: "
-				+ totalSpfSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
+				+ "\nFiles suitable for SPF: " + suitableFiles.size() + "\nMethods suitable for SPF: "
+				+ totalSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
 				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
 				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
 				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
@@ -232,7 +232,7 @@ public class Main {
 	 */
 	private static boolean compile(File file) throws IOException {
 
-		String command = "javac -g -d bin/ -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/ " + file;
+		String command = "javac -g -d bin/ -cp .:/Users/elenasherman/git/jpf-symbc/build/classes/ " + file;
 
 		boolean success = false;
 		try {

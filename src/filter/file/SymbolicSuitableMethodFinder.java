@@ -192,8 +192,8 @@ public class SymbolicSuitableMethodFinder {
 		public void endVisit(MethodDeclaration node) {
 			int intOpCount = intOperationsCount.get(currMethodDeclaration);
 			boolean hasIntOps = intOpCount > 0 ? true : false;
-			currAnalyzedMethod.setHasIntOperations(hasIntOps);
-			currAnalyzedMethod.setIntOperationCount(intOpCount);
+			currAnalyzedMethod.setHasTypeOperations(hasIntOps);
+			currAnalyzedMethod.setTypeOperationCount(intOpCount);
 		}
 
 		@Override
@@ -216,7 +216,7 @@ public class SymbolicSuitableMethodFinder {
 		
 		@Override
 		public boolean visit(IfStatement node) {
-			currAnalyzedMethod.setHasConditional(true);
+			currAnalyzedMethod.setHasTypeConditional(true);
 			return true;
 		}
 
@@ -473,10 +473,10 @@ public class SymbolicSuitableMethodFinder {
 		if (!parameters.isEmpty()) {
 			am.setHasParameters(true);
 			if (hasOnlyIntegerParameters(parameters)) {
-				am.setHasOnlyIntParameters(true);
-				am.setIntParameterCount(parameters.size());
+				am.setHasOnlyTypeParameters(true);
+				am.setTypeParameterCount(parameters.size());
 			} else {
-				am.setHasOnlyIntParameters(false);
+				am.setHasOnlyTypeParameters(false);
 			}
 		} else {
 			am.setHasParameters(false);

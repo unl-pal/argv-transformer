@@ -26,6 +26,7 @@ public class FileFilter {
 	private CType type;
 	private int minExpr;
 	private int minIfStmt;
+	private int minParams;
 
 	/**
 	 * Create a new FileFilter
@@ -48,7 +49,7 @@ public class FileFilter {
 		spfSuitableMethods = 0;
 	}
 	
-	public FileFilter(List<GitProject> gitProjects, String type, int minExpr, int minIfStmt) {
+	public FileFilter(List<GitProject> gitProjects, String type, int minExpr, int minIfStmt, int minParams) {
 		this.gitProjects = gitProjects;
 		spfSuitableFiles = new ArrayList<File>();
 		spfSuitableMethods = 0;
@@ -62,6 +63,7 @@ public class FileFilter {
 		}
 		this.minExpr = minExpr;
 		this.minIfStmt = minIfStmt;
+		this.minParams = minParams;
 		
 	}
 
@@ -103,7 +105,7 @@ public class FileFilter {
 		for (File file: javaFiles) {
 			try {
 				//SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
-				SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt);
+				SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt, minParams);
 				finder.analyze();
 				AnalyzedFile af = finder.getAnalyzedFile();
 				int suitableMethods = af.getSuitableMethods().size();

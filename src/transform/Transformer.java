@@ -73,6 +73,7 @@ public class Transformer {
 				AST ast = cu.getAST();
 				ASTRewrite rewriter = ASTRewrite.create(ast);
 
+				//those are the same as in filtering
 				TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
 				cu.accept(typeCollectVisitor);
 				TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
@@ -84,7 +85,9 @@ public class Transformer {
 				TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
 				cu.accept(typeTableVisitor);
 				TypeTable typeTable = typeTableVisitor.getTypeTable();
-
+				//now we have each variable resolved to implied types
+				
+				//the actual transformation
 				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
 						typeChecker);
 				cu.accept(typeCheckingVisitor);

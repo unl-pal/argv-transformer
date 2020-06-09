@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 public class Main {
 	private static PrintWriter printWriter;
 	private static File buildDir;
+	private static String target = "SPF";
 
 	public static void main(String[] args) throws IOException {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
@@ -79,7 +80,7 @@ public class Main {
 			}
 		});
 
-		Transformer transformer = new Transformer(unsuccessfulCompiles);
+		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles();
 
 		file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);

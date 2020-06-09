@@ -42,9 +42,13 @@ public class Driver {
 			int minIfStmt = Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT));
 			//Minimum number of parameters of that type
 			int minParams = Integer.parseInt(props.getProperty("minParams", DEFAULT_MIN_PARAMS));
+			//How to compile: to suite SPF(with call to Debug) or just regular (with call to Random) to
+			//over-approximate unresolved expression, e.g., method calls, field access
+			String target = props.getProperty("target");
+			//The final static compilations are defined in full.Main class
 			//Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir);
 			Main.start(filename, projectCount, minLoc, maxLoc, debugLevel, downloadDir, benchmarkDir,
-					type, minExpr, minIfStmt, minParams);
+					type, minExpr, minIfStmt, minParams, target);
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);

@@ -32,14 +32,16 @@ public class Transformer {
 
 	private ArrayList<File> files;
 	private File directory;
+	private String target;
 
 	/**
 	 * Create a new Transformer. 
 	 * 
 	 * @param files A list of files to transform. 
 	 */
-	public Transformer(ArrayList<File> files) {
+	public Transformer(ArrayList<File> files, String target) {
 		this.files = files;
+		this.target = target;
 	}
 
 	/**
@@ -89,7 +91,7 @@ public class Transformer {
 				
 				//the actual transformation
 				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
-						typeChecker);
+						typeChecker, target);
 				cu.accept(typeCheckingVisitor);
 				rewriter = typeCheckingVisitor.getRewriter();
 

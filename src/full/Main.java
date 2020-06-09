@@ -42,6 +42,10 @@ public class Main {
 	private static int totalSuitableMethods;
 	private static int compilableSpfSuitableMethodCount;
 	private static int compilableAfterTransformSpfSuitableMethodCount;
+	
+	private final static String SPF_COMPILE = "javac -g -d bin/ -cp .:/Users/elenasherman/git/jpf-symbc/build/classes/ ";
+	private final static String DEFAULT_COMPILE = "javac -g -d bin/ ";
+	private static String COMPILE = "";
 
 	/**
 	 * @param filename
@@ -58,7 +62,7 @@ public class Main {
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
-			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams) throws IOException {
+			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams, String target) throws IOException {
 
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
@@ -68,6 +72,12 @@ public class Main {
 		totalSuitableMethods = 0;
 		compilableSpfSuitableMethodCount = 0;
 		compilableAfterTransformSpfSuitableMethodCount = 0;
+		
+		switch(target) {
+		case "SPF" : COMPILE = SPF_COMPILE;
+		break;
+		default: COMPILE = DEFAULT_COMPILE;
+		}
 
 		File benchmarks = new File(benchmarkDir);
 
@@ -140,7 +150,7 @@ public class Main {
 
 		secondCompile = true;
 
-		Transformer transformer = new Transformer(unsuccessfulCompiles);
+		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles();
 
 		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
@@ -232,7 +242,7 @@ public class Main {
 	 */
 	private static boolean compile(File file) throws IOException {
 
-		String command = "javac -g -d bin/ -cp .:/Users/elenasherman/git/jpf-symbc/build/classes/ " + file;
+		String command = COMPILE + file;
 
 		boolean success = false;
 		try {

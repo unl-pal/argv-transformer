@@ -292,6 +292,7 @@ public class TypeTableVisitor extends ASTVisitor {
 		SymbolTable currScope = symbolTableStack.peek();
 		String name = getMethodSTEName(node);
 		MethodSTE sym = currScope.getMethodSTE(name);
+		//System.out.println("MD " + node.getName());
 		SymbolTable newScope = sym.getSymbolTable();
 		symbolTableStack.push(newScope);
 
@@ -451,7 +452,8 @@ public class TypeTableVisitor extends ASTVisitor {
 		}
 		SymbolTable currScope = symbolTableStack.peek();
 		ClassSTE sym = currScope.getClassSTE(node.getName().getIdentifier());
-
+		//System.out.println("Sym " + sym + "\t" + node.getName().getIdentifier() + "\t" + node.isLocalTypeDeclaration() + "\t" + node.isMemberTypeDeclaration());
+		//hack
 		SymbolTable newScope = sym.getSymbolTable();
 		symbolTableStack.push(newScope);
 		return true;

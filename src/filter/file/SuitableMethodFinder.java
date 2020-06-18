@@ -147,7 +147,11 @@ public class SuitableMethodFinder {
 		SymbolTable rootScope = symTableVisitor.getRoot();
 
 		TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
-		node.accept(typeTableVisitor);
+		try {
+			node.accept(typeTableVisitor);
+		} catch(Exception e){
+			System.out.println("needs more work");
+		}
 		typeTable = typeTableVisitor.getTypeTable();
 		
 		

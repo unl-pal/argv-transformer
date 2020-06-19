@@ -1,7 +1,7 @@
 package filter;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -36,15 +36,14 @@ public class Main {
 			outputPath = args[1];
 		}
 		//read the rest of config properties
-		File configFile = new File("config.properties");
 		int minExpr = 0;
 		int minIfStmt = 0;
 		int minParams = 0;
 		String type = DEFAULT_TYPE;
 		try {
-			FileReader reader = new FileReader(configFile);
+			InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"); 
 			Properties props = new Properties();
-			props.load(reader);
+			props.load(is);
 			type = props.getProperty("type");
 			minExpr = Integer.parseInt(props.getProperty("minExpr", DEFAULT_MIN_EXPR));
 			//in the future we can add exclusion right now it is either required or don't care how many

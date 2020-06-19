@@ -2,7 +2,6 @@ package transform;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,11 +44,10 @@ public class Main {
 		}
 		
 		//read the rest of parameters from config.properties
-		File configFile = new File("config.properties");
 		try {
-			FileReader reader = new FileReader(configFile);
+			InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"); 
 			Properties props = new Properties();
-			props.load(reader);
+			props.load(is);
 			target = props.getProperty("target");
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");

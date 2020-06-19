@@ -132,55 +132,55 @@ public class Main {
 		Logger.defaultLogger.exitContext("FILTER");
 
 		ArrayList<File> copiedFiles = copyFiles(suitableFiles, downloadDir, "suitablePrgms");
-		ArrayList<File> successfulCompiles = new ArrayList<File>();
-		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-		
-		for (File file : copiedFiles) {
-			Logger.defaultLogger.enterContext("COMPILING");
-
-			boolean success = compile(file);
-			if (success) {
-				compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
-				successfulCompiles.add(file);
-			} else {
-				unsuccessfulCompiles.add(file);
-			}
-			Logger.defaultLogger.exitContext("COMPILING");
-		}
-
-		secondCompile = true;
-
-		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
-		transformer.transformFiles();
-
-		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
-		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
-		
-		for (File file : copiedFiles) {
-			Logger.defaultLogger.enterContext("RECOMPILING");
-			boolean success = compile(file);
-			if (success) {
-				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
-				successfulCompilesAfterTransform.add(file);
-			} else {
-				unsuccessfulCompilesAfterTransform.add(file);
-			}
-			Logger.defaultLogger.exitContext("RECOMPILING");
-		}
-
-		long endTime = System.currentTimeMillis();
-
-		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
-
-		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
-				+ "\nFiles suitable for SPF: " + suitableFiles.size() + "\nMethods suitable for SPF: "
-				+ totalSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
-				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
-				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
-				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
-				+ "\n\nTime: " + (endTime - startTime));
-
-		Logger.defaultLogger.exitContext("MAIN");
+//		ArrayList<File> successfulCompiles = new ArrayList<File>();
+//		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
+//		
+//		for (File file : copiedFiles) {
+//			Logger.defaultLogger.enterContext("COMPILING");
+//
+//			boolean success = compile(file);
+//			if (success) {
+//				compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
+//				successfulCompiles.add(file);
+//			} else {
+//				unsuccessfulCompiles.add(file);
+//			}
+//			Logger.defaultLogger.exitContext("COMPILING");
+//		}
+//
+//		secondCompile = true;
+//
+//		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
+//		transformer.transformFiles();
+//
+//		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
+//		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
+//		
+//		for (File file : copiedFiles) {
+//			Logger.defaultLogger.enterContext("RECOMPILING");
+//			boolean success = compile(file);
+//			if (success) {
+//				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
+//				successfulCompilesAfterTransform.add(file);
+//			} else {
+//				unsuccessfulCompilesAfterTransform.add(file);
+//			}
+//			Logger.defaultLogger.exitContext("RECOMPILING");
+//		}
+//
+//		long endTime = System.currentTimeMillis();
+//
+//		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
+//
+//		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
+//				+ "\nFiles suitable for SPF: " + suitableFiles.size() + "\nMethods suitable for SPF: "
+//				+ totalSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
+//				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
+//				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
+//				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
+//				+ "\n\nTime: " + (endTime - startTime));
+//
+//		Logger.defaultLogger.exitContext("MAIN");
 
 		printWriter.close();
 	}

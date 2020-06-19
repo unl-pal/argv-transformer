@@ -2,6 +2,7 @@ package transform;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,6 +10,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
+
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -27,7 +30,7 @@ import org.apache.commons.io.FileUtils;
 public class Main {
 	private static PrintWriter printWriter;
 	private static File buildDir;
-	private static String target = "SPF";
+	private static String target = "DEF";
 
 	public static void main(String[] args) throws IOException {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
@@ -40,6 +43,19 @@ public class Main {
 			source = args[0];
 			dest = args[1];
 		}
+		
+		//read the rest of parameters from config.properties
+		File configFile = new File("config.properties");
+		try {
+			FileReader reader = new FileReader(configFile);
+			Properties props = new Properties();
+			props.load(reader);
+			target = props.getProperty("target");
+		} catch (IOException exp) {
+			System.out.println("Invalid configuration file.");
+			System.exit(1);
+		}
+		
 
 		File srcDir = new File(source);
 		File destDir = new File(dest);
@@ -79,6 +95,8 @@ public class Main {
 				successfulCompiles.add(file);
 			}
 		});
+		
+		//System.out.println(unsuccessfulCompiles.size() + " ------ " + successfulCompiles.size());
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles();
@@ -94,10 +112,14 @@ public class Main {
 					e.printStackTrace();
 				}
 			} else {
+				//System.out.println("compiled " + file.getName());
 				successfulCompiles.add(file);
+				//unsuccessfulCompiles.remove(file);
 			}
 		});
 
+		//System.out.println(unsuccessfulCompiles.size() + " +++++ " + successfulCompiles.size());
+		
 		try {
 			FileUtils.forceDelete(tmpDir);
 		} catch (IOException e) {
@@ -116,7 +138,7 @@ public class Main {
 			throw new RuntimeException("Could not get javac - are you running with a JDK or a JRE?");
 
 		return compiler.run(null, null, null, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
-				System.getProperty("java.class.path"), file.toString()) != 0;
+				System.getProperty("java.class.path"), file.toString()) == 0;
 	}
 
 	private static boolean compile2(File file) {

@@ -296,6 +296,7 @@ public class SuitableMethodFinder {
 
 		@Override
 		public void endVisit(MethodDeclaration node) {
+			//System.out.println("Visiting " + node.getName());
 			AnalyzedMethod m = currAnalyzedMethod;
 			int intOpCount = m.getTypeOperationCount();
 			if(intOpCount > 0) {
@@ -313,6 +314,7 @@ public class SuitableMethodFinder {
 			if(m.getTypeConditionalCount() < minTypeCond || 
 					m.getTypeOperationCount() < minTypeExpr || 
 					m.getTypeParameterCount() < minTypeParams) {
+				//System.out.println("Removing " + node.getName());
 				rewriter.remove(node, null);
 			}
 		}

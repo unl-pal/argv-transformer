@@ -49,11 +49,15 @@ public class FileFilter {
 		spfSuitableMethods = 0;
 	}
 	
-	public FileFilter(List<GitProject> gitProjects, String type, int minExpr, int minIfStmt, int minParams) {
-		this.gitProjects = gitProjects;
+	public FileFilter(File database, String type, int minExpr, int minIfStmt, int minParams) {
+		this.database = database;
 		spfSuitableFiles = new ArrayList<File>();
+		javaFiles = new ArrayList<File>();
 		spfSuitableMethods = 0;
-
+		setUp(type, minExpr, minIfStmt, minParams);
+	}
+	
+	private void setUp(String type, int minExpr, int minIfStmt, int minParams) {
 		switch(type) {
 		case "I": this.type = CType.INT; break;
 		case "R" : this.type = CType.REAL; break;
@@ -64,6 +68,14 @@ public class FileFilter {
 		this.minExpr = minExpr;
 		this.minIfStmt = minIfStmt;
 		this.minParams = minParams;
+	}
+	
+	public FileFilter(List<GitProject> gitProjects, String type, int minExpr, int minIfStmt, int minParams) {
+		this.gitProjects = gitProjects;
+		spfSuitableFiles = new ArrayList<File>();
+		spfSuitableMethods = 0;
+		
+		setUp(type, minExpr, minIfStmt, minParams);
 		
 	}
 

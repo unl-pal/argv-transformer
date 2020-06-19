@@ -90,6 +90,7 @@ public class Transformer {
 				//now we have each variable resolved to implied types
 				
 				//the actual transformation
+				System.out.println("Target " + target);
 				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
 						typeChecker, target);
 				cu.accept(typeCheckingVisitor);

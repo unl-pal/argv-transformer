@@ -92,4 +92,3 @@ ifStmt:
  
  minIfStmt:
   * a minimum number of conditional statements defined above required in a method.
- 

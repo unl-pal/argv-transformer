@@ -60,9 +60,11 @@ public class ProgramUnderTest {
 		className = file.getName().replace(".java", "");
 		checkForPackages();
 		setupModClass();
+		System.out.println("done with file");
 	}
 
 	private void checkForPackages() {
+		System.out.println("packages");
 		Scanner fileScan;
 		try {
 			fileScan = new Scanner(file);
@@ -102,19 +104,27 @@ public class ProgramUnderTest {
 	
 
 	private void setupModClass() throws ClassNotFoundException {
+		System.out.println("setup classes " + fullClassName);
+		String classpath = System.getProperty("java.class.path");
+		System.out.println(classpath);
+		//String[] classpathEntries = classpath.split(File.pathSeparator);
 			currClass = Repository.lookupClass(fullClassName);
+			System.out.println("classGen1");
 			modClass = new ClassGen(currClass);
+			System.out.println("classGen2");
 			modMethods = modClass.getMethods();
 			constantPool = modClass.getConstantPool();
 	}
 	
 
 	public void insertMain() {
+		System.out.println("Inserting main");
 		for (int i = 0; i < modMethods.length; i++) {
 			if (modMethods[i].getName().equals("main")) {
 				modClass.removeMethod(modMethods[i]);
 			}
 		}
+		System.out.println("Adding main");
 		
 		il_main = new InstructionList();
 
@@ -228,15 +238,17 @@ public class ProgramUnderTest {
 	public boolean checkForLoops(String methodName) {
 		
 		String examples_build = "bin";
-		String rt_jar = "/usr/java/jdk1.8.0_161/jre/lib/rt.jar";
-		String jfxrt_jar = "/usr/java/jdk1.8.0_161/jre/lib/ext/jfxrt.jar";
-		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/";
-		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/pathfinder/jpf-core/build/jpf-classes.jar";
+//		String rt_jar = "/usr/java/jdk1.8.0_161/jre/lib/rt.jar";
+//		String jfxrt_jar = "/usr/java/jdk1.8.0_161/jre/lib/ext/jfxrt.jar";
+//		String classPath_jpf_symbc_classes_jar = "/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/";
+//		String classPath_jpf_core_classes_jar = "/home/MariaPaquin/pathfinder/jpf-core/build/jpf-classes.jar";
 
 //		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build);
+		Scene.v().setSootClassPath(Scene.v().getSootClassPath()+System.getProperty("path.separator")+System.getProperty("java.class.path") 
+		+ System.getProperty("path.separator") + System.getProperty("sun.boot.class.path"));
 		
-		Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
-				+ ":" + classPath_jpf_core_classes_jar);
+		//Scene.v().setSootClassPath(rt_jar + ":" + jfxrt_jar + ":" + examples_build + ":" + classPath_jpf_symbc_classes_jar
+		//		+ ":" + classPath_jpf_core_classes_jar);
 		
 		SootClass sootClass = Scene.v().forceResolve(fullClassName, SootClass.BODIES);
 

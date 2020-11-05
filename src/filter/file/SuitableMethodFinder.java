@@ -177,7 +177,7 @@ public class SuitableMethodFinder {
 		
 		
 		//done with visiting set af
-		//how to determine whether the anlyzed file is suitable?
+		//how to determine whether the analyzed file is suitable?
 		//when \exists at least one suitable method
 		for(AnalyzedMethod m : af.getAnalyzedMethods()) {
 			if(m.getTypeConditionalCount() >= minTypeCond && m.getTypeOperationCount() >= minTypeExpr && m.getTypeParameterCount() >= minTypeParams) {
@@ -216,15 +216,21 @@ public class SuitableMethodFinder {
 
 	private class AnalyzerVisitor extends ASTVisitor {
 		private ASTRewrite rewriter;
+		private boolean edit;
 
 //		@Override
 //		public boolean visit(TypeDeclaration node) {
 //			blockStack.add(new HashSet<String>());
 //			return true;
 //		}
+		
+		public AnalyzerVisitor() {
+			edit = false;
+		}
 
 		public AnalyzerVisitor(ASTRewrite rewriter) {
 			this.rewriter = rewriter;
+			edit = true;
 		}
 
 		@Override
@@ -592,7 +598,7 @@ public class SuitableMethodFinder {
 		public void endVisit(PrefixExpression node) {
 			//expressionsStack.pop();
 			if(operationsInExpression > 0) {
-				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+1);
+				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+operationsInExpression);
 					operationsInExpression = 0;
 				}
 				
@@ -620,7 +626,7 @@ public class SuitableMethodFinder {
 		public void endVisit(PostfixExpression node) {
 			//expressionsStack.pop();
 			if(operationsInExpression > 0) {
-				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+1);
+				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+operationsInExpression);
 			operationsInExpression = 0;
 				}
 				

@@ -17,7 +17,7 @@ public class Driver {
 
 	private final static String DEFAULT_MIN_LOC = "100";
 	private final static String DEFAULT_MAX_LOC = "10000";
-	private final static String DEFAULT_PROJECT_COUNT = "1";
+	private final static String DEFAULT_PROJECT_COUNT = "s";
 	private final static String DEFAULT_MIN_EXPR = "1";
 	private final static String DEFAULT_MIN_IFSTMT = "0";
 	private final static String DEFAULT_MIN_PARAMS = "0";

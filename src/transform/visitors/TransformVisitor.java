@@ -233,6 +233,7 @@ public class TransformVisitor extends ASTVisitor {
 			//String className = importSplit[importSplit.length - 1];
 		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
 			if (!importName.startsWith("java.")){
+				System.out.println("Removing import " + importName);
 				rewriter.remove(importDec, null);
 			} 
 		}
@@ -565,6 +566,7 @@ public class TransformVisitor extends ASTVisitor {
 			ASTNode parent = node.getParent(); // ExpressionStatement
 			if (parent.getParent() instanceof Block) {
 				rewriter.remove(parent, null);
+				//System.out.println("Removing " + node + " from " + parent);
 			} else {
 				rewriter.replace(parent, ast.newBlock(), null);
 			}
@@ -1083,6 +1085,20 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
+	public boolean visit(IfStatement node) {
+		//System.out.println("visiting If " + node);
+		//System.out.println(node.getThenStatement().getClass());
+		
+		return true;
+		
+	}
+	
+	public void endVisit(IfStatement node) {
+//		System.out.println("done with If " + node);
+//		System.out.println(node.getThenStatement());
+		
+	}
+	
 	
 	public boolean visit(SwitchStatement node) {
 		// TODO
@@ -1523,7 +1539,7 @@ public class TransformVisitor extends ASTVisitor {
 			Document document = new Document(source);
 			TextEdit edits = rewriter.rewriteAST(document, null);
 			edits.apply(document);
-			System.out.println(document.get());
+			//System.out.println(document.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -345,8 +345,15 @@ public class TypeTableVisitor extends ASTVisitor {
 //			table.setNodeType(node, null);
 //			return;
 //		}
-		
-		table.setNodeType(node, null);
+		//System.out.println("Method invocation " + node.getExpression() + " " + node.getName().getIdentifier());
+		String identifier = node.getName().getIdentifier();
+		if(identifier.contains("makeSymbolicInteger")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.INT));
+		} else if (identifier.equals("makeSymbolicBoolean")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+		} else {
+			table.setNodeType(node, null);
+		}
 	}
 
 	@Override

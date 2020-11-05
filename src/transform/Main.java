@@ -2,6 +2,7 @@ package transform;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,10 +45,11 @@ public class Main {
 		}
 		
 		//read the rest of parameters from config.properties
+		File configFile = new File("config.properties");
 		try {
-			InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"); 
+			FileReader reader = new FileReader(configFile);
 			Properties props = new Properties();
-			props.load(is);
+			props.load(reader);
 			target = props.getProperty("target");
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
@@ -94,15 +96,22 @@ public class Main {
 			}
 		});
 		
-		//System.out.println(unsuccessfulCompiles.size() + " ------ " + successfulCompiles.size());
+		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles();
+		
+		Transformer annotate = new Transformer(successfulCompiles, target);
+		annotate.annotateFiles();
+		
+		//Those that are successfully compiles on the first try just add filtered
 
 		file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
+		//also delete those files where all methods after transformations 
+		//were not be able to meet the selection criteria.
 		file_itr.forEachRemaining(file -> {
-			boolean success = compile(file);
+			boolean success = true; //compile(file);
 			if (!success) {
 				try {
 					Files.delete(file.toPath());

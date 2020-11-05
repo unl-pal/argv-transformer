@@ -1,6 +1,7 @@
 package transform.TypeChecking;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Type;
@@ -39,5 +40,15 @@ public class TypeTable {
 	 */
 	public void setNodeType(ASTNode node, Type type) {
 		typeTable.put(node, type);
+	}
+	
+	public HashMap<ASTNode, Type> getTable() {
+		return typeTable;
+	}
+	
+	public void printTable() {
+		for(Entry<ASTNode, Type> et : typeTable.entrySet()) {
+			System.out.println(et.getKey() + "\t" + et.getValue());
+		}
 	}
 }

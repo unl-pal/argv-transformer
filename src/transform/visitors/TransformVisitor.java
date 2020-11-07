@@ -115,7 +115,7 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(ArrayAccess node) {
 		Type type = typeTable.getNodeType(node);
-		if (type != null && typeChecker.allowedType(type)) {
+		if (type != null && TypeChecker.allowedType(type)) {
 			return;
 		}
 
@@ -138,7 +138,7 @@ public class TransformVisitor extends ASTVisitor {
 
 		Type lhsType = typeTable.getNodeType(lhs);
 	
-		if ((lhsType == null || !typeChecker.allowedType(lhsType)) || lhs instanceof FieldAccess) {
+		if ((lhsType == null || !TypeChecker.allowedType(lhsType)) || lhs instanceof FieldAccess) {
 			ASTNode parent = node.getParent(); // ExpressionStatement
 			if (parent.getParent() instanceof Block) {
 				rewriter.remove(parent, null);
@@ -158,7 +158,7 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(CastExpression node) {
 		Type castType = typeTable.getNodeType(node);
-		if(typeChecker.allowedType(castType)) {
+		if(TypeChecker.allowedType(castType)) {
 			return;
 		}
 		
@@ -192,7 +192,7 @@ public class TransformVisitor extends ASTVisitor {
 
 		Type type = typeTable.getNodeType(node);
 
-		if (!typeChecker.allowedType(type)) {
+		if (!TypeChecker.allowedType(type)) {
 			if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
 				Assignment parent = (Assignment) node.getParent();
 
@@ -233,7 +233,7 @@ public class TransformVisitor extends ASTVisitor {
 			//String className = importSplit[importSplit.length - 1];
 		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
 			if (!importName.startsWith("java.")){
-				System.out.println("Removing import " + importName);
+				//System.out.println("Removing import " + importName);
 				rewriter.remove(importDec, null);
 			} 
 		}
@@ -276,7 +276,7 @@ public class TransformVisitor extends ASTVisitor {
 			typeTable.setNodeType(expr, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 		}
 
-		if (typeChecker.allowedType(typeThenExpr) && typeChecker.allowedType(typeElseExpr)) {
+		if (TypeChecker.allowedType(typeThenExpr) && TypeChecker.allowedType(typeElseExpr)) {
 			return;
 		}
 
@@ -379,14 +379,14 @@ public class TransformVisitor extends ASTVisitor {
 		Type rhsType = typeTable.getNodeType(rhs);
 
 		// nothing to be done
-		if ((lhsType != null && typeChecker.allowedType(lhsType))
-				&& (rhsType != null && typeChecker.allowedType(rhsType))) {
+		if ((lhsType != null && TypeChecker.allowedType(lhsType))
+				&& (rhsType != null && TypeChecker.allowedType(rhsType))) {
 			return;
 		}
 
 		// if we can infer the type of lhs form rhs
-		if ((lhsType == null || !typeChecker.allowedType(lhsType))
-				&& (rhsType != null && typeChecker.allowedType(rhsType))) {
+		if ((lhsType == null || !TypeChecker.allowedType(lhsType))
+				&& (rhsType != null && TypeChecker.allowedType(rhsType))) {
 			if (isIntegerTypeCode(rhsType)) {
 				replaceInteger(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.INT));
@@ -402,8 +402,8 @@ public class TransformVisitor extends ASTVisitor {
 			}
 
 			// if we can infer the type of rhs from lhs
-		} else if ((rhsType == null || !typeChecker.allowedType(rhsType))
-				&& (lhsType != null && typeChecker.allowedType(lhsType))) {
+		} else if ((rhsType == null || !TypeChecker.allowedType(rhsType))
+				&& (lhsType != null && TypeChecker.allowedType(lhsType))) {
 			if (isIntegerTypeCode(lhsType)) {
 				replaceInteger(rhs);
 				typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.INT));
@@ -482,7 +482,7 @@ public class TransformVisitor extends ASTVisitor {
 			return;
 		}
 		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
-			if (!typeChecker.allowedType(type)) {
+			if (!TypeChecker.allowedType(type)) {
 				replaceBoolean(node);
 			}
 		}
@@ -510,7 +510,7 @@ public class TransformVisitor extends ASTVisitor {
 		List<SingleVariableDeclaration> params = node.parameters();
 		for (SingleVariableDeclaration param : params) {
 			Type type = param.getType();
-			if (!typeChecker.allowedType(type)) {
+			if (!TypeChecker.allowedType(type)) {
 				rewriter.remove(node, null);
 				return false;
 			}
@@ -658,7 +658,7 @@ public class TransformVisitor extends ASTVisitor {
 	public boolean visit(PostfixExpression node) {
 		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
 			Type type = typeTable.getNodeType(node);
-			if ((type == null) || !typeChecker.allowedType(type)) {
+			if ((type == null) || !TypeChecker.allowedType(type)) {
 				ASTNode parent = node.getParent(); // ExpressionStatement
 				if (parent.getParent() instanceof Block) {
 					rewriter.remove(parent, null);
@@ -676,7 +676,7 @@ public class TransformVisitor extends ASTVisitor {
 	public void endVisit(PrefixExpression node) {
 		Type type = typeTable.getNodeType(node);
 
-		if (typeChecker.allowedType(type)) {
+		if (TypeChecker.allowedType(type)) {
 			return;
 		}
 		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
@@ -728,7 +728,7 @@ public class TransformVisitor extends ASTVisitor {
 		SymbolTable currScope = symbolTableStack.peek();
 		MethodSTE sym = currScope.getMethodSTE(currMethod);
 
-		if (sym != null && !typeChecker.allowedType(sym.getReturnType())) {
+		if (sym != null && !TypeChecker.allowedType(sym.getReturnType())) {
 			ClassInstanceCreation ci = ast.newClassInstanceCreation();
 			ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
 			rewriter.replace(node.getExpression(), ci, null);
@@ -784,6 +784,8 @@ public class TransformVisitor extends ASTVisitor {
 			return true;
 		}
 		
+		
+		
 		String name = node.getIdentifier();
 		SymbolTable currScope = symbolTableStack.peek();
 		VarSTE sym = null;
@@ -799,9 +801,14 @@ public class TransformVisitor extends ASTVisitor {
 		ASTNode parent = node.getParent();
 		while (!(parent instanceof MethodDeclaration)) {
 			parent = parent.getParent();
+			//System.out.println("parent " + sym + "\t" + parent);
 		}
 
+		
+		
 		if(sym != null && sym.isFieldVar() && !initializedVars.contains(sym)) {
+//			System.out.println("sym " + node.getParent() + "\t" + !initializedVars.contains(sym) + " " 
+//		+ isIntegerTypeCode(type) + " " + isBooleanTypeCode(type) + " " + type);
 			
 			if(type.isPrimitiveType()) {
 				if(isIntegerTypeCode(type)) {
@@ -955,7 +962,7 @@ public class TransformVisitor extends ASTVisitor {
 	public void endVisit(SimpleName node) {
 		Type type = typeTable.getNodeType(node);
 
-		if (typeChecker.allowedType(type)) {
+		if (TypeChecker.allowedType(type)) {
 			return;
 		}
 
@@ -1145,7 +1152,7 @@ public class TransformVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		if (!typeChecker.allowedType(node.getType())) {
+		if (!TypeChecker.allowedType(node.getType())) {
 			if (node.getParent() instanceof Block) {
 				rewriter.remove(node, null);
 			} else {

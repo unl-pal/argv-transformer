@@ -111,7 +111,7 @@ public class Main {
 		//also delete those files where all methods after transformations 
 		//were not be able to meet the selection criteria.
 		file_itr.forEachRemaining(file -> {
-			boolean success = true; //compile(file);
+			boolean success = compile(file);
 			if (!success) {
 				try {
 					Files.delete(file.toPath());

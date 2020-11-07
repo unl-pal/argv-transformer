@@ -214,6 +214,7 @@ public class TypeTableVisitor extends ASTVisitor {
 		}
 
 		Operator op = node.getOperator();
+		//System.out.println("Types " + lhsType + " " + rhsType + "\t" + node);
 
 		// boolean operators
 		if (op == Operator.CONDITIONAL_AND || op == Operator.CONDITIONAL_OR || op == Operator.XOR
@@ -222,8 +223,11 @@ public class TypeTableVisitor extends ASTVisitor {
 			//if (isBooleanTypeCode(lhsType) && isBooleanTypeCode(rhsType)) {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 				//so are lhsType and rhsType
-				table.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
-				table.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				//but not for the case of equals and not-equals
+				if (!isNumericTypeCode(lhsType) && !isNumericTypeCode(rhsType)) {
+					table.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+					table.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				}
 				return;
 			//}
 		}
@@ -235,6 +239,7 @@ public class TypeTableVisitor extends ASTVisitor {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			}
 		}
+
 
 		// TODO: need to differentiate between precisions
 		// arithmetic operators, results in integer
@@ -437,6 +442,9 @@ public class TypeTableVisitor extends ASTVisitor {
 		if (sym != null) {
 			type = sym.getVarType();
 		}
+//		if(name.contains("currentSize")) {
+//			System.out.println("SimpleName " + node + " " + node.getParent() + "\t" + type);
+//		}
 		table.setNodeType(node, type);
 		return true;
 	}

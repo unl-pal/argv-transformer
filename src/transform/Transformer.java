@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.AST;
@@ -14,7 +15,9 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -145,12 +148,19 @@ public class Transformer {
 				cu.accept(typeTableVisitor);
 				TypeTable typeTable = typeTableVisitor.getTypeTable();
 				//now we have each variable resolved to implied types
-				if(file.getName().contains("HEAP")) {
-					typeTable.printTable();
-				}
+//				if(file.getName().contains("HEAP")) {
+//					System.out.println("Type table ");
+//					for(Entry<ASTNode, Type> e : typeTable.getTable().entrySet()) {
+//						if(e.getKey() instanceof SimpleName) {
+//							if(((SimpleName)e.getKey()).getIdentifier().contains("currentSize")){
+//							System.out.println(e.getValue() + "\t" + e.getKey()+ "\t" + e.getKey().getParent());
+//							}
+//						}
+//						
+//					}
+//				}
 				
 				//the actual transformation
-				System.out.println("Target " + target);
 				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
 						typeChecker, target);
 				cu.accept(typeCheckingVisitor);
@@ -177,44 +187,45 @@ public class Transformer {
 				//that class at all
 				
 				//edits.
-//				String editedSource = document.get();
-//				ASTParser parserR = ASTParser.newParser(AST.JLS3);
-//				parserR.setSource(editedSource.toCharArray());
-//				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
-//
-//				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
-//
-//				AnalyzedFile af = new AnalyzedFile(file);
-//
-//				typeCollectVisitor = new TypeCollectVisitor();
-//				cuR.accept(typeCollectVisitor);
-//				typeChecker = typeCollectVisitor.getTypeChecker();
-//				
-//				symTableVisitor = new SymbolTableVisitor(typeChecker);
-//				cuR.accept(symTableVisitor);
-//				 rootScope = symTableVisitor.getRoot();
-//
-//				typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
-//				cuR.accept(typeTableVisitor);
-//				typeTable = typeTableVisitor.getTypeTable();
-//				//cannot use old typeTable, things has changed
-//				FinilizerVisitor fv = new FinilizerVisitor(af, typeTable);
-//				cuR.accept(fv);
-//				
-//				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());
-//				
-//				//getting to the insert position
-//				PackageDeclaration packDec = cuR.getPackage();
-//				//update
-//				
-//				
-//				ListRewrite listRewrite = rewriterComm.getListRewrite(packDec, PackageDeclaration.ANNOTATIONS_PROPERTY);
-//				//rewriterComm.get
-//				Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** filtered and transformed by PAClab */\n", ASTNode.EMPTY_STATEMENT);
-//				listRewrite.insertFirst(comment, null);
-//				
-//				
-//				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + "in " + file);
+				String editedSource = document.get();
+				ASTParser parserR = ASTParser.newParser(AST.JLS3);
+				parserR.setSource(editedSource.toCharArray());
+				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
+
+				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
+
+				
+
+				typeCollectVisitor = new TypeCollectVisitor();
+				cuR.accept(typeCollectVisitor);
+				typeChecker = typeCollectVisitor.getTypeChecker();
+				
+				symTableVisitor = new SymbolTableVisitor(typeChecker);
+				cuR.accept(symTableVisitor);
+				 rootScope = symTableVisitor.getRoot();
+
+				typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
+				cuR.accept(typeTableVisitor);
+				typeTable = typeTableVisitor.getTypeTable();
+				//cannot use old typeTable, things has changed
+				AnalyzedFile af = new AnalyzedFile(file);
+				FinilizerVisitor fv = new FinilizerVisitor(af, typeTable);
+				cuR.accept(fv);
+				
+				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());
+				
+				//getting to the insert position
+				PackageDeclaration packDec = cuR.getPackage();
+				//update
+				
+				
+				ListRewrite listRewrite = rewriterComm.getListRewrite(packDec, PackageDeclaration.ANNOTATIONS_PROPERTY);
+				//rewriterComm.get
+				Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** filtered and transformed by PAClab */\n", ASTNode.EMPTY_STATEMENT);
+				listRewrite.insertFirst(comment, null);
+				
+				
+				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + "in " + file);
 //				if(af.getSuitableMethods().size() > 0) {
 //					
 //					for(Object typeDecl : cuR.types()) {

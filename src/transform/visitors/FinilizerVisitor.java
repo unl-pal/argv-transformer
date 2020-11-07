@@ -58,7 +58,7 @@ public class FinilizerVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(TypeDeclaration node) {
-		System.out.println("Type " + node.getName());
+		//System.out.println("Type " + node.getName());
 		return true;
 	}
 
@@ -351,7 +351,7 @@ public class FinilizerVisitor extends ASTVisitor {
 	public boolean visit(InfixExpression node) {
 		//expressionsStack.push(node);
 
-		System.out.println(" n " + node + "\t" + typeTable.getNodeType(node));
+		//System.out.println(" n " + node + "\t" + typeTable.getNodeType(node));
 		Expression lE = node.getLeftOperand();
 		Type lT = typeTable.getNodeType(lE);
 		Expression rE = node.getRightOperand();
@@ -370,10 +370,10 @@ public class FinilizerVisitor extends ASTVisitor {
 //				op == Operator.REMAINDER) {
 			// so we count that operations
 			//if the type is int
-		System.out.println(typeTable.getNodeType(node) +"\t" + lT + "\t" + rT);
+		//System.out.println(typeTable.getNodeType(node) +"\t" + lT + "\t" + rT);
 		Type nodeType = typeTable.getNodeType(node);
 		if(!TypeChecker.isBooleanType(nodeType)) {
-			System.out.println("op " + op);
+			//System.out.println("op " + op);
 				operationsInExpression++;
 		}
 			//}

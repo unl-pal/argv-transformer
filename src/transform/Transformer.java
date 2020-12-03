@@ -226,39 +226,39 @@ public class Transformer {
 				
 				
 				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + "in " + file);
-//				if(af.getSuitableMethods().size() > 0) {
+				if(af.getSuitableMethods().size() > 0) {
+					
+					for(Object typeDecl : cuR.types()) {
+					MethodDeclaration[] methodDeclArr = ((TypeDeclaration)typeDecl).getMethods();
+					//if(methodDeclArr.length > af.getSuitableMethods().size()) {
+						//there are methods that are in the class, but do not meet the filtering criteria
+						//we need add a comment before their declarations
+						for(MethodDeclaration md : methodDeclArr) {
+							boolean found = false;
+							for(AnalyzedMethod am : af.getSuitableMethods()) {
+								if(am.getMethodDeclaration().equals(md)) {
+									found = true;
+									break;
+								}
+							}
+							//check if such method has not been found, then insert comments
+							if(found) {
+								System.out.println("Found suitable MDecl");
+								listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
+								comment = (Statement) rewriterComm.createStringPlaceholder("/** PACLab: suitable */\n", ASTNode.EMPTY_STATEMENT);
+								listRewrite.insertFirst(comment, null);
+							}
+						}
+					//}
+					}//end for all types
 //					
-//					for(Object typeDecl : cuR.types()) {
-//					MethodDeclaration[] methodDeclArr = ((TypeDeclaration)typeDecl).getMethods();
-//					//if(methodDeclArr.length > af.getSuitableMethods().size()) {
-//						//there are methods that are in the class, but do not meet the filtering criteria
-//						//we need add a comment before their declarations
-//						for(MethodDeclaration md : methodDeclArr) {
-//							boolean found = false;
-//							for(AnalyzedMethod am : af.getSuitableMethods()) {
-//								if(am.getMethodDeclaration().equals(md)) {
-//									found = true;
-//									break;
-//								}
-//							}
-//							//check if such method has not been found, then insert comments
-//							if(found) {
-//								System.out.println("Found suitable MDecl");
-//								listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
-//								comment = (Statement) rewriterComm.createStringPlaceholder("/** PACLab: suitable */\n", ASTNode.EMPTY_STATEMENT);
-//								listRewrite.insertFirst(comment, null);
-//							}
-//						}
-//					//}
-//					}//end for all types
-//					
-//					edits = rewriterComm.rewriteAST(document, null);
-//					edits.apply(document);
+					edits = rewriterComm.rewriteAST(document, null);
+					edits.apply(document);
 					BufferedWriter out = new BufferedWriter(new FileWriter(file));
 					out.write(document.get());
 					out.flush();
 					out.close();
-				//}
+				}
 
 			} catch (Exception e) {				
 				System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());

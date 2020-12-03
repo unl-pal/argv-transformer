@@ -374,7 +374,7 @@ public class FinilizerVisitor extends ASTVisitor {
 		Type nodeType = typeTable.getNodeType(node);
 		if(!TypeChecker.isBooleanType(nodeType)) {
 			//System.out.println("op " + op);
-				operationsInExpression++;
+				operationsInExpression++;  
 		}
 			//}
 		} else if( !TypeChecker.isBooleanType(lT) && !TypeChecker.isBooleanType(rT)){

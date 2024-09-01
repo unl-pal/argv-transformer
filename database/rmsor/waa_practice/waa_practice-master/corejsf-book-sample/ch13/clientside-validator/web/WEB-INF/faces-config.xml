@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+      http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+   version="2.0">
+   <converter> 
+      <converter-id>com.corejsf.CreditCard</converter-id>
+      <converter-class>com.corejsf.CreditCardConverter</converter-class> 
+   </converter>
+   
+   <converter> 
+      <converter-for-class>com.corejsf.CreditCard</converter-for-class>
+      <converter-class>com.corejsf.CreditCardConverter</converter-class> 
+   </converter>
+
+   <validator> 
+      <validator-id>com.corejsf.CreditCard</validator-id>
+      <validator-class>com.corejsf.CreditCardValidator</validator-class> 
+   </validator>
+
+   <component>
+      <component-type>com.corejsf.ValidatorScript</component-type>
+      <component-class>com.corejsf.UIValidatorScript</component-class>
+   </component>
+   
+   <application>
+      <resource-bundle>
+         <base-name>com.corejsf.messages</base-name>
+         <var>msgs</var>
+      </resource-bundle>
+   </application>
+</faces-config>

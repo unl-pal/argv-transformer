@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:corejsf="http://corejsf.com/facelets">
+    <head><title>IGNORED</title></head>
+    <f:view>
+        <f:event type="preRenderView" listener="#{user.checkLogin}"/>  
+        <h:body>
+            <ui:composition template="/templates/masterLayout.xhtml">
+                <ui:define name="windowTitle">
+                    #{tea.selectedTea}
+                </ui:define> 
+
+                <ui:define name="content">
+                    <div >
+                        <h3>#{tea.selTea.name}</h3>
+                        <h:graphicImage height="200" width="200" value="resources/images/#{tea.selTea.picture}"/>
+                        <p>#{tea.selTea.description}</p>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <h:form>
+                            <p>Price: #{tea.selTea.price}</p>
+                            <p> Quantity: 
+                                <h:inputText id="qty" value="#{tea.selTea.quantity}"  required="true" converter="javax.faces.Integer"  size="10" requiredMessage="quantity is required" converterMessage="quantity must be between 0 to 1000" validatorMessage="quantity must be between 0 to 1000">
+                                    <f:validateLongRange minimum="0" maximum="1000" />
+                                </h:inputText>
+                                <h:message for="qty" style="color:red"/>
+                            </p>
+                            <h:commandButton value="Order"  action="#{tea.save()}"/>
+                        </h:form>
+                        <ui:insert name="content1"/>
+                    </div>
+                </ui:define>
+            </ui:composition>
+        </h:body>
+    </f:view>
+</html>

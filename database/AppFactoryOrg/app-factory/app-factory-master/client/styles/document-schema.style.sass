@@ -1,0 +1,33 @@
+@import "_mixins"
+
+.document-schema
+	i.data-type
+		font-size: 11px
+
+	.edit-attribute
+		input.title
+			width: 250px
+
+	.add-attribute
+		margin-top: 15px
+
+.attribute-items
+	position: relative
+
+	.attribute-item
+		+border-radius(3px)
+		+box-shadow(1px, 1px, 3px, rgba(black, 0.1))
+		padding: 10px
+		margin-bottom: 10px
+		border: 1px solid rgba(black, 0.15)
+		background-color: white
+		position: relative
+
+	.summary
+		font-weight: bold
+		padding-right: 75px
+
+	.controls
+		position: absolute
+		top: 5px
+		right: 5px

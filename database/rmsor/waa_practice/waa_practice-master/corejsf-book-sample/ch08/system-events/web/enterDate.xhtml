@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.title}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <h1>#{msgs.enterDate}</h1>
+         <h:panelGrid id="date" columns="2">
+            <f:event type="postValidate" listener="#{bb.validateDate}"/>
+            #{msgs.day}
+            <h:inputText id="day" value="#{bb.day}" size="2"
+                         required="true"/>
+            
+            #{msgs.month}
+            <h:inputText id="month" value="#{bb.month}"
+                         size="2" required="true"/>
+            
+            #{msgs.year}
+            <h:inputText id="year" value="#{bb.year}"
+                         size="4" required="true"/>
+         </h:panelGrid>
+         <h:message for="date" styleClass="errorMessage"/>
+         <br/>
+         <h:commandButton value="#{msgs.submit}" action="result"/>
+         <h:commandButton value="#{msgs.back}" action="index" immediate="true"/>
+      </h:form>
+   </h:body>
+</html>

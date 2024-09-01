@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:corejsf="http://corejsf.com">
+   <h:head>
+      <title>A Variable Resolver</title>
+   </h:head>
+   <h:body>
+      <h:form id="form1">
+         <h3>Testing the Variable Resolver</h3>
+         <table>
+            <tr>
+               <td>sysprop['java.version']=</td>
+               <td><h:outputText id="output1"
+               value="#{sysprop['java.version']}"/></td>
+            </tr>
+            <tr>
+               <td>sysprop.java.home=</td>
+               <td>#{sysprop.java.home}</td>
+            </tr>
+            <tr>
+               <td>view.form1.output1.value=</td>
+               <td>#{view.form1.output1.value}</td>
+            </tr>
+         </table>
+         <p>Page source:</p><pre>#{corejsf:getFile("/index.xhtml")}</pre>
+      </h:form>
+   </h:body>
+</html>

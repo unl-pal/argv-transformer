@@ -1,0 +1,104 @@
+/* drwaing of the box inside check-box */
+
+/*******************************************************************************
+ *                                                                             *
+ * CheckBox                                                                    *
+ *                                                                             *
+ ******************************************************************************/
+
+.check-box {
+    -fx-label-padding: 0.0em 0.0em 0.0em 0.416667em; /* 0 0 0 5 */
+    -fx-text-fill: -fx-text-background-color;
+}
+
+/* !!!!!!!!!!!!!!!! draw the hook !!!!!!!!!!!!!!!! */
+
+.check-box > .box > .mark {
+    -fx-background-color: null;
+    -fx-padding: 0.416667em 0.416667em 0.5em 0.5em; /* 5 5 6 6 */
+    -fx-shape: "M-0.25,6.083c0.843-0.758,4.583,4.833,5.75,4.833S14.5-1.5,15.917-0.917c1.292,0.532-8.75,17.083-10.5,17.083C3,16.167-1.083,6.833-0.25,6.083z";
+}
+.check-box:indeterminate > .box {
+    -fx-padding: 0; 
+}
+.check-box:indeterminate  > .box > .mark {
+    -fx-shape: "M0,0H10V2H0Z";
+    -fx-scale-shape: false;
+    -fx-padding: 0.666667em; /* 16x16 = 8+8 */
+}
+
+.check-box > .box {
+    -fx-background-radius: 3, 2, 1;
+    -fx-padding: 0.166667em 0.166667em 0.25em 0.25em; /* 2 2 3 3 */
+}
+
+.check-box > .box 
+{
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 3px, 3px, 2px, 1px;
+    -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+    -fx-text-fill: -fx-text-base-color;
+    -fx-alignment: CENTER;
+    -fx-content-display: LEFT;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Pseudo Classes                                                              *
+ *                                                                             *
+ ******************************************************************************/
+
+/* Hover */
+
+.check-box:hover > .box
+{
+    -fx-color: -fx-hover-base;
+}
+
+/* Armed ... Indicates that the button has been "armed" such that a mouse release will cause the button's action to be invoked. This is subtly different from pressed. Pressed indicates that the mouse has been pressed on a Node and has not yet been released. arm however also takes into account whether the mouse is actually over the button and pressed. */
+
+.check-box:armed .box
+{
+    -fx-color: -fx-pressed-base;
+}
+
+/* Focused */
+
+.check-box:focused > .box
+{
+    -fx-background-color: -fx-focus-color, -fx-inner-border, -fx-body-color, -fx-faint-focus-color, -fx-body-color;
+    -fx-background-insets: -0.2, 1, 2, -1.4, 2.6;
+    -fx-background-radius: 3, 2, 1, 4, 1;
+}
+
+/* Disabled */
+
+.check-box:disabled
+{
+    -fx-opacity: 0.4;
+}
+
+/* Selected */
+
+.check-box:selected > .box > .mark
+{
+    -fx-background-color: -fx-mark-highlight-color, -fx-mark-color;
+    -fx-background-insets: 1 0 -1 0, 0;
+}
+
+/* mnemonic parsing is about automatic short key identification */
+
+.check-box:show-mnemonics > .mnemonic-underline
+{
+    -fx-stroke: -fx-text-base-color;
+}
+
+/* ====   MARKS   =========================================================== */
+
+.radio-button:selected > .radio > .dot,
+.check-box:selected > .box > .mark,
+.check-box:indeterminate  > .box > .mark {
+    -fx-background-color: -fx-mark-highlight-color, -fx-mark-color;
+    -fx-background-insets: 1 0 -1 0, 0;
+}

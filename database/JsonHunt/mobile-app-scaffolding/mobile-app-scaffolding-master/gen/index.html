@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html ng-app="PublicApp">
+  <head>
+    <title>Public site</title>
+    <meta charset="utf-8">
+    <meta name="description" content="website">
+    <meta name="keywords" content="website">
+    <meta name="author" content="Integral Systems Inc.">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no"><!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width,height=device-height,target-densitydpi=device-dpi">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/ocModal.full.min.css">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="bundle.css">
+  </head>
+  <body ng-controller="IndexController" ng-cloak="" class="noselect">
+    <div class="header">
+      <div class="logo">''</div>
+      <div class="title">Welcome to my website</div>
+      <div ng-if="checked &amp;&amp; user" class="username">{{user.username}}</div>
+      <div ng-if="checked &amp;&amp; user" class="balance">${{user.balance}}</div>
+      <div ng-if="checked &amp;&amp; user" ng-click="pay('Subscription',20)" class="pay">Pay</div>
+      <div ng-if="checked &amp;&amp; user" ng-click="logout()" class="logout">Log-out</div>
+      <div ng-if="checked &amp;&amp; !user" ng-click="signup()" class="signup">Sign-up</div>
+      <div ng-if="checked &amp;&amp; !user" ng-click="login()" class="login">Log-in</div>
+    </div>
+    <div class="navbar">
+      <div ng-class="{active: path == 'features'}" ng-click="goto('features')" class="item">Features</div>
+      <div ng-class="{active: path == 'contact'}" ng-click="goto('contact')" class="item">Contact			</div>
+    </div>
+    <div ng-view="" class="content"></div>
+    <div class="footer">Copyright 2015 Integral Systems Inc.</div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script type="text/javascript" src="https://code.angularjs.org/1.3.15/angular-route.min.js"></script>
+    <script type="text/javascript" src="http://arshaw.com/xdate/downloads/0.8/xdate.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/1.4.0/math.min.js"></script>
+    <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="lib/ui-bootstrap-tpls-0.11.0.js"></script>
+    <script type="text/javascript" src="lib/ocModal.min.js"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
+    <script type="text/javascript" src="lib/ng-cordova.js"></script>
+    <script type="text/javascript" src="lib/cordova.js"></script>
+    <script type="text/javascript" src="bundle.js"></script>
+  </body>
+</html>

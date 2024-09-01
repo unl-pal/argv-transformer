@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html" 
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:corejsf="http://corejsf.com">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.windowTitle}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <corejsf:tabbedPane styleClass="tabbedPane" tabClass="tab"
+                             selectedTabClass="selectedTab">
+            <f:facet name="jefferson">
+               <h:panelGrid columns="2">
+                  <h:graphicImage library="images" name="jefferson.jpg"/>
+                  <h:outputText value="#{msgs.jeffersonDiscussion}"  
+                                styleClass="tabbedPaneContent"/>
+               </h:panelGrid>
+            </f:facet>
+            <f:facet name="roosevelt">
+               <h:panelGrid columns="2">
+                  <h:graphicImage library="images" name="roosevelt.jpg"/>
+                  <h:outputText value="#{msgs.rooseveltDiscussion}"
+                                styleClass="tabbedPaneContent"/>
+               </h:panelGrid>
+            </f:facet>
+            <f:facet name="lincoln">
+               <h:panelGrid columns="2">
+                  <h:graphicImage library="images" name="lincoln.jpg"/>
+                  <h:outputText value="#{msgs.lincolnDiscussion}"
+                                styleClass="tabbedPaneContent"/>
+               </h:panelGrid>
+            </f:facet>
+            <f:facet name="washington">
+               <h:panelGrid columns="2">
+                  <h:graphicImage library="images" name="washington.jpg"/>
+                  <h:outputText value="#{msgs.washingtonDiscussion}"
+                                styleClass="tabbedPaneContent"/>
+               </h:panelGrid>
+            </f:facet>
+
+            <f:selectItem itemLabel="#{msgs.jeffersonTabText}"
+                          itemValue="jefferson"/>
+            <f:selectItem itemLabel="#{msgs.rooseveltTabText}"
+                          itemValue="roosevelt"/>
+            <f:selectItem itemLabel="#{msgs.lincolnTabText}" 
+                          itemValue="lincoln"/>
+            <f:selectItem itemLabel="#{msgs.washingtonTabText}"
+                          itemValue="washington"/>
+         </corejsf:tabbedPane>
+         <!-- <h:commandButton value="Test State Saving"/> -->
+      </h:form>
+   </h:body>
+</html>

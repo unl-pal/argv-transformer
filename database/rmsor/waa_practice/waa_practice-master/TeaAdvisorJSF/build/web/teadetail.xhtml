@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>View Tea Details</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="css" name="style.css"/>
+    </h:head>
+    <h:body>
+        <h1>Tea Details</h1>
+        <h2><h:link value="Go Back to Selection" outcome="index"/></h2>
+        <table border="1" width="80%">
+            <tr>
+                <td width="30%"><b>Name:</b> </td>
+                <td width="70%">#{tea.objTea.name}</td>
+            </tr>
+            <tr>
+                <td><b>Description:</b> </td>
+                <td>#{tea.objTea.description}</td>
+            </tr>
+            <tr>
+                <td><b>Health Benifits:</b> </td>
+                <td>#{tea.objTea.healthBenifits}</td>
+            </tr>
+            <tr>
+                <td><b>Sleep Time:</b> </td>
+                <td>#{tea.objTea.sleepTime}</td>
+            </tr>
+            <tr>
+                <td><b>Varities :</b> </td>
+                <td>#{tea.objTea.varities}</td>
+            </tr>
+            <tr>
+                <td><b>Water Temperature: </b></td>
+                <td>#{tea.objTea.waterTemperature}</td>
+            </tr>
+        </table>
+    </h:body>
+</html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="/media/shared/Google Drive/Work/2015 UoN Master/Lectures/Programming Languages and Paradigms/pa2/c3228760PA2.zip"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/pa2/export.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="true"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="false">
+        <file path="/pa2/WrittenReport.pdf"/>
+        <javaElement handleIdentifier="=pa2/&lt;"/>
+        <file path="/pa2/AssessmentItemCoverSheet.pdf"/>
+        <javaElement handleIdentifier="=pa2/&lt;de.ftes.uon.seng2200.pa2"/>
+    </selectedElements>
+</jardesc>

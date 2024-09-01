@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblItensPedido" table="tbl_itens_pedido" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="itensPedidoCodigo" type="java.lang.Integer">
+            <column name="itens_pedido_codigo" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="tblPedidoItemStatus" class="Entidades.TblPedidoItemStatus" fetch="select">
+            <column name="tbl_pedido_item_status_pedido_item_status_codigo" not-null="true" />
+        </many-to-one>
+        <many-to-one name="tblPedidos" class="Entidades.TblPedidos" fetch="select">
+            <column name="tbl_pedidos_pedido_codigo" not-null="true" />
+        </many-to-one>
+        <many-to-one name="tblProduto" class="Entidades.TblProduto" fetch="select">
+            <column name="tbl_produto_produto_codigo" not-null="true" />
+        </many-to-one>
+        <property name="itensPedidoQuantidade" type="string">
+            <column name="itens_pedido_quantidade" length="45" />
+        </property>
+        <property name="itensPedidoPreco" type="string">
+            <column name="itens_pedido_preco" length="45" />
+        </property>
+        <set name="tblEnvioses" table="tbl_itens_enviado" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_itens_pedido_itens_pedido_codigo" not-null="true" />
+            </key>
+            <many-to-many entity-name="Entidades.TblEnvios">
+                <column name="tbl_envios_envio_codigo" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

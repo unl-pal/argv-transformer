@@ -1,10 +1,7 @@
 /** filtered and transformed by PAClab */
 package assignment3;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Random;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * @author Paymon Saebi
@@ -27,9 +24,9 @@ public class ArrayBasedCollectionTimer {
         // First, spin computing stuff until one second has gone by.
         // This allows this thread to stabilize.
         // (As seen in lab1 experiment 8)
-        startTime = Debug.makeSymbolicInteger("x0");
+        startTime = Verifier.nondetInt();
 
-        while (Debug.makeSymbolicInteger("x1") - startTime < 1000000000) {
+        while (Verifier.nondetInt() - startTime < 1000000000) {
         } // empty block
 
         // Run complete timing for different values of N
@@ -37,22 +34,22 @@ public class ArrayBasedCollectionTimer {
 
             int[] testArray = new int[N];
             int index = 0;
-            while (Debug.makeSymbolicInteger("x2") < N) {
-                int intToAdd = Debug.makeSymbolicInteger("x4");
+            while (Verifier.nondetInt() < N) {
+                int intToAdd = Verifier.nondetInt();
                 // fill the testArray with the ints then add to it at random indices
                 if (index < N)
                     testArray[index++] = intToAdd;
                 else
-                    testArray[((int) (Debug.makeSymbolicInteger("x5") * N))] = intToAdd;
+                    testArray[((int) (Verifier.nondetInt() * N))] = intToAdd;
             }
 
             // start timing analysis, only uncomment the current needed test below
-            startTime = Debug.makeSymbolicInteger("x6");
+            startTime = Verifier.nondetInt();
             for (int i = 0; i < timesToLoop; i++) {
             }
 
             // end time for the for loop above, and begin time of for loop below.
-            midpointTime = Debug.makeSymbolicInteger("x7");
+            midpointTime = Verifier.nondetInt();
 
             // Run a loop with non-timed code to capture the cost of running and empty loop
             // and anything extra that maybe needed to setup the timing
@@ -60,7 +57,7 @@ public class ArrayBasedCollectionTimer {
                 // empty block
             }
 
-            stopTime = Debug.makeSymbolicInteger("x8");
+            stopTime = Verifier.nondetInt();
 
             // Compute the time, subtract the cost of running the loop
             // from the cost of running the loop and computing the called methods

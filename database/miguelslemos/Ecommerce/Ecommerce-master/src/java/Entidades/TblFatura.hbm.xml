@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblFatura" table="tbl_fatura" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="faturaCodigo" type="java.lang.Integer">
+            <column name="fatura_codigo" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="tblPedidos" class="Entidades.TblPedidos" fetch="select">
+            <column name="tbl_pedidos_pedido_codigo" not-null="true" />
+        </many-to-one>
+        <many-to-one name="tblRefFaturaStatus" class="Entidades.TblRefFaturaStatus" fetch="select">
+            <column name="tbl_ref_fatura_status_ref_fatura_status_codigo" not-null="true" />
+        </many-to-one>
+        <property name="faturaData" type="string">
+            <column name="fatura_data" length="45" />
+        </property>
+        <property name="faturaDetalhes" type="string">
+            <column name="fatura_detalhes" length="45" />
+        </property>
+        <set name="tblEnvioses" table="tbl_envios" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_fatura_fatura_codigo" not-null="true" />
+            </key>
+            <one-to-many class="Entidades.TblEnvios" />
+        </set>
+        <set name="tblPagamentoses" table="tbl_pagamentos" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_fatura_fatura_codigo" not-null="true" />
+            </key>
+            <one-to-many class="Entidades.TblPagamentos" />
+        </set>
+    </class>
+</hibernate-mapping>

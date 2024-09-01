@@ -1,0 +1,11 @@
+rootProject.name = 'spring-boot-showcase'
+
+include 'jpa-multi-database'
+include 'dubbo-provider'
+
+include 'dubbo-consumer'
+
+include 'websocket-tomcat'
+
+include 'websocket-tomcat-a'
+

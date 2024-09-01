@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" >
+    <h:head></h:head>
+    <h:body>
+        <ui:composition template="../admin_template/main_layout.xhtml">
+            <ui:define name="content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">Add/Edit Theater</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <h:button  style="float:right;margin-right: 30px;margin-bottom:10px;" value="Back" outcome="/pages/admin/theaters.xhtml" class="btn btn-outline btn-primary"/>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Enter Following Information
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <form role="form">
+                                            <div class="form-group">
+                                                <label>Theater Name</label>
+                                                <input class="form-control"/>
+                                                <p class="text-danger">Enter name</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Location</label>
+                                                <input  class="form-control"/>
+                                            </div>
+                                            <button class="btn btn-primary" type="submit">Save</button>
+                                            <button class="btn btn-info" type="reset">Reset</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- /.row (nested) -->
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>
+                        <!-- /.panel -->
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>

@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>AjaxDemo</title>
+        <h:outputStylesheet library="css" name="style.css"/>
+        <script >
+            var xhr;
+            
+            function showDateAndTime() {
+                var url="";
+                if(window.document.getElementById("typeList").checked){
+                    url="dateAndTime.ajax?type=date";
+                }else{
+                    url="dateAndTime.faces?type=date";
+                }
+                
+                sendRequest(url,processAjaxCall);   // the callback function
+
+            }
+            function showTemperature() {
+                var url="";
+                if(window.document.getElementById("typeList").checked){
+                    url="dateAndTime.ajax?type=temp";
+                }else{
+                    url="dateAndTime.faces?type=temp";
+                }                
+                sendRequest(url,processAjaxCallTemp);  
+            }
+
+
+
+            function sendRequest(url, handler) {
+
+                initXHR();
+
+                xhr.onreadystatechange = handler; // set callback function
+                
+                var aysnceT=window.document.getElementById("checkAsc").checked?true:false;                
+                //alert(aysnceT);
+
+                xhr.open("GET", url, aysnceT); // open asynchronous GET request
+
+                xhr.send(null); // send the request without params
+
+            }
+
+
+
+            function initXHR() {
+
+                if (window.XMLHttpRequest) {
+
+                    xhr = new XMLHttpRequest();
+
+                }
+
+                else if (window.ActiveXObject) {
+
+                    xhr = new ActiveXObject("Microsoft.XMLHTTP");
+
+                }
+
+            }
+
+
+
+            function processAjaxCall() {
+
+                if (xhr.readyState == 4) {  // if the request is finished...
+
+                    if (xhr.status == 200) { // ...and everything's okay
+
+                        // Get the dateDiv DIV and configure it
+
+                        // with the response text
+
+                        var dateDiv = window.document.getElementById("dateDIV");
+
+                        dateDiv.innerHTML = xhr.responseText;
+
+                    }
+
+                }
+
+            }
+            function processAjaxCallTemp() {
+
+                if (xhr.readyState == 4) {  // if the request is finished...
+
+                    if (xhr.status == 200) { // ...and everything's okay
+
+                        // Get the dateDiv DIV and configure it
+
+                        // with the response text
+
+                        var dateDiv = window.document.getElementById("tempDIV");
+
+                        dateDiv.innerHTML = xhr.responseText;
+
+                    }
+
+                }
+
+            }
+
+        </script>
+
+    </h:head>
+
+
+
+    <h:body styleClass="bodyColor"  >
+
+        <div class="banner">
+
+            <h:outputText value="Basic Ajax with a servlet"  styleClass="bannerText"/>
+
+        </div>
+
+
+
+        <h:form id="form">
+
+            <h:panelGrid columns='2'>
+
+                <h:outputText value='first'/>
+
+                <h:inputText id='txtFirst' value="#{pb.firstName}" /> 
+
+                <h:outputText value='last'/>
+
+                <h:inputText id='txtLast' value="#{pb.lastName}" />
+
+            </h:panelGrid>    
+
+            <h:outputText value="#{pb.fullName}"/><br/>
+
+            <input type="checkbox" value="Y" name="checkAsc" checked="true" id="checkAsc"/>Asynchronous<br/>
+            
+            <input type="radio" value="Servlet" name="typeList" id="typeList" checked="true"/> Servlet
+            <input type="radio" value="PhaseListener" name="typeList" /> Phase Listener <br/>
+            
+            <h:commandButton type='submit' value='Submit' styleClass='button' action='person'/><br/>
+
+            <input type="button" value="Show Date and Time" onclick="showDateAndTime();" class="button"/>
+            <input type="button" value="Show Temperature" onclick="showTemperature();" class="button"/>
+
+        </h:form>
+        Date: <br/>
+        <div id="dateDIV" class="dateDiv"/><br/>
+        Temperature:<br/>
+        <div id="tempDIV" class="dateDiv"/>
+
+    </h:body>
+</html>
+

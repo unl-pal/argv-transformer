@@ -1,0 +1,123 @@
+@import "_mixins"
+@import "theme/_variables"
+
+.factory
+
+	#side-menu
+		.nav-header
+			padding: 15px 15px 10px 25px
+			border-bottom: 1px solid rgba(white, 0.1)
+
+		> li.active
+			> a
+				padding-left: 21px
+
+			> ul.nav-second-level > li > a
+				padding-left: 25px
+
+		> li
+			border-bottom: 1px solid rgba(white, 0.05)
+
+		.nav-second-level > li > a
+			padding: 5px 19px 5px 29px
+
+			i.fa
+				font-size: 10px
+
+		.af-logo
+			width: 120px
+
+		.af-title
+			color: rgba(white, 0.8)
+			letter-spacing: 0.1px
+			margin-top: 5px
+			font-size: 17px
+			font-weight: 200
+			letter-spacing: 0.1px
+
+		.af-version
+			text-align: right
+			color: rgba(white, 0.4)
+			font-size: 9px
+
+	#top-nav
+
+		li
+			> a
+				padding: 14px 10px 14px 10px
+
+			&:last-child
+				margin-right: 20px
+
+		.navbar-header
+			padding: 13px 0 0 15px
+			min-width: 410px
+
+			.fa
+				+transition-property(color)
+				+transition-duration(0.1s)
+				font-size: 30px
+				display: inline-block
+				cursor: pointer
+				color: rgba(black, 0.2)
+
+				&:hover
+					color: $blue
+
+			.app-name
+				font-size: 23px
+				display: inline-block
+				margin-left: 7px
+				margin-right: 5px
+				position: relative
+				top: -2px
+
+			.app-label
+				text-transform: uppercase
+				font-size: 8px
+				font-weight: normal
+				letter-spacing: 0.1px
+				margin-left: 3px
+				padding: 3px 5px
+				position: relative
+				top: -6px
+				cursor: pointer
+
+		.navbar-static-top
+			margin-bottom: 0
+
+		.user-avatar
+			+border-radius(40px)
+			display: inline-block
+			margin: 0px 10px 0 10px
+			width: 30px
+			height: 30px
+			border: 1px solid #ddd
+			background-color: white
+			text-align: center
+			overflow: hidden
+			position: relative
+			top: 10px
+
+			i.fa-user
+				padding: 3px 0 0 0
+				font-size: 27px
+				color: rgba(#4e97d4, 0.3)
+
+	#main-content
+		.page-heading
+			.edit.metadata
+				margin-top: 15px
+				margin-left: -10px
+
+			.controls
+				margin-top: 15px
+
+	#footer
+		> *
+			margin-right: 7px
+			padding-right: 7px
+			border-right: 1px solid #ddd
+
+			&:last-child
+				border: none

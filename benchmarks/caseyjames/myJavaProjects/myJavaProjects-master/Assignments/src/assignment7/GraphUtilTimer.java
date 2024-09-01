@@ -1,10 +1,7 @@
 /** filtered and transformed by PAClab */
 package assignment7;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * @author Cody Cortello
@@ -20,34 +17,34 @@ public class GraphUtilTimer {
             //this allows to have the first data be 100, but then go in increments of 1000 and ending at 10000
             if (i == 0) i = 100;
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing start here.
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
                     // though same graph use different random key names
-                    while (Debug.makeSymbolicBoolean("x4")) {
+                    while (rand.nextBoolean()) {
 					}
-                    while (Debug.makeSymbolicBoolean("x5")) {
+                    while (rand.nextBoolean()) {
 					}
                 }
             }
             // take the middle time, then run it all over again with out breadthFirstSearch to determine overhead
-            midTime = Debug.makeSymbolicInteger("x6");
+            midTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
-                    while (Debug.makeSymbolicBoolean("x7")) {
+                    while (rand.nextBoolean()) {
 					}
-                    while (Debug.makeSymbolicBoolean("x8")) {
+                    while (rand.nextBoolean()) {
 					}
                 }
             }
-            endTime = Debug.makeSymbolicInteger("x9");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -66,34 +63,34 @@ public class GraphUtilTimer {
             //this allows to have the first data be 100, but then go in increments of 1000 and ending at 10000
             if (i == 0) i = 100;
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing start here.
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
                     // though same graph use different random key names
-                    while (Debug.makeSymbolicBoolean("x4")) {
+                    while (rand.nextBoolean()) {
 					}
-                    while (Debug.makeSymbolicBoolean("x5")) {
+                    while (rand.nextBoolean()) {
 					}
                 }
             }
             // take the middle time, then run it all over again with out breadthFirstSearch to determine overhead
-            midTime = Debug.makeSymbolicInteger("x6");
+            midTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
-                    while (Debug.makeSymbolicBoolean("x7")) {
+                    while (rand.nextBoolean()) {
 					}
-                    while (Debug.makeSymbolicBoolean("x8")) {
+                    while (rand.nextBoolean()) {
 					}
                 }
             }
-            endTime = Debug.makeSymbolicInteger("x9");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;

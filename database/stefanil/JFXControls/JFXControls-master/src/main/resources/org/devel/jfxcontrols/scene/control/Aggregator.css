@@ -1,0 +1,3 @@
+.aggregator {
+	-fx-skin: "org.devel.jfxcontrols.scene.control.skin.AggregatorSkin";
+}

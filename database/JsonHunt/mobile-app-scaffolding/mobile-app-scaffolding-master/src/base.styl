@@ -1,0 +1,77 @@
+$light = #80c6fc
+$medium = #42adff
+$dark = #0991f9
+
+html
+	height 100%
+
+body
+	padding 0
+	margin 0
+	height 100%
+	display flex
+	flex-direction column
+
+.noselect {
+	-webkit-touch-callout: none
+	-webkit-user-select: none
+	-khtml-user-select: none
+	-moz-user-select: none
+	-ms-user-select: none
+	user-select: none
+}
+
+.appheader
+	background-color $medium
+	padding 10px
+	display flex
+	align-items center
+	justify-content center
+	border-bottom $dark
+	.title
+		font-size 20px
+		font-weight bold
+		color white
+
+.appcontent
+	flex 1 1
+	padding 10px
+
+.appfooter
+	padding 10px
+	color #666
+	font-size 12px
+	font-weight bold
+	text-transform uppercase
+	justify-content center
+	border-top 1px solid $dark
+	background-color $medium
+
+.pageheader
+	padding 10px
+	color #666
+	font-size 12px
+	font-weight bold
+	text-transform uppercase
+	text-align center
+	border-top 1px solid #ccc
+
+.pagefooter
+	padding 10px
+	border-top 1px solid $border
+
+.btn
+	min-width 100px
+
+.form.center
+	margin auto
+	width 500px
+	padding: 10px
+	border: 1px solid #ccc
+	background-color: #ddd
+
+.error
+	padding: 10px
+	color: red
+	border 1px solid red
+	margin: 10px 0

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <title>#{msgs.windowTitle}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <h:dataTable value="#{tableData.names}" var="name">
+            <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.editColumn}" 
+                                style="font-weight: bold"/>
+               </f:facet>
+               <h:selectBooleanCheckbox value="#{name.editable}" onclick="submit()"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.lastnameColumn}" 
+                                style="font-weight: bold"/>
+               </f:facet>
+               <h:inputText value="#{name.last}" rendered="#{name.editable}" 
+                            size="10"/>
+               <h:outputText value="#{name.last}" rendered="#{not name.editable}"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.firstnameColumn}" 
+                                style="font-weight: bold"/>
+               </f:facet>
+               <h:inputText value="#{name.first}" rendered="#{name.editable}" 
+                            size="10"/>
+               <h:outputText value="#{name.first}" rendered="#{not name.editable}"/>
+            </h:column>
+         </h:dataTable>
+         <h:commandButton value="#{msgs.saveChangesButtonText}" 
+                          action="#{tableData.save}"/>
+      </h:form>
+   </h:body>
+</html>

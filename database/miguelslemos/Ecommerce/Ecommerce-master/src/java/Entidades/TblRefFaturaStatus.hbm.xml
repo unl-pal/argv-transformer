@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblRefFaturaStatus" table="tbl_ref_fatura_status" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="refFaturaStatusCodigo" type="java.lang.Integer">
+            <column name="ref_fatura_status_codigo" />
+            <generator class="identity" />
+        </id>
+        <property name="refFaturaStatusDescricao" type="string">
+            <column name="ref_fatura_status_descricao" length="45" not-null="true" />
+        </property>
+        <set name="tblFaturas" table="tbl_fatura" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_ref_fatura_status_ref_fatura_status_codigo" not-null="true" />
+            </key>
+            <one-to-many class="Entidades.TblFatura" />
+        </set>
+    </class>
+</hibernate-mapping>

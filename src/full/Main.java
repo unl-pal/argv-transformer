@@ -99,7 +99,7 @@ public class Main {
 			}
 		}
 		
-		Logger.defaultLogger.setDebugLevel(debugLevel);
+		Logger.defaultLogger.setDebugLevel(debugLevel); //TODO: Read what this debugLevel parameter is doing here
 		Logger.defaultLogger.enterContext("MAIN");
 
 		Downloader downloader = new Downloader(filename);

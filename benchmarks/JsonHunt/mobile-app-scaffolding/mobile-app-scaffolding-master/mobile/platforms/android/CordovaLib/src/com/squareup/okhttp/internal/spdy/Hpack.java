@@ -17,14 +17,7 @@
 /** filtered and transformed by PAClab */
 package com.squareup.okhttp.internal.spdy;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Read and write HPACK v03.
@@ -41,24 +34,24 @@ final class Hpack {
      * set of emitted headers.
      */
     public void readHeaders(int byteCount) throws Exception {
-      int bytesLeft = Debug.makeSymbolicInteger("x0");
+      int bytesLeft = Verifier.nondetInt();
 	bytesLeft += byteCount;
       // TODO: limit to 'byteCount' bytes?
 
       while (bytesLeft > 0) {
-        int b = Debug.makeSymbolicInteger("x1");
+        int b = Verifier.nondetInt();
 
-        if (Debug.makeSymbolicInteger("x2") != 0) {
-          int index = Debug.makeSymbolicInteger("x3");
+        if (Verifier.nondetInt() != 0) {
+          int index = Verifier.nondetInt();
         } else if (b == 0x60) {
-        } else if (Debug.makeSymbolicInteger("x4") == 0x60) {
-          int index = Debug.makeSymbolicInteger("x5");
+        } else if (Verifier.nondetInt() == 0x60) {
+          int index = Verifier.nondetInt();
         } else if (b == 0x40) {
-        } else if (Debug.makeSymbolicInteger("x6") == 0x40) {
-          int index = Debug.makeSymbolicInteger("x7");
+        } else if (Verifier.nondetInt() == 0x40) {
+          int index = Verifier.nondetInt();
         } else if (b == 0) {
-        } else if (Debug.makeSymbolicInteger("x8") == 0) {
-          int index = Debug.makeSymbolicInteger("x9");
+        } else if (Verifier.nondetInt() == 0) {
+          int index = Verifier.nondetInt();
         } else {
           throw new AssertionError();
         }
@@ -75,9 +68,9 @@ final class Hpack {
       int result = prefixMask;
       int shift = 0;
       while (true) {
-        int b = Debug.makeSymbolicInteger("x0");
-        if (Debug.makeSymbolicInteger("x1") != 0) { // Equivalent to (b >= 128) since b is in [0..255].
-          result += Debug.makeSymbolicInteger("x2") << shift;
+        int b = Verifier.nondetInt();
+        if (Verifier.nondetInt() != 0) { // Equivalent to (b >= 128) since b is in [0..255].
+          result += Verifier.nondetInt() << shift;
           shift += 7;
         } else {
           result += b << shift; // Last byte.

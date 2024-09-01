@@ -1,11 +1,7 @@
 /** filtered and transformed by PAClab */
 package FinalProject;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Represents a priority queue of generically-typed items.
@@ -26,7 +22,7 @@ public class PriorityQueueHEAP<AnyType> {
      * @throws java.util.NoSuchElementException if this priority queue is empty.
      */
     public Object deleteMin() throws Exception {
-        int currentSize = Debug.makeSymbolicInteger("x0");
+        int currentSize = Verifier.nondetInt();
 		// first check for empty priority queue and throw exception if it is
         if (currentSize == 0)
             throw new NoSuchElementException("This priority queue is empty!");
@@ -46,7 +42,7 @@ public class PriorityQueueHEAP<AnyType> {
             return;
         // continually move next parent down to current index if item is less than parent.
         do {
-            if (Debug.makeSymbolicInteger("x0") < 0) {
+            if (Verifier.nondetInt() < 0) {
             } else
                 break;
             // update index
@@ -54,7 +50,7 @@ public class PriorityQueueHEAP<AnyType> {
         } while ((index - 1) / 2 > 0);
         // if there is still a parent index at 0, if so compare and swap if necessary.
         if (index > 0 && (index - 1) / 2 <= 0) {
-            if (Debug.makeSymbolicInteger("x1") < 0) {
+            if (Verifier.nondetInt() < 0) {
                 return;
             }
         }
@@ -66,13 +62,13 @@ public class PriorityQueueHEAP<AnyType> {
      */
     /** PACLab: suitable */
 	 private void percolateDown(int index) {
-        int currentSize = Debug.makeSymbolicInteger("x0");
+        int currentSize = Verifier.nondetInt();
 		// if this index has no children then return
         if (index * 2 + 1 >= currentSize)
             return;
         // in the case of 1 child
         if (index * 2 + 1 < currentSize && index * 2 + 2 >= currentSize) {
-            if (Debug.makeSymbolicInteger("x1") > 0) {
+            if (Verifier.nondetInt() > 0) {
                 return;
             }
             return;
@@ -80,12 +76,12 @@ public class PriorityQueueHEAP<AnyType> {
         // case of 2 children
         int smallerChild;
         // determine smaller of the two children
-        if (Debug.makeSymbolicInteger("x2") <= 0)
+        if (Verifier.nondetInt() <= 0)
             smallerChild = index * 2 + 1;
         else
             smallerChild = index * 2 + 2;
         // compare smaller child with item at current index
-        if (Debug.makeSymbolicInteger("x3") > 0) {
+        if (Verifier.nondetInt() > 0) {
         }
         // if item is already in the correct position, just return
         return;

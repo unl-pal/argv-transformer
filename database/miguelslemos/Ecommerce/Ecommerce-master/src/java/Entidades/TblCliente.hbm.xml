@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblCliente" table="tbl_cliente" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="clienteCodigo" type="java.lang.Integer">
+            <column name="cliente_codigo" />
+            <generator class="identity" />
+        </id>
+        <property name="clienteGenero" type="string">
+            <column name="cliente_genero" length="20" not-null="true" />
+        </property>
+        <property name="clientePrimeironome" type="string">
+            <column name="cliente_primeironome" length="45" not-null="true" />
+        </property>
+        <property name="clienteUltimonome" type="string">
+            <column name="cliente_ultimonome" length="45" not-null="true" />
+        </property>
+        <property name="clienteEmail" type="string">
+            <column name="cliente_email" length="45" not-null="true" unique="true" />
+        </property>
+        <property name="clienteLogin" type="string">
+            <column name="cliente_login" length="45" not-null="true" unique="true" />
+        </property>
+        <property name="clienteSenha" type="string">
+            <column name="cliente_senha" length="45" not-null="true" />
+        </property>
+        <property name="clienteTelefone" type="string">
+            <column name="cliente_telefone" length="45" not-null="true" />
+        </property>
+        <property name="clienteEndereco1" type="string">
+            <column name="cliente_endereco1" length="45" not-null="true" />
+        </property>
+        <property name="clienteEndereco2" type="string">
+            <column name="cliente_endereco2" length="45" />
+        </property>
+        <property name="clienteCidade" type="string">
+            <column name="cliente_cidade" length="45" not-null="true" />
+        </property>
+        <property name="clienteEstado" type="string">
+            <column name="cliente_estado" length="45" not-null="true" />
+        </property>
+        <property name="clientePais" type="string">
+            <column name="cliente_pais" length="45" not-null="true" />
+        </property>
+        <property name="clienteAdm" type="java.lang.Boolean">
+            <column name="cliente_adm" />
+        </property>
+        <set name="tblPedidoses" table="tbl_pedidos" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_cliente_cliente_codigo" not-null="true" />
+            </key>
+            <one-to-many class="Entidades.TblPedidos" />
+        </set>
+        <set name="tblMetodosPagamentoClientes" table="tbl_metodos_pagamento_cliente" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_cliente_cliente_codigo" not-null="true" />
+            </key>
+            <one-to-many class="Entidades.TblMetodosPagamentoCliente" />
+        </set>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <h:head>
+        <title>Checkout page</title>
+    </h:head>
+    <h:body>
+        <h:outputText value="#{msg.checktitle}"/>
+        <br/>
+        <br/>
+        <h:dataTable value="#{teaBean.orderList}" var="order">
+            <h:column>
+                <f:facet name="header">
+                    <h:outputText value="#{msg.teaname}"/>
+                </f:facet>
+                <h:outputText value="#{order.name}"></h:outputText>                                               
+            </h:column>
+            
+            <h:column>
+                <f:facet name="header">
+                    <h:outputText value="#{msg.price}" />
+                </f:facet>
+                <h:outputText value="#{order.price}"></h:outputText>                                               
+            </h:column>
+            
+            <h:column>
+                <f:facet name="header">
+                    <h:outputText value="#{msg.quantity}"/>
+                </f:facet>
+                <h:outputText value="#{order.amount}"></h:outputText>                                               
+            </h:column>
+            
+            <h:column>
+                <f:facet name="header">
+                    <h:outputText value="#{msg.sum}" />
+                </f:facet>
+                <h:outputText value="#{order.sum}">
+                    <f:convertNumber minFractionDigits="1" maxFractionDigits="2"/>
+                </h:outputText>                                               
+            </h:column>
+            
+        </h:dataTable>
+        <br/>
+        <span>
+            <h:outputText value="#{msg.total}">  </h:outputText>
+            <h:outputText value="#{teaBean.totalPrice}">
+                <f:convertNumber maxFractionDigits="2"/>
+            </h:outputText>
+        </span>
+        
+        <br/>
+        <br/>
+        <!-- want to clear the order table and go back to the index page -->
+        <h:form>
+           <!--  <h:button # {msg.back} onclick="# {teaBean.clear()}" outcome="index" />   -->
+          <h:commandButton value="#{msg.back}" action="#{teaBean.clear()}"  />
+        </h:form>
+    </h:body>
+</html>
+

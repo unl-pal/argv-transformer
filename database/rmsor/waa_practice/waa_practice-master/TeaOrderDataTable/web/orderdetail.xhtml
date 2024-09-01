@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <title>#{msgs.windowTitle}</title>
+      <h:outputStylesheet library="css" name="style.css"/>
+   </h:head>
+   <h:body>
+       <h1>Your Order Detail</h1>
+      <h:form>
+         <h:dataTable value="#{tea.selTeas}" var="teas">
+            <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.nameColumn}"  style="font-weight: bold"/>
+               </f:facet>
+               <h:outputText value="#{teas.name}"/>
+            </h:column>
+             <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.priceColumn}" style="font-weight: bold"/>
+               </f:facet>
+               <h:outputText value="$ #{teas.price}"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.quantityColumn}" style="font-weight: bold"/>
+               </f:facet>
+               <h:outputText value="#{teas.quantity}" style="font-weight: bold"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">
+                  <h:outputText value="#{msgs.totalColumn}" style="font-weight: bold"/>
+               </f:facet>
+               <h:outputText value="$ #{teas.price*teas.quantity}"/>
+            </h:column>
+         </h:dataTable>
+          <h3 style="color:green">Total Price: $#{tea.grandTotalPrice}</h3>
+         <h:button value="#{msgs.backButtonText}"  outcome="index"/>
+      </h:form>
+   </h:body>
+</html>
+

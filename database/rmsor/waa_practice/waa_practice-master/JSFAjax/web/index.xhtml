@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>AjaxDemo</title>
+        <h:outputStylesheet library="css" name="style.css"/>
+        <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+        <script language="javascript">
+            function geocode() {
+                PF('geoMap').geocode(document.getElementById('txtStreetAddress').value);
+            }
+
+
+            function codeAddress()
+            {
+                var geocoder;
+                var map;
+                geocoder = new google.maps.Geocoder();
+                map = new google.maps.Map(document.getElementById("map"),
+                        {
+                            zoom: 12,
+                            center: new google.maps.LatLng(22.7964, 79.5410),
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        });
+                var address = document.getElementById("form:txtStreetAddress").value;
+                geocoder.geocode({'address': address}, function (results, status)
+                {
+                    if (status == google.maps.GeocoderStatus.OK)
+                    {
+                        map.setCenter(results[0].geometry.location);
+                        var marker = new google.maps.Marker(
+                                {
+                                    map: map,
+                                    position: results[0].geometry.location
+                                });
+                    }
+                    else
+                    {
+                        alert("Geocode was not successful for the following reason: " + status);
+                    }
+                });
+            }
+        </script>
+    </h:head>
+
+    <h:body styleClass="bodyColor" >
+        <div class="banner">
+            <h:outputText value="JSF AJAX DEMO"  styleClass="bannerText"/>
+        </div>
+        <br/>
+        <h:form id="form">
+            <div style="float:left;width:500px;">
+                <h:panelGrid columns='2'>
+                    <h:outputText value='First Name: '/>
+                    <h:panelGroup>
+                        <h:inputText id='txtFirst' value="#{pb.firstName}" required="true" validatorMessage="First Name Should not Contain Integers !!">
+                            <f:validateRegex pattern="[a-zA-Z]+"/>
+                            <f:ajax event="blur" listener="#{pb.searchName}" render="@form" execute="txtFirst" 
+                                    onevent="function(data) { if (data.status === 'success') {codeAddress(); } }" />
+                        </h:inputText> 
+                        <h:message for="txtFirst" style="font-weight:bold;color:red"/>
+                        <h:outputText value="#{pb.msg}" style="font-weight:bold;color:#{pb.msgColor}"/>
+                    </h:panelGroup>
+
+                    <h:outputText value='Last Name: '/>
+                    <h:inputText id='txtLast' value="#{pb.lastName}" />
+
+                    <h:outputText value='Email: '/>
+                    <h:inputText id='txtEmail' size="40" value="#{pb.email}" />
+
+                    <h:outputText value='Street Address: '/>
+                    <h:inputText id='txtStreetAddress' size="40" value="#{pb.streetAddress}" onblur="codeAddress();"/>
+
+                    <h:outputText value='State: '/>
+                    <h:inputText id='txtState' value="#{pb.state}" />
+
+                    <h:outputText value='Zip: '/>
+                    <h:inputText id='txtZip' value="#{pb.zip}" /> 
+                </h:panelGrid> 
+
+
+            </div>
+            <div style="float:left;width:500px;margin-left:20px;border:1px solid">
+                <ui:remove> 
+                    <p:gmap id="geoGmap" widgetVar="geoMap" center="#{geocodeView.centerGeoMap}" zoom="2" type="ROADMAP" model="#{geocodeView.geoModel}" style="width:100%;height:400px">
+                        <p:ajax event="geocode" listener="#{geocodeView.onGeocode}" update="@this" />
+                    </p:gmap>
+                </ui:remove>
+                <div id="map" style="height:300px; width: 500px"></div>
+            </div>
+
+
+        </h:form>
+        <div style="clear:both;"></div>
+        <br/>
+        <h:link outcome="version2" value="Go to Version 2"></h:link>
+
+    </h:body>
+</html>
+

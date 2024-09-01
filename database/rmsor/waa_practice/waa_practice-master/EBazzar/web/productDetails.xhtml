@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="templates/mainTemplate.xhtml">
+        <ui:define name="content">
+            <h:form style="padding: 1em;">
+                <h4>Product Details</h4>
+
+                <table class="productDetails">
+                    <tr>
+                        <td>Item:</td>
+                        <td id="prodName">#{bsControllerPCB.selectedProduct.prodName}</td>
+                    </tr>
+                    <tr>
+                        <td>Price:</td>
+                        <td>#{bsControllerPCB.selectedProduct.price}</td>
+                    </tr>
+                    <tr>
+                        <td>Quantity Available:</td>
+                        <td>#{bsControllerPCB.selectedProduct.quantityInStock}</td>
+                    </tr>
+                    <tr>
+                        <td>Review:</td>
+                        <td>#{bsControllerPCB.selectedProduct.description}</td>
+                    </tr>
+                    <tr> 
+                        <td>Quantity Desired: </td>
+                        <td>
+                            <h:inputText converterMessage="Quantity: Must be a number" 
+                                         required="true" 
+                                         label="Quantity" 
+                                         id="quantity" 
+                                         value="#{bsControllerPCB.quantity}"
+                                         >
+                                <f:validateLongRange minimum="1" maximum="#{bsControllerPCB.selectedProduct.quantityInStock}"/>
+                                <f:validator binding="#{quantityValidator}" />
+                            </h:inputText><h:message styleClass="errorMessage" for="quantity"/>
+                        </td>
+                    </tr>
+                </table>
+                <p><h:commandButton value="Add to Cart" action="#{bsControllerPCB.addToCart}" />
+                    <h:commandButton value="Back to Catalog" immediate="true" action="product" /></p>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
+

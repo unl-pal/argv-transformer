@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:composite="http://java.sun.com/jsf/composite">
+
+   <composite:interface>
+      <composite:editableValueHolder name="nameInput" targets="form:name"/>
+      <composite:editableValueHolder name="passwordInput" targets="form:password"/>
+      <composite:editableValueHolder name="inputs"
+            targets="form:name form:password"/>
+      <composite:actionSource name="loginButton" targets="form:loginButton"/>
+      
+      <composite:attribute name="name"/>
+      <composite:attribute name="password"/>
+
+      <composite:attribute name="namePrompt"/>
+      <composite:attribute name="passwordPrompt"/>
+
+      <composite:attribute name="loginValidate" 
+         method-signature="void validateLogin(ComponentSystemEvent e)
+            throws javax.faces.event.AbortProcessingException"/>
+
+      <composite:attribute name="loginAction" 
+         method-signature="java.lang.String action()"/>
+
+      <composite:facet name="heading"/>
+      <composite:facet name="error"/> 
+   </composite:interface>
+
+   <composite:implementation>
+      <h:outputScript library="components/util" name="login.js" target="head"/>
+      <h:form id="form" onsubmit="return checkForm(this, '#{cc.clientId}')">
+         <composite:renderFacet name="heading"/>
+         <h:panelGrid columns="2">
+            #{cc.attrs.namePrompt}
+            <h:panelGroup>
+               <h:inputText id="name" value="#{cc.attrs.name}"/>
+               <h:message for="name"/>
+            </h:panelGroup>
+
+            #{cc.attrs.passwordPrompt}
+
+            <h:panelGroup>
+               <h:inputSecret id="password" value="#{cc.attrs.password}" size="8"/>
+               <h:message for="password"/>
+            </h:panelGroup>
+         </h:panelGrid>
+
+         <p>
+            <h:commandButton id="loginButton"
+               value="#{cc.attrs.loginButtonText}"
+               action="#{cc.attrs.loginAction}"/>
+         </p>
+
+      </h:form>
+
+      <composite:renderFacet name="error"/>
+
+      <p><composite:insertChildren/></p>
+
+      <p>#{cc.resourceBundleMap.footer}</p>
+   </composite:implementation>
+</html>

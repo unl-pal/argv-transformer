@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html" 
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:corejsf="http://corejsf.com">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.title}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <h1>#{msgs.enterPayment}</h1>
+         <h:panelGrid columns="2">
+            #{msgs.amount}
+            <h:inputText id="amount" value="#{payment.amount}">
+               <f:convertNumber minFractionDigits="2"/>
+            </h:inputText>
+
+            #{msgs.creditCard}
+            <h:inputText id="card" value="#{payment.card}" required="true">
+               <corejsf:validateCreditCard 
+                     errorDetail="#{msgs.creditCardError}"/>
+            </h:inputText>
+
+            #{msgs.expirationDate}
+            <h:inputText id="date" value="#{payment.date}">
+               <f:convertDateTime pattern="MM/yyyy"/>
+            </h:inputText>
+         </h:panelGrid>
+         <h:messages styleClass="errorMessage" 
+                     showSummary="false" showDetail="true"/>
+         <br/>
+         <h:commandButton value="Process" action="result"/>
+      </h:form>
+   </h:body>
+</html>

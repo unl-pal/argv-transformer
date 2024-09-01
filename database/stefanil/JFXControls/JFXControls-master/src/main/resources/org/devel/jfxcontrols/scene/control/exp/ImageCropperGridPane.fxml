@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import org.devel.jfxcontrols.scene.control.ImageCropperScrollPane?>
+<?import org.devel.jfxcontrols.scene.shape.CropperRectangle?>
+<?import org.devel.jfxcontrols.scene.image.SourceImageView?>
+
+<fx:root type="GridPane" fx:id="imageCropperView" hgap="10.0"
+minHeight="250.0" minWidth="360.0" style="-fx-background-color: white;"
+	vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+
+	<!-- <GridPane fx:id="imageCropperView" hgap="10.0" minHeight="200.0" prefHeight="1000.0" 
+		prefWidth="1000.0" style="-fx-background-color: white;" vgap="10.0" xmlns="http://javafx.com/javafx/8" 
+		xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.devel.jfxcontrols.scene.control.ImageCropperGridPaneFXMLController"> -->
+
+	<children>
+		<!-- layoutX="151.0" layoutY="23.0" -->
+		<Button fx:id="loadImageButton" alignment="CENTER" 
+			mnemonicParsing="false" onAction="#loadImage" text="Load Image"
+			GridPane.rowIndex="2" />
+		<!-- layoutX="170.0" layoutY="379.0" -->
+		<Button fx:id="saveImageButton" 
+			mnemonicParsing="false" onAction="#saveImage" text="Save Image"
+			GridPane.columnIndex="1" GridPane.rowIndex="2" />
+		<HBox alignment="CENTER" maxHeight="155.0" maxWidth="122.0"
+			minHeight="155.0" minWidth="122.0"
+			style="-fx-border-color: lightgrey; -fx-background-color: #fefefe;"
+			GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"
+			GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+			<padding>
+				<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+			</padding>
+			<children>
+				<!-- style="" styleClass="scroll-pane" -->
+				<ImageView fx:id="targetImageView" fitHeight="133.0"
+					fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER" />
+			</children>
+		</HBox>
+
+		<ImageCropperScrollPane fx:id="imageCropperScrollPane"
+			GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS"
+			GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS"
+			minHeight="137" minWidth="103.0">
+
+			<content>
+				<StackPane fx:id="test" alignment="TOP_LEFT">
+					<children>
+						<SourceImageView fx:id="sourceImageView" pickOnBounds="true" preserveRatio="true" fitHeight="266.0"
+							fitWidth="200.0" />
+						<CropperRectangle fx:id="cropperRectangle" fill="#ffffff80"
+							height="133.3333333" width="100" StackPane.alignment="TOP_LEFT">
+							<stroke>
+								<Color blue="0.8666666746139526" green="0.8666666746139526"
+									red="0.8666666746139526" />
+							</stroke>
+						</CropperRectangle>
+					</children>
+				</StackPane>
+			</content>
+
+		</ImageCropperScrollPane>
+
+		<Label alignment="CENTER" contentDisplay="CENTER"
+			style="-fx-font-weight: bold;" text="Source" textAlignment="CENTER"
+			GridPane.hgrow="ALWAYS" GridPane.vgrow="NEVER" xmlns="http://javafx.com/javafx/8"
+			xmlns:fx="http://javafx.com/fxml/1" />
+		<Label alignment="CENTER" contentDisplay="CENTER"
+			style="-fx-font-weight: bold;" text="Target" textAlignment="CENTER"
+			GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="NEVER"
+			xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" />
+			
+	</children>
+	<stylesheets>
+		<URL value="@../control/image-cropper.css" />
+	</stylesheets>
+	<columnConstraints>
+		<ColumnConstraints halignment="CENTER" hgrow="ALWAYS" />
+		<ColumnConstraints halignment="CENTER" hgrow="NEVER"
+			xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints valignment="CENTER" vgrow="NEVER"
+			xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" />
+		<RowConstraints valignment="CENTER" vgrow="NEVER" />
+		<RowConstraints minHeight="10.0" prefHeight="30.0"
+			xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" />
+	</rowConstraints>
+	<padding>
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+	</padding>
+
+	<!-- </GridPane> -->
+</fx:root>

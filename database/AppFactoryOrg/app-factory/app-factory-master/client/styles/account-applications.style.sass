@@ -1,0 +1,40 @@
+@import "_mixins"
+
+.account-applications-view
+	width: 500px
+	margin: 30px auto
+	position: relative
+
+	+mobile
+		width: 100%
+
+	button.logout
+		position: absolute
+		top: -30px
+		right: 0px
+
+	.application-summary
+		vertical-align: top
+		margin-bottom: 40px
+		position: relative
+		height: 110px
+		padding: 15px 20px
+
+		.name
+			font-size: 20px
+
+		.icon
+			font-size: 60px
+			position: absolute
+			bottom: -20px
+			left: 12px
+			color: lighten(black, 70%)
+
+		.controls
+			position: absolute
+			top: 10px
+			right: 10px
+
+		.labels
+			.label
+				text-transform: uppercase

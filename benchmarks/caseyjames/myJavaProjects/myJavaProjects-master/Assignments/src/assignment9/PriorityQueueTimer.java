@@ -1,8 +1,7 @@
 /** filtered and transformed by PAClab */
 package assignment9;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.util.Random;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Created by Cody on 7/20/2014.
@@ -10,11 +9,11 @@ import java.util.Random;
 public class PriorityQueueTimer {
     /** PACLab: suitable */
 	 public static void PriorityHeapAddTimer() throws Exception {
-        int TIMES_TO_LOOP = Debug.makeSymbolicInteger("x4");
-		boolean printAtEnd = Debug.makeSymbolicBoolean("x3");
-		boolean printAsRuns = Debug.makeSymbolicBoolean("x2");
-		int INTERVAL = Debug.makeSymbolicInteger("x1");
-		int MAX_SIZE = Debug.makeSymbolicInteger("x0");
+        int TIMES_TO_LOOP = Verifier.nondetInt();
+		boolean printAtEnd = rand.nextBoolean();
+		boolean printAsRuns = rand.nextBoolean();
+		int INTERVAL = Verifier.nondetInt();
+		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
         int dataIndex = 0;
 
@@ -32,23 +31,23 @@ public class PriorityQueueTimer {
             // initiate variables for timing structures
             double combined = currentSize * TIMES_TO_LOOP; // represents the number of total operations which should be timed
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x5");
-            while (Debug.makeSymbolicInteger("x6") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
-            startTime = Debug.makeSymbolicInteger("x7");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
                 for (int k = 0; k < currentSize; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x8");
+            midTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
                 for (int k = 0; k < currentSize; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x9");
+            endTime = Verifier.nondetInt();
 
             // calculate the total time and the average time
             double totalTime = (double) (2 * midTime - startTime - endTime) / 1e9;
@@ -77,11 +76,11 @@ public class PriorityQueueTimer {
 
     /** PACLab: suitable */
 	 public static void PriorityHeapFindMinTimer() throws Exception {
-        int TIMES_TO_LOOP = Debug.makeSymbolicInteger("x4");
-		boolean printAtEnd = Debug.makeSymbolicBoolean("x3");
-		boolean printAsRuns = Debug.makeSymbolicBoolean("x2");
-		int INTERVAL = Debug.makeSymbolicInteger("x1");
-		int MAX_SIZE = Debug.makeSymbolicInteger("x0");
+        int TIMES_TO_LOOP = Verifier.nondetInt();
+		boolean printAtEnd = rand.nextBoolean();
+		boolean printAsRuns = rand.nextBoolean();
+		int INTERVAL = Verifier.nondetInt();
+		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
         int dataIndex = 0;
 
@@ -101,23 +100,23 @@ public class PriorityQueueTimer {
 			}
 
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x5");
-            while (Debug.makeSymbolicInteger("x6") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
-            startTime = Debug.makeSymbolicInteger("x7");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
             }
 
-            midTime = Debug.makeSymbolicInteger("x8");
+            midTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
             }
 
-            endTime = Debug.makeSymbolicInteger("x9");
+            endTime = Verifier.nondetInt();
 
             // calculate the total time and the average time
             double totalTime = (double) (2 * midTime - startTime - endTime) / 1e9;
-            double avgTime = Debug.makeSymbolicInteger("x10") * 1e9;
+            double avgTime = Verifier.nondetInt() * 1e9;
 
             // store the times to be printed after execution completes
             if (printAtEnd) {
@@ -142,11 +141,11 @@ public class PriorityQueueTimer {
 
     /** PACLab: suitable */
 	 public static void PriorityHeapDelMinTimer() throws Exception {
-        int TIMES_TO_LOOP = Debug.makeSymbolicInteger("x4");
-		boolean printAtEnd = Debug.makeSymbolicBoolean("x3");
-		boolean printAsRuns = Debug.makeSymbolicBoolean("x2");
-		int INTERVAL = Debug.makeSymbolicInteger("x1");
-		int MAX_SIZE = Debug.makeSymbolicInteger("x0");
+        int TIMES_TO_LOOP = Verifier.nondetInt();
+		boolean printAtEnd = rand.nextBoolean();
+		boolean printAsRuns = rand.nextBoolean();
+		int INTERVAL = Verifier.nondetInt();
+		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
         int dataIndex = 0;
 
@@ -163,11 +162,11 @@ public class PriorityQueueTimer {
             // initiate variables for timing structures
             double combined = currentSize * TIMES_TO_LOOP; // represents the number of total operations which should be timed
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x5");
-            while (Debug.makeSymbolicInteger("x6") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
-            startTime = Debug.makeSymbolicInteger("x7");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
                 for (int i = 0; i < currentSize; i++) {
 				}
@@ -175,17 +174,17 @@ public class PriorityQueueTimer {
 				}
             }
 
-            midTime = Debug.makeSymbolicInteger("x8");
+            midTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
                 for (int i = 0; i < currentSize; i++) {
 				}
             }
 
-            endTime = Debug.makeSymbolicInteger("x9");
+            endTime = Verifier.nondetInt();
 
             // calculate the total time and the average time
             double totalTime = (double) (2 * midTime - startTime - endTime) / 1e9;
-            double avgTime = Debug.makeSymbolicInteger("x10") * 1e9;
+            double avgTime = Verifier.nondetInt() * 1e9;
 
             // store the times to be printed after execution completes
             if (printAtEnd) {
@@ -210,11 +209,11 @@ public class PriorityQueueTimer {
 
     /** PACLab: suitable */
 	 public static void PriorityBSTAddTimer() throws Exception {
-        int TIMES_TO_LOOP = Debug.makeSymbolicInteger("x4");
-		boolean printAtEnd = Debug.makeSymbolicBoolean("x3");
-		boolean printAsRuns = Debug.makeSymbolicBoolean("x2");
-		int INTERVAL = Debug.makeSymbolicInteger("x1");
-		int MAX_SIZE = Debug.makeSymbolicInteger("x0");
+        int TIMES_TO_LOOP = Verifier.nondetInt();
+		boolean printAtEnd = rand.nextBoolean();
+		boolean printAsRuns = rand.nextBoolean();
+		int INTERVAL = Verifier.nondetInt();
+		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
         int dataIndex = 0;
 
@@ -232,23 +231,23 @@ public class PriorityQueueTimer {
             // initiate variables for timing structures
             double combined = currentSize * TIMES_TO_LOOP; // represents the number of total operations which should be timed
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x5");
-            while (Debug.makeSymbolicInteger("x6") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
-            startTime = Debug.makeSymbolicInteger("x7");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
                 for (int k = 0; k < currentSize; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x8");
+            midTime = Verifier.nondetInt();
             for (int j = 0; j < TIMES_TO_LOOP; j++) {
                 for (int k = 0; k < currentSize; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x9");
+            endTime = Verifier.nondetInt();
 
             // calculate the total time and the average time
             double totalTime = (double) (2 * midTime - startTime - endTime) / 1e9;

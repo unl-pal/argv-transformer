@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import org.devel.jfxcontrols.scene.control.svg.SvgIconRadioButton?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+      prefWidth="600.0" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.devel.jfxcontrols.sample.SvgIconRadioButtonExample">
+  <children>
+    <SvgIconRadioButton fx:id="irbBlub" text="Blub"
+                        style="-sx-svgpath: '/org/devel/jfxcontrols/scene/control/svg/Icon.fxml';"/>
+  </children>
+</VBox>

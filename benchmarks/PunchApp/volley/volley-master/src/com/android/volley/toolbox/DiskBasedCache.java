@@ -17,20 +17,7 @@
 /** filtered and transformed by PAClab */
 package com.android.volley.toolbox;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Cache implementation that caches files directly onto the hard disk in the specified
@@ -44,23 +31,24 @@ public class DiskBasedCache {
      */
     /** PACLab: suitable */
 	 private void pruneIfNeeded(int neededSpace) {
-        float HYSTERESIS_FACTOR = (float) Debug.makeSymbolicReal("x7");
-		int mMaxCacheSizeInBytes = Debug.makeSymbolicInteger("x1");
-		int mTotalSize = Debug.makeSymbolicInteger("x0");
+        Random rand = new Random();
+		float HYSTERESIS_FACTOR = rand.nextFloat();
+		int mMaxCacheSizeInBytes = Verifier.nondetInt();
+		int mTotalSize = Verifier.nondetInt();
 		if ((mTotalSize + neededSpace) < mMaxCacheSizeInBytes) {
             return;
         }
-        if (Debug.makeSymbolicBoolean("x2")) {
+        if (rand.nextBoolean()) {
         }
 
         long before = mTotalSize;
         int prunedFiles = 0;
-        long startTime = Debug.makeSymbolicInteger("x3");
+        long startTime = Verifier.nondetInt();
 
-        while (Debug.makeSymbolicBoolean("x4")) {
-            boolean deleted = Debug.makeSymbolicBoolean("x5");
+        while (rand.nextBoolean()) {
+            boolean deleted = rand.nextBoolean();
             if (deleted) {
-                mTotalSize -= Debug.makeSymbolicInteger("x6");
+                mTotalSize -= Verifier.nondetInt();
             } else {
             }
             prunedFiles++;
@@ -70,7 +58,7 @@ public class DiskBasedCache {
             }
         }
 
-        if (Debug.makeSymbolicBoolean("x8")) {
+        if (rand.nextBoolean()) {
         }
     }
 

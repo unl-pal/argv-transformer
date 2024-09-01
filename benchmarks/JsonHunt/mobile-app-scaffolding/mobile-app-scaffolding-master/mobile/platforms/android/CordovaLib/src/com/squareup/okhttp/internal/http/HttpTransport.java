@@ -17,29 +17,22 @@
 /** filtered and transformed by PAClab */
 package com.squareup.okhttp.internal.http;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.CacheRequest;
-import java.net.ProtocolException;
-import java.net.Socket;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 public final class HttpTransport {
   /** PACLab: suitable */
  public Object createRequestBody() throws Exception {
-    int DEFAULT_CHUNK_LENGTH = Debug.makeSymbolicInteger("x4");
-	boolean chunked = Debug.makeSymbolicBoolean("x0");
+    int DEFAULT_CHUNK_LENGTH = Verifier.nondetInt();
+	boolean chunked = rand.nextBoolean();
     if (!chunked
-        && Debug.makeSymbolicInteger("x1") > 0
-        && Debug.makeSymbolicInteger("x2") != 0) {
+        && Verifier.nondetInt() > 0
+        && Verifier.nondetInt() != 0) {
       chunked = true;
     }
 
     // Stream a request body of unknown length.
     if (chunked) {
-      int chunkLength = Debug.makeSymbolicInteger("x3");
+      int chunkLength = Verifier.nondetInt();
       if (chunkLength == -1) {
         chunkLength = DEFAULT_CHUNK_LENGTH;
       }
@@ -47,13 +40,13 @@ public final class HttpTransport {
     }
 
     // Stream a request body of a known length.
-    long fixedContentLength = Debug.makeSymbolicInteger("x5");
+    long fixedContentLength = Verifier.nondetInt();
     if (fixedContentLength != -1) {
       return new Object();
     }
 
-    long contentLength = Debug.makeSymbolicInteger("x6");
-    if (contentLength > Debug.makeSymbolicInteger("x7")) {
+    long contentLength = Verifier.nondetInt();
+    if (contentLength > Verifier.nondetInt()) {
       throw new IllegalArgumentException("Use setFixedLengthStreamingMode() or "
           + "setChunkedStreamingMode() for requests larger than 2 GiB.");
     }
@@ -88,9 +81,9 @@ public final class HttpTransport {
   /** An HTTP body with alternating chunk sizes and chunk bodies. */
   private static class ChunkedInputStream {
     public int read(byte[] buffer, int offset, int count) throws Exception {
-      int NO_CHUNK_YET = Debug.makeSymbolicInteger("x2");
-		int bytesRemainingInChunk = Debug.makeSymbolicInteger("x1");
-		boolean hasMoreChunks = Debug.makeSymbolicBoolean("x0");
+      int NO_CHUNK_YET = Verifier.nondetInt();
+		int bytesRemainingInChunk = Verifier.nondetInt();
+		boolean hasMoreChunks = rand.nextBoolean();
 	if (!hasMoreChunks) {
         return -1;
       }
@@ -99,7 +92,7 @@ public final class HttpTransport {
           return -1;
         }
       }
-      int read = Debug.makeSymbolicInteger("x3");
+      int read = Verifier.nondetInt();
       if (read == -1) {
         throw new IOException("unexpected end of stream");
       }

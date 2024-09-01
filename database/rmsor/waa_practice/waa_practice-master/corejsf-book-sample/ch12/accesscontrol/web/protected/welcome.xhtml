@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+   <title>#{msgs.title}</title>
+</h:head>
+<h:body>
+   <h:form>
+      <p>#{msgs.youHaveAccess}</p>
+      <h:panelGrid columns="2">
+         #{msgs.yourUserName}
+         <h:outputText value="#{user.name}" />
+
+         <h:panelGroup>
+            #{msgs.memberOf}
+            <h:selectOneMenu onchange="submit()" value="#{user.role}">
+               <f:selectItem itemValue="" itemLabel="Select a role" />
+               <f:selectItem itemValue="admin" itemLabel="admin" />
+               <f:selectItem itemValue="manager" itemLabel="manager" />
+               <f:selectItem itemValue="registereduser"
+                  itemLabel="registereduser" />
+               <f:selectItem itemValue="invitedguest" itemLabel="invitedguest" />
+            </h:selectOneMenu>
+         </h:panelGroup>
+         <h:outputText value="#{user.inRole}" />
+      </h:panelGrid>
+   </h:form>
+</h:body>
+</html>

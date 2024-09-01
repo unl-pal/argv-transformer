@@ -1,41 +1,37 @@
 /** filtered and transformed by PAClab */
 package mtgdeckbuilder.frontend;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 //TODO Jarek: make some cool effects here!
 public class CardsDisplayPanel {
 
     /** PACLab: suitable */
 	 private void display() {
-        int MARGIN = Debug.makeSymbolicInteger("x1");
-		int selectedCard = Debug.makeSymbolicInteger("x0");
+        int MARGIN = Verifier.nondetInt();
+		int selectedCard = Verifier.nondetInt();
 		for (int i = selectedCard - MARGIN; i <= selectedCard + MARGIN; i++) {
-            if (i < 0 || i >= Debug.makeSymbolicInteger("x2")) {
+            if (i < 0 || i >= Verifier.nondetInt()) {
                 continue;
             }
 
-            int labelWidth = (int) Debug.makeSymbolicInteger("x3");
-            int labelHeight = (int) Debug.makeSymbolicInteger("x4");
-            int panelWidth = (int) Debug.makeSymbolicInteger("x5");
+            int labelWidth = (int) Verifier.nondetInt();
+            int labelHeight = (int) Verifier.nondetInt();
+            int panelWidth = (int) Verifier.nondetInt();
 
             int xLength = panelWidth - labelWidth;
 
-            int diff = Debug.makeSymbolicInteger("x6") ;
+            int diff = Verifier.nondetInt() ;
         }
 
-        if (Debug.makeSymbolicBoolean("x7")) {
+        if (rand.nextBoolean()) {
         }
         for (int i = selectedCard + 1; i <= selectedCard + MARGIN; i++) {
-            if (i >= 0 && i < Debug.makeSymbolicInteger("x8")) {
+            if (i >= 0 && i < Verifier.nondetInt()) {
             }
         }
         for (int i = selectedCard - 1; i >= selectedCard - MARGIN; i--) {
-            if (i >= 0 && i < Debug.makeSymbolicInteger("x9")) {
+            if (i >= 0 && i < Verifier.nondetInt()) {
             }
         }
     }

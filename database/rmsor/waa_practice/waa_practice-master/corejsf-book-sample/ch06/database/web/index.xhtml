@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.pageTitle}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <h:dataTable value="#{customerBean.all}" var="customer"
+                      styleClass="customers" headerClass="customersHeader"
+                      columnClasses="custid,name">
+            <h:column>
+               <f:facet name="header">#{msgs.customerIdHeader}</f:facet>
+               #{customer.Cust_ID}
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.nameHeader}</f:facet>
+               #{customer.Name}
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.phoneHeader}</f:facet>
+               #{customer.Phone_Number}
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.addressHeader}</f:facet>
+               #{customer.Street_Address}
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.cityHeader}</f:facet>
+               #{customer.City}
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.stateHeader}</f:facet>
+               #{customer.State}
+            </h:column>
+         </h:dataTable>
+      </h:form>
+   </h:body>
+</html>

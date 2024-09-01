@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:util="http://java.sun.com/jsf/composite/util"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+   <h:head>
+      <title>#{msgs.loginHeading}</title>
+      <h:outputStylesheet library="css" name="styles.css" />
+   </h:head>
+   <h:body>
+      <util:login namePrompt="#{msgs.namePrompt}"
+            passwordPrompt="#{msgs.passwordPrompt}"
+            name="#{user.name}"
+            password="#{user.password}"
+            loginAction="#{user.login}"
+            loginButtonText="#{msgs.loginButtonText}">
+
+         <f:validateLength minimum="4" for="nameInput"/>
+         <f:validator validatorId="com.corejsf.Password" for="passwordInput"/>
+         <f:actionListener type="com.corejsf.LoginActionListener" for="loginButton"/>
+
+         <f:facet name="heading" styleClass="header">
+            <div class="prompt">#{msgs.loginPrompt}</div>
+         </f:facet>
+
+         <f:facet name="error" styleClass="error">
+            <h:messages layout="table" styleClass="error"/>
+         </f:facet>
+
+         <!-- Child component -->
+         <h:link outcome="register">#{msgs.registerLinkText}</h:link>
+
+      </util:login>
+      <ui:debug/>
+   </h:body>
+</html>

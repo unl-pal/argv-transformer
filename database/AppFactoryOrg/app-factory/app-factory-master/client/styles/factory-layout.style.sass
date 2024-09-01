@@ -1,0 +1,30 @@
+@import "_mixins"
+
+.factory-layout
+
+	.add-navigation-item
+		margin-top: 15px
+
+.navigation-items
+	position: relative
+
+	.navigation-item
+		+border-radius(3px)
+		+box-shadow(1px, 1px, 3px, rgba(black, 0.1))
+		padding: 10px
+		margin-bottom: 10px
+		border: 1px solid rgba(black, 0.15)
+		background-color: white
+		position: relative
+
+		.summary
+			font-weight: bold
+
+		.type
+			font-size: 11px
+			padding-left: 18px
+
+	.controls
+		position: absolute
+		top: 5px
+		right: 5px

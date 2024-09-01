@@ -1,0 +1,96 @@
+.document-schema
+	.row.wrapper.border-bottom.white-bg.page-heading
+		.col-lg-12(ng-switch="editMode")
+			div(ng-switch-when="false")
+				.metadata.pull-left
+					h2(ng-bind="documentSchema.name")
+					p.text-muted(ng-bind="documentSchema.description")
+				.controls.pull-right
+					button.btn.btn-xs.btn-primary(ng-click="startEditDocumentSchema()")
+						i.fa.fa-pencil
+						span Edit
+					button.btn.btn-xs.btn-default(ng-click="deleteDocumentSchema()")
+						i.fa.fa-trash
+			div(ng-switch-when="true")
+				.edit.metadata.pull-left
+					input.form-control.title(
+						type="text"
+						ng-model="documentSchema.name"
+					)
+					textarea.form-control.description(
+						rows="2"
+						cols="50"
+						ng-model="documentSchema.description"
+					)
+				.controls.pull-right
+					button.btn.btn-xs.btn-primary(ng-click="saveDocumentSchema()")
+						i.fa.fa-save
+						span Save
+					button.btn.btn-xs.btn-default(ng-click="cancelEditDocumentSchema()")
+						i.fa.fa-close
+						span Cancel
+	br/
+	.row.wrapper
+		.col-lg-5
+			.ibox
+				.ibox-title
+					h5.pull-left Attributes
+				.ibox-content.factory-layout
+					.attribute-items#sort-bounds-attributes(as-sortable="sortableOptionsAttributes" ng-model="documentSchema.attributes")
+						.attribute-item(ng-repeat="attribute in documentSchema.attributes" as-sortable-item)
+							.summary
+								i.fa.data-type(ng-class="attribute.data_type | dictionary:attributeDataTypes:'icon'")
+								span(ng-bind="attribute.name")
+							.controls(ng-show="editMode")
+								button.btn.btn-xs.btn-default.sorting-handle(as-sortable-item-handle)
+									i.fa.fa-arrows
+								button.btn.btn-xs.btn-default(ng-click="deleteAttribute(attribute)")
+									i.fa.fa-trash
+								button.btn.btn-xs.btn-primary(ng-click="editAttribute(attribute)")
+									i.fa.fa-pencil
+					.text-muted.text-center(ng-hide="documentSchema.attributes.length") No Attributes
+					button.btn.btn-xs.btn-success.add-attribute(ng-click="newAttribute()" ng-show="editMode")
+						i.fa.fa-plus
+						span Add Attribute
+
+		.col-lg-7
+			.ibox
+				.ibox-title
+					h5 Options
+				.ibox-content
+					.document-schema-options
+						.document-schema-option(ng-switch="editMode")
+							label Primary Attribute
+							select.form-control(
+								ng-switch-when="true"
+								ng-model="documentSchema.primary_attribute_id"
+								ng-options="attribute.id as attribute.name for attribute in documentSchema.attributes"
+							)
+							div.form-control-static.text-muted(ng-switch-when="false")
+								span(ng-bind="getPrimaryAttributeName()")
+								span(ng-hide="getPrimaryAttributeName()") (none)
+
+	.row.wrapper
+		.col-lg-5
+			.ibox
+				.ibox-title
+					h5.pull-left Actions
+				.ibox-content.factory-layout
+					.attribute-items#sort-bounds-actions(as-sortable="sortableOptionsActions" ng-model="documentSchema.actions")
+						.attribute-item(ng-repeat="action in documentSchema.actions" as-sortable-item)
+							.summary
+								i.fa.fa-gear
+								span(ng-bind="action.name")
+							.controls(ng-show="editMode")
+								button.btn.btn-xs.btn-default.sorting-handle(as-sortable-item-handle)
+									i.fa.fa-arrows
+								button.btn.btn-xs.btn-default(ng-click="deleteAction(action)")
+									i.fa.fa-trash
+								button.btn.btn-xs.btn-primary(ng-click="editAction(action)")
+									i.fa.fa-pencil
+					.text-muted.text-center(ng-hide="documentSchema.actions.length") No Actions
+					button.btn.btn-xs.btn-success.add-action(ng-click="newAction()" ng-show="editMode")
+						i.fa.fa-plus
+						span Add Action
+
+		.col-lg-7

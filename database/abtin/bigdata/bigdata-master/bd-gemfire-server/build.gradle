@@ -1,0 +1,72 @@
+configurations {
+    gfshServerStartClasspath
+}
+
+dependencies {
+    compile project(":bd-common-api")
+    compile group:"org.springframework.amqp", name:"spring-amqp", version:"${springAmqpVersion}"
+    compile group:"org.springframework.amqp", name:"spring-rabbit", version:"${springAmqpVersion}"
+    compile group:"org.springframework", name:"spring-aop", version:"${springVersion}"
+    compile group:"org.springframework", name:"spring-context-support", version:"${springVersion}"
+    compile group:"org.springframework", name:"spring-tx", version:"${springVersion}"
+
+    runtime group:"log4j", name:"log4j", version:"${log4jVersion}"
+
+    // These are the jar files that needs to be in the classpath when starting gemfire via gfsh
+    gfshServerStartClasspath project(":bd-common-api")
+    gfshServerStartClasspath project(":bd-gemfire-server")
+    gfshServerStartClasspath group:"org.springframework.data", name:"spring-data-gemfire", version:"${springdataGemfireVersion}"
+    gfshServerStartClasspath group:"log4j", name:"log4j", version:"${log4jVersion}"
+    gfshServerStartClasspath group:"org.springframework.amqp", name:"spring-amqp", version:"${springAmqpVersion}"
+    gfshServerStartClasspath group:"org.springframework.amqp", name:"spring-rabbit", version:"${springAmqpVersion}"
+    gfshServerStartClasspath group:"com.rabbitmq", name:"amqp-client", version:"${rabbitClientVersion}"
+
+}
+
+task dependeciesJar(type: Jar) {
+    baseName = 'bd-gemfire-server-dependencies'
+    def manifestClasspath = configurations.gfshServerStartClasspath.collect {  "../lib/".concat(it.getName()) }.join(' ')
+//    def manifestClasspath = configurations.gfshServerStartClasspath.collect { it.getName() }.join(' ')
+    manifest.attributes ('Class-Path' : manifestClasspath)
+}
+
+artifacts {
+    archives dependeciesJar
+}
+
+import org.apache.tools.ant.filters.FixCrLfFilter
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task createZip(type: Zip) {
+    classifier = 'bin'
+    def projectDeployRoot = "${project.name}-${version}"
+    from ('src/main/scripts') {
+        into ( "${projectDeployRoot}/bin")
+        filter(FixCrLfFilter.class, eol:FixCrLfFilter.CrLf.newInstance("lf"))
+        filter(ReplaceTokens.class, tokens: [deployVersion : version])
+    }
+
+
+    from ('src/main/config') {
+        into ( "${projectDeployRoot}/config")
+        filter(FixCrLfFilter.class, eol:FixCrLfFilter.CrLf.newInstance("lf"))
+    }
+
+    into ( "${projectDeployRoot}/lib") {
+        from configurations.gfshServerStartClasspath
+        from ("$project.buildDir/libs") {
+            include ("bd-gemfire-server-dependencies-${appVersion}.jar")
+            exclude ("bd-gemfire-server-${appVersion}.jar")
+        }
+    }
+
+    dependsOn = ['dependeciesJar','jar']
+
+    fileMode = 0755
+}
+assemble.dependsOn = ['createZip']
+
+
+task listDependenciesJars << {
+    configurations.gfshServerStartClasspath.each { File file -> println file.name }
+}

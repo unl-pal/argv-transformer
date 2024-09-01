@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblPagamentos" table="tbl_pagamentos" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="pagamentosCodigo" type="java.lang.Integer">
+            <column name="pagamentos_codigo" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="tblFatura" class="Entidades.TblFatura" fetch="select">
+            <column name="tbl_fatura_fatura_codigo" not-null="true" />
+        </many-to-one>
+        <property name="pagamentosData" type="string">
+            <column name="pagamentos_data" length="45" />
+        </property>
+        <property name="pagamentosQuantia" type="string">
+            <column name="pagamentos_quantia" length="45" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

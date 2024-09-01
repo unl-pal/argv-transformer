@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.4.0">
+<module bundle="core" id="0" name="s/h" type="patch">
+<view height="70" width="70" xpos="360" ypos="51"/>
+<modules>
+<module bundle="jsyn" id="0" name="sineOsc" type="sineOsc">
+<view height="70" width="70" xpos="307" ypos="30"/>
+<jack max="8000.0" min="40.0" name="frequency" value="1.49"/>
+<jack max="1000.0" min="0.0" name="amplitude" value="769.0"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="1" name="latch" type="latch">
+<view height="70" width="70" xpos="460" ypos="54"/>
+<jack max="1.0" min="0.0" name="input" value="0.0"/>
+<jack max="1.0" min="0.0" name="gate" value="1.0"/>
+<jack name="output"/>
+</module>
+<module bundle="core" id="2" name="toggle" type="toggle">
+<view height="70" width="70" xpos="171" ypos="186"/>
+<jack max="100.0" min="0.0" name="in" value="4327.0"/>
+<jack name="out0"/>
+<jack name="out1"/>
+</module>
+<module bundle="core" id="3" name="double" type="double">
+<view height="90" width="90" xpos="272" ypos="207"/>
+<jack max="100.0" min="0.0" name="kick" value="4327.0"/>
+<jack max="100.0" min="0.0" name="in" value="1.0"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="4" name="double2" type="double">
+<view height="90" width="90" xpos="260" ypos="292"/>
+<jack max="100.0" min="0.0" name="kick" value="4326.0"/>
+<jack max="100.0" min="0.0" name="in" value="0.0"/>
+<jack name="out"/>
+</module>
+<module bundle="jsyn" id="5" name="sawOscBL" type="sawOscBL">
+<view height="70" width="70" xpos="560" ypos="90"/>
+<jack max="8000.0" min="40.0" name="frequency" value="-1000.0"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.234"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="6" name="edgeDetector" type="edgeDetector">
+<view height="70" width="70" xpos="388" ypos="197"/>
+<jack max="1.0" min="0.0" name="input" value="1.0"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="7" name="aOutput" type="aOutput">
+<view height="70" width="70" xpos="702" ypos="94"/>
+<jack max="100.0" min="0.0" name="input" value="0.0"/>
+</module>
+<module bundle="core" id="8" name="clock" type="input">
+<view height="70" width="70" xpos="65" ypos="21"/>
+<jack name="output"/>
+</module>
+<module bundle="core" id="9" name="rate" type="input">
+<view height="70" width="70" xpos="32" ypos="82"/>
+<jack name="output"/>
+</module>
+<module bundle="core" id="10" name="amplitude" type="input">
+<view height="70" width="70" xpos="59" ypos="141"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="11" name="segEnv" type="segEnv">
+<view height="70" width="70" xpos="521" ypos="201"/>
+<envelope immediate="true">
+<frames>
+<frame dur="0.10633398765844508" value="1.0"/>
+<frame dur="0.13823418395597858" value="0.706140350877193"/>
+<frame dur="0.07227550271879263" value="0.8245614035087719"/>
+<frame dur="0.09358927999707328" value="0.12280701754385964"/>
+<frame dur="0.030937157361579704" value="0.793859649122807"/>
+<frame dur="0.07837413198266835" value="0.09210526315789473"/>
+<frame dur="0.39068871065575195" value="0.0"/>
+</frames>
+<loops>
+<loop begin="-1" end="-1" name="sustain"/>
+<loop begin="-1" end="-1" name="release"/>
+</loops>
+</envelope>
+<jack name="on"/>
+<jack name="off"/>
+<jack name="queue"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="12" name="monoRdr" type="monoRdr">
+<view height="70" width="70" xpos="651" ypos="195"/>
+<jack name="dataQueue"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack max="1.0" min="0.0" name="rate" value="1.0"/>
+<jack name="output"/>
+</module>
+</modules>
+<connections>
+<output id="0" jack="output">
+<input id="1" jack="input"/>
+</output>
+<output id="1" jack="output">
+<input id="5" jack="frequency"/>
+</output>
+<output id="2" jack="out0">
+<input id="3" jack="kick"/>
+<input id="11" jack="on"/>
+</output>
+<output id="2" jack="out1">
+<input id="4" jack="kick"/>
+</output>
+<output id="3" jack="out">
+<input id="6" jack="input"/>
+</output>
+<output id="4" jack="out">
+<input id="6" jack="input"/>
+</output>
+<output id="5" jack="output">
+<input id="12" jack="amplitude"/>
+</output>
+<output id="6" jack="output">
+<input id="1" jack="gate"/>
+</output>
+<output id="8" jack="output">
+<input id="2" jack="in"/>
+</output>
+<output id="9" jack="output">
+<input id="0" jack="frequency"/>
+</output>
+<output id="10" jack="output">
+<input id="5" jack="amplitude"/>
+</output>
+<output id="11" jack="output">
+<input id="12" jack="dataQueue"/>
+</output>
+<output id="12" jack="output">
+<input id="7" jack="input"/>
+</output>
+</connections>
+<jack name="aOutput"/>
+<jack max="100.0" min="0.0" name="clock" value="4327.0"/>
+<jack max="10.0" min="0.0" name="rate" value="1.49"/>
+<jack max="100.0" min="0.0" name="amplitude" value="0.234"/>
+</module>
+</syntona>

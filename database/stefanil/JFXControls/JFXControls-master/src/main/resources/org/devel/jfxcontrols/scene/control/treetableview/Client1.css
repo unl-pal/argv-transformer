@@ -1,0 +1,4 @@
+.tree-table-view {
+	-fx-skin: "org.devel.jfxcontrols.scene.control.treetableview.skin.TreeTableViewSkin";
+	-jfxc-input-mode: "touch"; /* mouse-keyboard */
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html" xmlns:corejsf="http://corejsf.com">
+   <h:head>
+      <title>Generating binary data</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <p>Here is your image:</p>
+         <corejsf:chart width="500" height="500" title="Diameters of the Planets"
+                        names="#{planets.names}" values="#{planets.values}"/>
+      </h:form>
+   </h:body>
+</html>

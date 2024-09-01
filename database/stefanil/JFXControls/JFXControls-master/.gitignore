@@ -1,0 +1,20 @@
+﻿# Gradle
+.gradle
+build
+
+# Java
+bin
+
+# Eclipse
+.settings
+.gitignore.swp
+.project
+.classpath
+
+# IDEA
+*.iml
+.idea
+
+# Misc
+*.png
+*.log

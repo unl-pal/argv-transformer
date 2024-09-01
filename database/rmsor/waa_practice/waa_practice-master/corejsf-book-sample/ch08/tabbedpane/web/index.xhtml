@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.windowTitle}</title>
+   </h:head>
+
+   <h:body>
+      <h:form>
+         <h:panelGrid styleClass="tabbedPane" columnClasses="displayPanel">
+            <!-- Tabs -->
+
+            <f:facet name="header">
+               <h:panelGrid columns="4" styleClass="tabbedPaneHeader">
+                  <h:commandLink tabindex="1" title="#{msgs.jeffersonTooltip}"
+                                 styleClass="#{tp.jeffersonStyle}"
+                                 actionListener="#{tp.jeffersonAction}">
+                     #{msgs.jeffersonTabText}
+                  </h:commandLink>
+
+                  <h:commandLink tabindex="2" title="#{msgs.rooseveltTooltip}"
+                                 styleClass="#{tp.rooseveltStyle}"
+                                 actionListener="#{tp.rooseveltAction}">
+                     #{msgs.rooseveltTabText}
+                  </h:commandLink>
+
+                  <h:commandLink tabindex="3" title="#{msgs.lincolnTooltip}"
+                                 styleClass="#{tp.lincolnStyle}"
+                                 actionListener="#{tp.lincolnAction}">
+                     #{msgs.lincolnTabText}
+                  </h:commandLink>
+
+                  <h:commandLink tabindex="4" title="#{msgs.washingtonTooltip}"
+                                 styleClass="#{tp.washingtonStyle}"
+                                 actionListener="#{tp.washingtonAction}">
+                     #{msgs.washingtonTabText}
+                  </h:commandLink>
+               </h:panelGrid>
+            </f:facet>
+
+            <!-- Tabbed pane content -->
+
+            <ui:include src="washington.xhtml"/>
+            <ui:include src="roosevelt.xhtml"/>
+            <ui:include src="lincoln.xhtml"/>
+            <ui:include src="jefferson.xhtml"/>
+         </h:panelGrid>
+      </h:form>
+   </h:body>
+</html>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.3.0">
+<module bundle="jsyn" id="0" name="voice" type="voice">
+<view height="60" width="60" xpos="78" ypos="59"/>
+<modules>
+<module bundle="jsyn" id="0" name="frequency" type="aInput">
+<view height="60" width="60" xpos="48" ypos="116"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="1" name="amplitude" type="aInput">
+<view height="60" width="60" xpos="50" ypos="28"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="2" name="output" type="aOutput">
+<view height="60" width="60" xpos="619" ypos="58"/>
+<jack max="100.0" min="0.0" name="input" value="0.0"/>
+</module>
+<module bundle="jsyn" id="3" name="sawOscBL" type="sawOscBL">
+<view height="60" width="60" xpos="393" ypos="40"/>
+<jack max="8000.0" min="40.0" name="frequency" value="440.0"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="4" name="ampEnv" type="DAHDSR">
+<view height="60" width="60" xpos="497" ypos="14"/>
+<jack max="1.0" min="0.0" name="input" value="0.0"/>
+<jack max="2.0" min="0.0" name="delay" value="0.0"/>
+<jack max="8.0" min="0.01" name="attack" value="0.01"/>
+<jack max="2.0" min="0.0" name="hold" value="0.0"/>
+<jack max="8.0" min="0.01" name="decay" value="1.8956400000000002"/>
+<jack max="1.0" min="0.0" name="sustain" value="0.5"/>
+<jack max="8.0" min="0.01" name="release" value="6.68964"/>
+<jack max="1.0" min="0.0" name="amplitude" value="1.0"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="5" name="sineOsc" type="sineOsc">
+<view height="60" width="60" xpos="55" ypos="208"/>
+<jack max="20.0" min="0.1" name="frequency" value="3.4631"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.035"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="6" name="aPower2" type="aPower2">
+<view height="60" width="60" xpos="193" ypos="185"/>
+<jack max="8.0" min="-8.0" name="input" value="0.0"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="7" name="atimes" type="a*">
+<view height="60" width="60" xpos="274" ypos="143"/>
+<jack max="1.0" min="0.0" name="inputA" value="0.0"/>
+<jack max="1.0" min="0.0" name="inputB" value="0.0"/>
+<jack name="output"/>
+</module>
+</modules>
+<connections>
+<output id="0" jack="output">
+<input id="7" jack="inputA"/>
+</output>
+<output id="1" jack="output">
+<input id="3" jack="amplitude"/>
+</output>
+<output id="3" jack="output">
+<input id="4" jack="amplitude"/>
+</output>
+<output id="4" jack="output">
+<input id="2" jack="input"/>
+</output>
+<output id="5" jack="output">
+<input id="6" jack="input"/>
+</output>
+<output id="6" jack="output">
+<input id="7" jack="inputB"/>
+</output>
+<output id="7" jack="output">
+<input id="3" jack="frequency"/>
+</output>
+</connections>
+<jack max="2000.0" min="50.0" name="frequency" value="293.6656114469648"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.5"/>
+<jack name="output"/>
+</module>
+</syntona>

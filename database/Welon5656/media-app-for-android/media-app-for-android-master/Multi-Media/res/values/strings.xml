@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">多功能多媒体</string>
+    <string name="action_settings">Settings</string>
+    <string name="scanner">扫一扫</string>
+    <string name="history">历史记录</string>
+    <string name="exit">退出</string>
+    <string name="image">图像</string>
+    <string name="image_brower">图像浏览</string>
+    <string name="upage">上一张</string>
+    <string name="dpage">下一张</string>
+    <string name="video">视频</string>
+    <string name="video_player">视频播放</string>
+    <string name="music">音乐</string>
+    <string name="music_player">音乐播放器</string>
+    <string name="stop">停止</string>
+    <string name="previous">上一首</string>
+    <string name="pause">暂停</string>
+    <string name="next">下一首</string>
+    <string name="folder">文件夹</string>
+    <string name="add_folder">添加文件夹</string>
+    <string name="openfile">打开文件</string>
+    <string name="fileselecter">文件选择</string>
+
+</resources>

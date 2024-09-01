@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:corejsf="http://corejsf.com/facelets">
+    <head><title>IGNORED</title></head>
+    <body>
+
+        <ui:composition>
+            <style>
+                #heading{
+                    height: 200px !important;
+                    clear: both;
+                }
+                #content{
+                    top:250px;
+                }
+            </style>
+            <div class="header">
+                <h:form>
+                    #{msgs.planetariumHeading}
+                    <ui:repeat value="#{tea.teaExp.catList}" var="cat">
+                        <div style="width:150px;height:150px;float: left;margin-left: 20px ">
+                            <h:commandLink action="#{tea.getSelectedCat(cat.catname)}">
+                                <h:graphicImage height="100" width="100" value="resources/images/#{cat.picture}"/>
+                            </h:commandLink>
+                            <p>#{cat.catname}</p>
+                            <ui:insert name="content1"/>
+                        </div>
+                    </ui:repeat>
+                    <h:commandLink action="#{user.logout}" value="Logout"></h:commandLink>
+                </h:form>
+            </div>
+            <div style="clear:both"></div>
+        </ui:composition>
+    </body>
+</html>

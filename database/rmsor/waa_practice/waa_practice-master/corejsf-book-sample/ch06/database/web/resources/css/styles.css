@@ -1,0 +1,111 @@
+.customers {
+   border: thin solid black;
+}
+.customersHeader {
+   text-align: center;
+   font-style: italic;
+   color: Snow;
+   background: Teal;
+}
+.customersFooter {
+   font-size: 0.75em;
+   text-align: center;
+   background: PowderBlue;
+}
+.delete {
+   text-align: center;
+   color: Black;
+   background: Red;
+}
+.custid {
+   height: 25px;
+   text-align: center;
+   background: MediumTurquoise;
+}
+.name {
+   text-align: left;
+   background: PowderBlue;
+}
+.firstName {
+   width: 6em;
+   text-align: left;
+   color: Black;
+   background: MediumTurquoise;
+}
+.age {
+   width: 3em;
+   text-align: center;
+   color: Black;
+   background: PowderBlue;
+}
+.sex {
+   width: 3em;
+   text-align: center;
+   color: Black;
+   background: MediumTurquoise;
+}
+.city {
+   width: 9em;
+   text-align: center;
+   color: Black;
+   background: PowderBlue;
+}
+.state {
+   width: 3em;
+   text-align: center;
+   color: Black;
+   background: MediumTurquoise;
+}
+.zip {
+   width: 6em;
+   text-align: center;
+   background: PowderBlue;
+}
+.evenRow {
+   background: PowderBlue;
+}
+.oddRow {
+   background: MediumTurquoise;
+   text-style: italic;
+}
+.pageLink {
+   font-size: 0.75em;
+}
+.editableControl {
+   text-align:Left;
+}
+.controlPanel {
+   text-align:left;
+}
+.page {
+   text-align:left;
+}
+.bulbImage {
+   border-width: 0px;
+}
+.emphasis {
+   font-size: 1.35em;
+   font-style: italic;
+}
+.value {
+   font-style: italic;
+}
+.controlLeft {
+   width: 45px;
+   vertical-align: top;
+   text-align:left;
+}
+.controlMiddle {
+   width: 50px;
+   vertical-align: top;
+   text-align:left;
+}
+.controlRight {
+   width: 40px;
+   vertical-align: top;
+   text-align:left;
+}
+.pageLinks {
+   border: thin solid Black;
+   background: PowderBlue;
+}

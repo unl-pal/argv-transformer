@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <head>
+        <title>JSF QUIZ APPLICATION</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <h:form>
+            <h3>Have fun with NumberQuiz!</h3>
+            <p>Your current score is: ${QuizJSF.myQuiz.getNumCorrect()}</p>
+            <p>Number of Tries : ${QuizJSF.noOfTries}/3</p>
+            <p>Guess the next number in the sequence!  [ #{QuizJSF.myQuiz.getCurrentQuestion()} , 
+                <span style='color:red;font-weight:bold'>?</span> ] </p>
+
+            <p>Your answer:<h:inputText value='#{QuizJSF.txtAnswer}'/></p> 
+            <p style='color:red'>#{QuizJSF.msg}</p> 
+            <p><h:commandButton value="Submit" action="#{QuizJSF.checkAnswer}"  /></p> 
+            <p><h:commandButton value="HINT"  onclick="alert('#{QuizJSF.myQuiz.getQuestionHint()}')" /></p> 
+        </h:form>
+    </body>
+</html>

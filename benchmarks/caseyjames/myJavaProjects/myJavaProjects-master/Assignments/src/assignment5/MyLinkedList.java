@@ -1,8 +1,7 @@
 /** filtered and transformed by PAClab */
 package assignment5;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.util.NoSuchElementException;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Represents a generic doubly linked list.
@@ -24,7 +23,7 @@ public class MyLinkedList<E> {
      */
     /** PACLab: suitable */
 	 public Object get(int index) throws Exception {
-        int size = Debug.makeSymbolicInteger("x0");
+        int size = Verifier.nondetInt();
 		// first check for index being out of bounds
         if (size == 0 || index >= size || index < 0)
             throw new IndexOutOfBoundsException("IndexOutOfBoundsException"); //message added for testing
@@ -64,7 +63,7 @@ public class MyLinkedList<E> {
      */
     /** PACLab: suitable */
 	 public Object remove(int index) throws Exception {
-        int size = Debug.makeSymbolicInteger("x0");
+        int size = Verifier.nondetInt();
 		// check first that index is not out of bounds, if so throw exception
         if (size == 0 || index >= size || index < 0)
             throw new IndexOutOfBoundsException("IndexOutOfBoundsException");//message added for testing

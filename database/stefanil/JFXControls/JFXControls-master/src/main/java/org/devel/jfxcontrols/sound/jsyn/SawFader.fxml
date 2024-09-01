@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.GridPane?>
+
+
+<Pane fx:id="rotatePane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Circle fx:id="rotateCircle" centerX="20.0" centerY="20.0" onMouseDragged="#onMouseDragOver" onMousePressed="#onDragEntered" onMouseReleased="#onMouseReleased" radius="20.0" stroke="#5b482a" strokeType="INSIDE" strokeWidth="0.5">
+         <fill>
+            <RadialGradient centerX="0.5" centerY="0.5" cycleMethod="REFLECT" focusAngle="90.0" focusDistance="1.0" radius="0.5116279069767442">
+               <stops>
+                  <Stop color="#905006" />
+                  <Stop color="WHITE" offset="1.0" />
+               </stops>
+            </RadialGradient>
+         </fill>
+      </Circle>
+   </children>
+</Pane>

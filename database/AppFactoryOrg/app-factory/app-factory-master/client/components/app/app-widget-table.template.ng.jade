@@ -1,0 +1,93 @@
+.app-widget.app-widget-table
+	.ibox
+		.ibox-title.header
+			h5(ng-bind="::widget.name")
+			.controls
+				.filter-options(ng-show="shouldShowFilterOptions()")
+					button.btn.btn-xs.btn-link(ng-click="toggleFilterPanel()" ng-disabled="loading")
+						i.fa.fa-filter
+					af-filter-panel(
+						filter="filter"
+						attributes="filterableAttributes"
+					)
+				.sort-options(ng-show="shouldShowSortOptions()")
+					button.btn.btn-xs.btn-link(ng-click="toggleSortPanel()" ng-disabled="loading")
+						i.fa.fa-sort-amount-asc
+					af-sort-panel(
+						sort="sort"
+						options="sortOptions"
+					)
+				button.add-document.btn.btn-xs.btn-primary(ng-click="addDocument()" ng-disabled="loading" ng-show="shouldShowCreateButton()")
+					i.fa.fa-plus
+					span Create&nbsp;
+					span(ng-bind="::documentSchema.name")
+		.ibox-content.content
+			.loading-overlay(ng-show="loading")
+				.message
+					i.fa.fa-refresh.fa-spin
+					span Loading...
+				.action(ng-show="shouldShowLoadingTimeout")
+					a(ng-click="retry()") Taking too long? Try again
+			.error-overlay(ng-show="error")
+				.message
+					i.fa.fa-exclamation-triangle 
+					span An error has occured
+					i.fa.fa-exclamation-triangle 
+					div(ng-bind="errorMessage")
+				.action
+					a(ng-click="retry()") Try again
+			.table-wrapper
+				.table-scroll
+					table.table.table-hover.table-striped.table-condensed
+						thead
+							tr
+								th(ng-repeat="attribute in documentSchema.attributes")
+									.row-heading(ng-bind="::attribute.name")
+								th
+									.row-heading
+						tbody#sort-bounds(as-sortable="sortableOptions" is-disabled="!shouldAllowReordering()" ng-model="documents")
+							tr(
+								ng-repeat="document in documents"
+								ng-mouseenter="document.$showButtons=true"
+								ng-mouseleave="document.$showButtons=false"
+								as-sortable-item
+							)
+								td(ng-repeat="attribute in documentSchema.attributes" width="{{100/documentSchema.attributes.length}}%")
+									af-attribute-value(
+										attribute="attribute"
+										document="document"
+									)
+								td.controls(width="120")
+									.pull-right(ng-show="document.$showButtons")
+										span.dropdown(dropdown)
+											button.btn.btn-xs.btn-default(ng-if="documentSchema.actions.length" dropdown-toggle)
+												i.fa.fa-gear
+											ul.dropdown-menu
+												li(ng-repeat="action in documentSchema.actions")
+													a(ng-click="executeAction(action, document)")
+														i.fa.fa-angle-double-right
+														span(ng-bind="::action.name")
+										button.btn.btn-xs.btn-default(ng-click="viewDocument(document)")
+											i.fa.fa-search
+										button.btn.btn-xs.btn-default.sorting-handle(as-sortable-item-handle ng-show="shouldAllowReordering()")
+											i.fa.fa-arrows
+										button.btn.btn-xs.btn-default(ng-click="deleteDocument(document)" ng-show="shouldShowEditButtons()")
+											i.fa.fa-trash
+										button.btn.btn-xs.btn-primary(ng-click="selectDocument(document)" ng-show="shouldShowSelectButton()")
+											i.fa.fa-chevron-right
+										button.btn.btn-xs.btn-primary(ng-click="editDocument(document)" ng-show="shouldShowEditButtons()")
+											i.fa.fa-pencil
+									
+						tbody(ng-hide="documents.length")
+							tr
+								td(colspan="99")
+									.text-muted No Data
+
+					.load-more(ng-show="shouldShowMoreLink()")
+						a(ng-click="loadMore()")
+							span Load More Records
+							i.fa.fa-angle-down
+
+					.too-much-data(ng-show="shouldShowTooMuchDataWarning()")
+						i.fa.fa-filter
+						span Too many results. Please refine your filter parameters.

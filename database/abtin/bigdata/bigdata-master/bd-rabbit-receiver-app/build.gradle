@@ -1,0 +1,6 @@
+apply plugin: 'spring-boot'
+
+dependencies {
+    compile project(":bd-common-model")
+    compile group: "org.springframework.boot", name: "spring-boot-starter-amqp", version: "${springbootVersion}"
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.4.0">
+<module bundle="core" id="0" name="top" type="patch">
+<view height="0" width="0" xpos="0" ypos="0"/>
+<modules>
+<module bundle="jsyn" id="0" name="lineOut2" type="lineOut">
+<view height="70" width="70" xpos="608" ypos="57"/>
+<jack max="1.0" min="0.0" name="input0" value="0.0"/>
+<jack max="1.0" min="0.0" name="input1" value="0.0"/>
+</module>
+<module bundle="jsyn" id="1" name="sawOscBL2" type="sawOscBL">
+<view height="70" width="70" xpos="444" ypos="170"/>
+<jack max="8000.0" min="40.0" name="frequency" value="846.1"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack name="output"/>
+</module>
+<module bundle="core" id="2" name="plus" type="+">
+<view height="40" width="40" xpos="228" ypos="98"/>
+<jack max="100.0" min="0.0" name="A" value="846.1"/>
+<jack max="100.0" min="0.0" name="B" value="0.0"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="3" name="fader" type="fader">
+<view height="40" width="40" xpos="124" ypos="26"/>
+<jack max="100.0" min="0.0" name="kick" value="0.0"/>
+<jack max="1000.0" min="50.0" name="in" value="846.1"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="4" name="delay" type="delay">
+<view height="70" width="70" xpos="288" ypos="141"/>
+<jack max="100.0" min="0.0" name="in" value="846.1"/>
+<jack max="10.0" min="0.0" name="delay" value="1.11"/>
+<jack name="out"/>
+</module>
+<module bundle="jsyn" id="5" name="squareOscBL" type="squareOscBL">
+<view height="70" width="70" xpos="390" ypos="37"/>
+<jack max="8000.0" min="40.0" name="frequency" value="846.1"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack name="output"/>
+</module>
+</modules>
+<connections>
+<output id="1" jack="output">
+<input id="0" jack="input1"/>
+</output>
+<output id="2" jack="out">
+<input id="5" jack="frequency"/>
+<input id="4" jack="in"/>
+</output>
+<output id="3" jack="out">
+<input id="2" jack="A"/>
+</output>
+<output id="4" jack="out">
+<input id="1" jack="frequency"/>
+</output>
+<output id="5" jack="output">
+<input id="0" jack="input0"/>
+</output>
+</connections>
+</module>
+</syntona>

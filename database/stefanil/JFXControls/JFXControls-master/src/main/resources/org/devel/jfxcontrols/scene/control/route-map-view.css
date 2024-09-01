@@ -1,0 +1,3 @@
+.route-map-view {
+   -fx-skin: "org.devel.jfxcontrols.scene.control.skin.RouteMapViewSkin";
+}

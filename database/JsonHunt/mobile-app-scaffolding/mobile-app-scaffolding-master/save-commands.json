@@ -1,0 +1,12 @@
+{
+	"timeout": 4000,
+	"commands": [
+		"*.coffee : coffee -c {relFullPath}",
+		"src/**/*.coffee : coffee -c -o gen{relPathNoRoot} {relFullPath}",
+		"src/**/*.coffee : browserify gen/app.js > mobile/www/bundle.js",
+		"src/**/*.jade   : jade -P {relPath}{filename} -o mobile/www/{relPathNoRoot}",
+		"src/**/*.styl   : file-merge -r src -i **/*.styl -e **/bundle.styl -o gen/bundle.styl",
+		"src/**/*.styl   : stylus gen/bundle.styl --out mobile/www/bundle.css"
+
+	]
+}

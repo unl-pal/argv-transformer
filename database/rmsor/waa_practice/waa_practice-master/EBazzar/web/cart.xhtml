@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="templates/mainTemplate.xhtml">
+        <ui:define name="content">
+            <h4>My Cart:</h4>
+            <h:form id="cart">
+                <h:dataTable value="#{bsControllerPCB.cart}" 
+                             var="item" 
+                             styleClass="cart"
+                             columnClasses="oddColumn,evenColumn,oddColumn,evenColumn">
+                    <h:column>
+                        <f:facet name="header">
+                            Item
+                        </f:facet>
+                        #{item[0]}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Quantity
+                        </f:facet>
+                        #{item[1]}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Unit Price
+                        </f:facet>
+                        #{item[2]}
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Total Price
+                        </f:facet>
+                        #{item[3]}
+                    </h:column>
+                </h:dataTable>
+                <p><h:commandButton value="Proceed To Checkout" action="#{bsControllerPCB.checkout}" />
+                    <h:commandButton value="Continue Shopping" action="catalog" /></p>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
+

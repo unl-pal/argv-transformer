@@ -17,11 +17,7 @@
 /** filtered and transformed by PAClab */
 package com.squareup.okhttp.internal.http;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.ProtocolException;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * An HTTP request body that's completely buffered in memory. This allows
@@ -32,9 +28,9 @@ final class RetryableOutputStream {
   /** PACLab: suitable */
  public synchronized void write(byte[] buffer, int offset, int count)
       throws Exception {
-    int limit = Debug.makeSymbolicInteger("x0");
-	if (limit != -1 && Debug.makeSymbolicInteger("x1") > limit - count) {
-      throw new ProtocolException(Debug.makeSymbolicInteger("x2") + limit + " bytes");
+    int limit = Verifier.nondetInt();
+	if (limit != -1 && Verifier.nondetInt() > limit - count) {
+      throw new ProtocolException(Verifier.nondetInt() + limit + " bytes");
     }
   }
 }

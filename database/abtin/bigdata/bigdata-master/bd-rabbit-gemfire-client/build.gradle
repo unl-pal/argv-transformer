@@ -1,0 +1,8 @@
+apply plugin: 'spring-boot'
+
+dependencies {
+    compile project(":bd-common-api")
+    compile group: "org.springframework.boot", name: "spring-boot-starter-amqp", version: "${springbootVersion}"
+    compile group: "org.springframework.boot", name: "spring-boot-starter-data-gemfire", version: "${springbootVersion}"
+}
+

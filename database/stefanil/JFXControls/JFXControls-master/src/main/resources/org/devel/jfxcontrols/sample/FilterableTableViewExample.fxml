@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import org.devel.jfxcontrols.scene.control.FilterableTableColumn?>
+<?import org.devel.jfxcontrols.scene.control.FilterableTableView?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+           prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.devel.jfxcontrols.sample.FilterableTableViewExample">
+  <children>
+    <FilterableTableView fx:id="fttvTable">
+      <columns>
+        <FilterableTableColumn fx:id="ftcColumnX" minWidth="40.0" text="Name"/>
+        <FilterableTableColumn fx:id="ftcColumnY" minWidth="40.0" text="Age"/>
+        <FilterableTableColumn fx:id="ftcColumnZ" minWidth="40.0" text="City"/>
+      </columns>
+      <columnResizePolicy>
+        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+      </columnResizePolicy>
+    </FilterableTableView>
+  </children>
+</StackPane>

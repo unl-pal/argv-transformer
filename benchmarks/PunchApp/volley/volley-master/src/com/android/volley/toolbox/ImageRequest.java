@@ -17,7 +17,7 @@
 /** filtered and transformed by PAClab */
 package com.android.volley.toolbox;
 
-import gov.nasa.jpf.symbc.Debug;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * A canned request for getting an image at a given URL and calling

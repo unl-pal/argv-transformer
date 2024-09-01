@@ -1,0 +1,43 @@
+body {
+   background: #eee; 
+}
+.tabbedPaneHeader {
+   vertical-align: top;
+   text-align: left;
+   padding: 2px 2px 0px 2px;
+}
+.tabbedPaneText {
+   font-size: 1.0em;
+   font-style: regular;
+   padding: 3px;
+   border: thin solid CornflowerBlue;
+}
+.tabbedPaneTextSelected {
+   font-size: 1.0em;
+   font-style: regular;
+   padding: 3px;
+   background: PowderBlue;
+   border: thin solid CornflowerBlue;
+}
+.tabbedPane {
+   vertical-align: top;
+   text-align: left;
+	padding: 10px;
+}
+.displayPanel {
+   vertical-align: top;
+   text-align: left;
+	padding: 10px;
+}
+.tabbedPaneContent {
+   width: 100%;
+   height: 100%;
+   font-style: italic;
+   vertical-align: top;
+   text-align: left;
+   font-size: 1.2em;
+}
+.presidentDiscussionColumn {
+   vertical-align: top;
+   text-align: left;
+}

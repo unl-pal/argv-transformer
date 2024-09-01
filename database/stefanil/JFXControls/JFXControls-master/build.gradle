@@ -1,0 +1,49 @@
+apply plugin: "java"
+apply plugin: "application"
+apply from: "javafx.plugin"
+
+apply plugin: "idea"
+
+String environment = project.hasProperty('env') ? ${env} : 'default'
+println "Target environment: " + environment
+apply from: "env-" + environment + ".gradle"
+
+version = '0.1-SNAPSHOT'
+mainClassName = 'org.devel.jfxcontrols.sample.JFXControlsApp'
+
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifest {
+        attributes  'Implementation-Title': 'JFXControls',
+                'Implementation-Version': version,
+                'Developers': 'Stefan Illgen',
+                'Main-Class' : mainClassName
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile "commons-io:commons-io:2.4"
+    compile "org.controlsfx:controlsfx:8.40.10"
+    compile "com.google.guava:guava:19.0"
+    compile "de.jensd:fontawesomefx:8.7"
+    compile "org.controlsfx:controlsfx:8.40.10"
+    testCompile "org.loadui:testFx:3.0.0"
+    testCompile "junit:junit:4.11"
+}
+
+test {
+	scanForTestClasses = false
+	include 'org/devel/jfxcontrols/AllTests.class'
+    // TODO fix tests and remove this
+    ignoreFailures = true
+}
+
+javafx {
+    mainClass = mainClassName
+}

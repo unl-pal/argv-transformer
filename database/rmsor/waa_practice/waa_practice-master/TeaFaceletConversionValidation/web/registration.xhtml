@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>IGNORED</title>        
+    </h:head>
+    <h:body>
+        <ui:composition template="/templates/masterLayout.xhtml">     
+         <ui:define name="windowTitle">
+            #{msgs.teaHouseTitle}
+         </ui:define> 
+         
+         <ui:define name="content">
+             <p>Tea House User Registration</p>
+            <h:form>
+                
+                #{msgs.userName}
+                <h:inputText value="#{reg.name}" id="regName" required="true" label="Name" requiredMessage="please input name"/><br/>
+                <h:message for="regName" styleClass="err"/><br/>
+                 #{msgs.userEmail}
+                <h:inputText value="#{reg.email}" id="regEmail" required="true" label="Email" requiredMessage="please input email"/><br/>
+                <h:message for="regEmail" styleClass="err"/><br/>
+                 #{msgs.userBirthDay}
+                <h:inputText value="#{reg.birthDate}" id="regDate" label="Birth Date">
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:inputText><br/>
+                <h:message for="regDate" styleClass="err"/><br/>
+                 #{msgs.userStreet}
+                <h:inputText value="#{reg.strtAddress}" id="regStreet" required="true" label="Steet Address"/><br/>
+                <h:message for="regStreet" styleClass="err"/><br/>
+                #{msgs.userState}
+                <h:inputText value="#{reg.state}" id="regState" required="true" requiredMessage="please input state" label="State">
+                    <f:validateLength minimum="2" maximum="2"/>
+                </h:inputText><br/>
+                <h:message for="regState" styleClass="err"/><br/>
+                #{msgs.userZip}
+                <h:inputText value="#{reg.zip}" required="true" id="regZip" label="zip">
+                    <f:validateLength maximum="5" minimum="5"/>
+                </h:inputText><br/>
+                <h:message for="regZip" styleClass="err"/><br/>
+                #{msgs.userAge}
+                <h:inputText value="#{reg.age}" id="regAge" label="age">
+                    <f:convertNumber integerOnly="true"/>
+                    <f:validateLongRange maximum="110" minimum="10"/>                    
+                </h:inputText><br/>
+                <h:message for="regAge" styleClass="err"/><br/>                    
+                <h:commandButton value="Submit" action="#{reg.registerUser}" class="submitBtn"/>
+                <h:commandButton value="Cancel" action="teahouse.xhtml" immediate="true"/>
+                
+            </h:form>
+         </ui:define>
+      </ui:composition>
+    </h:body>
+</html>
+

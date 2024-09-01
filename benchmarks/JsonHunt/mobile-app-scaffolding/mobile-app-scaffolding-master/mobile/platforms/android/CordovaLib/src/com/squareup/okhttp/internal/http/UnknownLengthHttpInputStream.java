@@ -16,20 +16,17 @@
 /** filtered and transformed by PAClab */
 package com.squareup.okhttp.internal.http;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.CacheRequest;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /** An HTTP message body terminated by the end of the underlying stream. */
 final class UnknownLengthHttpInputStream {
   /** PACLab: suitable */
  public int read(byte[] buffer, int offset, int count) throws Exception {
-    boolean inputExhausted = Debug.makeSymbolicBoolean("x0");
-	if (Debug.makeSymbolicBoolean("x1") || inputExhausted) {
+    boolean inputExhausted = rand.nextBoolean();
+	if (rand.nextBoolean() || inputExhausted) {
       return -1;
     }
-    int read = Debug.makeSymbolicInteger("x2");
+    int read = Verifier.nondetInt();
     if (read == -1) {
       inputExhausted = true;
       return -1;

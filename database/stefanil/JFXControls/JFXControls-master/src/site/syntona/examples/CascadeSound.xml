@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.5.1">
+<module bundle="core" id="0" name="top" type="patch">
+<view height="0" width="0" xpos="20" ypos="20"/>
+<modules>
+<module bundle="core" id="0" name="clock" type="clock">
+<view height="144" width="70" xpos="42" ypos="61"/>
+<jack name="reset"/>
+<jack name="start"/>
+<jack name="stop"/>
+<jack max="1.0" min="0.0" name="period" value="0.882"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="1" name="show" type="show">
+<view height="48" width="70" xpos="136" ypos="54"/>
+<jack max="100.0" min="0.0" name="set" value="157.0"/>
+</module>
+<module bundle="core" id="2" name="toggle" type="toggle">
+<view height="96" width="70" xpos="333" ypos="24"/>
+<jack max="100.0" min="0.0" name="in" value="154.0"/>
+<jack name="out0"/>
+<jack name="out1"/>
+</module>
+<module bundle="jsyn" id="3" name="lineOut" type="lineOut">
+<view height="72" width="70" xpos="864" ypos="194"/>
+<jack max="1.0" min="0.0" name="input0" value="0.0"/>
+<jack max="1.0" min="0.0" name="input1" value="0.0"/>
+</module>
+<module bundle="core" id="4" name="cascade8" type="cascade8">
+<view height="288" width="70" xpos="158" ypos="103"/>
+<jack max="100.0" min="0.0" name="in" value="157.0"/>
+<jack name="reset"/>
+<jack name="out0"/>
+<jack name="out1"/>
+<jack name="out2"/>
+<jack name="out3"/>
+<jack name="out4"/>
+<jack name="out5"/>
+<jack name="out6"/>
+<jack name="out7"/>
+<jack name="over"/>
+</module>
+<module bundle="core" id="5" name="cascade82" type="cascade8">
+<view height="288" width="70" xpos="249" ypos="300"/>
+<jack max="100.0" min="0.0" name="in" value="153.0"/>
+<jack name="reset"/>
+<jack name="out0"/>
+<jack name="out1"/>
+<jack name="out2"/>
+<jack name="out3"/>
+<jack name="out4"/>
+<jack name="out5"/>
+<jack name="out6"/>
+<jack name="out7"/>
+<jack name="over"/>
+</module>
+<module bundle="jsyn" id="6" name="segEnv5" type="segEnv">
+<view height="120" width="70" xpos="573" ypos="322"/>
+<envelope immediate="true">
+<frames>
+<frame dur="0.017057736922551282" value="0.9272030651340997"/>
+<frame dur="0.050844281664694305" value="0.8544061302681992"/>
+<frame dur="0.05392564935227355" value="0.3065134099616858"/>
+<frame dur="0.07595309061065104" value="0.13026819923371646"/>
+<frame dur="0.044253707899531786" value="0.5057471264367817"/>
+<frame dur="0.062081837013367" value="0.23371647509578544"/>
+<frame dur="0.02103872817232305" value="0.5670498084291188"/>
+<frame dur="0.07390074810558711" value="0.0"/>
+</frames>
+<loops>
+<loop begin="-1" end="-1" name="sustain"/>
+<loop begin="-1" end="-1" name="release"/>
+</loops>
+</envelope>
+<jack name="on"/>
+<jack name="off"/>
+<jack name="queue"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="7" name="monoRdr3" type="monoRdr">
+<view height="120" width="70" xpos="742" ypos="335"/>
+<jack name="dataQueue"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack max="1.0" min="0.0" name="rate" value="1.0"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="8" name="whiteNoise" type="whiteNoise">
+<view height="72" width="70" xpos="852" ypos="360"/>
+<jack max="1.0" min="0.0" name="amplitude" value="0.999969482421875"/>
+<jack name="output"/>
+</module>
+<module bundle="core" id="9" name="sawPatch" type="patch">
+<view height="144" width="70" xpos="654" ypos="97"/>
+<link href="SawPatch.xml" xml:link="simple"/>
+<jack max="100.0" min="0.0" name="sawEnv1" value="154.0"/>
+<jack max="100.0" min="0.0" name="sawEnv2" value="147.0"/>
+<jack max="100.0" min="0.0" name="lpfEnv1" value="154.0"/>
+<jack max="100.0" min="0.0" name="lpfEnv2" value="143.0"/>
+<jack name="aOutput"/>
+</module>
+<module bundle="core" id="10" name="comment" type="comment">
+<view height="38" width="250" xpos="28" ypos="6"/>
+<text>Click "start" on clock.</text>
+</module>
+</modules>
+<connections>
+<output id="0" jack="out">
+<input id="1" jack="set"/>
+<input id="4" jack="in"/>
+</output>
+<output id="2" jack="out0">
+<input id="9" jack="lpfEnv1"/>
+</output>
+<output id="2" jack="out1">
+<input id="9" jack="lpfEnv2"/>
+</output>
+<output id="4" jack="out0">
+<input id="2" jack="in"/>
+<input id="6" jack="queue"/>
+<input id="9" jack="sawEnv1"/>
+</output>
+<output id="4" jack="out1"/>
+<output id="4" jack="out2"/>
+<output id="4" jack="out3"/>
+<output id="4" jack="out4">
+<input id="9" jack="sawEnv2"/>
+<input id="6" jack="queue"/>
+</output>
+<output id="4" jack="out5"/>
+<output id="4" jack="out6"/>
+<output id="4" jack="out7"/>
+<output id="4" jack="over">
+<input id="5" jack="in"/>
+</output>
+<output id="5" jack="out0">
+<input id="6" jack="queue"/>
+</output>
+<output id="5" jack="out1">
+<input id="6" jack="queue"/>
+</output>
+<output id="5" jack="out2">
+<input id="5" jack="reset"/>
+<input id="4" jack="reset"/>
+</output>
+<output id="5" jack="out3"/>
+<output id="5" jack="out4"/>
+<output id="5" jack="out5"/>
+<output id="5" jack="out6"/>
+<output id="5" jack="out7"/>
+<output id="5" jack="over"/>
+<output id="6" jack="output">
+<input id="7" jack="dataQueue"/>
+</output>
+<output id="7" jack="output">
+<input id="8" jack="amplitude"/>
+</output>
+<output id="8" jack="output">
+<input id="3" jack="input1"/>
+</output>
+<output id="9" jack="aOutput">
+<input id="3" jack="input0"/>
+</output>
+</connections>
+</module>
+</syntona>

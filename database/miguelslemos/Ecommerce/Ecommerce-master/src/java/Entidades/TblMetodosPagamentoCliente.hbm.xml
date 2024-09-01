@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblMetodosPagamentoCliente" table="tbl_metodos_pagamento_cliente" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="metodosPagamentoClienteCodigo" type="java.lang.Integer">
+            <column name="metodos_pagamento_cliente_codigo" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="tblCliente" class="Entidades.TblCliente" fetch="select">
+            <column name="tbl_cliente_cliente_codigo" not-null="true" />
+        </many-to-one>
+        <many-to-one name="tblRefMetodosPagamento" class="Entidades.TblRefMetodosPagamento" fetch="select">
+            <column name="tbl_ref_metodos_pagamento_ref_metodos_pagamento_codigo" not-null="true" />
+        </many-to-one>
+        <property name="refMetodosPagamentoCartaoCreditoNumero" type="string">
+            <column name="ref_metodos_pagamento_cartao_credito_numero" length="45" />
+        </property>
+        <property name="refMetodosPagamentoDetalhes" type="string">
+            <column name="ref_metodos_pagamento_detalhes" length="45" />
+        </property>
+    </class>
+</hibernate-mapping>

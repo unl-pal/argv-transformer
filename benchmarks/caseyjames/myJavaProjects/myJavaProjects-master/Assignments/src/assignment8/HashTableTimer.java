@@ -1,8 +1,7 @@
 /** filtered and transformed by PAClab */
 package assignment8;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.util.Random;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * class to perform the timing analysis of assignment 8
@@ -13,9 +12,9 @@ import java.util.Random;
 public class HashTableTimer {
     /** PACLab: suitable */
 	 public static void hashFunctionTime() {
-        int TIMES_TO_LOOP = Debug.makeSymbolicInteger("x2");
-		int INTERVAL = Debug.makeSymbolicInteger("x1");
-		int MAX_TABLE_SIZE = Debug.makeSymbolicInteger("x0");
+        int TIMES_TO_LOOP = Verifier.nondetInt();
+		int INTERVAL = Verifier.nondetInt();
+		int MAX_TABLE_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
 //        int dataIndex = 0;
         // stores values than prints at the end.
@@ -30,27 +29,27 @@ public class HashTableTimer {
 int index;
 
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x3");
-            while (Debug.makeSymbolicInteger("x4") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
-            startTime = Debug.makeSymbolicInteger("x5");
+            startTime = Verifier.nondetInt();
             index = 0;
 //            for (int j = 0; j < TIMES_TO_LOOP; j++) {
             for (int k = 0; k < combined; k++) {
                 // this next statement is what is dependent on the hashtable size.
-                int hashIndex = Debug.makeSymbolicInteger("x6") % i;
+                int hashIndex = Verifier.nondetInt() % i;
             }
 //            }
 
-            midTime = Debug.makeSymbolicInteger("x7");
+            midTime = Verifier.nondetInt();
             index = 0;
 //            for (int j = 0; j < TIMES_TO_LOOP; j++) {
             for (int k = 0; k < combined; k++) {
             }
 //            }
 
-            endTime = Debug.makeSymbolicInteger("x8");
+            endTime = Verifier.nondetInt();
 
             // calculate the total time and the average time
             double totalTime = (double) (2 * midTime - startTime - endTime);

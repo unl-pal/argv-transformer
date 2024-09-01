@@ -1,6 +1,9 @@
 package transform;
 
+
+import transform.benchmark.*;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -95,8 +98,13 @@ public class Main {
 				successfulCompiles.add(file);
 			}
 		});
-		
-		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
+		//TODO: Temporary added some extra Print statements
+		System.out.println("================================================\t");
+		System.out.println("Before Transformation:\t");
+		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size() + "\t");
+		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
+		System.out.println("================================================");
+//		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles();
@@ -110,9 +118,10 @@ public class Main {
 
 		//also delete those files where all methods after transformations 
 		//were not be able to meet the selection criteria.
+		//do not remove uncompiled files if target is SVCOMP as for SVCOMP one dependency will not be compileable
 		file_itr.forEachRemaining(file -> {
 			boolean success = compile(file);
-			if (!success) {
+			if (!success && !target.equals("SVCOMP")) {
 				try {
 					Files.delete(file.toPath());
 				} catch (IOException e) {
@@ -123,7 +132,17 @@ public class Main {
 				successfulCompiles.add(file);
 				//unsuccessfulCompiles.remove(file);
 			}
+			
+			if(target.equals("SVCOMP")) {
+				prepareForSvcompBenchmark(file);
+			}
 		});
+		//TODO: Temporary added some extra Print statements
+		System.out.println("================================================\t");
+		System.out.println("After Transformation:\t");
+		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size() + "\t");
+		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
+		System.out.println("================================================");
 
 		//System.out.println(unsuccessfulCompiles.size() + " +++++ " + successfulCompiles.size());
 		
@@ -143,9 +162,15 @@ public class Main {
 		final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null)
 			throw new RuntimeException("Could not get javac - are you running with a JDK or a JRE?");
-
-		return compiler.run(null, null, null, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
-				System.getProperty("java.class.path"), file.toString()) == 0;
+		
+		
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	    ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+	    int runErrors = compiler.run(null, outputStream, errorStream, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
+															System.getProperty("java.class.path"), file.toString());
+//	    if (runErrors > 0)
+//	    	System.out.println("Num compilation erros in " + file.getParent() + " are " + runErrors);
+	    return runErrors == 0;
 	}
 
 	private static boolean compile2(File file) {
@@ -192,5 +217,33 @@ public class Main {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+	}
+	
+	private static void prepareForSvcompBenchmark(File file) {
+		// Path to Save YML file
+		File parentDirectory = new File(file.getParent());
+		
+		// Name of YML file
+		String fileNameWithExtension = file.getName();
+		String fileNameWithoutExtension = fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf('.'));
+		
+		File newFilePath = new File(parentDirectory.getPath() + "/" + fileNameWithoutExtension);
+		if (newFilePath.exists()) {
+			try {
+				FileUtils.forceDelete(newFilePath);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			FileUtils.forceMkdir(newFilePath);
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, file.getParentFile().getName(), true);
+		
 	}
 }

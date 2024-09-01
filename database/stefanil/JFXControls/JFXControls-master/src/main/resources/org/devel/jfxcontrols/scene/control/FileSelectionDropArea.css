@@ -1,0 +1,34 @@
+.file-selection-drop-area #root-container {
+  -fx-background-color: lightgrey;
+  -fx-background-insets: 0;
+  -fx-background-radius: 10;
+  -fx-border-color: black;
+  -fx-border-radius: 10;
+  -fx-border-style: dashed;
+  -fx-border-width: 1;
+  -fx-border-insets: 0;
+}
+
+.file-selection-drop-area:highlighted #root-container {
+  -fx-background-color: grey;
+}
+
+.file-selection-drop-area .file-selection-drop-area-label-error {
+  -fx-text-fill: red;
+}
+
+#file-selection-drop-area-tooltip {
+  -fx-wrap-text: true;
+  -fx-max-width: 100px;
+}
+
+#fileGlyph,
+.root.glyph-icon {
+/* TODO: define size of glyph via css (see also FileSelectionDropAreaSkin.java) */
+/* glyphSize: 60px; */
+  -fx-font-family: FontAwesome;
+  -fx-font-size: 32px;
+  -fx-effect: innershadow( three-pass-box , derive(red,-70%) , 0.1em, 0.0 , 0.07em, 0.07em );
+  -fx-fill: linear-gradient(to bottom, derive(red,20%) 10%, derive(red,-40%) 80%);
+}
+

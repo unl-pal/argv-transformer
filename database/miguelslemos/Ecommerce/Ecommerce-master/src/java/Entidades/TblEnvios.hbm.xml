@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 31/03/2015 20:14:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Entidades.TblEnvios" table="tbl_envios" catalog="db_ecommerce" optimistic-lock="version">
+        <id name="envioCodigo" type="java.lang.Integer">
+            <column name="envio_codigo" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="tblFatura" class="Entidades.TblFatura" fetch="select">
+            <column name="tbl_fatura_fatura_codigo" not-null="true" />
+        </many-to-one>
+        <many-to-one name="tblPedidos" class="Entidades.TblPedidos" fetch="select">
+            <column name="tbl_pedidos_pedido_codigo" not-null="true" />
+        </many-to-one>
+        <property name="envioRastreio" type="string">
+            <column name="envio_rastreio" length="45" not-null="true" />
+        </property>
+        <property name="envioData" type="string">
+            <column name="envio_data" length="45" not-null="true" />
+        </property>
+        <set name="tblItensPedidos" table="tbl_itens_enviado" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="tbl_envios_envio_codigo" not-null="true" />
+            </key>
+            <many-to-many entity-name="Entidades.TblItensPedido">
+                <column name="tbl_itens_pedido_itens_pedido_codigo" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+   <h:head>
+
+      <title>A Simple JavaServer Faces Application</title>
+
+   </h:head>
+
+   <h:body>
+
+      <h:form>
+
+         <h3>Please enter your name and password.</h3>
+
+         <table>
+
+            <tr>
+
+               <td>Name:</td>
+
+               <td>
+                   <h:inputText value="#{usr.name}" required="true"/>
+               </td>
+
+            </tr>
+
+            <tr>
+
+               <td>Password:</td>
+
+               <td><h:inputSecret value="#{usr.password}"/></td>
+
+            </tr>
+
+         </table>
+
+         <h:outputText rendered="#{usr.error}" value='bad password'/>
+
+         <p><h:commandButton value="Login" action="#{usr.onLogin}"/></p>
+
+      </h:form>
+
+   </h:body>
+
+</html>

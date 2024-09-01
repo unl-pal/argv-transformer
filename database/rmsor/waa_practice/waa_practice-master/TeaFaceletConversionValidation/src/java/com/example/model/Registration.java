@@ -1,0 +1,27 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.example.model;
+
+import java.util.Date;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Named;
+
+/**
+ *
+ * @author ASHOK
+ */
+@Named("reg")
+@RequestScoped
+public class Registration {
+
+    private String name;
+    private String email;
+    private Date birthDate;
+    private String strtAddress;
+    private String state;
+    private int zip;
+    private int age;
+}

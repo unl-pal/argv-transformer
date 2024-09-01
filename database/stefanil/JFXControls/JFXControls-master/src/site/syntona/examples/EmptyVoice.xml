@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.3.6">
+<module bundle="core" id="0" name="top" type="patch">
+<view height="0" width="0" xpos="0" ypos="0"/>
+<modules>
+<module bundle="jsyn" id="0" name="frequency" type="aInput">
+<view height="60" width="60" xpos="73" ypos="162"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="1" name="amplitude" type="aInput">
+<view height="60" width="60" xpos="68" ypos="50"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="2" name="output" type="aOutput">
+<view height="60" width="60" xpos="386" ypos="73"/>
+<jack max="100.0" min="0.0" name="input" value="0.0"/>
+</module>
+</modules>
+<connections>
+<output id="0" jack="output"/>
+<output id="1" jack="output"/>
+</connections>
+<jack max="100.0" min="0.0" name="frequency" value="261.6263168"/>
+<jack max="100.0" min="0.0" name="amplitude" value="0.5"/>
+<jack name="output"/>
+</module>
+</syntona>

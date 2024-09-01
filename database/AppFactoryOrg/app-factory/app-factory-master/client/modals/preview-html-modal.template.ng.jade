@@ -1,0 +1,7 @@
+.preview-html-modal
+	.modal-header
+		.modal-title Preview
+	.modal-body
+		div(ng-bind-html="html")
+	.modal-footer
+		button.btn.btn-default(type="button" ng-click="$dismiss()") Close

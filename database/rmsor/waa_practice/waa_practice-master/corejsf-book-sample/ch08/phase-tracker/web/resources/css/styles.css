@@ -1,0 +1,11 @@
+body {
+   background: #eee;
+}
+.phaseFormColumns {
+   vertical-align: top;
+   font-style: italic;
+   font-size: 1.1em;
+}
+.columns {
+   vertical-align: top;
+}

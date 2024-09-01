@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+   <h:head>
+      <title>#{msgs.loginWindowTitle}</title>
+   </h:head>
+   
+   <h:body style="background: #fefeef">
+      <h:outputScript library="javascript" name="prototype-1.6.0.2.js"/>   
+      <h:outputScript library="javascript" name="login.js"/>
+      <h:form>
+         <h3>#{msgs.loginHeading}</h3>
+         <h:panelGrid columns="2">
+
+            #{msgs.namePrompt}
+            <h:panelGroup>
+	            <h:inputText value="#{user.name}" id="name"
+	               validator="#{user.validateName}">
+	               <f:ajax event="keyup" render="nameError" 
+	                  onevent="com.corejsf.showProgress"/>
+	            </h:inputText>
+	            
+	            <h:message id="nameError" for="name" style="color: red"/>
+	            
+	            <h:graphicImage id="pole" library="images" 
+	              name="orange-barber-pole.gif"
+	              style="display: none"/>
+            </h:panelGroup>
+            
+            #{msgs.passwordPrompt}
+            <h:inputSecret value="#{user.password}" id="password" size="8"/>
+              
+            <h:commandButton value="#{msgs.loginButtonText}" action="welcome"/>            
+         </h:panelGrid>
+      </h:form>
+   </h:body>
+</html>

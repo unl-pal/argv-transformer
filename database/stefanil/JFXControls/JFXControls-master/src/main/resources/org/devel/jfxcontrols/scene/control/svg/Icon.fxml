@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.transform.Affine?>
+<?import javafx.scene.transform.Translate?>
+<Group id='_root' xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <fx:define />
+    <Group opacity="1.0" id="layer1">
+      <children>
+        <SVGPath
+            content="m 535.94148,311.94927 -1.035,0 -7.5,0 -2.5,0 0,2.5 0,20 0,2.5 2.5,0 15,0 2.5,0 0,-2.5 0,-12.5 0,-1.035 -0.7325,-0.7325 -7.5,-7.5 -0.7325,-0.7325 z m -1.035,2.5 7.5,7.5 0,12.5 -15,0 0,-20 7.5,0 z"
+            opacity="1" id="path3213">
+          <fill>
+            <Color>
+              <red>0.34509803921568627</red>
+              <green>0.34509803921568627</green>
+              <blue>0.34509803921568627</blue>
+            </Color>
+          </fill>
+        </SVGPath>
+        <Group opacity="1.0" id="g3219">
+          <children>
+            <SVGPath content="m 0,0 16,0 0,15" opacity="1" strokeMiterLimit="10.0" strokeWidth="2.0" id="path3221">
+              <fill>TRANSPARENT</fill>
+              <stroke>
+                <Color>
+                  <red>0.34509803921568627</red>
+                  <green>0.34509803921568627</green>
+                  <blue>0.34509803921568627</blue>
+                </Color>
+              </stroke>
+            </SVGPath>
+          </children>
+          <transforms>
+            <Affine mxx="1.25" myx="0" mxy="0" myy="-1.25" tx="528.12923" ty="340.09652">
+            </Affine>
+          </transforms>
+        </Group>
+      </children>
+      <transforms>
+        <Translate x="-524.90648" y="-311.94927"/>
+      </transforms>
+    </Group>
+  </children>
+</Group>

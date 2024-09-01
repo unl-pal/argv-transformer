@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.windowTitle}</title>
+   </h:head>
+   <h:body style="background: #eee">
+      <h:form>
+         <h:dataTable value="#{numberList}" var="number">
+            <h:column>
+               <f:facet name="header">#{msgs.numberHeader}</f:facet>
+               #{number}
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.textfieldHeader}</f:facet>
+               <h:inputText value="#{number}" size="3"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.buttonHeader}</f:facet>
+               <h:commandButton value="#{number}"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.checkboxHeader}</f:facet>
+               <h:selectBooleanCheckbox value="false"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.linkHeader}</f:facet>
+               <h:commandLink>#{number}</h:commandLink>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.graphicHeader}</f:facet>
+               <h:graphicImage library="images" name="dice#{number}.gif"
+                               style="border: 0px"/>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.menuHeader}</f:facet>
+               <h:selectOneMenu>
+                  <f:selectItem itemLabel="#{number}" itemValue="#{number}"/>
+               </h:selectOneMenu>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.radioHeader}</f:facet>
+               <h:selectOneRadio layout="lineDirection" value="nextMonth">
+                  <f:selectItem itemValue="yes" itemLabel="yes"/>
+                  <f:selectItem itemValue="no" itemLabel="no"/>
+               </h:selectOneRadio>
+            </h:column>
+            <h:column>
+               <f:facet name="header">#{msgs.listboxHeader}</f:facet>
+               <h:selectOneListbox size="4">
+                  <f:selectItem itemValue="yes" itemLabel="yes"/>
+                  <f:selectItem itemValue="maybe" itemLabel="maybe"/>
+                  <f:selectItem itemValue="no" itemLabel="no"/>
+                  <f:selectItem itemValue="ok" itemLabel="ok"/>
+               </h:selectOneListbox>
+            </h:column>
+         </h:dataTable>
+      </h:form>
+   </h:body>
+</html>

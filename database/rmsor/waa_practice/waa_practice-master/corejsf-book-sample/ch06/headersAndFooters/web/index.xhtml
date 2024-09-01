@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html">
+   <h:head>
+      <h:outputStylesheet library="css" name="styles.css"/>
+      <title>#{msgs.windowTitle}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <h:dataTable value="#{tableData.names}" var="name"
+                      captionStyle="font-size: 0.95em; font-style:italic"
+                      style="width: 250px;">
+
+            <f:facet name="caption">An Array of Names</f:facet>
+
+            <h:column headerClass="columnHeader" footerClass="columnFooter">
+               <f:facet name="header">#{msgs.lastnameColumn}</f:facet>
+
+               #{name.last},
+
+               <f:facet name="footer">#{msgs.alphanumeric}</f:facet>
+            </h:column>
+
+            <h:column headerClass="columnHeader" footerClass="columnFooter">
+               <f:facet name="header">#{msgs.firstnameColumn}</f:facet>
+
+               #{name.first}
+
+               <f:facet name="footer">#{msgs.alphanumeric}</f:facet>
+            </h:column>
+         </h:dataTable>
+      </h:form>
+   </h:body>
+</html>

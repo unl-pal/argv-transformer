@@ -1,0 +1,4 @@
+.rotatable-check-box {
+	-fx-skin: "org.devel.jfxcontrols.scene.control.skin.RotatableCheckBoxSkin";
+	-dev-rotate1: 45;	
+}

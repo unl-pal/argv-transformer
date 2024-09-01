@@ -1,0 +1,33 @@
+Current Ranking
+Djordje Osborne LBA  53.37  60.90  69.08   U      U      U   
+Leofwine Yaron  GRE  59.18  52.03  68.81   U      U      U   
+Erle Caratacus  KSA  67.73  51.93   U      U      U      U   
+Valentin Michae KAZ  65.89  50.17  57.81   U      U      U   
+Hilary Akamu    GBR  65.82  56.94   U      U      U      U   
+Kristian Harold ARM  65.41  53.57  62.27   U      U      U   
+Vinzenz Linas   BDI  51.45  50.36  63.77   U      U      U   
+Apostolos Aryeh ESA  54.65  63.05  50.89   U      U      U   
+Eser Cecilio    MYA  61.51  56.56   U      U      U      U   
+Olavo Bruno     PAK  60.84  55.03   U      U      U      U   
+Competitor List
+Kristian Harold ARM  65.41  53.57  62.27  63.52  64.61   U   
+Vinzenz Linas   BDI  51.45  50.36  63.77  67.71  51.55   U   
+Apostolos Aryeh ESA  54.65  63.05  50.89  58.51  56.26   U   
+Leofwine Yaron  GRE  59.18  52.03  68.81  62.84  57.28   U   
+Valentin Michae KAZ  65.89  50.17  57.81  59.97  56.04   U   
+Djordje Osborne LBA  53.37  60.90  69.08  51.12  51.43   U   
+Eser Cecilio    MYA  61.51  56.56  54.47  66.46  53.34   U   
+Olavo Bruno     PAK  60.84  55.03  55.52  51.99   U      U   
+Erle Caratacus  KSA  67.73  51.93  50.07  56.31   U      U   
+Hilary Akamu    GBR  65.82  56.94  62.23  65.86   U      U   
+Final Results
+Djordje Osborne LBA  53.37  60.90  69.08  51.12  51.43  57.58 GOLD
+Leofwine Yaron  GRE  59.18  52.03  68.81  62.84  57.28  65.83 SILVER
+Erle Caratacus  KSA  67.73  51.93  50.07  56.31  67.55  62.42 BRONZE
+Vinzenz Linas   BDI  51.45  50.36  63.77  67.71  51.55  66.77
+Eser Cecilio    MYA  61.51  56.56  54.47  66.46  53.34  51.13
+Valentin Michae KAZ  65.89  50.17  57.81  59.97  56.04  60.10
+Hilary Akamu    GBR  65.82  56.94  62.23  65.86  62.62  53.60
+Kristian Harold ARM  65.41  53.57  62.27  63.52  64.61  52.66
+Apostolos Aryeh ESA  54.65  63.05  50.89  58.51  56.26  57.96
+Olavo Bruno     PAK  60.84  55.03  55.52  51.99  59.75  53.07

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:gfe="http://www.springframework.org/schema/gemfire"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.4.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.novadox.bigdata"/>
+
+    <rabbit:connection-factory id="connectionFactory"
+           host="${rabbit.host}"
+           port="${rabbit.port}"
+           virtual-host="${rabbit.virtual.host}"
+           username="${rabbit.user}"
+           password="${rabbit.password}" />
+
+    <bean id="rabbitProperties"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>file://${app.props}</value>
+            </list>
+        </property>
+    </bean>
+
+    <util:properties id="gemfire-props">
+        <prop key="log-level">config</prop>
+    </util:properties>
+
+    <gfe:cache properties-ref="gemfire-props"/>
+
+    <gfe:cache-server port="${gemfire.server.port}"/>
+
+    <gfe:partitioned-region id="Person"/>
+
+    <gfe:annotation-driven/>
+
+    <bean class="com.novadox.bigdata.gemfire.function.PersonFunction"/>
+
+</beans>

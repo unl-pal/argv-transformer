@@ -1,0 +1,9 @@
+body {
+
+}
+
+.banner {
+  background-image: url('../images/fh12_contact_01.jpg');
+  background-size: cover;
+  height: 200px;
+}

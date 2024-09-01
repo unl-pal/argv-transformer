@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":bd-common-model")
+    compile ("org.springframework.data:spring-data-gemfire:${springdataGemfireVersion}")
+}

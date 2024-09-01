@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html" 
+      xmlns:f="http://java.sun.com/jsf/core">
+   <h:head>
+      <h:outputScript library="javascript" name="popup1.js"/>
+      <title>Popup window technique 1</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <table>
+            <tr>
+               <td>Country:</td>
+               <td><h:selectOneRadio id="country" value="#{bb.country}">
+                  <f:selectItem itemLabel="USA" itemValue="USA"/>
+                  <f:selectItem itemLabel="Canada" itemValue="Canada"/>
+               </h:selectOneRadio></td>
+            </tr>
+            <tr>
+               <td>State/Province:</td>
+               <td><h:inputText id="state" value="#{bb.state}"/></td>
+               <td><h:commandButton value="..."
+               onclick="doPopup(this); return false;"/></td>
+            </tr>
+         </table>
+         <p><h:commandButton value="Next" action="index"/></p>
+      </h:form>
+   </h:body>
+</html>

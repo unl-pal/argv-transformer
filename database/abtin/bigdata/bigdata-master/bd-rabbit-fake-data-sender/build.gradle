@@ -1,0 +1,48 @@
+apply plugin: 'spring-boot'
+apply plugin: 'application'
+bootRun {
+    if (project.hasProperty('args')) {
+        args project.args.split('\\s+')
+    }
+}
+
+mainClassName="com.novadox.bigdata.rabbit.sender.SenderApp"
+
+
+
+dependencies {
+    compile project(':bd-common-model')
+    compile group:"org.springframework.boot", name:"spring-boot-starter-amqp", version:"${springbootVersion}"
+    compile group:"org.fluttercode.datafactory", name:"datafactory", version:"${datafactoryVersion}"
+}
+
+//jar {
+//    manifest.attributes(
+//            "Main-Class" : "com.novadox.bigdata.rabbit.sender.SenderApp"
+//    )
+//}
+//
+//import org.apache.tools.ant.filters.FixCrLfFilter
+//import org.apache.tools.ant.filters.ReplaceTokens
+//
+//task createZip(type: Zip) {
+//    def projectArtifact = "${project.name}-${version}"
+//
+//    from ('src/main/script') {
+//        into ( "${projectArtifact}/bin")
+//        filter(FixCrLfFilter.class, eol:FixCrLfFilter.CrLf.newInstance("lf"))
+//        filter(ReplaceTokens.class, tokens: [deployVersion : version])
+//    }
+//
+//    into ( "${projectArtifact}/lib") {
+//        from configurations.runtime
+//    }
+//
+//    into ( "${projectArtifact}/lib") {
+//        from jar.outputs.files
+//    }
+//
+//    fileMode = 0755
+//}
+//
+//assemble.dependsOn = ['createZip']

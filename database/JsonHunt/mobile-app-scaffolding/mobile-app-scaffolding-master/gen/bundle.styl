@@ -1,0 +1,134 @@
+$light = #80c6fc
+$medium = #42adff
+$dark = #0991f9
+
+html
+	height 100%
+
+body
+	padding 0
+	margin 0
+	height 100%
+	display flex
+	flex-direction column
+
+.noselect {
+	-webkit-touch-callout: none
+	-webkit-user-select: none
+	-khtml-user-select: none
+	-moz-user-select: none
+	-ms-user-select: none
+	user-select: none
+}
+
+.appheader
+	background-color $medium
+	padding 10px
+	display flex
+	align-items center
+	justify-content center
+	border-bottom $dark
+	.title
+		font-size 20px
+		font-weight bold
+		color white
+
+.appcontent
+	flex 1 1
+	padding 10px
+
+.appfooter
+	padding 10px
+	color #666
+	font-size 12px
+	font-weight bold
+	text-transform uppercase
+	justify-content center
+	border-top 1px solid $dark
+	background-color $medium
+
+.pageheader
+	padding 10px
+	color #666
+	font-size 12px
+	font-weight bold
+	text-transform uppercase
+	text-align center
+	border-top 1px solid #ccc
+
+.pagefooter
+	padding 10px
+	border-top 1px solid $border
+
+.btn
+	min-width 100px
+
+.form.center
+	margin auto
+	width 500px
+	padding: 10px
+	border: 1px solid #ccc
+	background-color: #ddd
+
+.error
+	padding: 10px
+	color: red
+	border 1px solid red
+	margin: 10px 0
+
+.home-page
+	md-tabs
+		min-height: 500px
+
+// .header
+// 	background-color #CCC
+// 	padding 10px
+// 	display flex
+// 	align-items center
+// 	.logo
+// 		width: 50px
+// 		height: 50px
+// 		border: 1px solid black
+// 		margin-right 20px
+// 	.title
+// 		font-family 'Arial,helvetica,sans-serif'
+// 		font-size: 20px
+// 		flex 1
+// 	.username
+// 		padding 10px
+// 	.signup, .login, .logout, .balance, .pay, .username
+// 		padding 10px
+// 		border 1px solid black
+// 		margin-left 2px
+// 		cursor pointer
+// 		&:hover
+// 			background-color #DDD
+//
+// 	.balance
+// 		min-width: 80px
+// 		margin-left: 0
+// 		border-left: 0
+//
+// 	.pay
+// 		margin-left: 0
+// 		margin-right: 10px
+// 		border-left: 0
+//
+// .navbar
+// 	background-color #CCC
+// 	border-top: 1px solid white
+// 	border-bottom: 1px solid white
+// 	display flex
+// 	align-items: center
+// 	justify-content: flex-end
+// 	.item
+// 		padding: 10px 30px
+// 		color black
+// 		text-decoration none
+// 		cursor pointer
+// 		border-left: 1px solid white
+// 		&:hover
+// 			background-color #DDD
+// 	.item.active
+// 		background-color #AAA
+

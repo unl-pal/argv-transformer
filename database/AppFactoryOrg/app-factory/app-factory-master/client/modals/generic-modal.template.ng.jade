@@ -1,0 +1,52 @@
+.generic-modal
+	form(novalidate name="form" ng-submit="submit()")
+		.modal-header
+			.modal-title {{parameters.title}}
+
+		.modal-body
+			.row
+				.form-group.col-sm-12(ng-repeat="attribute in parameters.attributes" ng-switch="attribute.type")
+					label {{attribute.displayAs}}
+					select.form-control(
+						ng-switch-when="select"
+						ng-options="{{attribute.optionsConfig}}"
+						name="{{attribute.name}}"
+						ng-model="result[attribute.name]"
+						ng-required="attribute.required"
+						autofocus="{{attribute.autofocus || false}}"
+					)
+					textarea.form-control(
+						ng-switch-when="textarea"
+						rows="3"
+						name="{{attribute.name}}"
+						ng-model="result[attribute.name]"
+						ng-required="attribute.required"
+						autofocus="{{attribute.autofocus || false}}"
+					)
+					text-angular(
+						ng-switch-when="html"
+						name="{{attribute.name}}"
+						ng-model="result[attribute.name]"
+						ng-required="attribute.required"
+						autofocus="{{attribute.autofocus || false}}"
+						ta-toolbar="{{taToolbar}}"
+					)
+					input.form-control(
+						ng-switch-default
+						type="text" 
+						name="{{attribute.name}}"
+						ng-model="result[attribute.name]"
+						ng-required="attribute.required"
+						autofocus="{{attribute.autofocus || false}}"
+					)
+
+			.alert.alert-warning(ng-show="showValidationErrors && form.$invalid")
+				div(
+					ng-repeat="attribute in parameters.attributes"
+					ng-show="form.{{attribute.name}}.$error.required"
+				) {{attribute.displayAs}} is required.
+		.modal-footer
+			button.btn.btn-default(type="button" ng-click="$dismiss()") Cancel
+			button.btn.btn-primary(type="submit") 
+				span {{parameters.submitAction}} 
+				i.fa.fa-chevron-right

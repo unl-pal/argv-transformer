@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.5.2">
+<module bundle="core" id="0" name="top" type="patch">
+<view height="0" width="0" xpos="20" ypos="20"/>
+<modules>
+<module bundle="jsyn" id="0" name="lineOut" type="lineOut">
+<view height="72" width="70" xpos="686" ypos="232"/>
+<jack max="1.0" min="0.0" name="input0" value="0.0"/>
+<jack max="1.0" min="0.0" name="input1" value="0.0"/>
+</module>
+<module bundle="jsyn" id="1" name="voice" type="voice">
+<view height="168" width="70" xpos="630" ypos="40"/>
+<link href="FMVoice.xml" xml:link="simple"/>
+<jack name="on"/>
+<jack name="off"/>
+<jack max="1000.0" min="0.0" name="frequency" value="329.62850374278463"/>
+<jack max="100.0" min="0.0" name="amplitude" value="1.0"/>
+<jack name="output"/>
+<jack max="10.0" min="0.0" name="modIndex" value="2.496"/>
+</module>
+<module bundle="core" id="2" name="fader" type="fader">
+<view height="200" width="40" xpos="534" ypos="295"/>
+<jack max="100.0" min="0.0" name="kick" value="0.0"/>
+<jack max="8.0" min="0.0" name="in" value="2.496"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="3" name="clock" type="clock">
+<view height="144" width="70" xpos="62" ypos="50"/>
+<jack name="reset"/>
+<jack name="start"/>
+<jack name="stop"/>
+<jack max="1.0" min="0.0" name="period" value="0.167"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="4" name="mod8" type="mod8">
+<view height="240" width="70" xpos="153" ypos="76"/>
+<jack max="100.0" min="0.0" name="in" value="59.0"/>
+<jack name="out0"/>
+<jack name="out1"/>
+<jack name="out2"/>
+<jack name="out3"/>
+<jack name="out4"/>
+<jack name="out5"/>
+<jack name="out6"/>
+<jack name="out7"/>
+</module>
+<module bundle="music" id="5" name="cpf" type="cpf">
+<view height="72" width="70" xpos="417" ypos="36"/>
+<jack max="100.0" min="0.0" name="in" value="64.0"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="6" name="double" type="double">
+<view height="40" width="90" xpos="263" ypos="60"/>
+<jack max="100.0" min="0.0" name="kick" value="56.0"/>
+<jack max="100.0" min="0.0" name="in" value="60.0"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="7" name="delay" type="delay">
+<view height="96" width="70" xpos="485" ypos="157"/>
+<jack max="100.0" min="0.0" name="in" value="329.62850374278463"/>
+<jack max="1.0" min="0.0" name="delay" value="0.0835"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="8" name="double2" type="double">
+<view height="40" width="90" xpos="268" ypos="146"/>
+<jack max="100.0" min="0.0" name="kick" value="58.0"/>
+<jack max="100.0" min="0.0" name="in" value="64.0"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="9" name="fader2" type="fader">
+<view height="200" width="40" xpos="57" ypos="282"/>
+<jack max="100.0" min="0.0" name="kick" value="15.7"/>
+<jack max="0.5" min="0.05" name="in" value="0.167"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="10" name="divide" type="/">
+<view height="40" width="40" xpos="196" ypos="358"/>
+<jack max="100.0" min="0.0" name="A" value="0.167"/>
+<jack max="100.0" min="0.0" name="B" value="2.0"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="11" name="loadKick" type="loadKick">
+<view height="42" width="42" xpos="3" ypos="28"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="12" name="double4" type="double">
+<view height="40" width="90" xpos="275" ypos="259"/>
+<jack max="100.0" min="0.0" name="kick" value="54.0"/>
+<jack max="100.0" min="0.0" name="in" value="67.02"/>
+<jack name="out"/>
+</module>
+<module bundle="core" id="13" name="double3" type="double">
+<view height="40" width="90" xpos="684" ypos="374"/>
+<jack max="100.0" min="0.0" name="kick" value="0.0"/>
+<jack max="100.0" min="0.0" name="in" value="1.0"/>
+<jack name="out"/>
+</module>
+<module bundle="jsyn" id="14" name="phaseShifter" type="phaseShifter">
+<view height="144" width="70" xpos="827" ypos="115"/>
+<jack max="1.0" min="0.0" name="input" value="0.0"/>
+<jack max="1.0" min="0.0" name="offset" value="0.1"/>
+<jack max="1.0" min="0.0" name="feedback" value="0.7"/>
+<jack max="1.0" min="0.0" name="depth" value="1.0"/>
+<jack name="output"/>
+</module>
+</modules>
+<connections>
+<output id="1" jack="output">
+<input id="0" jack="input0"/>
+<input id="0" jack="input1"/>
+</output>
+<output id="2" jack="out">
+<input id="1" jack="modIndex"/>
+</output>
+<output id="3" jack="out">
+<input id="4" jack="in"/>
+</output>
+<output id="4" jack="out0">
+<input id="6" jack="kick"/>
+</output>
+<output id="4" jack="out1"/>
+<output id="4" jack="out2">
+<input id="8" jack="kick"/>
+</output>
+<output id="4" jack="out3"/>
+<output id="4" jack="out4">
+<input id="6" jack="kick"/>
+</output>
+<output id="4" jack="out5">
+<input id="12" jack="kick"/>
+</output>
+<output id="4" jack="out6">
+<input id="12" jack="kick"/>
+</output>
+<output id="4" jack="out7">
+<input id="8" jack="kick"/>
+</output>
+<output id="5" jack="out">
+<input id="1" jack="on"/>
+<input id="7" jack="in"/>
+</output>
+<output id="6" jack="out">
+<input id="5" jack="in"/>
+</output>
+<output id="7" jack="out">
+<input id="1" jack="off"/>
+</output>
+<output id="8" jack="out">
+<input id="5" jack="in"/>
+</output>
+<output id="9" jack="out">
+<input id="10" jack="A"/>
+<input id="3" jack="period"/>
+</output>
+<output id="10" jack="out">
+<input id="7" jack="delay"/>
+</output>
+<output id="11" jack="out">
+<input id="3" jack="start"/>
+</output>
+<output id="12" jack="out">
+<input id="5" jack="in"/>
+</output>
+<output id="13" jack="out"/>
+<output id="14" jack="output"/>
+</connections>
+</module>
+</syntona>

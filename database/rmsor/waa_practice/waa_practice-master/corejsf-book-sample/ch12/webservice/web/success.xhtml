@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html" 
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" 
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+   <h:head>
+      <title>#{msgs.title}</title>
+   </h:head>
+   <h:body>
+      <h:form>
+         <h1>
+            <h:outputFormat value="#{msgs.searchResult}">
+               <f:param value="#{weatherBean.city}"/>
+            </h:outputFormat>
+         </h1>
+         <table>
+            <tr>
+               <ui:repeat value="#{weatherBean.response}" var="item">
+                  <td>
+                     <h:panelGrid columns="1" 
+                                  style="width: 8em; border: thin dotted;">
+                        <h:outputText value="#{item.desciption}"/>
+                        <h:graphicImage library="images" 
+                              name="#{fn:replace(item.desciption, ' ', '')}.gif"/>   
+                        <h:outputText 
+                              value=
+                              "#{msgs.low}: #{item.temperatures.morningLow}"/>
+                        <h:outputText value=
+                              "#{msgs.high}: #{item.temperatures.daytimeHigh}"/>
+                     </h:panelGrid>
+                  </td>
+               </ui:repeat>
+            </tr>   
+         </table>
+         <h:commandButton value="#{msgs.back}" action="index"/>
+      </h:form>
+   </h:body>
+</html>

@@ -1,0 +1,26 @@
+<component name="libraryTable">
+  <library name="bcel-6.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/bcel-6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-csv-1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jpf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.core.contenttype-3.4.200-v20140207-1251.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.core.jobs-3.6.0-v20140424-0053.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.core.resources-3.6.0.v20100526-0737.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.core.runtime-3.7.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.equinox.common-3.6.0.v20100503.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.equinox.preferences-3.5.200-v20140224-1527.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.jdt.core-3.3.0-v_771.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.jdt.ui-6.12.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.jface.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.ltk.core.refactoring-6.12.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.osgi-3.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.text_3.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sootclasses-trunk-jar-with-dependencies.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/sootclasses-trunk-jar-with-dependencies.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd">
+<hibernate-reverse-engineering>
+  <schema-selection match-catalog="db_ecommerce"/>
+  <table-filter match-name="tbl_pedidos"/>
+  <table-filter match-name="tbl_ref_pedido_status"/>
+  <table-filter match-name="tbl_ref_metodos_pagamento"/>
+  <table-filter match-name="tbl_ref_tipo_produto"/>
+  <table-filter match-name="tbl_cliente"/>
+  <table-filter match-name="tbl_itens_enviado"/>
+  <table-filter match-name="tbl_pedido_item_status"/>
+  <table-filter match-name="tbl_produto"/>
+  <table-filter match-name="tbl_envios"/>
+  <table-filter match-name="tbl_fatura"/>
+  <table-filter match-name="tbl_ref_fatura_status"/>
+  <table-filter match-name="tbl_itens_pedido"/>
+  <table-filter match-name="tbl_metodos_pagamento_cliente"/>
+  <table-filter match-name="tbl_pagamentos"/>
+</hibernate-reverse-engineering>

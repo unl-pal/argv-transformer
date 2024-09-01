@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="libs/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="libs/axis.jar"/>
+	<classpathentry kind="lib" path="libs/axis2-ant-plugin-1.6.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-discovery-0.2.jar"/>
+	<classpathentry kind="lib" path="libs/commons-httpclient-3.1-beta1.jar"/>
+	<classpathentry kind="lib" path="libs/wsdl4j.jar"/>
+	<classpathentry kind="lib" path="libs/mail.jar"/>
+	<classpathentry kind="lib" path="libs/pingservice.jar"/>
+	<classpathentry kind="lib" path="libs/saaj.jar"/>
+	<classpathentry kind="lib" path="libs/serverpool.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="libs/javacImpl-0.9.jar"/>
+	<classpathentry kind="lib" path="libs/jaxrpc.jar"/>
+	<classpathentry kind="lib" path="libs/jsp-api.jar"/>
+	<classpathentry kind="lib" path="libs/servlet-api.jar"/>
+	<classpathentry kind="lib" path="libs/vijava2120100824.jar"/>
+	<classpathentry kind="lib" path="libs/xml-apis.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,5 @@
+.attribute-input
+	select.form-control.input-sm(
+		ng-options="option.id as option.name for option in options"
+		ng-model="object[key]"
+	)

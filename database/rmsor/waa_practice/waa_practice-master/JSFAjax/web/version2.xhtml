@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>AjaxDemoVersion2</title>
+        <h:outputStylesheet library="css" name="style.css"/>
+    </h:head>
+
+    <h:body styleClass="bodyColor"  >
+        <div class="banner">
+            <h:outputText value="JSF AJAX DEMO"  styleClass="bannerText"/>
+        </div>
+        <h:form id="form">
+            <h:panelGrid columns='2'>
+                <h:outputText value='First Name: '/>
+                <h:inputText id='txtFirst' value="#{pb.firstName}">
+                    <f:ajax event="keyup" listener="#{pb.searchName}" render="@form" execute="txtFirst" />
+                </h:inputText> 
+
+                <h:outputText value='Last Name: '/>
+                <h:inputText id='txtLast' value="#{pb.lastName}" />
+                
+                <h:outputText value='Email: '/>
+                <h:inputText id='txtEmail' size="40" value="#{pb.email}" />
+                
+                <h:outputText value='Street Address: '/>
+                <h:inputText id='txtStreetAddress' size="40" value="#{pb.streetAddress}" />
+                
+                <h:outputText value='State: '/>
+                <h:inputText id='txtState' value="#{pb.state}" />
+                
+                <h:outputText value='Zip: '/>
+                <h:inputText id='txtZip' value="#{pb.zip}" /> 
+            </h:panelGrid>    
+        </h:form>
+        <br/>
+        <h:link outcome="index" value="Go to Version 1"></h:link>
+    </h:body>
+</html>
+

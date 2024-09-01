@@ -1,0 +1,19 @@
+.tabbedPane {
+   vertical-align: top;
+   border: thin solid Blue;
+}
+.tabbedPaneContent {
+   font-family: Times;
+}
+.tab {
+   padding: 3px;
+   border: thin solid CornflowerBlue;
+   color: Blue;
+   background: #eee;
+}
+.selectedTab {
+   padding: 3px;
+   border: thin solid CornflowerBlue;
+   color: Blue;
+   background: PowderBlue;
+}

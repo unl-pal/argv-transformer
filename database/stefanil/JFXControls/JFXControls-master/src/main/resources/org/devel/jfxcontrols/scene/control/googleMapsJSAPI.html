@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+html {
+	height: 100%
+}
+
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0
+}
+
+#map-canvas {
+	height: 100%
+}
+</style>
+<script type="text/javascript"
+	src="https://maps.googleapis.com/maps/api/js?sensor=false">
+	
+</script>
+<!-- key=API_KEY& -->
+
+<script type="text/javascript">
+	var directionsDisplay = null;
+	var directionsService = new google.maps.DirectionsService();
+
+	var latlng = new google.maps.LatLng(51.02681, 13.70878);
+	var latlngStart = new google.maps.LatLng(51.02681, 13.70878);
+	var latlngFinish = new google.maps.LatLng(51.05041, 13.73726);
+	var map = null;
+	var geocoder = new google.maps.Geocoder();
+	var startMarker = null;
+	var finishMarker = null;
+
+	function initialize() {
+		
+		directionsDisplay = new google.maps.DirectionsRenderer();
+
+		var mapOptions = {
+			center : latlng,
+			zoom : 14,
+			mapTypeControl : true,
+			navigationControl : true,
+			streetViewControl : true,
+			mapTypeId : google.maps.MapTypeId.ROADMAP,
+			backgroundColor : "#FFFFFF"
+		};
+		map = new google.maps.Map(document.getElementById("map-canvas"),
+				mapOptions);
+		directionsDisplay.setMap(map);
+		
+	}
+
+	function calcRoute(start, finish) {
+		
+		alert(start);
+		alert(finish);
+		
+		geocoder.geocode(
+						{
+							'address' : start
+						},
+						function(results, status) {
+							if (status == google.maps.GeocoderStatus.OK) {
+
+								var startLocation = results[0].geometry.location;
+
+								geocoder
+										.geocode(
+												{
+													'address' : finish
+												},
+												function(results, status) {
+													if (status == google.maps.GeocoderStatus.OK) {
+														var finishLocation = results[0].geometry.location;
+
+														var request = {
+															origin : startLocation,
+															destination : finishLocation,
+															travelMode : google.maps.TravelMode.DRIVING
+														};
+														directionsService
+																.route(
+																		request,
+																		function(
+																				response,
+																				status) {
+																			if (status == google.maps.DirectionsStatus.OK) {
+																				directionsDisplay
+																						.setDirections(response);
+																			}
+																		});
+													} else {
+														alert("Geocode was not successful for the following reason: "
+																+ status);
+													}
+												});
+							} else {
+								alert("Geocode was not successful for the following reason: "
+										+ status);
+							}
+						});
+	}
+	google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+</head>
+<body>
+	<div id="map-canvas" />
+</body>
+</html>

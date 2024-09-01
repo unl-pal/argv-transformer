@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<syntona version="0.4.0">
+<module bundle="core" id="0" name="top" type="patch">
+<view height="0" width="0" xpos="0" ypos="0"/>
+<modules>
+<module bundle="jsyn" id="0" name="voice" type="voice">
+<view height="70" width="70" xpos="255" ypos="64"/>
+<link href="SawVoice.xml" xml:link="simple"/>
+<jack name="on"/>
+<jack name="off"/>
+<jack max="100.0" min="0.0" name="frequency" value="261.6263168"/>
+<jack max="100.0" min="0.0" name="amplitude" value="0.5"/>
+<jack name="output"/>
+</module>
+<module bundle="jsyn" id="1" name="lineOut" type="lineOut">
+<view height="70" width="70" xpos="354" ypos="69"/>
+<jack max="1.0" min="0.0" name="input0" value="0.0"/>
+<jack max="1.0" min="0.0" name="input1" value="0.0"/>
+</module>
+<module bundle="music" id="2" name="pitchKey" type="pitchKey">
+<view height="70" width="70" xpos="33" ypos="84"/>
+<jack name="on"/>
+<jack name="off"/>
+</module>
+<module bundle="music" id="3" name="cpf" type="cpf">
+<view height="70" width="70" xpos="138" ypos="48"/>
+<jack max="100.0" min="0.0" name="in" value="60.0"/>
+<jack name="out"/>
+</module>
+</modules>
+<connections>
+<output id="0" jack="output">
+<input id="1" jack="input0"/>
+<input id="1" jack="input1"/>
+</output>
+<output id="2" jack="on">
+<input id="3" jack="in"/>
+</output>
+<output id="2" jack="off">
+<input id="0" jack="off"/>
+</output>
+<output id="3" jack="out">
+<input id="0" jack="on"/>
+</output>
+</connections>
+</module>
+</syntona>

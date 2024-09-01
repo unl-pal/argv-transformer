@@ -1,0 +1,10 @@
+# JetBrains
+.idea
+*.iml
+
+# Gradle
+.gradle
+build/
+
+# Hibernate PW file
+hibernate.properties

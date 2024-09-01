@@ -1,0 +1,20 @@
+.names {
+   border: thin solid black;
+}
+.namesHeader {
+   text-align: center;
+   font-style: italic;
+}
+.last {
+   height: 25px;
+   text-align: center;
+   background: MediumTurquoise;
+}
+.first {
+   text-align: left;
+   background: PowderBlue;
+}
+.caption {
+	font-size: 0.9em;
+	font-style: italic;
+}

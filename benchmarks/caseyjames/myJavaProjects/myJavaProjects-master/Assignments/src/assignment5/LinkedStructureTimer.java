@@ -1,9 +1,7 @@
 /** filtered and transformed by PAClab */
 package assignment5;
 
-import gov.nasa.jpf.symbc.Debug;
-import java.util.ArrayList;
-import java.util.Random;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Class for timing analysis of the <tt>addFirst</tt>, <tt>get(i)</tt>, and <tt>remove</tt> methods from the
@@ -32,7 +30,7 @@ public class LinkedStructureTimer {
 
             int[] randNum = new int[i * timesToLoop];
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // create array of random numbers for addFirstList to add from, before any timing starts.
             for (int j = 0; j < timesToLoop * i; j++) {
                 {
@@ -40,26 +38,26 @@ public class LinkedStructureTimer {
             }
 
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing starts here.
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
 
             for (int j = 0; j < timesToLoop; j++) {  //timesToLoop helps take an average of i inputs
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x4");      // middle time is set, to subtract startTime from.
+            midTime = Verifier.nondetInt();      // middle time is set, to subtract startTime from.
 
             for (int j = 0; j < timesToLoop; j++) {     // same loops without addFirst to determine overhead to subtract
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // determine total amount of time to add 'on average' to add i amount of inputs
             double avgTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -82,7 +80,7 @@ public class LinkedStructureTimer {
 
             int[] randNum = new int[i * timesToLoop];
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // create array of random numbers for addList to add from, before any timing starts.
             for (int j = 0; j < timesToLoop * i; j++) {
                 {
@@ -90,26 +88,26 @@ public class LinkedStructureTimer {
             }
 
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing start here.
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
 
             for (int j = 0; j < timesToLoop; j++) {   //timesToLoop helps take an average of i inputs
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x4");        // middle time is set, to subtract startTime from.
+            midTime = Verifier.nondetInt();        // middle time is set, to subtract startTime from.
 
             for (int j = 0; j < timesToLoop; j++) {  // same loops without addFirst to determine overhead to subtract
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -131,27 +129,27 @@ public class LinkedStructureTimer {
             if (i == 0) i = 1000; // allows i to equal 1000 then 5000 and then even 5000 increments after.
 
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");  //use clock as initial starting point for the seed.
-            seed = Debug.makeSymbolicInteger("x1");  //update seed,
+            long seed = Verifier.nondetInt();  //use clock as initial starting point for the seed.
+            seed = Verifier.nondetInt();  //update seed,
             for (int j = 0; j < i; j++) {
             }
 
             // this while loop runs for a full second to get things warmed up and running before timing starts
-            startTime = Debug.makeSymbolicInteger("x2");
-            while (Debug.makeSymbolicInteger("x3") - startTime < 1e9) {/*empty*/}
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) {/*empty*/}
 
             // startTime and testing start here
-            startTime = Debug.makeSymbolicInteger("x4");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < i; k++) {
                 }                                           //good average time for i
             }
-            midTime = Debug.makeSymbolicInteger("x5");   // midTime is set to aid in subtracting overhead
+            midTime = Verifier.nondetInt();   // midTime is set to aid in subtracting overhead
             for (int j = 0; j < timesToLoop; j++) {     // same loops run again without .get() to determine overhead
                 for (int k = 0; k < i; k++) {
                 }
             }
-            endTime = Debug.makeSymbolicInteger("x6");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -173,7 +171,7 @@ public class LinkedStructureTimer {
 
             if (i == 0) i = 1000;// allows i to equal 1000 then 5000 and then even 5000 increments after.
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
 
             /*create a non empty array first or index out of bounds exception will be thrown,
             then in the loops below each element is reset to random numbers. This is quicker than clear and
@@ -183,26 +181,26 @@ public class LinkedStructureTimer {
             }
 
             // this while loop runs for a full second to get things warmed up and running before timing starts
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) {
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) {
             }
 
             // startTime and testing start here
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int h = 0; h < i; h++) {
                 }
                 for (int k = 0; k < i; k++) {
                 }
             }
-            midTime = Debug.makeSymbolicInteger("x4");   // midTime is set to aid in subtracting overhead
+            midTime = Verifier.nondetInt();   // midTime is set to aid in subtracting overhead
             for (int j = 0; j < timesToLoop; j++) {
                 for (int h = 0; h < i; h++) {
                 }
                 for (int k = 0; k < i; k++) {
                 }
             }
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -220,30 +218,30 @@ public class LinkedStructureTimer {
 
             if (i == 0) i = 1000;// allows i to equal 1000 then 5000 and then even 5000 increments after.
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // add random numbers to linkedGetList until size equals i, this so the get method can be tested.
             for (int j = 0; j < i; j++) {
             }
 
             // this while loop runs for a full second to get things warmed up and running before timing starts
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing start here
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x4");   // midTime is set to aid in subtracting overhead
+            midTime = Verifier.nondetInt();   // midTime is set to aid in subtracting overhead
             for (int j = 0; j < timesToLoop; j++) {     // same loops run again without .get() to determine overhead
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -261,30 +259,30 @@ public class LinkedStructureTimer {
 
             if (i == 0) i = 1000;// allows i to equal 1000 then 5000 and then even 5000 increments after.
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // add random numbers to linkedGetList until size equals i, this so the get method can be tested.
             for (int j = 0; j < i; j++) {
             }
 
             // this while loop runs for a full second to get things warmed up and running before timing starts
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing start here
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x4");   // midTime is set to aid in subtracting overhead
+            midTime = Verifier.nondetInt();   // midTime is set to aid in subtracting overhead
             for (int j = 0; j < timesToLoop; j++) {     // same loops run again without .get() to determine overhead
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -304,7 +302,7 @@ public class LinkedStructureTimer {
 
             int[] randNum = new int[i * timesToLoop];
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             // create array of random numbers for addList to add from, size is loops * i.
             for (int j = 0; j < timesToLoop * i; j++) {
                 {
@@ -312,26 +310,26 @@ public class LinkedStructureTimer {
             }
 
             // let a while loop run for a full second to get things spooled up.
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) { //empty block
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) { //empty block
             }
 
             // startTime and testing start here.
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
 
             for (int j = 0; j < timesToLoop; j++) {   //timesToLoop helps take an average of i inputs
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            midTime = Debug.makeSymbolicInteger("x4");        // middle time is set, to subtract startTime from.
+            midTime = Verifier.nondetInt();        // middle time is set, to subtract startTime from.
 
             for (int j = 0; j < timesToLoop; j++) {  // same loops without addFirst to determine overhead to subtract
                 for (int k = 0; k < i; k++) {
                 }
             }
 
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -349,29 +347,29 @@ public class LinkedStructureTimer {
 
             if (i == 0) i = 1000;// allows i to equal 1000 then 5000 and then even 5000 increments after.
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
 
             // this while loop runs for a full second to get things warmed up and running before timing starts
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) {
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) {
             }
 
             // startTime and testing start here
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int h = 0; h < i; h++) {
                 }
                 for (int k = 0; k < i; k++) {
                 }
             }
-            midTime = Debug.makeSymbolicInteger("x4");   // midTime is set to aid in subtracting overhead
+            midTime = Verifier.nondetInt();   // midTime is set to aid in subtracting overhead
             for (int j = 0; j < timesToLoop; j++) {
                 for (int h = 0; h < i; h++) {
                 }
                 for (int k = 0; k < i; k++) {
                 }
             }
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;
@@ -389,27 +387,27 @@ public class LinkedStructureTimer {
 
             if (i == 0) i = 1000;// allows i to equal 1000 then 5000 and then even 5000 increments after.
             long startTime, midTime, endTime;
-            long seed = Debug.makeSymbolicInteger("x0");
+            long seed = Verifier.nondetInt();
             for (int j = 0; j < i; j++) {
             }
 
             // this while loop runs for a full second to get things warmed up and running before timing starts
-            startTime = Debug.makeSymbolicInteger("x1");
-            while (Debug.makeSymbolicInteger("x2") - startTime < 1e9) {
+            startTime = Verifier.nondetInt();
+            while (Verifier.nondetInt() - startTime < 1e9) {
             }
 
             // startTime and testing start here
-            startTime = Debug.makeSymbolicInteger("x3");
+            startTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < i; k++) {
                 }
             }
-            midTime = Debug.makeSymbolicInteger("x4");   // midTime is set to aid in subtracting overhead
+            midTime = Verifier.nondetInt();   // midTime is set to aid in subtracting overhead
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < i; k++) {
                 }
             }
-            endTime = Debug.makeSymbolicInteger("x5");
+            endTime = Verifier.nondetInt();
 
             // subtract the over head and determine average time for 'i' calls to get.
             double totalTime = ((midTime - startTime) - (endTime - midTime)) / timesToLoop;

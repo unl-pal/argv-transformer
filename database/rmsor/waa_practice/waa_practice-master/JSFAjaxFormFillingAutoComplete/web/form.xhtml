@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Form Filling</title>
+        <style type="text/css">
+            .errorMessage {
+                color: red;
+            }
+        </style>
+        <h:outputScript library="javascript" name="prototype-1.6.0.2.js" target="head"/>        
+        <h:outputScript library="javascript" name="autoComplete.js" target="head"/>
+    </h:head>
+    <h:body>
+        <p>Ajax Auto Complete Form</p>
+        <h:form>
+            First Name:
+            <h:inputText value="#{reg.user.fName}" id="regFname" onkeyup="com.corejsf.updateCompletionItems(this, event)" 
+                         onblur="com.corejsf.inputLostFocus(this)" valueChangeListener="#{reg.valueChanged}" required="true" 
+                         label="First Name" requiredMessage="please input first name" validator="#{reg.validateName}"/>
+            <h:message for="regFname" styleClass="errorMessage" id="errorName"/>
+            <h:selectOneListbox id="listbox" style="display: none"
+                                valueChangeListener="#{reg.completionItemSelected}"
+                                onfocus="com.corejsf.listboxGainedFocus()">
+                <f:selectItems value="#{reg.completionItems()}"/>
+                <f:ajax render="regFname regLname regEmail regStreet regState regZip"/>
+            </h:selectOneListbox>
+            <br/><br/>
+            Last Name:
+            <h:inputText value="#{reg.user.lName}" id="regLname" required="true" label="Last Name" requiredMessage="please input last name"/>
+            <h:message for="regLname" styleClass="errorMessage"/><br/><br/>
+            Email Address:
+            <h:inputText value="#{reg.user.email}" id="regEmail" required="true" label="Email" requiredMessage="please input email"/>
+            <h:message for="regEmail" styleClass="errorMessage"/><br/><br/>            
+            Street Address:
+            <h:inputText value="#{reg.user.strtAddress}" id="regStreet" required="true" label="Steet Address"/>
+            <h:message for="regStreet" styleClass="errorMessage"/><br/><br/>
+            State:
+            <h:inputText value="#{reg.user.state}" id="regState" required="true" requiredMessage="please input state" label="State">
+                <f:validateLength minimum="2" maximum="2"/>
+            </h:inputText>
+            <h:message for="regState" styleClass="errorMessage"/><br/><br/>
+            ZIP:
+            <h:inputText value="#{reg.user.zip}" required="true" id="regZip" label="zip">
+                <f:validateLength maximum="5" minimum="5"/>
+            </h:inputText>
+            <h:message for="regZip" styleClass="errorMessage"/><br/><br/>                              
+            <h:commandButton value="Submit" action="#{reg.submitForm}" class="submitBtn"/>            
+        </h:form>         
+    </h:body>
+</html>
+

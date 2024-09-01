@@ -1,7 +1,7 @@
 /** filtered and transformed by PAClab */
 package com.jacob.circle.disc;
 
-import gov.nasa.jpf.symbc.Debug;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * Package : com.jacob.circle.disc
@@ -14,11 +14,11 @@ public class CircleIndexView {
     /** PACLab: suitable */
 	 protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (changed) {
-            int childW = Debug.makeSymbolicInteger("x0");
-            int childH = Debug.makeSymbolicInteger("x1");
+            int childW = Verifier.nondetInt();
+            int childH = Verifier.nondetInt();
 
-            int left = Debug.makeSymbolicInteger("x2") / 2 - childW / 2;
-            int top = Debug.makeSymbolicInteger("x3") / 2 - childH / 2;
+            int left = Verifier.nondetInt() / 2 - childW / 2;
+            int top = Verifier.nondetInt() / 2 - childH / 2;
         }
     }
 }

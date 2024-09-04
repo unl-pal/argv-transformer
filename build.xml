@@ -23,14 +23,13 @@
   <!-- Ensure Target Directories -->
   <target name="-init">
     <mkdir dir="build/classes" />
-    <mkdir dir="build/tests" />
     <mkdir dir="build/depcache" />
     <mkdir dir="dist" />
   </target>
 
   <!-- Dependency Check -->
   <target name="-check-deps">
-    <depend srcdir="src/test;${src.paths}" destdir="build/classes" cache="build/depcache" closure="yes" />
+    <depend srcdir="${src.paths}" destdir="build/classes" cache="build/depcache" closure="yes" />
   </target>
 
   <!-- Compile -->

@@ -111,24 +111,5 @@
           depends="clean.dist,clean.build"
           description="Clean all generated/compiled files."
           />
-
-  <!-- Tool Running -->
-  <target name="run.filter" depends="compile" description="Run the project filterer">
-    <java classname="filter.Main" fork="true">
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
-
-  <target name="run.transform" depends="compile" description="Run the code transformer">
-    <java classname="transform.Main" fork="true">
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
-
-  <target name="run" depends="compile" description="Run the full workflow">
-    <java classname="full.Driver" fork="true">
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
   
 </project>

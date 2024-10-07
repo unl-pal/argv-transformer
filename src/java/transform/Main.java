@@ -17,6 +17,8 @@ import javax.tools.ToolProvider;
 
 import org.apache.commons.io.FileUtils;
 
+import transform.TypeChecking.TypeChecker.CType;
+
 /**
  * Given a directory of Java projects, this program attempts to transform each
  * .java file in the directory into a compilable benchmark.
@@ -32,6 +34,11 @@ public class Main {
 	private static File buildDir;
 	private static String target = "DEF";
 
+	private final static String DEFAULT_MIN_TYPE_EXPR = "3";
+	private final static String DEFAULT_MIN_TYPE_COND = "1";
+	private final static String DEFAULT_MIN_TYPE_PARAMS = "0";
+	private final static CType DEFAULT_TYPE = CType.INT;
+
 	public static void main(String[] args) throws IOException {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
 		buildDir = new File(tmpDir, "bin");
@@ -43,19 +50,36 @@ public class Main {
 			source = args[0];
 			dest = args[1];
 		}
-		
-		//read the rest of parameters from config.properties
+
+		//read the rest of config properties
 		File configFile = new File("config.properties");
+		int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
+		int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
+		int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
+		CType type = DEFAULT_TYPE;
 		try {
 			FileReader reader = new FileReader(configFile);
 			Properties props = new Properties();
 			props.load(reader);
 			target = props.getProperty("target");
+			String typeStr = props.getProperty("type", DEFAULT_TYPE.toString());
+			switch(typeStr) {
+			case "I": type = CType.INT; break;
+			case "R" : type = CType.REAL; break;
+			case "B" : type = CType.BOOLEAN; break;
+			case "S" : type = CType.STRING; break;
+			default : type = CType.ANY; break;
+			}
+			minTypeExpr = Integer.parseInt(props.getProperty("minTypeExpr", DEFAULT_MIN_TYPE_EXPR));
+			minTypeCond = Integer.parseInt(props.getProperty("minTypeCond", DEFAULT_MIN_TYPE_COND));
+			minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
+			
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);
 		}
 		
+		System.out.println(type + " " + minTypeExpr + " " + minTypeCond + " " + minTypeParams);
 
 		File srcDir = new File(source);
 		File destDir = new File(dest);
@@ -99,7 +123,7 @@ public class Main {
 		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
-		transformer.transformFiles();
+		transformer.transformFiles(minTypeExpr, minTypeCond, minTypeParams, type);
 		
 		Transformer annotate = new Transformer(successfulCompiles, target);
 		annotate.annotateFiles();

@@ -45,13 +45,13 @@ public class FinilizerVisitor extends ASTVisitor {
 	private int operationsInExpression;
 
 	
-	public FinilizerVisitor(AnalyzedFile af, TypeTable typeTable) {
+	public FinilizerVisitor(AnalyzedFile af, TypeTable typeTable, int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {
 		this.af = af;
 		this.typeTable = typeTable;
-		minTypeExpr = 3;
-		minTypeCond = 1;
-		minTypeParams = 0;
-		type = CType.INT;
+		this.minTypeExpr = minTypeExpr;
+		this.minTypeCond = minTypeCond;
+		this.minTypeParams = minTypeParams;
+		this.type = type;
 		operationsInExpression = 0;
 		//System.out.println("Done setting Finilizer Visitor");
 	}

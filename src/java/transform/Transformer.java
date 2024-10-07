@@ -28,6 +28,7 @@ import sourceAnalysis.AnalyzedFile;
 import sourceAnalysis.AnalyzedMethod;
 import transform.SymbolTable.SymbolTable;
 import transform.TypeChecking.TypeChecker;
+import transform.TypeChecking.TypeChecker.CType;
 import transform.TypeChecking.TypeTable;
 import transform.visitors.TransformVisitor;
 import transform.visitors.TypeTableVisitor;
@@ -117,7 +118,7 @@ public class Transformer {
 	 * Transform each file by editing its AST structure then apply
 	 * modifications to the source file. 
 	 */
-	public void transformFiles() {
+	public void transformFiles(int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {
 		Iterator<File> itr = (directory != null ? 
 				FileUtils.iterateFiles(directory, new String[] { "java" }, true): files.iterator());
 		
@@ -209,7 +210,7 @@ public class Transformer {
 				typeTable = typeTableVisitor.getTypeTable();
 				//cannot use old typeTable, things has changed
 				AnalyzedFile af = new AnalyzedFile(file);
-				FinilizerVisitor fv = new FinilizerVisitor(af, typeTable);
+				FinilizerVisitor fv = new FinilizerVisitor(af, typeTable, minTypeExpr, minTypeCond, minTypeParams, type);
 				cuR.accept(fv);
 				
 				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());

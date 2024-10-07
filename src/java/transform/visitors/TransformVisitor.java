@@ -87,7 +87,7 @@ public class TransformVisitor extends ASTVisitor {
 	private Stack<SymbolTable> symbolTableStack;
 	private String currMethod;
 	private ArrayList<VarSTE> initializedVars;
-	private int varNum;
+	private static int varNum = 0;
 	private String target;
 	private boolean randUsedInMethod;
 	private boolean hasRandom;
@@ -517,9 +517,7 @@ public class TransformVisitor extends ASTVisitor {
 		}
 		
 		initializedVars = new ArrayList<VarSTE>();
-		
-		varNum = 0;
-		
+				
 		String name = getMethodSTEName(node);
 		currMethod = name;
 		SymbolTable currScope = symbolTableStack.peek();

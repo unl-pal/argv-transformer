@@ -37,6 +37,7 @@ public class Main {
 	private final static String DEFAULT_MIN_TYPE_EXPR = "3";
 	private final static String DEFAULT_MIN_TYPE_COND = "1";
 	private final static String DEFAULT_MIN_TYPE_PARAMS = "0";
+	private final static String DEFAULT_TRANSFORM_ALL = "False";
 	private final static CType DEFAULT_TYPE = CType.INT;
 
 	public static void main(String[] args) throws IOException {
@@ -56,6 +57,7 @@ public class Main {
 		int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
 		int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
 		int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
+		boolean transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
 		CType type = DEFAULT_TYPE;
 		try {
 			FileReader reader = new FileReader(configFile);
@@ -73,7 +75,7 @@ public class Main {
 			minTypeExpr = Integer.parseInt(props.getProperty("minTypeExpr", DEFAULT_MIN_TYPE_EXPR));
 			minTypeCond = Integer.parseInt(props.getProperty("minTypeCond", DEFAULT_MIN_TYPE_COND));
 			minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
-			
+			transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);
@@ -111,14 +113,18 @@ public class Main {
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
-		file_itr.forEachRemaining(file -> {
-			boolean success = compile(file);
-			if (!success) {
-				unsuccessfulCompiles.add(file);
-			} else {
-				successfulCompiles.add(file);
-			}
-		});
+		if (transformAll) {
+			file_itr.forEachRemaining(file -> unsuccessfulCompiles.add(file));
+		} else {
+			file_itr.forEachRemaining(file -> {
+				boolean success = compile(file);
+				if (!success) {
+					unsuccessfulCompiles.add(file);
+				} else {
+					successfulCompiles.add(file);
+				}
+			});
+		}
 		
 		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 

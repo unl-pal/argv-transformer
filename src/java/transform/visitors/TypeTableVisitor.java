@@ -15,6 +15,8 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
@@ -344,6 +346,15 @@ public class TypeTableVisitor extends ASTVisitor {
 //			table.setNodeType(node, null);
 //			return;
 //		}
+		IMethodBinding methodBinding = node.resolveMethodBinding();
+		if (methodBinding != null) {
+			ITypeBinding typeBinding = methodBinding.getReturnType();
+			if (typeBinding != null && typeBinding.isPrimitive()) {
+				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+				return;
+			}
+		}
+		
 //
 //		Type type = table.getNodeType(expr);
 //		if (type == null) {
@@ -356,6 +367,10 @@ public class TypeTableVisitor extends ASTVisitor {
 			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.INT));
 		} else if (identifier.equals("makeSymbolicBoolean")) {
 			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+		} else if (identifier.equals("makeSymbolicReal")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+		} else if (identifier.equals("makeSymbolicFloat")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
 		} else {
 			table.setNodeType(node, null);
 		}

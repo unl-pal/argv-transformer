@@ -199,13 +199,11 @@ public class TypeChecker {
 	
 	public static boolean isRealType(Type type) {
 		boolean ret = false;
-		if(type != null) {
-			if(type != null && type.isPrimitiveType()) {
-				Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-				if(typeCode == PrimitiveType.DOUBLE || 
-						typeCode == PrimitiveType.FLOAT) {
-					ret = true;
-				}
+		if(type != null && type.isPrimitiveType()) {
+			Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+			if(typeCode == PrimitiveType.DOUBLE || 
+					typeCode == PrimitiveType.FLOAT) {
+				ret = true;
 			}
 		}
 

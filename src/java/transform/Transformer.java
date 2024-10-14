@@ -9,6 +9,11 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -81,7 +86,7 @@ public class Transformer {
 
 			try {
 				String source = new String(Files.readAllBytes(file.toPath()));
-				ASTParser parser = ASTParser.newParser(AST.JLS3);
+				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setSource(source.toCharArray());
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
@@ -125,12 +130,15 @@ public class Transformer {
 		while (itr.hasNext()) {
 			
 			File file = (File) itr.next();
+			System.out.println("Current file name: " + file.getName());
 
 			try {
 				String source = new String(Files.readAllBytes(file.toPath()));
-				ASTParser parser = ASTParser.newParser(AST.JLS3);
+				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setSource(source.toCharArray());
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
+				parser.setResolveBindings(true);
+				parser.setBindingsRecovery(true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
@@ -189,9 +197,11 @@ public class Transformer {
 				
 				//edits.
 				String editedSource = document.get();
-				ASTParser parserR = ASTParser.newParser(AST.JLS3);
+				ASTParser parserR = ASTParser.newParser(AST.JLS8);
 				parserR.setSource(editedSource.toCharArray());
 				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
+				parserR.setResolveBindings(true);
+				parserR.setBindingsRecovery(true);
 
 				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
 
@@ -203,7 +213,7 @@ public class Transformer {
 				
 				symTableVisitor = new SymbolTableVisitor(typeChecker);
 				cuR.accept(symTableVisitor);
-				 rootScope = symTableVisitor.getRoot();
+				rootScope = symTableVisitor.getRoot();
 
 				typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
 				cuR.accept(typeTableVisitor);
@@ -226,7 +236,7 @@ public class Transformer {
 				listRewrite.insertFirst(comment, null);
 				
 				
-				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + "in " + file);
+				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + " in " + file);
 				if(af.getSuitableMethods().size() > 0) {
 					
 					for(Object typeDecl : cuR.types()) {
@@ -263,6 +273,7 @@ public class Transformer {
 
 			} catch (Exception e) {				
 				System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
+				e.printStackTrace();
 			}
 		}
 	}

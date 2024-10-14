@@ -394,7 +394,7 @@ public class TransformVisitor extends ASTVisitor {
 				replaceBoolean(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(rhsType)) {
-				replaceFloat(lhs);
+				replaceFloat(lhs); // TODO: figure out why this thinks doubles are floats
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.FLOAT));
 			} else if(isDoubleTypeCode(rhsType)) {
 				replaceDouble(lhs);
@@ -1462,9 +1462,9 @@ public class TransformVisitor extends ASTVisitor {
 
 	private void checkThrownExceptions(MethodDeclaration node) {
 		@SuppressWarnings("unchecked")
-		List<Name> exceptions = node.thrownExceptions();
+		List<Name> exceptions = node.thrownExceptionTypes();
 		if (!exceptions.isEmpty()) {
-			ListRewrite listRewrite = rewriter.getListRewrite(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY);
+			ListRewrite listRewrite = rewriter.getListRewrite(node, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY);
 			for (Name name : exceptions) {
 				listRewrite.remove(name, null);
 			}

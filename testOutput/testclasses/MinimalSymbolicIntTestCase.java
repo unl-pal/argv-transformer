@@ -6,7 +6,7 @@ import gov.nasa.jpf.symbc.Debug;
 public class MinimalSymbolicIntTestCase {
 	/** PACLab: suitable */
 	 public static int baseTestCase(int x) {
-		int replaceTarget = (int) Debug.makeSymbolicInteger("x9") * 10;
+		int replaceTarget = Debug.makeSymbolicInteger("x4") * 10;
 		if (x > replaceTarget) {
 			return 1;
 		} else {

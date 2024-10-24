@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
@@ -139,6 +140,15 @@ public class Transformer {
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 				parser.setResolveBindings(true);
 				parser.setBindingsRecovery(true);
+				parser.setUnitName(file.getPath());
+				parser.setEnvironment(null, null, null, true);
+				// parser.setProject(JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProject("paclab-transformer"));
+//				String classpath = System.getProperty("java.class.path");
+//		        // Get the system-specific path separator (":" on Unix, ";" on Windows)
+//		        String pathSeparator = System.getProperty("path.separator");
+//		        // Split the classpath string into an array of individual paths
+//		        String[] classpathEntries = classpath.split(pathSeparator);
+//				parser.setEnvironment(classpathEntries, classpathEntries, null, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
@@ -202,6 +212,16 @@ public class Transformer {
 				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
 				parserR.setResolveBindings(true);
 				parserR.setBindingsRecovery(true);
+				parserR.setUnitName(file.getPath());
+				parserR.setEnvironment(null, null, null, true);
+
+				// parserR.setProject(JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProject("paclab-transformer"));
+//				String classpathR = System.getProperty("java.class.path");
+//		        // Get the system-specific path separator (":" on Unix, ";" on Windows)
+//		        String pathSeparatorR = System.getProperty("path.separator");
+//		        // Split the classpath string into an array of individual paths
+//		        String[] classpathEntriesR = classpathR.split(pathSeparator);
+//				parserR.setEnvironment(classpathEntriesR, classpathEntriesR, null, true);
 
 				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
 

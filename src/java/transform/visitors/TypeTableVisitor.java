@@ -113,8 +113,7 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(CastExpression node) {
-		Expression expr = node.getExpression();
-		if (table.getNodeType(expr) != null) {
+		if (node.getType().isPrimitiveType()) {
 			table.setNodeType(node, node.getType());
 		}
 	}
@@ -203,6 +202,13 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(InfixExpression node) {
+		ITypeBinding typeBinding = node.resolveTypeBinding();
+		if (typeBinding != null && typeBinding.isPrimitive()) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+		} else {
+			table.setNodeType(node, null);
+		}
+		
 		Expression lhs = node.getLeftOperand();
 		Expression rhs = node.getRightOperand();
 
@@ -266,15 +272,19 @@ public class TypeTableVisitor extends ASTVisitor {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 		}
-
+		
 		// string concatenation
-		/*
-		 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
-		 * isStringType(rhsType)) { table.setNodeType(node,
-		 * ast.newSimpleType(ast.newSimpleName("String"))); } }
-		 */
-
+				/*
+				 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
+				 * isStringType(rhsType)) { table.setNodeType(node,
+				 * ast.newSimpleType(ast.newSimpleName("String"))); } }
+				 */
+		
+		
 	}
+
+		
+
 
 	@Override
 	public void endVisit(InstanceofExpression node) {
@@ -328,12 +338,8 @@ public class TypeTableVisitor extends ASTVisitor {
 	public void endVisit(MethodInvocation node) {
 		
 		/*
-		 * Right now we are just removing all method invocations, so 
-		 * we set the type of the ast node to null (then it will be replaced).
-		 * 
-		 * In future implementation, when we check resolvability of a method 
-		 * invocation before removing it, we need to check the return type 
-		 * of the method being called.
+		 * Sets to the symbolic type if already assigned, otherwise sets it to the return
+		 * type of the MethodInvocation if it can be found
 		 * 
 		 * e.g., for the method invocation table.setNodeType(node, null), we'd 
 		 * need to look for the scope 'table' and find its method symbol table 
@@ -346,22 +352,6 @@ public class TypeTableVisitor extends ASTVisitor {
 //			table.setNodeType(node, null);
 //			return;
 //		}
-		IMethodBinding methodBinding = node.resolveMethodBinding();
-		if (methodBinding != null) {
-			ITypeBinding typeBinding = methodBinding.getReturnType();
-			if (typeBinding != null && typeBinding.isPrimitive()) {
-				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
-				return;
-			}
-		}
-		
-//
-//		Type type = table.getNodeType(expr);
-//		if (type == null) {
-//			table.setNodeType(node, null);
-//			return;
-//		}
-		//System.out.println("Method invocation " + node.getExpression() + " " + node.getName().getIdentifier());
 		String identifier = node.getName().getIdentifier();
 		if(identifier.contains("makeSymbolicInteger")) {
 			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.INT));
@@ -372,8 +362,26 @@ public class TypeTableVisitor extends ASTVisitor {
 		} else if (identifier.equals("makeSymbolicFloat")) {
 			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
 		} else {
-			table.setNodeType(node, null);
+			IMethodBinding methodBinding = node.resolveMethodBinding();
+			if (methodBinding != null) {
+				ITypeBinding typeBinding = methodBinding.getReturnType();
+				if (typeBinding != null && typeBinding.isPrimitive()) {
+					table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+				}
+			} else {
+				table.setNodeType(node, null);
+			}
 		}
+		
+		
+//
+//		Type type = table.getNodeType(expr);
+//		if (type == null) {
+//			table.setNodeType(node, null);
+//			return;
+//		}
+		//System.out.println("Method invocation " + node.getExpression() + " " + node.getName().getIdentifier());
+		
 	}
 
 	@Override
@@ -477,6 +485,7 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeDeclaration node) {
+		node.resolveBinding();
 		if (node.isInterface()) {
 			return false;
 		}

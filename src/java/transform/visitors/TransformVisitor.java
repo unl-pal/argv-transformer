@@ -157,7 +157,7 @@ public class TransformVisitor extends ASTVisitor {
 	// expr
 	@Override
 	public void endVisit(CastExpression node) {
-		Type castType = typeTable.getNodeType(node);
+		Type castType = node.getType();
 		if(TypeChecker.allowedType(castType)) {
 			return;
 		}
@@ -394,8 +394,8 @@ public class TransformVisitor extends ASTVisitor {
 				replaceBoolean(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(rhsType)) {
-				replaceFloat(lhs); // TODO: figure out why this thinks doubles are floats
-				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.FLOAT));
+				replaceDouble(lhs); // TODO: figure out why this thinks doubles are floats
+				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			} else if(isDoubleTypeCode(rhsType)) {
 				replaceDouble(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.DOUBLE));
@@ -629,18 +629,19 @@ public class TransformVisitor extends ASTVisitor {
 			CastExpression parent = (CastExpression) node.getParent();
 			Type type = parent.getType();
 
+			// if the type directly above is a cast, we can ignore the need for it as it is implicit in the new symbolic value
 			if (isIntegerTypeCode(type)) {
-				replaceInteger(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.INT));
+				replaceInteger(parent);
+				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.INT));
 			} else if (isBooleanTypeCode(type)) {
-				replaceBoolean(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				replaceBoolean(parent);
+				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(type)) {
-				replaceFloat(node);
+				replaceDouble(node);
 				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
 			} else if (isDoubleTypeCode(type)) {
-				replaceDouble(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+				replaceDouble(parent);
+				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 		} 
 	}
@@ -1053,19 +1054,20 @@ public class TransformVisitor extends ASTVisitor {
 		} else if (node.getLocationInParent() == CastExpression.EXPRESSION_PROPERTY) {
 			CastExpression parent = (CastExpression) node.getParent();
 			Type type = parent.getType();
-
+			
+			// if the type directly above is a cast, we can ignore the need for it as it is implicit in the new symbolic value
 			if (isIntegerTypeCode(type)) {
-				replaceInteger(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.INT));
+				replaceInteger(parent);
+				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.INT));
 			} else if (isBooleanTypeCode(type)) {
-				replaceBoolean(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				replaceBoolean(parent);
+				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			} else if (isFloatingPointTypeCode(type)) {
-				replaceFloat(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
-			}  else if (isDoubleTypeCode(type)) {
 				replaceDouble(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
+			} else if (isDoubleTypeCode(type)) {
+				replaceDouble(parent);
+				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 
 		} else if (node.getLocationInParent() == ReturnStatement.EXPRESSION_PROPERTY) {
@@ -1265,7 +1267,7 @@ public class TransformVisitor extends ASTVisitor {
 		
 		ASTNode expression = null;
 		switch(target) {
-		case "JPF":  expression = replaceWithSymbolicFloat();
+		case "SPF":  expression = replaceWithSymbolicFloat();
 		break;
 		default: expression = replaceWithRandomFloat();
 		}

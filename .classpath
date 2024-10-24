@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.resources_3.7.101.dist.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="benchmarks/caseyjames/myJavaProjects/myJavaProjects-master/Assignments/src"/>
 	<classpathentry kind="src" path="benchmarks/Jarcionek/MTG-Deck-Builder/MTG-Deck-Builder-master/src/main/java"/>
@@ -45,24 +46,23 @@
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="suitablePrgms/moloneycharles"/>
+	<classpathentry kind="src" path="testOutput"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcel-6.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-csv-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.16.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jpf.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.contenttype-3.4.200-v20140207-1251.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.jobs-3.6.0-v20140424-0053.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.resources-3.6.0.v20100526-0737.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.runtime-3.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.equinox.common-3.6.0.v20100503.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.equinox.preferences-3.5.200-v20140224-1527.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.jdt.core-3.10.0.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.jdt.core-3.3.0-v_771.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.jdt.ui-6.12.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.jface.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.ltk.core.refactoring-6.12.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.osgi-3.7.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.text_3.5.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sootclasses-trunk-jar-with-dependencies.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/eclipse.jdt.core.jar"/>
 	<classpathentry exported="true" kind="src" path="/jpf-symbc"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.jdt.ui-6.12.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -178,34 +178,6 @@ public class Main {
 				System.getProperty("java.class.path"), file.toString()) == 0;
 	}
 
-	private static boolean compile2(File file) {
-		String command = "javac -g -d " + buildDir.getAbsolutePath()
-				+ " -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes " + file;
-
-		boolean success = false;
-		try {
-			Process pro = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", command });
-			pro.waitFor();
-			printCompileExitStatus(command + " stdout:", pro.getInputStream());
-			printCompileExitStatus(command + " stderr:", pro.getErrorStream());
-			if (pro.exitValue() == 0) {
-				success = true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return success;
-	}
-
-	private static void printCompileExitStatus(String cmd, InputStream ins) throws Exception {
-		String line = null;
-		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-
-		while ((line = in.readLine()) != null) {
-			printWriter.println(line);
-		}
-	}
 
 	private static void removeEmptyDirs(File file) {
 		File[] files = file.listFiles();

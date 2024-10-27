@@ -1162,6 +1162,7 @@ public class TransformVisitor extends ASTVisitor {
 		}
 		return true;
 	}
+	
 
 	private void replaceBoolean(Expression exp) {
 		MethodInvocation randMethodInvocation = null;

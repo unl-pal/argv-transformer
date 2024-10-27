@@ -8,7 +8,7 @@ public class SymbolicDoubleTest {
 		double time = (double) System.nanoTime();
 		if (value > input2) {
 			return -1;
-		} else if (input2 > input1) {
+		} else if (time > input1) {
 			return 1;
 		} else {
 			return 0;

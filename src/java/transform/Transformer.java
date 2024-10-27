@@ -4,7 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -140,15 +142,15 @@ public class Transformer {
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 				parser.setResolveBindings(true);
 				parser.setBindingsRecovery(true);
+				Map<String, String> options = JavaCore.getOptions();
+				options.put(JavaCore.COMPILER_SOURCE, "1.8");
+				parser.setCompilerOptions(options);
 				parser.setUnitName(file.getPath());
+//				String[] classPath = {"C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\build\\classes"};
+//				String[] sourcePath = { Paths.get("paclab-transformer", "suitablePrgms").toString() };
+//				sourcePath = new String[] {"C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\suitablePrgms", "C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\src\\java\\util"};
+//				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 				parser.setEnvironment(null, null, null, true);
-				// parser.setProject(JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProject("paclab-transformer"));
-//				String classpath = System.getProperty("java.class.path");
-//		        // Get the system-specific path separator (":" on Unix, ";" on Windows)
-//		        String pathSeparator = System.getProperty("path.separator");
-//		        // Split the classpath string into an array of individual paths
-//		        String[] classpathEntries = classpath.split(pathSeparator);
-//				parser.setEnvironment(classpathEntries, classpathEntries, null, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
@@ -212,16 +214,10 @@ public class Transformer {
 				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
 				parserR.setResolveBindings(true);
 				parserR.setBindingsRecovery(true);
+				parserR.setCompilerOptions(options);
 				parserR.setUnitName(file.getPath());
+				// parserR.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 				parserR.setEnvironment(null, null, null, true);
-
-				// parserR.setProject(JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProject("paclab-transformer"));
-//				String classpathR = System.getProperty("java.class.path");
-//		        // Get the system-specific path separator (":" on Unix, ";" on Windows)
-//		        String pathSeparatorR = System.getProperty("path.separator");
-//		        // Split the classpath string into an array of individual paths
-//		        String[] classpathEntriesR = classpathR.split(pathSeparator);
-//				parserR.setEnvironment(classpathEntriesR, classpathEntriesR, null, true);
 
 				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
 

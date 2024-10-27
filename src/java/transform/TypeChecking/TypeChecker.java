@@ -30,8 +30,8 @@ import org.eclipse.jdt.core.dom.Type;
  *
  */
 public class TypeChecker {
-	private Set<String> javaImportTypes;
-	private Set<String> classTypes;
+	private static Set<String> javaImportTypes;
+	private static Set<String> classTypes;
 	
 	//those are collective types we area dealing with
 	//any means that the type is unknown

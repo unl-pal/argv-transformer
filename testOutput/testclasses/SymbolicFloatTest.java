@@ -6,7 +6,7 @@ import gov.nasa.jpf.symbc.Debug;
 public class SymbolicFloatTest {
 	/** PACLab: suitable */
 	 public static int splitter(float input1, float input2) {
-		float value = (float) (Debug.makeSymbolicReal("x7") * 10.0f);
+		float value = (float) (Debug.makeSymbolicReal("x7") * 10.0);
 		float baseCase = (float) Debug.makeSymbolicReal("x8");
 		float parenthesizedTime = ((float) Debug.makeSymbolicReal("x9"));
 		if (value > input2) {

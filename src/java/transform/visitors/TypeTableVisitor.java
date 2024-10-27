@@ -344,7 +344,7 @@ public class TypeTableVisitor extends ASTVisitor {
 		 * e.g., for the method invocation table.setNodeType(node, null), we'd 
 		 * need to look for the scope 'table' and find its method symbol table 
 		 * element 'setNodeType.' Then we set the type of table.setNodeType(node, null) 
-		 * to whatever the return type of 'sedtNodeType' is. 
+		 * to whatever the return type of 'setNodeType' is. 
 		 */
 		
 //		Expression expr = node.getExpression();

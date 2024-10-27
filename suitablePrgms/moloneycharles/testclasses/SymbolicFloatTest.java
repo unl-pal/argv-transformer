@@ -4,7 +4,7 @@ import util.ArgVRandom;
 
 public class SymbolicFloatTest {
 	public static int splitter(float input1, float input2) {
-		float value = (float) (ArgVRandom.randomFloat() * 10.0f);
+		float value = (float) (ArgVRandom.randomFloat() * 10.0);
 		float baseCase = ArgVRandom.randomFloat();
 		float parenthesizedTime = ((float) System.nanoTime());
 		if (value > input2) {
@@ -20,7 +20,8 @@ public class SymbolicFloatTest {
 		// float fake = Fake.getFloat();
 		float time = (float) System.nanoTime();
 		float var2 = (float) (Math.random() * 5);
-		System.out.println(splitter(time, var2));
+		int var3 = splitter(time, var2);
+		System.out.println(var3);
 	}
 
 }

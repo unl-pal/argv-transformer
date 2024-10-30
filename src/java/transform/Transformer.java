@@ -104,7 +104,7 @@ public class Transformer {
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(typeDec, TypeDeclaration.MODIFIERS2_PROPERTY);
 				//rewriterComm.get
-				Statement comment = (Statement) rewriter.createStringPlaceholder("/** filtered by PAClab */\n", ASTNode.EMPTY_STATEMENT);
+				Statement comment = (Statement) rewriter.createStringPlaceholder("/** filtered by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
 				listRewrite.insertFirst(comment, null);
 				
 				Document document = new Document(source);
@@ -248,7 +248,7 @@ public class Transformer {
 				
 				ListRewrite listRewrite = rewriterComm.getListRewrite(packDec, PackageDeclaration.ANNOTATIONS_PROPERTY);
 				//rewriterComm.get
-				Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** filtered and transformed by PAClab */\n", ASTNode.EMPTY_STATEMENT);
+				Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
 				listRewrite.insertFirst(comment, null);
 				
 				
@@ -272,7 +272,7 @@ public class Transformer {
 							if(found) {
 								System.out.println("Found suitable MDecl");
 								listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
-								comment = (Statement) rewriterComm.createStringPlaceholder("/** PACLab: suitable */\n", ASTNode.EMPTY_STATEMENT);
+								comment = (Statement) rewriterComm.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
 								listRewrite.insertFirst(comment, null);
 							}
 						}

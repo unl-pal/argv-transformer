@@ -1,12 +1,12 @@
-/** filtered and transformed by PAClab */
+/** filtered and transformed by ARG-V */
  package testclasses;
 
 import gov.nasa.jpf.symbc.Debug;
 
 public class MinimalSymbolicIntTestCase {
-	/** PACLab: suitable */
+	/** ARG-V: suitable */
 	 public static int baseTestCase(int x) {
-		int replaceTarget = Debug.makeSymbolicInteger("x4") * 10;
+		int replaceTarget = Debug.makeSymbolicInteger("x5") * 10;
 		if (x > replaceTarget) {
 			return 1;
 		} else {

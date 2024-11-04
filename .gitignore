@@ -27,6 +27,7 @@ hs_err_pid*
 database/**
 benchmarks/**
 suitablePrgms/**
+!./suitablePrgms/moloneycharles/testclasses/*
 # Use '!' to designate and list Files to be included as needed in these dirs
 # README.md files have been added as git does not track empty dirs
 # Either README.md files should be properly updated to describe the use of the dir

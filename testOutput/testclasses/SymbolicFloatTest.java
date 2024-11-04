@@ -6,8 +6,8 @@ import gov.nasa.jpf.symbc.Debug;
 public class SymbolicFloatTest {
 	/** ARG-V: suitable */
 	 public static int splitter(float input1, float input2) {
-		float value = (float) ((float) Debug.makeSymbolicReal("x10") * 10.0);
-		float baseCase = (float) Debug.makeSymbolicReal("x11");
+		float value = (float) ((float) Debug.makeSymbolicReal("x7") * 10.0);
+		float baseCase = (float) Debug.makeSymbolicReal("x8");
 		float parenthesizedTime = ((float) System.nanoTime());
 		if (value > input2) {
 			return -1;

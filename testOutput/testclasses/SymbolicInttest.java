@@ -6,7 +6,7 @@ import gov.nasa.jpf.symbc.Debug;
 public class SymbolicInttest {
 	/** ARG-V: suitable */
 	 public static int splitter(int input1, int input2) {
-		int value = (int) (Debug.makeSymbolicInteger("x12") * 10);
+		int value = (int) (Debug.makeSymbolicInteger("x9") * 10);
 		if (value > input2) {
 			return -1;
 		} else if (input2 > input1) {

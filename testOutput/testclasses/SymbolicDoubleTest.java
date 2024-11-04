@@ -6,7 +6,7 @@ import gov.nasa.jpf.symbc.Debug;
 public class SymbolicDoubleTest {
 	/** ARG-V: suitable */
 	 public static int splitter(double input1, double input2) {
-		double value = (double) (Debug.makeSymbolicReal("x9") * 10.0);
+		double value = (double) (Debug.makeSymbolicReal("x6") * 10.0);
 		double time = (double) System.nanoTime();
 		if (value > input2) {
 			return -1;

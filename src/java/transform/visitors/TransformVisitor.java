@@ -93,6 +93,7 @@ public class TransformVisitor extends ASTVisitor {
 	private String target;
 	private boolean randUsedInMethod;
 	private boolean hasRandom;
+	private String rootNodePackage = null; // instantiated as needed
 
 	/**
 	 * 
@@ -582,8 +583,11 @@ public class TransformVisitor extends ASTVisitor {
             ITypeBinding declaringClass = methodBinding.getDeclaringClass();
             if (declaringClass != null) {
                 String packageName = declaringClass.getPackage().getName();
+                if (rootNodePackage == null) {
+                	rootNodePackage = ((CompilationUnit) node.getRoot()).getPackage().getName().getFullyQualifiedName();
+                }
                 // Check if it's part of the JDK
-                if (packageName.startsWith("java.") || packageName.startsWith("javax.")) {
+                if (packageName.startsWith("java.") || packageName.startsWith("javax.") || packageName.equals(rootNodePackage)) {
                 	// TODO: clean up this dead code and add checks for if package starts with package project is contained in
                 	// TODO: make this play nice with cast expressions
 //                	if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {

@@ -9,15 +9,15 @@ public class ComplexSymbolicIntTestCase {
 		int v1 = (int) (Debug.makeSymbolicInteger("x0") * 5);
 		int v4 = (int) (Debug.makeSymbolicInteger("x1") * 10) + y + Math.abs(5);
 		if (x > v1) {
-			return Debug.makeSymbolicInteger("x2");
+			return helperFunctionOne(y);
 		} else {
-			return Debug.makeSymbolicInteger("x3");
+			return helperFunctionOne(v4);
 		}
 	}
 	
 	/** ARG-V: suitable */
 	 public static int helperFunctionOne(int a) {
-		int v2 = (int) (Debug.makeSymbolicInteger("x4") * 2);
+		int v2 = (int) (Debug.makeSymbolicInteger("x2") * 2);
 		int v3 = (int) Math.random() / 1000;
 		if (a > v2 && a > v3) {
 			return 1;

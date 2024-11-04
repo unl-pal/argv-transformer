@@ -25,6 +25,8 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -575,75 +577,106 @@ public class TransformVisitor extends ASTVisitor {
 	// expr rule
 	@Override
 	public void endVisit(MethodInvocation node) {
-		
-		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
-			replaceBoolean(node);
-			return;
-			
-		} else if (node.getLocationInParent() == WhileStatement.EXPRESSION_PROPERTY) {
-			replaceBoolean(node);
-			return;
-			
-		} else if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
-			Expression lhs = ((Assignment) node.getParent()).getLeftHandSide();
-			Type type = typeTable.getNodeType(lhs);
-			if (isIntegerTypeCode(type)) {
-				replaceInteger(node);
-			} else if (isBooleanTypeCode(type)) {
-				replaceBoolean(node);
-			} else if (isFloatingPointTypeCode(type)) {
-				replaceFloat(node);
-			} else if (isDoubleTypeCode(type)) {
-				replaceDouble(node);
-			} else {
-				if (node.getParent().getParent() instanceof Block) {
-					rewriter.remove(node.getParent().getParent(), null);
-				} else {
-					rewriter.replace(node.getParent().getParent(), ast.newBlock(), null);
-				}
-				typeTable.setNodeType(lhs, null);
-			}
-
-		} else if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
-			VariableDeclarationFragment parent = (VariableDeclarationFragment) node.getParent();
-			Type type = typeTable.getNodeType(parent);
-
-			if (isIntegerTypeCode(type)) {
-				replaceInteger(node);
-				return;
-			} else if (isBooleanTypeCode(type)) {
-				replaceBoolean(node);
-				return;
-			} else if (isFloatingPointTypeCode(type)) {
-				replaceFloat(node);
-				return;
-			} else if (isDoubleTypeCode(type)) {
-				replaceDouble(node);
-				return;
-			} else {
-				rewriter.remove(node, null);
-				typeTable.setNodeType(parent, null);
-			}
-			
-		} else if (node.getLocationInParent() == CastExpression.EXPRESSION_PROPERTY) {
-			CastExpression parent = (CastExpression) node.getParent();
-			Type type = parent.getType();
-
-			// if the type directly above is a cast, we can ignore the need for it as it is implicit in the new symbolic value
-			if (isIntegerTypeCode(type)) {
-				replaceInteger(parent);
-				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.INT));
-			} else if (isBooleanTypeCode(type)) {
-				replaceBoolean(parent);
-				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.BOOLEAN));
-			} else if (isFloatingPointTypeCode(type)) {
-				replaceDouble(node);
-				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
-			} else if (isDoubleTypeCode(type)) {
-				replaceDouble(parent);
-				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.DOUBLE));
-			}
-		} 
+		IMethodBinding methodBinding = node.resolveMethodBinding();
+        if (methodBinding != null) {
+            ITypeBinding declaringClass = methodBinding.getDeclaringClass();
+            if (declaringClass != null) {
+                String packageName = declaringClass.getPackage().getName();
+                // Check if it's part of the JDK
+                if (packageName.startsWith("java.") || packageName.startsWith("javax.")) {
+                	// TODO: clean up this dead code and add checks for if package starts with package project is contained in
+                	// TODO: make this play nice with cast expressions
+//                	if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
+//            			replaceBoolean(node);
+//            			return;
+//            			
+//            		} else if (node.getLocationInParent() == WhileStatement.EXPRESSION_PROPERTY) {
+//            			replaceBoolean(node);
+//            			return;
+//            			
+//            		} else if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
+//            			Expression lhs = ((Assignment) node.getParent()).getLeftHandSide();
+//            			Type type = typeTable.getNodeType(lhs);
+//            			if (isIntegerTypeCode(type)) {
+//            				replaceInteger(node);
+//            			} else if (isBooleanTypeCode(type)) {
+//            				replaceBoolean(node);
+//            			} else if (isFloatingPointTypeCode(type)) {
+//            				replaceFloat(node);
+//            			} else if (isDoubleTypeCode(type)) {
+//            				replaceDouble(node);
+//            			} else {
+//            				if (node.getParent().getParent() instanceof Block) {
+//            					rewriter.remove(node.getParent().getParent(), null);
+//            				} else {
+//            					rewriter.replace(node.getParent().getParent(), ast.newBlock(), null);
+//            				}
+//            				typeTable.setNodeType(lhs, null);
+//            			}
+//
+//            		} else if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
+//            			VariableDeclarationFragment parent = (VariableDeclarationFragment) node.getParent();
+//            			Type type = typeTable.getNodeType(parent);
+//
+//            			if (isIntegerTypeCode(type)) {
+//            				replaceInteger(node);
+//            				return;
+//            			} else if (isBooleanTypeCode(type)) {
+//            				replaceBoolean(node);
+//            				return;
+//            			} else if (isFloatingPointTypeCode(type)) {
+//            				replaceFloat(node);
+//            				return;
+//            			} else if (isDoubleTypeCode(type)) {
+//            				replaceDouble(node);
+//            				return;
+//            			} else {
+//            				rewriter.remove(node, null);
+//            				typeTable.setNodeType(parent, null);
+//            			}
+//            			
+//            		} else if (node.getLocationInParent() == CastExpression.EXPRESSION_PROPERTY) {
+//            			CastExpression parent = (CastExpression) node.getParent();
+//            			Type type = parent.getType();
+//
+//            			// if the type directly above is a cast, we can ignore the need for it as it is implicit in the new symbolic value
+//            			if (isIntegerTypeCode(type)) {
+//            				replaceInteger(parent);
+//            				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.INT));
+//            			} else if (isBooleanTypeCode(type)) {
+//            				replaceBoolean(parent);
+//            				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+//            			} else if (isFloatingPointTypeCode(type)) {
+//            				replaceDouble(node);
+//            				typeTable.setNodeType(parent, ast.newPrimitiveType(PrimitiveType.FLOAT));
+//            			} else if (isDoubleTypeCode(type)) {
+//            				replaceDouble(parent);
+//            				typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.DOUBLE));
+//            			}
+//            		} 
+                } else {
+                	ITypeBinding typeBinding = methodBinding.getReturnType();
+    				if (typeBinding != null && typeBinding.isPrimitive()) {
+    					Type type = ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName()));
+    					if (isIntegerTypeCode(type)) {
+            				replaceInteger(node);
+            				return;
+            			} else if (isBooleanTypeCode(type)) {
+            				replaceBoolean(node);
+            				return;
+            			} else if (isFloatingPointTypeCode(type)) {
+            				replaceFloat(node);
+            				return;
+            			} else if (isDoubleTypeCode(type)) {
+            				replaceDouble(node);
+            				return;
+            			}
+    				}
+    				rewriter.remove(node, null);
+    				typeTable.setNodeType(node.getParent(), null);
+                }
+            } 
+        }
 	}
 	
 

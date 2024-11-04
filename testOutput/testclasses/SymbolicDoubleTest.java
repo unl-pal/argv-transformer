@@ -1,13 +1,13 @@
-/** filtered and transformed by PAClab */
+/** filtered and transformed by ARG-V */
  package testclasses;
 
 import gov.nasa.jpf.symbc.Debug;
 
 public class SymbolicDoubleTest {
-	/** PACLab: suitable */
+	/** ARG-V: suitable */
 	 public static int splitter(double input1, double input2) {
-		double value = (double) (Debug.makeSymbolicReal("x5") * 10.0);
-		double time = Debug.makeSymbolicReal("x6");
+		double value = (double) (Debug.makeSymbolicReal("x9") * 10.0);
+		double time = (double) System.nanoTime();
 		if (value > input2) {
 			return -1;
 		} else if (time > input1) {

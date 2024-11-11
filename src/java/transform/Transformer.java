@@ -145,16 +145,11 @@ public class Transformer {
 				Map<String, String> options = JavaCore.getOptions();
 				options.put(JavaCore.COMPILER_SOURCE, "1.8");
 				parser.setCompilerOptions(options);
-				// System.out.println(Paths.get("paclab-transformer", "suitablePrgms").toString());
 				parser.setUnitName(file.getPath());
 				
-				// String[] classPath = {"C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\build\\classes"};
-				// String classPathRaw = System.getProperty("java.class.path");
 				String[] classPath = {Paths.get("build", "classes").toString()};
 				String[] sourcePath = { Paths.get("suitablePrgms").toString() , Paths.get("src").toString()};
-				// sourcePath = new String[] {"C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\suitablePrgms", "C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\src\\java\\util"};
 				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
-	//			parser.setEnvironment(null, null, null, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
@@ -221,7 +216,6 @@ public class Transformer {
 				parserR.setCompilerOptions(options);
 				parserR.setUnitName(file.getPath());
 				parserR.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
-				// parserR.setEnvironment(null, null, null, true);
 
 				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
 

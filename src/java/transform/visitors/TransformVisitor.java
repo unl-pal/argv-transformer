@@ -587,7 +587,7 @@ public class TransformVisitor extends ASTVisitor {
                 	rootNodePackage = ((CompilationUnit) node.getRoot()).getPackage().getName().getFullyQualifiedName();
                 }
                 // Check if it's part of the JDK
-                if (packageName.startsWith("java.") || packageName.startsWith("javax.") || packageName.equals(rootNodePackage)) {
+                if (packageName.startsWith("java.") || packageName.startsWith("javax.") /* || packageName.equals(rootNodePackage) */) {
                 	// TODO: clean up this dead code and add checks for if package starts with package project is contained in
                 	// TODO: make this play nice with cast expressions
 //                	if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
@@ -727,29 +727,32 @@ public class TransformVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(QualifiedName node) {
+		Type type = typeTable.getNodeType(node);
+		if (type != null && TypeChecker.allowedType(type)) {
+			return;
+		}
 		if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
-
-			Type type = typeTable.getNodeType(node.getParent());
-			if (isIntegerTypeCode(type)) {
+			Type parentType = typeTable.getNodeType(node.getParent());
+			if (isIntegerTypeCode(parentType)) {
 				replaceInteger(node);
-			} else if (isBooleanTypeCode(type)) {
+			} else if (isBooleanTypeCode(parentType)) {
 				replaceBoolean(node);
-			} else if (isFloatingPointTypeCode(type)) {
+			} else if (isFloatingPointTypeCode(parentType)) {
 				replaceFloat(node);
-			} else if (isDoubleTypeCode(type)) {
+			} else if (isDoubleTypeCode(parentType)) {
 				replaceDouble(node);
 			}
 		} else if(node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
 			replaceBoolean(node);
 		} else if(node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
-			Type type = typeTable.getNodeType(((Assignment) node.getParent()).getLeftHandSide());
-			if (isIntegerTypeCode(type)) {
+			Type parentType = typeTable.getNodeType(((Assignment) node.getParent()).getLeftHandSide());
+			if (isIntegerTypeCode(parentType)) {
 				replaceInteger(node);
-			} else if (isBooleanTypeCode(type)) {
+			} else if (isBooleanTypeCode(parentType)) {
 				replaceBoolean(node);
-			} else if (isFloatingPointTypeCode(type)) {
+			} else if (isFloatingPointTypeCode(parentType)) {
 				replaceFloat(node);
-			} else if (isDoubleTypeCode(type)) {
+			} else if (isDoubleTypeCode(parentType)) {
 				replaceDouble(node);
 			}
 		}
@@ -1495,7 +1498,7 @@ public class TransformVisitor extends ASTVisitor {
 	
 	private void checkReturnType(MethodDeclaration node) {
 		Type type = node.getReturnType2();
-		if(!typeChecker.allowedType(type)) {
+		if(!TypeChecker.allowedType(type)) {
 			rewriter.replace(node.getReturnType2(), ast.newSimpleType(ast.newName("Object")), null);
 		}
 	}

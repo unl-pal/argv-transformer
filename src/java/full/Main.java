@@ -39,9 +39,13 @@ public class Main {
 	private static PrintWriter printWriter;
 	private static int totalNumFiles;
 	private static int totalNumMethods;
-	private static int totalSpfSuitableMethods;
+	private static int totalSuitableMethods;
 	private static int compilableSpfSuitableMethodCount;
 	private static int compilableAfterTransformSpfSuitableMethodCount;
+	
+	private final static String SPF_COMPILE = "javac -g -d bin/ -cp .:/Users/elenasherman/git/jpf-symbc/build/classes/ ";
+	private final static String DEFAULT_COMPILE = "javac -g -d bin/ ";
+	private static String COMPILE = "";
 
 	/**
 	 * @param filename
@@ -51,19 +55,29 @@ public class Main {
 	 * @param debugLevel
 	 * @param downloadDir
 	 * @param benchmarkDir
+	 * @param minIfStmt 
+	 * @param ifStmt 
+	 * @param minExpr 
+	 * @param type 
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
-			String downloadDir, String benchmarkDir) throws IOException {
+			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams, String target) throws IOException {
 
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
 		
 		totalNumFiles = 0;
 		totalNumMethods = 0;
-		totalSpfSuitableMethods = 0;
+		totalSuitableMethods = 0;
 		compilableSpfSuitableMethodCount = 0;
 		compilableAfterTransformSpfSuitableMethodCount = 0;
+		
+		switch(target) {
+		case "SPF" : COMPILE = SPF_COMPILE;
+		break;
+		default: COMPILE = DEFAULT_COMPILE;
+		}
 
 		File benchmarks = new File(benchmarkDir);
 
@@ -108,65 +122,65 @@ public class Main {
 
 		Logger.defaultLogger.enterContext("FILTER");
 
-		FileFilter filter = new FileFilter(projects);
+		FileFilter filter = new FileFilter(projects,type,  minExpr, minIfStmt, minParams);
 		filter.collectSuitableFilesInProjectList();
 
-		totalSpfSuitableMethods = filter.getSuitableMethodCount();
+		totalSuitableMethods = filter.getSuitableMethodCount();
 
-		ArrayList<File> spfSuitableFiles = filter.getSuitableFiles();
+		ArrayList<File> suitableFiles = filter.getSuitableFiles();
 
 		Logger.defaultLogger.exitContext("FILTER");
 
-		ArrayList<File> copiedFiles = copyFiles(spfSuitableFiles, downloadDir, "suitablePrgms");
-		ArrayList<File> successfulCompiles = new ArrayList<File>();
-		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-		
-		for (File file : copiedFiles) {
-			Logger.defaultLogger.enterContext("COMPILING");
-
-			boolean success = compile(file);
-			if (success) {
-				compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
-				successfulCompiles.add(file);
-			} else {
-				unsuccessfulCompiles.add(file);
-			}
-			Logger.defaultLogger.exitContext("COMPILING");
-		}
-
-		secondCompile = true;
-
-		Transformer transformer = new Transformer(unsuccessfulCompiles);
-		transformer.transformFiles();
-
-		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
-		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
-		
-		for (File file : copiedFiles) {
-			Logger.defaultLogger.enterContext("RECOMPILING");
-			boolean success = compile(file);
-			if (success) {
-				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
-				successfulCompilesAfterTransform.add(file);
-			} else {
-				unsuccessfulCompilesAfterTransform.add(file);
-			}
-			Logger.defaultLogger.exitContext("RECOMPILING");
-		}
-
-		long endTime = System.currentTimeMillis();
-
-		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
-
-		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
-				+ "\nFiles suitable for SPF: " + spfSuitableFiles.size() + "\nMethods suitable for SPF: "
-				+ totalSpfSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
-				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
-				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
-				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
-				+ "\n\nTime: " + (endTime - startTime));
-
-		Logger.defaultLogger.exitContext("MAIN");
+		ArrayList<File> copiedFiles = copyFiles(suitableFiles, downloadDir, "suitablePrgms");
+//		ArrayList<File> successfulCompiles = new ArrayList<File>();
+//		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
+//		
+//		for (File file : copiedFiles) {
+//			Logger.defaultLogger.enterContext("COMPILING");
+//
+//			boolean success = compile(file);
+//			if (success) {
+//				compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
+//				successfulCompiles.add(file);
+//			} else {
+//				unsuccessfulCompiles.add(file);
+//			}
+//			Logger.defaultLogger.exitContext("COMPILING");
+//		}
+//
+//		secondCompile = true;
+//
+//		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
+//		transformer.transformFiles();
+//
+//		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
+//		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
+//		
+//		for (File file : copiedFiles) {
+//			Logger.defaultLogger.enterContext("RECOMPILING");
+//			boolean success = compile(file);
+//			if (success) {
+//				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
+//				successfulCompilesAfterTransform.add(file);
+//			} else {
+//				unsuccessfulCompilesAfterTransform.add(file);
+//			}
+//			Logger.defaultLogger.exitContext("RECOMPILING");
+//		}
+//
+//		long endTime = System.currentTimeMillis();
+//
+//		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
+//
+//		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
+//				+ "\nFiles suitable for SPF: " + suitableFiles.size() + "\nMethods suitable for SPF: "
+//				+ totalSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
+//				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
+//				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
+//				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
+//				+ "\n\nTime: " + (endTime - startTime));
+//
+//		Logger.defaultLogger.exitContext("MAIN");
 
 		printWriter.close();
 	}
@@ -228,7 +242,7 @@ public class Main {
 	 */
 	private static boolean compile(File file) throws IOException {
 
-		String command = "javac -g -d bin/ -cp .:/home/MariaPaquin/pathfinder/jpf-symbc/build/classes/ " + file;
+		String command = COMPILE + file;
 
 		boolean success = false;
 		try {

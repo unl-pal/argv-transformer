@@ -7,6 +7,8 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
@@ -28,8 +30,12 @@ import org.eclipse.jdt.core.dom.Type;
  *
  */
 public class TypeChecker {
-	private Set<String> javaImportTypes;
-	private Set<String> classTypes;
+	private static Set<String> javaImportTypes;
+	private static Set<String> classTypes;
+	
+	//those are collective types we area dealing with
+	//any means that the type is unknown
+	public enum CType {INT, REAL, STRING, BOOLEAN, ANY}
 
 	/**
 	 * Create a new TypeChecker.
@@ -57,7 +63,12 @@ public class TypeChecker {
 		classTypes.add(name);
 	}
 	
-	private boolean inJavaLangLibrary(Type type) {
+	
+	/*
+	 * Series of static methods that help with 
+	 * types.
+	 */
+	private static boolean inJavaLangLibrary(Type type) {
 		
 		if(!(type instanceof SimpleType)) return false;
 		Name name = ((SimpleType) type).getName();
@@ -111,7 +122,7 @@ public class TypeChecker {
 	 * @param type
 	 * @return true if the type is allowed, false otherwise.
 	 */
-	public boolean allowedType(Type type) {
+	public static boolean allowedType(Type type) {
 		if(type == null) return false;
 		
 		if(type.isArrayType()) {
@@ -135,6 +146,117 @@ public class TypeChecker {
 //				|| classTypes.contains(type.toString())
 //				|| inJavaLangLibrary(type));
 		return (type.isPrimitiveType());
+	}
+//-------------------------------------------------------------------------------------	
+	//eas taken from TransformVisitor and made it static
+	
+	public static CType checkType(Type type) {
+		CType ret = CType.ANY;
+		if(isIntegerType(type)) {
+			ret = CType.INT;
+		} else if(isBooleanType(type)) {
+			ret = CType.BOOLEAN;
+		} else if(isRealType(type)) {
+			ret = CType.REAL;
+		} else if(isStringType(type)) {
+			ret = CType.STRING;
+		}
+		
+		return ret;
+	}
+	
+	public static boolean isStringType(Type type) {
+		boolean ret = false;
+		if (type != null) {
+			if(type.isSimpleType()) {
+				Name name = ((SimpleType) type).getName();
+				if(name.isSimpleName()) {
+					SimpleName sName =  (SimpleName) name;
+					ret = sName.getIdentifier().contentEquals("String") || sName.getIdentifier().contentEquals("StringBuffer");
+				}
+			} else if (type.isPrimitiveType()) {
+				//checking for chars since it should be treated as string type
+			 ret = ((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.CHAR;
+			}
+		}
+		return ret;
+	}
+	
+	public static boolean isIntegerType(Type type) {
+		boolean ret = false;
+		if(type != null && type.isPrimitiveType()) {
+			Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+			if(typeCode == PrimitiveType.INT || 
+					typeCode == PrimitiveType.LONG ||
+					typeCode == PrimitiveType.SHORT || 
+					typeCode == PrimitiveType.BYTE) {
+				ret = true;
+			}
+		}
+		
+		return ret;
+	}
+	
+	public static boolean isRealType(Type type) {
+		boolean ret = false;
+		if(type != null && type.isPrimitiveType()) {
+			Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+			if(typeCode == PrimitiveType.DOUBLE || 
+					typeCode == PrimitiveType.FLOAT) {
+				ret = true;
+			}
+		}
+
+		return ret;
+	}
+	
+	public static boolean isBooleanType(Type type) {
+		boolean ret = false;
+		if(type != null && type.isPrimitiveType()) {
+			 ret = ((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.BOOLEAN;
+		}
+		return ret;
+	}
+	
+	public static boolean isVoidType(Type type) {
+		boolean ret = false;
+		if(type != null & type.isPrimitiveType()) {
+			 ret = ((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.VOID;
+		}
+		return ret;
+	}
+	
+	/**
+	 * Integer array type of desired dimension
+	 * @param type
+	 * @param dem - desired dimensions, >= 1
+	 * @return
+	 */
+	public static boolean isIntegerArrayType(Type type, int dim) {
+		type = arrayType(type,dim);
+		return isIntegerType(type);
+	}
+	
+	private static Type arrayType(Type type, int dim) {
+		Type ret = null;
+		if(type.isArrayType()) {
+			dim--;
+			type = ((ArrayType) type).getElementType();
+			while(dim > 0 && type.isArrayType()) {
+				type = ((ArrayType) type).getElementType();
+				dim--;
+			}
+			//went through all dimensions
+			if(dim == 0) {
+				ret = type;
+			}
+		}
+		return ret;
+	}
+	
+	public static boolean isRealArrayType(Type type, int dim) {
+		type = arrayType(type,dim);
+		return isRealType(type);
 	}
 	
 }

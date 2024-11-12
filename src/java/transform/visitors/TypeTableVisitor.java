@@ -15,6 +15,9 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
@@ -110,8 +113,7 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(CastExpression node) {
-		Expression expr = node.getExpression();
-		if (table.getNodeType(expr) != null) {
+		if (node.getType().isPrimitiveType()) {
 			table.setNodeType(node, node.getType());
 		}
 	}
@@ -187,29 +189,55 @@ public class TypeTableVisitor extends ASTVisitor {
 	 * 
 	 * }
 	 */
+	
+	@Override
+	public boolean visit(IfStatement node) {
+		Expression e = node.getExpression();
+		//it will always be of a boolean type
+		table.setNodeType(e, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+		//System.out.println("Setting " + e + " to boolean");
+		//System.out.println(table.getNodeType(e));
+		return true;
+	}
 
 	@Override
 	public void endVisit(InfixExpression node) {
+		ITypeBinding typeBinding = node.resolveTypeBinding();
+		if (typeBinding != null && typeBinding.isPrimitive()) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+		} else {
+			table.setNodeType(node, null);
+		}
+		
 		Expression lhs = node.getLeftOperand();
 		Expression rhs = node.getRightOperand();
 
 		Type lhsType = table.getNodeType(lhs);
 		Type rhsType = table.getNodeType(rhs);
 
-		if (lhsType == null || rhsType == null) {
+		//only set to null when no "upper" inference happened
+		if (table.getNodeType(node) == null && (lhsType == null || rhsType == null)) {
 			table.setNodeType(node, null);
 			return;
 		}
 
 		Operator op = node.getOperator();
+		//System.out.println("Types " + lhsType + " " + rhsType + "\t" + node);
 
 		// boolean operators
 		if (op == Operator.CONDITIONAL_AND || op == Operator.CONDITIONAL_OR || op == Operator.XOR
 				|| op == Operator.EQUALS || op == Operator.NOT_EQUALS) {
-			if (isBooleanTypeCode(lhsType) && isBooleanTypeCode(rhsType)) {
+			//why do we even check that? only boolean nodes can be there
+			//if (isBooleanTypeCode(lhsType) && isBooleanTypeCode(rhsType)) {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				//so are lhsType and rhsType
+				//but not for the case of equals and not-equals
+				if (!isNumericTypeCode(lhsType) && !isNumericTypeCode(rhsType)) {
+					table.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+					table.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+				}
 				return;
-			}
+			//}
 		}
 
 		// relational operators
@@ -219,6 +247,7 @@ public class TypeTableVisitor extends ASTVisitor {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 			}
 		}
+
 
 		// TODO: need to differentiate between precisions
 		// arithmetic operators, results in integer
@@ -243,15 +272,19 @@ public class TypeTableVisitor extends ASTVisitor {
 				table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
 		}
-
+		
 		// string concatenation
-		/*
-		 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
-		 * isStringType(rhsType)) { table.setNodeType(node,
-		 * ast.newSimpleType(ast.newSimpleName("String"))); } }
-		 */
-
+				/*
+				 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
+				 * isStringType(rhsType)) { table.setNodeType(node,
+				 * ast.newSimpleType(ast.newSimpleName("String"))); } }
+				 */
+		
+		
 	}
+
+		
+
 
 	@Override
 	public void endVisit(InstanceofExpression node) {
@@ -276,6 +309,7 @@ public class TypeTableVisitor extends ASTVisitor {
 		SymbolTable currScope = symbolTableStack.peek();
 		String name = getMethodSTEName(node);
 		MethodSTE sym = currScope.getMethodSTE(name);
+		//System.out.println("MD " + node.getName());
 		SymbolTable newScope = sym.getSymbolTable();
 		symbolTableStack.push(newScope);
 
@@ -304,17 +338,13 @@ public class TypeTableVisitor extends ASTVisitor {
 	public void endVisit(MethodInvocation node) {
 		
 		/*
-		 * Right now we are just removing all method invocations, so 
-		 * we set the type of the ast node to null (then it will be replaced).
-		 * 
-		 * In future implementation, when we check resolvability of a method 
-		 * invocation before removing it, we need to check the return type 
-		 * of the method being called.
+		 * Sets to the symbolic type if already assigned, otherwise sets it to the return
+		 * type of the MethodInvocation if it can be found
 		 * 
 		 * e.g., for the method invocation table.setNodeType(node, null), we'd 
 		 * need to look for the scope 'table' and find its method symbol table 
 		 * element 'setNodeType.' Then we set the type of table.setNodeType(node, null) 
-		 * to whatever the return type of 'sedtNodeType' is. 
+		 * to whatever the return type of 'setNodeType' is. 
 		 */
 		
 //		Expression expr = node.getExpression();
@@ -322,14 +352,36 @@ public class TypeTableVisitor extends ASTVisitor {
 //			table.setNodeType(node, null);
 //			return;
 //		}
+		String identifier = node.getName().getIdentifier();
+		if(identifier.contains("makeSymbolicInteger")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.INT));
+		} else if (identifier.equals("makeSymbolicBoolean")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+		} else if (identifier.equals("makeSymbolicReal")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+		} else if (identifier.equals("makeSymbolicFloat")) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.FLOAT));
+		} else {
+			IMethodBinding methodBinding = node.resolveMethodBinding();
+			if (methodBinding != null) {
+				ITypeBinding typeBinding = methodBinding.getReturnType();
+				if (typeBinding != null && typeBinding.isPrimitive()) {
+					table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+				}
+			} else {
+				table.setNodeType(node, null);
+			}
+		}
+		
+		
 //
 //		Type type = table.getNodeType(expr);
 //		if (type == null) {
 //			table.setNodeType(node, null);
 //			return;
 //		}
+		//System.out.println("Method invocation " + node.getExpression() + " " + node.getName().getIdentifier());
 		
-		table.setNodeType(node, null);
 	}
 
 	@Override
@@ -413,6 +465,9 @@ public class TypeTableVisitor extends ASTVisitor {
 		if (sym != null) {
 			type = sym.getVarType();
 		}
+//		if(name.contains("currentSize")) {
+//			System.out.println("SimpleName " + node + " " + node.getParent() + "\t" + type);
+//		}
 		table.setNodeType(node, type);
 		return true;
 	}
@@ -430,12 +485,14 @@ public class TypeTableVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeDeclaration node) {
+		node.resolveBinding();
 		if (node.isInterface()) {
 			return false;
 		}
 		SymbolTable currScope = symbolTableStack.peek();
 		ClassSTE sym = currScope.getClassSTE(node.getName().getIdentifier());
-
+		//System.out.println("Sym " + sym + "\t" + node.getName().getIdentifier() + "\t" + node.isLocalTypeDeclaration() + "\t" + node.isMemberTypeDeclaration());
+		//hack
 		SymbolTable newScope = sym.getSymbolTable();
 		symbolTableStack.push(newScope);
 		return true;
@@ -523,7 +580,7 @@ public class TypeTableVisitor extends ASTVisitor {
 	}
 	
 	private boolean isFloatingPointTypeCode(Type type) {
-		if (!type.isPrimitiveType())
+		if (type == null || !type.isPrimitiveType())
 			return false;
 		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
 		return (typeCode == PrimitiveType.FLOAT);

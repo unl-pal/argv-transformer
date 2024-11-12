@@ -14,11 +14,13 @@ public class AnalyzedMethod {
 	private String name;
 	private MethodDeclaration node;
 	private boolean hasParameters;
-	private boolean hasOnlyIntParameters;
-	private int intParameterCount;
-	private boolean hasIntOperations;
-	private int intOperationCount;
-	private boolean hasConditional;
+	private boolean hasOnlyTypeParameters;
+	private int typeParameterCount;
+	private boolean hasTypeOperations;
+	private int typeOperationCount;
+	private boolean hasTypeConditional;
+	private int typeConditionalCount;
+	private boolean hasLoop;
 
 		
 	public AnalyzedMethod(MethodDeclaration node) {
@@ -34,7 +36,7 @@ public class AnalyzedMethod {
 		return node;
 	}
 	
-	public boolean isHasParameters() {
+	public boolean hasParameters() {
 		return hasParameters;
 	}
 
@@ -42,37 +44,57 @@ public class AnalyzedMethod {
 		this.hasParameters = hasParameters;
 	}
 	
-	public void setHasOnlyIntParameters(boolean hasOnlyIntParameters) {
-		this.hasOnlyIntParameters = hasOnlyIntParameters;
+	public void setHasOnlyTypeParameters(boolean hasOnlyTypeParameters) {
+		this.hasOnlyTypeParameters = hasOnlyTypeParameters;
 	}
 	
-	public void setHasIntOperations(boolean hasIntOperations) {
-		this.hasIntOperations = hasIntOperations;
+	public void setHasTypeOperations(boolean hasTypeOperations) {
+		this.hasTypeOperations = hasTypeOperations;
 	}
 	
-	public int getIntOperationCount() {
-		return intOperationCount;
+	public int getTypeOperationCount() {
+		return typeOperationCount;
 	}
 	
-	public void setIntOperationCount(int intOperationCount) {
-		this.intOperationCount = intOperationCount;
+	public void setTypeOperationCount(int typeOperationCount) {
+		this.typeOperationCount = typeOperationCount;
 	}
 	
-	public int getIntParameterCount() {
-		return intParameterCount;
+	public int getTypeConditionalCount() {
+		return typeConditionalCount;
 	}
 	
-	public void setIntParameterCount(int intParameterCount) {
-		this.intParameterCount = intParameterCount;
+	public void setConditionalCount(int typeConditionalCount) {
+		this.typeConditionalCount = typeConditionalCount;
+	}
+	
+	public int getTypeParameterCount() {
+		return typeParameterCount;
+	}
+	
+	public void setTypeParameterCount(int typeParameterCount) {
+		this.typeParameterCount = typeParameterCount;
 	}
 	
 	public boolean isSymbolicSuitable() {
 //		return (hasParameters && hasOnlyIntParameters && hasConditional);
-		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
+		return (hasParameters && hasOnlyTypeParameters && hasTypeOperations);
 	}
 
-	public void setHasConditional(boolean hasConditional) {
-		this.hasConditional = hasConditional;
+	public void setHasTypeConditional(boolean hasTypeConditional) {
+		this.hasTypeConditional = hasTypeConditional;
 		
+	}
+	
+	public boolean isHasTypeConditional() {
+		return hasTypeConditional;
+	}
+	
+	public void setHasLoop(boolean hasLoop) {
+		this.hasLoop = hasLoop;
+	}
+	
+	public boolean isHasLoop() {
+		return hasLoop;
 	}
 }

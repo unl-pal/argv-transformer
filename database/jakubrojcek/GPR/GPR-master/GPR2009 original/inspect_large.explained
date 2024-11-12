@@ -1,0 +1,222 @@
+all variables now saved in 1 file:
+
+xx, Bt, Ht, 1 row per decision (except LARGE traders)
+
+columns xplained below.
+
+HIGHLIGHTED CHANGES:
+
+xx:  col 11 is new (and shifts all others by 1)
+Ht:  will have 4 columns for each RT bin 
+
+column in xx
+------------
+   1 = "period" counter: each period has ONE decision made by returning OR new trader
+   2 = initial "period" of current trader making a decision.   -1 if MM
+   3 = initial realtime of current trader                      -1 if MM
+   4 = current realtime
+   5 = realtime since last decision (0 if new arrival)
+   6 = traders private value, centered around current v which is always at (#ticks-1)/2
+   7 = last v observed, relative to current 
+   8 = trader type index (1,...,nTypes)
+   9 = trader book access (0= full, 1= quotes w/depth, 2= quotes only)
+  10 = trader vlag status (0 or nLag)
+  11 = #remaining shares to trade if LARGE.  (0 if small trader).  Inventory if MM.    (prior to this rows action)
+  12 = #variables which trader conditions upon to infer current v (0= none, 1= jumps (informed only),  2= also trans.prices, 3= also NetCumBuys)
+  13 = trader discount rate
+  14 = cum jumps since period 0
+  15 = ask  (infinite depth at nP)
+  16 = bid  (infinite depth at -1)
+  17 = ask depth ( <= 0 )
+  18 = bid depth ( >= 0 )
+  19 = total asks on book ( <= 0 )
+  20 = total bids on book ( >= 0 )
+  21 = E(payoff) of retaining order, -9 if new arrival, -99.9 if p out of range, or nonorder.  If LARGE then discounted CS thus far.
+  22 = p of current order,           -9 if new arrival
+  23 = q of current order,           -9 if new arrival
+  24 = j since last action,          -9 if new arrival.  Relative price when submitted = col22 + col24
+  25 = 2 if trader JUST trembled, 1 if trader EVER trembled, 0 if NEVER trembled
+  26 = action share 1 :  0 = No action,  <0 = sell at tick abs()-1  , >0 = buy at tick abs()-1, = nP+9 for Retain Current Order 
+  27 = E(payoff) of action
+  28 = E(v), relative to last observed  (col 7 + col 28 is traders E(v) relative to current.  Further adding the mean tick in grid puts this belief on the price grid.
+       processed share:  ( small traders only 1 SHARE.  large will report 1 share per row ) 
+       modified to be E(v) for an uninformed, regardless of current trader being informed or not.
+  29 = price  (bid quote if row for MM quotes, next col is the ask quote if MM quote row)
+  30 = volume (-2:limit sell, -1:market sell, 1:market buy, 2:limit buy, -10-nP :no action, -20-nP :no share, 0 :Non-Order or inactive LARGE)   
+  31 = IF MARKET: period in which executed limit order trader first arrived.
+       IF LIMIT:  E( payoff )
+       -1 if MM quote
+  32 = IF MARKET: cum ACTUAL jumps for executed limit trader (can differ from OBSERVED jumps if vlag>0).
+       IF LIMIT:  0.0 
+       -1 if MM quote
+
+  Non-Orders (no action now, but maybe later) are coded as LIMIT ORDERS at price = nP (remember, ticks are enumerated 0,...,nP-1)
+  Non-Orders have "volume" column (30) of 0, as opposed to -2,2 for limit sells,buys
+ 
+ History available to be used for conditioning.
+     Realtime cut into 1 bins.  Each bin has following 4 variables reported:
+ col (per RT bin) in variable  HT 
+----------------------------------
+   1 = RealTime "bin" far end point (near end point is either 0.0 or previous bins far endpoint)
+   2 = most recent transaction price (within this bin).  0 if no transaction (and 0 for signed order flow).
+   3 = cum net buys (within this bin)
+   4 = signed order flow of most recent transaction (within this bin).  0 if no transaction.
+ 
+ LARGE trader notes: 
+   Col 11 > 0 signals action by LARGE trader.  Col 11 refers to #shares INCLUDING the share for that row (hence minimium is 1).
+   The shares he starts with will be the max(Col 11).  All large start with same #shares to trade.
+ 
+   All book information (xx columns 15-20 & variable Bt) is PRIOR to execution of share for that row, but AFTER "earlier" shares at same instant.
+   For example, if 2 shares execute at given instant, the 1st share book info is prior to the "combined order" being submitted,
+   whereas the 2nd share book info is "intermediate" in that it reflects the state of the market AFTER the 1st share transacts.
+ 
+   Col 21 (retained order payoff for returning traders) reports, instead, discounted CS from all trades prior to current share.
+   Col 27 is sum of  (CONTINUATION value  +  disc.CS) after ALL current decision trades executed).  This col. is SAME for all trades this instant.
+   That is, Col 27 is the maximal value from the discrete optimization over #shares to buy/sell this instant.
+ 
+   Every decision by LARGE (in which shares remain after decision) will have a row with VOLUME(col.30)= 0 and -9 filler in col.29,31,32.
+   Of course, #rows no longer equals #decisions.
+
+-----------------------------------------------------------------------------------------------------
+
+Specifics regarding MM:
+
+Like LARGE, the MM may take more than one action each decision period.
+That is, he may be involved with more than one transaction.
+
+col: 2,3 are -1 for MM (
+
+
+
+-----------------------------------------------------------------------------------------------------
+summary stats:
+-----------------------------------------------------------------------------------------------------
+
+loading file:  ~/limitorder/proj/z8b0.sim
+ 
+  period #   period0    rtime0     rtime     since        PV    last v      type      book      vlag   z still       nHT       rho  cumjumps
+     col 1     col 2     col 3     col 4     col 5     col 6     col 7     col 8     col 9    col 10    col 11    col 12    col 13    col 14
+  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========
+    0.0000    0.0000    0.0000    0.0000    0.0000    3.0000    0.0000    0.0000    0.0000    0.0000    0.0000    2.0000    0.0500  -87.0000      0 percentile
+ 9963.0000 9963.0000 3681.2109 3681.2109    0.0000    9.0000    0.0000    0.0000    0.0000    0.0000    0.0000    2.0000    0.0500  -46.0000     10 percentile
+49985.000049967.000018128.826618136.9560    0.3943   15.1000    0.0000    0.0000    0.0000    0.0000    0.0000    2.0000    0.0500   10.0000     50 percentile
+89933.000089891.000032246.784332255.9939    5.3242   21.0000    0.0000    1.0000    0.0000    0.0000    2.0000    2.0000    0.0500   46.0000     90 percentile
+99999.000099999.000035705.661635705.6616   44.0350   27.0000    0.0000    1.0000    0.0000    0.0000    8.0000    2.0000    0.0500   64.0000    100 percentile
+
+49971.301149935.833718019.530918029.3346    1.7177   15.1196    0.0000    0.1567    0.0000    0.0000    0.5746    2.0000    0.0500    2.3252    mean      
+49971.301149935.833718019.530918029.3346    1.7177   15.1196    0.0000    0.1567    0.0000    0.0000    0.5746    2.0000    0.0500   30.7190    mean(abs) 
+28863.215128860.773510272.009810272.4642    2.9056    5.7770    0.0000    0.3635    0.0000    0.0000    1.5812    0.0000    0.0000   35.0072    std       
+99999.000099999.000035705.661635705.6616   44.0350   24.0000    0.0000    1.0000    0.0000    0.0000    8.0000    0.0000    0.0000  151.0000    range     
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.4641    share<0   
+    0.0000    0.0000    0.0000    0.0000    0.3428    0.0000    1.0000    0.8433    1.0000    1.0000    0.8433    0.0000    0.0000    0.0013    share=0   
+    1.0000    1.0000    1.0000    1.0000    0.6572    1.0000    0.0000    0.1567    0.0000    0.0000    0.1567    1.0000    1.0000    0.5346    share>0   
+    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    nobs      
+ 
+       ask       bid  askdepth  biddepth    # asks    # bids    w keep    p keep    q keep   j since   tremble   action1  w=payoff      E(v)
+    col 15    col 16    col 17    col 18    col 19    col 20    col 21    col 22    col 23    col 24    col 25    col 26    col 27    col 28
+  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========  ========
+   11.0000   -1.0000  -11.0000    0.0000  -20.0000    0.0000  -99.9000   -9.0000   -9.0000   -9.0000    0.0000  -20.0000    0.0819    0.0000      0 percentile
+   15.0000   -1.0000   -2.0000    0.0000   -7.0000    0.0000   -9.0000   -9.0000   -9.0000   -9.0000    0.0000  -18.0000    0.5097    0.0000     10 percentile
+   16.0000   14.0000   -1.0000    1.0000   -3.0000    3.0000    0.4949   10.0000    1.0000   -3.0000    0.0000   14.0000    1.1000    0.0000     50 percentile
+   31.0000   15.0000    0.0000    2.0000    0.0000    7.0000   18.5979   17.0000    2.0000    0.0000    0.0000   40.0000   21.6974    0.0000     90 percentile
+   31.0000   19.0000    0.0000   10.0000    0.0000   20.0000   73.0970   31.0000   15.0000    6.0000    2.0000   40.0000  104.3784    0.0000    100 percentile
+
+   18.0677   12.1402   -1.2161    1.2444   -3.1782    3.2184   -4.5051    3.0865   -3.6180   -4.5001    0.0194   10.4815    7.2078    0.0000    mean      
+   18.0677   12.4211    1.2161    1.2444    3.1782    3.2184   13.2279   12.0783    5.3738    4.6405    0.0194   20.0402    7.2078    0.0000    mean(abs) 
+    5.5624    5.4092    0.9161    0.9405    2.6479    2.6345   26.8359   12.1900    5.4440    4.5175    0.1767   21.7347   14.3608    0.0000    std       
+   20.0000   20.0000   11.0000   10.0000   20.0000   20.0000  172.9970   40.0000   24.0000   15.0000    2.0000   60.0000  104.2966    0.0000    range     
+    0.0000    0.1404    0.8481    0.0000    0.8481    0.0000    0.4008    0.4995    0.4995    0.5628    0.0000    0.2839    0.0000    0.0000    share<0   
+    0.0000    0.0000    0.1519    0.1404    0.1519    0.1404    0.0231    0.0000    0.0000    0.3767    0.9868    0.1150    0.0000    1.0000    share=0   
+    1.0000    0.8596    0.0000    0.8596    0.0000    0.8596    0.5761    0.5005    0.5005    0.0605    0.0132    0.6011    1.0000    0.0000    share>0   
+    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    nobs      
+ 
+  -------  1st share processed  --------
+  ========  ========  ========  ========
+   -9.0000   -2.0000   -9.0000   -9.0000      0 percentile
+   -9.0000   -2.0000   -9.0000   -9.0000     10 percentile
+   15.0000    0.0000    0.6639    0.0000     50 percentile
+   17.0000    2.000047787.0000    0.0000     90 percentile
+   31.0000    2.000099968.0000    5.0000    100 percentile
+
+   12.4196    0.0054 9609.3918   -0.9980    mean      
+   14.4142    1.5756 9611.3864    1.0404    mean(abs) 
+    7.7693    1.719623332.8123    2.8355    std       
+   40.0000    4.000099977.0000   14.0000    range     
+    0.1108    0.4413    0.1108    0.1288    share<0   
+    0.0000    0.1150    0.0000    0.8535    share=0   
+    0.8892    0.4437    0.8892    0.0177    share>0   
+    104185    104185    104185    104185    nobs      
+ 
+  -- History Avail. for Conditioning ---  4 columns per RT bin ...
+  RT endpt   last p   net buys last sign  RT endpt   last p   net buys last sign
+  ========  ========  ========  ========  ========  ========  ========  ========
+    8.0000    0.0000  -15.0000   -8.0000      0 percentile
+    8.0000   13.0000   -4.0000   -1.0000     10 percentile
+    8.0000   15.0000    0.0000    0.0000     50 percentile
+    8.0000   17.0000    3.0000    1.0000     90 percentile
+    8.0000   21.0000   16.0000    8.0000    100 percentile
+
+    8.0000   14.8751    0.0136   -0.0026    mean      
+    8.0000   14.8751    2.2203    1.0472    mean(abs) 
+    0.0000    1.9438    3.0683    1.1390    std       
+    0.0000   21.0000   31.0000   16.0000    range     
+    0.0000    0.0000    0.4112    0.4979    share<0   
+    0.0000    0.0102    0.1743    0.0103    share=0   
+    1.0000    0.9898    0.4144    0.4917    share>0   
+    104185    104185    104185    104185    nobs      
+
+ 
+  Book at each tick (0 to nP-1) : 
+ 
+   tick  0   tick  1   tick  2   tick  3   tick  4   tick  5   tick  6   tick  7   tick  8   tick  9   tick 10 
+   =======   =======   =======   =======   =======   =======   =======   =======   =======   =======   ======= 
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000       0 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000      10 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000      50 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000      90 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000    2.0000    2.0000    5.0000     100 percentile
+
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0001    0.0002    0.0011    0.0066     mean      
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0001    0.0002    0.0011    0.0066     mean(abs) 
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0082    0.0188    0.0357    0.0959     std       
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000    2.0000    2.0000    5.0000     range     
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000     share<0   
+    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    0.9999    0.9999    0.9990    0.9943     share=0   
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0001    0.0001    0.0010    0.0057     share>0   
+    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185     nobs      
+
+ 
+   tick 11   tick 12   tick 13   tick 14   tick 15   tick 16   tick 17   tick 18   tick 19   tick 20   tick 21
+   =======   =======   =======   =======   =======   =======   =======   =======   =======   =======   =======
+   -4.0000   -5.0000   -8.0000   -5.0000   -6.0000  -12.0000  -16.0000  -12.0000   -6.0000   -4.0000   -3.0000      0 percentile
+    0.0000    0.0000    0.0000    0.0000   -1.0000   -2.0000   -4.0000   -1.0000    0.0000    0.0000    0.0000     10 percentile
+    0.0000    0.0000    1.0000    1.0000    0.0000   -1.0000   -1.0000    0.0000    0.0000    0.0000    0.0000     50 percentile
+    0.0000    1.0000    4.0000    2.0000    1.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000     90 percentile
+    5.0000   12.0000   14.0000   12.0000    8.0000    7.0000    7.0000    5.0000    3.0000    0.0000    0.0000    100 percentile
+
+    0.0371    0.2616    1.5634    0.7786    0.0048   -0.7652   -1.5415   -0.2541   -0.0416   -0.0094   -0.0012    mean      
+    0.0383    0.2716    1.6892    0.8997    0.5708    0.9019    1.6996    0.2642    0.0424    0.0094    0.0012    mean(abs) 
+    0.2502    0.7827    1.8589    1.1716    0.8602    1.1933    1.8662    0.7646    0.2687    0.1135    0.0421    std       
+    9.0000   17.0000   22.0000   17.0000   14.0000   19.0000   23.0000   17.0000    9.0000    4.0000    3.0000    range     
+    0.0003    0.0032    0.0369    0.0528    0.2553    0.5029    0.6668    0.1493    0.0308    0.0079    0.0009    share<0   
+    0.9710    0.8436    0.2993    0.4329    0.4870    0.4383    0.2882    0.8473    0.9690    0.9921    0.9991    share=0   
+    0.0286    0.1531    0.6638    0.5144    0.2577    0.0588    0.0451    0.0034    0.0002    0.0000    0.0000    share>0   
+    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    104185    nobs      
+
+ 
+   tick 22   tick 23   tick 24   tick 25   tick 26   tick 27   tick 28   tick 29   tick 30
+   =======   =======   =======   =======   =======   =======   =======   =======   =======
+   -2.0000   -1.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000      0 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000     10 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000     50 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000     90 percentile
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    100 percentile
+
+   -0.0002   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    mean      
+    0.0002    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    mean(abs) 
+    0.0161    0.0031    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    std       
+    2.0000    1.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    range     
+    0.0001    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    share<0   
+    0.9999    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    share=0   
+    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    share>0   
+    104185    104185    104185    104185    104185    104185    104185    104185    104185    nobs      

@@ -59,7 +59,7 @@ public class RunJPF {
 
 		config.setProperty("symbolic.method", fullMethodName + symArgs);
 		config.setProperty("listener", ".symbc.SymbolicListener");
-		config.setProperty("symbolic.dp", "cvc3");
+		config.setProperty("symbolic.dp", "choco");
 
 		if (boundSearch) {
 			config.setProperty("search.depth_limit", "10");
@@ -149,9 +149,9 @@ public class RunJPF {
 		writer.append("project,package,class,method,time\n");
 		writer.flush();
 
-		writerGreen = new FileWriter("with-green.csv");
-		writerGreen.append("project,package,class,method,time_green\n");
-		writerGreen.flush();
+//		writerGreen = new FileWriter("with-green.csv");
+//		writerGreen.append("project,package,class,method,time_green\n");
+//		writerGreen.flush();
 		
 		errorLog = new FileWriter("errorLog.txt");
 		errorLog.flush();
@@ -165,7 +165,7 @@ public class RunJPF {
 		outCacheHits.close();
 		outInvocations.close();
 
-		String dirName = "/home/MariaPaquin/project/paclab-transformer.git/benchmarks/";
+		String dirName ="/Users/elenasherman/git/paclab-transformer/benchmarks"; // "/home/MariaPaquin/project/paclab-transformer.git/benchmarks/";
 		File dir = new File(dirName);
 
 		Iterator<File> file_itr = FileUtils.iterateFiles(dir, new String[] { "java" }, true);
@@ -192,11 +192,11 @@ public class RunJPF {
 			run(m);
 		}
 		
-		for(MethodUnderTest m: methodList) {
-			errorLog.append(m.getProjectName() + " " + m.getFullClassName() + " " + m.getMethodSig() + "\n");
-			errorLog.flush();
-			runGreen(m);
-		}
+//		for(MethodUnderTest m: methodList) {
+//			errorLog.append(m.getProjectName() + " " + m.getFullClassName() + " " + m.getMethodSig() + "\n");
+//			errorLog.flush();
+//			runGreen(m);
+//		}
 		
 	}
 
@@ -205,11 +205,12 @@ public class RunJPF {
 		String delims = "/";
 		String[] tokens = name.split(delims);
 		String projectName = tokens[6];
-		
+		System.out.println("Adding a " + file);
 		try {
 			ProgramUnderTest sut = new ProgramUnderTest(file);
+			System.out.println("Created sut" + file);
 			String fullClassName = sut.getFullClassName();
-
+			
 			sut.insertMain();
 
 			Method[] methods = sut.getMethods();
@@ -264,6 +265,7 @@ public class RunJPF {
 	private static void run(MethodUnderTest m) throws IOException {
 		try {
 			ProgramUnderTest sut = m.getProgramUnderTest();
+			System.out.println("SUT " + sut);
 			sut.insertMethodCall(m.getMethod(), m.getNumIntArgs());
 		} catch (ClassGenException e) {
 			errorLog.append(m.getFile() + "\n");

@@ -1,0 +1,67 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add New Enrollment"
+            android:onClick="onClickAddEnrollment" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:background="#ff2288ff">
+
+        <TextView
+            android:id="@+id/txtId"
+            android:text="ID"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" />
+        <TextView
+            android:id="@+id/txtIndexNo"
+            android:text="Index No"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txtId"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/txtAcYear"
+            android:text="Academic Year"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txtIndexNo"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/txtSemester"
+            android:text="Semester"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txtAcYear"
+            android:layout_centerVertical="true" />
+        <TextView
+            android:id="@+id/txtCourseCode"
+            android:text="Course Code"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txtSemester"
+            android:layout_centerVertical="true" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/enrollmentListView"
+        android:background="#ffdc86ff" />
+
+</LinearLayout>

@@ -1,0 +1,4 @@
+include ':app'
+
+include 'awesomematerial'
+project(':awesomematerial').projectDir = new File(settingsDir, '../AwesomeMaterial/awesomematerial')

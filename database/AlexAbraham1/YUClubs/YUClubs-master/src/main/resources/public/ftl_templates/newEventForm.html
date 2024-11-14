@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+	<head>
+		<title>New Event</title>
+		<link rel="stylesheet" type="text/css" href="css/ssNewEvent.css"/>
+	</head>
+	<body>
+		<div id="content">
+			<form id="newUser" action="http://129.98.153.24:4567/api/user/new/event" method="post">
+				<div id="head">
+					<h1>
+						<legend>New Event</legend>
+					</h1>
+				</div>
+				<h3>
+				<ul>
+					<li>
+						<label for="clubID">ClubID:</label>
+						<div class="infoBox">
+							<select>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
+								<option value="10">10</option>
+								<option value="11">11</option>
+								<option value="12">12</option>
+							</select>
+						</div>
+					</li>
+						<li>
+						<label for="flyer">Flyer:</label>
+						<div class="infoBox">
+							<input id="flyer" name="flyer" type="text" />
+						</div>
+					</li>
+					<li>
+						<label for="eventName">Event Name:</label>
+						<div class="infoBox">
+							<input id="eventName" name="eventName" type="text" />
+						</div>
+					</li>
+					<li>
+						<label for="eventDescription">Description:</label>
+						<div class="infoBox">
+							<input id="eventDescription" name="eventDescription" type="text" />
+						</div>
+					</li>
+					<li>
+						<label for="eventDate">Date:</label>
+						<div class="infoBox">
+							<input id="eventDate" name="eventDate" type="Date" />
+						</div>
+					</li>
+					<li>
+						<label for="eventTime">Time:</label>
+						<div class="infoBox">
+							<input id="eventTime" name="eventTime" type="time" />
+						</div>
+					</li>
+					<li>
+						<label for="location">Location:</label>
+						<div class="infoBox">
+							<input id="location" name="location" type="text" />
+						</div>
+					</li>
+				
+					</ul>
+					
+						<div id="button">
+							<input id="submit" name="submit" type="submit" value="Submit" />
+						</div>
+		
+				</h3>
+			</form>
+		</div>
+	</body>
+</html>

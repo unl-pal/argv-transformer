@@ -1,0 +1,14 @@
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/linearLayout1" android:background="@drawable/back" android:orientation="vertical">
+        <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout2" android:layout_marginTop="60dip">
+            <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableTop="@drawable/medicalbag" android:text="@string/new_cas" android:textColor="@color/text_vert" android:textStyle="bold" android:textSize="24px" android:id="@+id/btn_investigation"></Button>
+        </LinearLayout>
+        <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout3">
+            <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableTop="@drawable/cloud" android:textColor="@color/text_vert" android:textStyle="bold" android:textSize="24px" android:id="@+id/btn_sync_center" android:text="@string/sync_d"></Button>
+            <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableTop="@drawable/barcode" android:textColor="@color/text_vert" android:textStyle="bold" android:textSize="24px" android:id="@+id/btn_settings" android:text="@string/infos"></Button>
+        </LinearLayout>
+        <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/linearLayout4">
+            <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableTop="@drawable/chat" android:textColor="@color/text_vert" android:textStyle="bold" android:textSize="24px" android:text="@string/facts" android:id="@+id/btn_all_quotes"></Button>
+            <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableTop="@drawable/group" android:textColor="@color/text_vert" android:textStyle="bold" android:textSize="24px" android:text="@string/liste" android:id="@+id/btn_stored_cases" android:layout_marginBottom="5dip"></Button>
+        </LinearLayout>
+    </LinearLayout>

@@ -1,0 +1,55 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package adlatm;
+
+/**
+ *
+ * @author Cuong Tran
+ */
+public component class ATMSystem {
+	
+	/**
+	 * Create port for provided services of ATM System
+	 */
+	public port start {
+		provides void show();
+	}
+	/**
+	 * Create port for required services
+	 * associated with bank connection
+	 */
+	public port bankConnection {
+		requires void withdraw ();
+		requires void deposit ();		
+		requires void balance ();
+	}
+	
+	// Declares sub-components and initialize them
+	private final Bank bank = new Bank();
+	private final CardReader reader = new CardReader();	
+	private final UI ui = new UI();
+	
+	// Defines port connections and forwardings
+	// Set the different connection between port with set statement
+	connect ui.bankConnection, bank.services;
+	connect ui.cardReaderConnection, reader.out;
+	
+	// Glue is used to connect one port to another without instatiate any component
+	// Is pass-through port connection
+	glue start to ui.out;
+	
+	/**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+		System.out.println ("ATM System Start");
+		// Declare and instatiate the ATM System		
+		ATMSystem atm = new ATMSystem();
+		
+		// Call the port 'start' and the service 'show'
+        atm.start.show();
+		System.out.println ("ATM System Stop");
+    }
+}

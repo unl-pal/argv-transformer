@@ -1,0 +1,24 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+before_install:
+
+script:
+  # clean up everything first
+  - ant -f build.xml real-clean
+
+  # Compile the project
+  - ant -f build.xml compile
+
+  # Run *all* tests
+  - ant -f build.xml -Dtest.excludegroups="" test
+
+  # package it (this should never fail..)
+  - ant -f build.xml package
+
+os:
+  - linux
+
+sudo: required

@@ -31,8 +31,7 @@ public final class SpdyStream {
    */
   /** PACLab: suitable */
  public synchronized Object getResponseHeaders() throws Exception {
-    Random rand = new Random();
-	boolean responseHeaders = rand.nextBoolean();
+    boolean responseHeaders = Verifier.nondetBoolean();
 	int readTimeoutMillis = Verifier.nondetInt();
 	long remaining = 0;
     long start = 0;
@@ -41,7 +40,7 @@ public final class SpdyStream {
       remaining = readTimeoutMillis;
     }
     try {
-      while (rand.nextBoolean()) {
+      while (Verifier.nondetBoolean()) {
         if (readTimeoutMillis == 0) {
         } else if (remaining > 0) {
           remaining = start + readTimeoutMillis - Verifier.nondetInt();
@@ -141,8 +140,8 @@ public final class SpdyStream {
      * that happens.
      */
     private void waitUntilReadable() throws Exception {
-      boolean closed = rand.nextBoolean();
-		boolean finished = rand.nextBoolean();
+      boolean closed = Verifier.nondetBoolean();
+		boolean finished = Verifier.nondetBoolean();
 		int pos = Verifier.nondetInt();
 		int readTimeoutMillis = Verifier.nondetInt();
 	long start = 0;
@@ -152,7 +151,7 @@ public final class SpdyStream {
         remaining = readTimeoutMillis;
       }
       try {
-        while (pos == -1 && !finished && !closed && rand.nextBoolean()) {
+        while (pos == -1 && !finished && !closed && Verifier.nondetBoolean()) {
           if (readTimeoutMillis == 0) {
           } else if (remaining > 0) {
             remaining = start + readTimeoutMillis - Verifier.nondetInt();

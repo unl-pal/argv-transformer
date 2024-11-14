@@ -30,20 +30,20 @@ public final class ResponseHeaders {
  private long computeFreshnessLifetime() {
     int sentRequestMillis = Verifier.nondetInt();
 	int receivedResponseMillis = Verifier.nondetInt();
-	boolean expires = rand.nextBoolean();
+	boolean expires = Verifier.nondetBoolean();
 	int maxAgeSeconds = Verifier.nondetInt();
 	if (maxAgeSeconds != -1) {
       return Verifier.nondetInt();
     } else if (expires != null) {
-      long servedMillis = rand.nextBoolean() ? Verifier.nondetInt() : receivedResponseMillis;
+      long servedMillis = Verifier.nondetBoolean() ? Verifier.nondetInt() : receivedResponseMillis;
       long delta = Verifier.nondetInt() - servedMillis;
       return delta > 0 ? delta : 0;
-    } else if (rand.nextBoolean()) {
+    } else if (Verifier.nondetBoolean()) {
       // As recommended by the HTTP RFC and implemented in Firefox, the
       // max age of a document should be defaulted to 10% of the
       // document's age at the time it was served. Default expiration
       // dates aren't used for URIs containing a query.
-      long servedMillis = rand.nextBoolean() ? Verifier.nondetInt() : sentRequestMillis;
+      long servedMillis = Verifier.nondetBoolean() ? Verifier.nondetInt() : sentRequestMillis;
       long delta = servedMillis - Verifier.nondetInt();
       return delta > 0 ? (delta / 10) : 0;
     }

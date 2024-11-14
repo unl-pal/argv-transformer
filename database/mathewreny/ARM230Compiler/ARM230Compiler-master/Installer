@@ -1,0 +1,48 @@
+#!/bin/bash
+echo Installing...
+echo Creating temporary installation folder.
+mkdir Install_Folder
+echo Placing files into Install_Folder...
+unzip .Install_Files_Zip.zip -d Install_Folder
+echo Making Program_Files, InputFolder, and Help folders...
+mkdir Program_Files
+mkdir InputFolder
+mkdir Help
+echo Populating Program_Files folder with correct directories...
+mkdir Program_Files/classes
+mkdir Program_Files/classes/cse
+mkdir Program_Files/classes/cse/unl
+mkdir Program_Files/source
+mkdir Program_Files/source/cse
+mkdir Program_Files/source/cse/unl
+echo Populating Program_Files/source/cse/unl with .java files...
+cp Install_Folder/java_files/*.java Program_Files/source/cse/unl/
+echo Compiling source files into .class files...
+cd Program_Files/source/
+if [ $1 -eq "-w" ]
+then
+	echo Configuring Compiler.java for use with windows/jGrasp
+	grep -rl '//REPLACEARGSHC' ./cse/unl/ | xargs sed -i 's/\/\/REPLACEARGSHC/String/g'
+	grep -rl 'REPLACEARGSINIT' ./cse/unl/ | xargs sed -i 's/REPLACEARGSINIT/argsHC/g'
+	grep -rl 'REPLACEINITS230' ./cse/unl/ | xargs sed -i 's/REPLACEINITS230/InitS230WIN/g'
+else
+	echo Configuring Compiler.java for use with linux
+	grep -rl 'REPLACEARGSINIT' ./cse/unl/ | xargs sed -i 's/REPLACEARGSINIT/argsHC/g'
+	grep -rl '//REPLACEARGSCL' ./cse/unl/ | xargs sed -i 's/\/\/REPLACEARGSCL/String/g'
+	grep -rl 'REPLACEINITS230' ./cse/unl/ | xargs sed -i 's/REPLACEINITS230/InitS230/g'
+fi
+javac cse/unl/*.java
+echo Moving .class files to the classes folder...
+mv cse/unl/*.class ../classes/cse/unl/
+echo Setting permissions for the Compile program...
+cd ..
+cd ..
+mv Installation_Folder/Compile .
+chmod 775 Compile
+echo Finishing up installation.
+rm README.txt
+mv Install_Folder/README.txt .
+rm -rf Install_Folder/
+#rm .Install_Files_Zip.zip  DECIDED NOT TO DO THIS SINCE THERE MIGHT NEED TO BE A REINSTALLATION!
+rm Program_Files/source/cse/unl/*.class
+echo Done!

@@ -31,22 +31,21 @@ public class DiskBasedCache {
      */
     /** PACLab: suitable */
 	 private void pruneIfNeeded(int neededSpace) {
-        Random rand = new Random();
-		float HYSTERESIS_FACTOR = rand.nextFloat();
+        float HYSTERESIS_FACTOR = Verifier.nondetFloat();
 		int mMaxCacheSizeInBytes = Verifier.nondetInt();
 		int mTotalSize = Verifier.nondetInt();
 		if ((mTotalSize + neededSpace) < mMaxCacheSizeInBytes) {
             return;
         }
-        if (rand.nextBoolean()) {
+        if (Verifier.nondetBoolean()) {
         }
 
         long before = mTotalSize;
         int prunedFiles = 0;
         long startTime = Verifier.nondetInt();
 
-        while (rand.nextBoolean()) {
-            boolean deleted = rand.nextBoolean();
+        while (Verifier.nondetBoolean()) {
+            boolean deleted = Verifier.nondetBoolean();
             if (deleted) {
                 mTotalSize -= Verifier.nondetInt();
             } else {
@@ -58,7 +57,7 @@ public class DiskBasedCache {
             }
         }
 
-        if (rand.nextBoolean()) {
+        if (Verifier.nondetBoolean()) {
         }
     }
 

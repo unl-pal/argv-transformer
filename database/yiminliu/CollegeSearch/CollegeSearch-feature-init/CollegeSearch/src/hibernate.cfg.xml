@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- DB connection settings -->
+        <property name="hibernate.connection.driver_class">org.gjt.mm.mysql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/school_search</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">root</property> 
+      
+        <!--  SQL dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        
+        <!-- JDBC Connection pooling settings -->
+        <property name="hibernate.c3p0.max_size">3</property>
+        <property name="hibernate.c3p0.min_size">0</property>
+        <property name="hibernate.c3p0.timeout">1000</property>
+        <property name="hibernate.c3p0.max_statements">100</property>
+        <property name="hibernate.c3p0.idle_test_period">300</property>
+        <property name="hibernate.c3p0.acquire_increment">2</property>
+        
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+        <!-- Disable the second-level cache -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+        <property name = "hibernate.query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</property> 
+        
+        <!--Automatically exports schema DDL to the database when the SessionFactory is created. With create-drop, the database schema will be dropped when the SessionFactory is closed explicitly. -->
+        <!--<property name="hibernate.hbm2ddl.auto">create-drop</property>-->
+        
+        <!-- Echo all executed SQL to stdout -->
+        <!--<property name="show_sql">true</property>-->
+        <property name="format_sql">true</property>
+        
+        <property name="hibernate.generate_statistics">true</property>
+
+        <property name="hibernate.default_batch_fetch_size">8</property>
+   
+        <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+            <property name="configLocation" value="classpath:hibernate.cfg.xml" />
+        </bean>
+        
+                    
+        <!-- For JPA annotations -->
+        <mapping class="domain.Address" />        
+        <!--<mapping resource="domain/Address.hbm.xml"/>-->
+        <mapping resource="domain/SchoolExpense.hbm.xml"/>
+        <mapping resource="domain/BestMajors.hbm.xml"/> 
+        <mapping resource="domain/TestingScore.hbm.xml"/>
+        <mapping resource="domain/School.hbm.xml"/>  
+        <!--<mapping resource="domain/Applicant.hbm.xml"/>-->   
+   
+   </session-factory>
+    
+</hibernate-configuration>

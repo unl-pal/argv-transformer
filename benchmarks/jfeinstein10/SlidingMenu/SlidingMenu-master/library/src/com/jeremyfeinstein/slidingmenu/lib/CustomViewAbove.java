@@ -24,9 +24,9 @@ public class CustomViewAbove {
 	/** PACLab: suitable */
 	 void smoothScrollTo(int x, int y, int velocity) {
 		int MAX_SETTLE_DURATION = Verifier.nondetInt();
-		boolean mScrolling = rand.nextBoolean();
-		boolean mClosedListener = rand.nextBoolean();
-		boolean mOpenedListener = rand.nextBoolean();
+		boolean mScrolling = Verifier.nondetBoolean();
+		boolean mClosedListener = Verifier.nondetBoolean();
+		boolean mOpenedListener = Verifier.nondetBoolean();
 		if (Verifier.nondetInt() == 0) {
 			return;
 		}
@@ -35,7 +35,7 @@ public class CustomViewAbove {
 		int dx = x - sx;
 		int dy = y - sy;
 		if (dx == 0 && dy == 0) {
-			if (rand.nextBoolean()) {
+			if (Verifier.nondetBoolean()) {
 				if (mOpenedListener != null) {
 				}
 			} else {
@@ -49,7 +49,7 @@ public class CustomViewAbove {
 
 		final int width = Verifier.nondetInt();
 		final int halfWidth = width / 2;
-		final float distanceRatio = rand.nextFloat();
+		final float distanceRatio = Verifier.nondetFloat();
 		final float distance = halfWidth + halfWidth *
 				Verifier.nondetInt();
 
@@ -58,7 +58,7 @@ public class CustomViewAbove {
 		if (velocity > 0) {
 			duration = 4 * Verifier.nondetInt();
 		} else {
-			final float pageDelta = (float) rand.nextFloat() / width;
+			final float pageDelta = (float) Verifier.nondetFloat() / width;
 			duration = (int) ((pageDelta + 1) * 100);
 			duration = MAX_SETTLE_DURATION;
 		}

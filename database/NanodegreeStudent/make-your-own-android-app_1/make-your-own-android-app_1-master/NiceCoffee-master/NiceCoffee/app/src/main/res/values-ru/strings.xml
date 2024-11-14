@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NiceCoffee</string>
+    <string name="action_example">ЗАМЕНИТЬ</string>
+    <string name="action_settings">Настройки</string>
+    <string name="drawer_catalog">Каталог</string>
+    <string name="drawer_catalog_1">Кофе</string>
+    <string name="drawer_catalog_10">Ремонт кофемашин</string>
+    <string name="drawer_catalog_11">Trade in</string>
+    <string name="drawer_catalog_12">Спецпредложения</string>
+    <string name="drawer_catalog_2">Кофемашины</string>
+    <string name="drawer_catalog_3">Расходные материалы</string>
+    <string name="drawer_catalog_4">Сиропы</string>
+    <string name="drawer_catalog_5">Подарочные наборы</string>
+    <string name="drawer_catalog_6">Сладости</string>
+    <string name="drawer_catalog_7">Аксессуары</string>
+    <string name="drawer_catalog_8">Чай</string>
+    <string name="drawer_catalog_9">Аренда кофемашин</string>
+    <string name="drawer_head">Найс Кофе</string>
+    <string name="drawer_main_1">Личный кабинет</string>
+    <string name="drawer_main_2">Контакты</string>
+    <string name="drawer_main_4">О нас</string>
+    <string name="navigation_drawer_close">ЗАМЕНИТЬ</string>
+    <string name="navigation_drawer_open">ЗАМЕНИТЬ</string>
+    <string name="cart">Корзина</string>
+    <string name="search">Поиск</string>
+    <string name="action_buy">Купить</string>
+    <string name="first_run_head">Первый запуск</string>
+    <string name="first_run_later">Позже</string>
+    <string name="first_run_now">Сейчас</string>
+    <string name="first_run_text">Приложению нужно скачать данные из интернета, нажмите Сейчас, чтобы выполнить скачивание сейчас, или Позже, чтобы выполнить скачивание позже</string>
+</resources>

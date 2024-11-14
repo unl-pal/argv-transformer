@@ -1,0 +1,31 @@
+-- SMP ARM230Compiler generated Memory Initialization File (.mif)
+-- Works with the University Of Nebraska CSCE230 Class Processor
+
+WIDTH=24;                    -- The size of memory in words
+DEPTH=1024;                  -- The size of data in bits
+
+ADDRESS_RADIX = UNS;         -- The radix for address values
+DATA_RADIX = BIN;            -- The radix for data values
+
+%
+	The following is a table of locations and their addresses
+		| Name           | Address     |
+		| location1      | 2           |
+		| end            | 4           |
+
+	The following is a table of constants and their values
+		| Name           | Value       |
+		| BOARDSWITCH    | 32768       |
+		| BOARDKEY       | 16384       |
+		| BOARDHEX0      | 8192        |
+		| BOARDLEDGREEN  | 4096        |
+		| mass_of_mat    | 123         |
+%
+
+CONTENT BEGIN
+          0  :  000000000000000000000000; --Memory address : data
+          1  :  110011100010001100001010;	--Command:(addi r3 r2 5)
+          2  :  100111100011001000000000;	--Command:(sw r2 r3 0)
+          3  :  000011101111111111111110;	--Command:(b -2 location1)
+  [4..1023]  :  000000000000000000000000; --Fill out rest of memory
+END;

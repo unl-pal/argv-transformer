@@ -52,7 +52,7 @@ public class StrictLineReader {
 	int LF = Verifier.nondetInt();
 	int end = Verifier.nondetInt();
 	int pos = Verifier.nondetInt();
-	boolean buf = rand.nextBoolean();
+	boolean buf = Verifier.nondetBoolean();
 	synchronized (in) {
       if (buf == null) {
         throw new IOException("LineReader is closed");

@@ -70,10 +70,9 @@ public class RecoveryHandlerTest {
 	/** PACLab: suitable */
 	 public void powerOnvHost() throws Exception {
 		
-		Random rand = new Random();
 		for(int index=0;index<Verifier.nondetInt();index++){
-			if(rand.nextBoolean()){
-				while (rand.nextBoolean()) {
+			if(Verifier.nondetBoolean()){
+				while (Verifier.nondetBoolean()) {
 				}
 				
 				if(vm.getSummary().runtime.powerState == vm.getSummary().runtime.powerState.poweredOn){
@@ -81,7 +80,7 @@ public class RecoveryHandlerTest {
 				}
 				
 				for(int i=0;i<15;i++){
-					while (rand.nextBoolean()) {
+					while (Verifier.nondetBoolean()) {
 				}
 				
 				if(taskvm.getTaskInfo().state == taskvm.getTaskInfo().state.success) {

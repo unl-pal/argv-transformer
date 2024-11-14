@@ -18,11 +18,10 @@ public class HearSpectralFilter
 	/** PACLab: suitable */
 	 private void test() throws Exception
 	{
-		Random rand = new Random();
-		boolean recorder = rand.nextBoolean();
+		boolean recorder = Verifier.nondetBoolean();
 		int NUM_FFTS = Verifier.nondetInt();
-		boolean useProcessor = rand.nextBoolean();
-		boolean useRecorder = rand.nextBoolean();
+		boolean useProcessor = Verifier.nondetBoolean();
+		boolean useRecorder = Verifier.nondetBoolean();
 		if( useRecorder )
 		{
 		}
@@ -55,7 +54,7 @@ public class HearSpectralFilter
 		// Sleep while the sound is generated in the background.
 		try
 		{
-			double time = rand.nextDouble();
+			double time = Verifier.nondetDouble();
 		} catch( InterruptedException e )
 		{
 		}

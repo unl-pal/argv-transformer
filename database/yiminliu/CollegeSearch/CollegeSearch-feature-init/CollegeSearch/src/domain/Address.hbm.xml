@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain" auto-import="true">
+   <class name="Address" table="Address">
+      <id name="addressId" column="Address_Id" type="long">
+          <generator class="native" />
+      </id>
+      <property name="streetAddress" column="Street_Address" type="string" not-null="true"/>
+      <property name="city" column="City" type="string" not-null="true" />
+      <property name="state" column="State" type="string" not-null="true"/>
+      <property name="zipCode" column="Zip_Code" type="string" />
+      <property name="country" type="string">
+         <column name="Country"  default="'USA'"/>
+      </property>
+      <property name="location" 
+              formula="Street_Address+' '+ City + ', ' + State+ ' '+Zip_Code"
+              type="string" />
+    
+      <!-- bidirectional one-to-one association -->          
+      <!--<one-to-one name="school" class="School" constrained="true"/>-->
+    </class>
+</hibernate-mapping>  

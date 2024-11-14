@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/JSP/TagLibraryDescriptor"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+	<tlib-version>1.0</tlib-version>
+	<uri>/WEB-INF/tags/tag.tld</uri>
+	
+	<tag-file>
+		<name>captcha</name>
+		<path>/WEB-INF/tags/captcha.tag</path>
+		<body-content>empty</body-content>
+	</tag-file>
+	
+	<tag-file>
+		<name>login</name>
+		<path>/WEB-INF/tags/login.tag</path>
+		<body-content>empty</body-content>
+	</tag-file>
+	
+	<tag-file>
+		<name>locale</name>
+		<path>/WEB-INF/tags/locale.tag</path>
+		<body-content>empty</body-content>
+	</tag-file>
+	
+	<function>
+        <name>contains</name>
+        <function-class>com.company.util.JspUtil</function-class>
+        <function-signature>boolean contains(java.util.List, java.lang.Object)
+        </function-signature>
+    </function>
+    
+    <function>
+        <name>changePage</name>
+        <function-class>com.company.util.JspUtil</function-class>
+        <function-signature>String changePage(java.lang.String, java.lang.Integer)
+        </function-signature>
+    </function>
+    
+    <function>
+        <name>changeLang</name>
+        <function-class>com.company.util.JspUtil</function-class>
+        <function-signature>String changeLang(java.lang.String, java.lang.String)
+        </function-signature>
+    </function>
+    
+</taglib>

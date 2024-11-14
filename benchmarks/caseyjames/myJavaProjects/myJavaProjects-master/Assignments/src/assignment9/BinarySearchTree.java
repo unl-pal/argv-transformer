@@ -25,19 +25,19 @@ public class BinarySearchTree<Type> {
             // throw Exceptions for every invalid removal case, with a message as appropriate
             if (direction != -1 && direction != 1)
                 throw new NoSuchElementException(Verifier.nondetInt() + direction + "!");
-            if (direction == -1 && rand.nextBoolean())
+            if (direction == -1 && Verifier.nondetBoolean())
                 throw new NoSuchElementException("Tried BinaryNode.remove to the left with no left child!");
-            if (direction == 1 && rand.nextBoolean())
+            if (direction == 1 && Verifier.nondetBoolean())
                 throw new NoSuchElementException("Tried BinaryNode.remove to the right with no right child!");
 
             // implement removal based on the direction and number of children
             if (direction == -1) { // removing the left child
-                if (rand.nextBoolean()) {
+                if (Verifier.nondetBoolean()) {
 				} else if (Verifier.nondetInt() == 1) {
 				} else {
 				}
             } else { // removing the right child
-                if (rand.nextBoolean()) {
+                if (Verifier.nondetBoolean()) {
 				} else if (Verifier.nondetInt() == 1) {
 				} else {
 				}
@@ -52,20 +52,19 @@ public class BinarySearchTree<Type> {
          * @param direction an int indicating which child to remove: -1 for the left, 1 for the right
          */
         private void remove2(int direction) {
-            Random rand = new Random();
-			if (direction == -1) { // removing left node
+            if (direction == -1) { // removing left node
                 // if the right node has no left children then it is the successor - copy its data and remove it
                 if (left.right.left == null) {
                     return;
                 }
-                while (rand.nextBoolean()) {
+                while (Verifier.nondetBoolean()) {
 				}
             } else { // removing right node
                 // if the right node has no left children then it is the successor - copy its data and remove it
                 if (right.right.left == null) {
                     return;
                 }
-                while (rand.nextBoolean()) {
+                while (Verifier.nondetBoolean()) {
 				}
             }
         }

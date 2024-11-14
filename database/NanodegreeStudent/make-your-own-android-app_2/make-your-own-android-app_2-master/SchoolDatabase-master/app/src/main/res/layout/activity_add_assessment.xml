@@ -1,0 +1,85 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffd995ff">
+
+    <TextView android:text="@string/desc_activity_add_assessment" android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Index Number" />
+    <EditText
+        android:id="@+id/txtIndexNo"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Academic Year" />
+    <EditText
+        android:id="@+id/txtAcYear"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Semester" />
+    <EditText
+        android:id="@+id/txtSemester"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Course Code" />
+    <EditText
+        android:id="@+id/txtCourseCode"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Attendance" />
+    <EditText
+        android:id="@+id/txtAttendance"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Course Work/Mid-Semester Score" />
+    <EditText
+        android:id="@+id/txtMidSemester"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Final Exam Score" />
+    <EditText
+        android:id="@+id/txtFinalExam"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent" />
+
+    <Button
+        android:text="Add Assessment"
+        android:id="@+id/btnAdd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickAddAssessment" />
+    <Button
+        android:text="View Assessments"
+        android:id="@+id/btnRetrieve"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClickRetrieveAssessments" />
+
+</LinearLayout>
+</ScrollView>

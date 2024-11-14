@@ -23,7 +23,7 @@ public final class HttpTransport {
   /** PACLab: suitable */
  public Object createRequestBody() throws Exception {
     int DEFAULT_CHUNK_LENGTH = Verifier.nondetInt();
-	boolean chunked = rand.nextBoolean();
+	boolean chunked = Verifier.nondetBoolean();
     if (!chunked
         && Verifier.nondetInt() > 0
         && Verifier.nondetInt() != 0) {
@@ -83,7 +83,7 @@ public final class HttpTransport {
     public int read(byte[] buffer, int offset, int count) throws Exception {
       int NO_CHUNK_YET = Verifier.nondetInt();
 		int bytesRemainingInChunk = Verifier.nondetInt();
-		boolean hasMoreChunks = rand.nextBoolean();
+		boolean hasMoreChunks = Verifier.nondetBoolean();
 	if (!hasMoreChunks) {
         return -1;
       }

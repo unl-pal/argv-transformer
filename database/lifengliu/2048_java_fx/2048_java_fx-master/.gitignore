@@ -1,0 +1,6 @@
+nbactions.xml
+/target/
+*.class
+*.jar
+*.zip
+

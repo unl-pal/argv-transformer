@@ -1,0 +1,37 @@
+-- SMP ARM230Compiler generated Memory Initialization File (.mif)
+-- Works with the University Of Nebraska CSCE230 Class Processor
+
+WIDTH=24;                    -- The size of memory in words
+DEPTH=1024;                  -- The size of data in bits
+
+ADDRESS_RADIX = UNS;         -- The radix for address values
+DATA_RADIX = BIN;            -- The radix for data values
+
+CONTENT BEGIN
+ 	0			 : 	000000000000000000000000; --Memory address : data
+ 	1			 : 	011000000000000000000011; --SKIP CONSTANTS!
+ 	2			 : 	000000000000111110110111; --Constant with value 4023
+ 	3			 : 	000000000000000000101011; --Constant with value 43
+ 	4			 : 	111111111111111110100100; --Constant with value -92
+ 	5			 : 	011000000000000000011101;	--Command:(j 29)
+ 	6			 : 	110011100011001001010000;	--Command:(addi r2 r3 40)
+ 	7			 : 	111011100010100100000001;	--Command:(cmp r2 r9)
+ 	8			 : 	000000010000000000000100;	--Command:(bne 4)
+ 	9			 : 	100011100000001000000100;	--Command:(lw r2 r0 2)
+ 	10			 : 	101011100010101000111000;	--Command:(add r3 r2 r10)
+ 	11			 : 	101011101100001101010000;	--Command:(sub r5 r12 r3)
+ 	12			 : 	101011100011000011000100;	--Command:(and r12 r3 r0)
+ 	13			 : 	101011100101010101010110;	--Command:(or r5 r5 r5)
+ 	14			 : 	111011100101011000000001;	--Command:(cmp r5 r6)
+ 	15			 : 	111111100011000000000000;	--Command:(jr r3)
+ 	16			 : 	100011100101000100010100;	--Command:(lw r1 r5 10)
+ 	17			 : 	100111100010101001101010;	--Command:(sw r10 r2 53)
+ 	18			 : 	000011101111111111001110;	--Command:(b -50)
+ 	19			 : 	010011101111111111111001;	--Command:(bal -7)
+ 	20			 : 	011000000000000001100100;	--Command:(j 100)
+ 	21			 : 	001000000000001111101000;	--Command:(jal 1000)
+ 	22			 : 	001100110000000000011000;	--Command:(li r3 1024)
+ 	23			 : 	101011100100000100100000;	--Command:(sub r2 r4 r1)
+ 	24			 : 	101011100110100000111000;	--Command:(add r3 r6 r8)
+ 	[25..1023]	 : 	000000000000000000000000; --Fill out rest of memory
+END:

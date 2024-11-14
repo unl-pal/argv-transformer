@@ -76,7 +76,7 @@ public class NativeToJsMessageQueue {
     }    
     private static class JsMessage {
         int calculateEncodedLength() {
-            boolean pluginResult = rand.nextBoolean();
+            boolean pluginResult = Verifier.nondetBoolean();
 			if (pluginResult == null) {
                 return Verifier.nondetInt() + 1;
             }

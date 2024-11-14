@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">My Application</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="quotes">
+        <item>Great things are done by a series of small things brought together.</item>
+        <item>For my part I know nothing with any certainty, but the sight of the stars makes me dream.</item>
+        <item>I dream of painting and then I paint my dream.</item>
+    </string-array>
+
+</resources>

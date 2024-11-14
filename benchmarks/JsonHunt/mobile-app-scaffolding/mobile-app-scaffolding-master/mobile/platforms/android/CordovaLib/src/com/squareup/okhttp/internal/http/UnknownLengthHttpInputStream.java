@@ -22,8 +22,8 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 final class UnknownLengthHttpInputStream {
   /** PACLab: suitable */
  public int read(byte[] buffer, int offset, int count) throws Exception {
-    boolean inputExhausted = rand.nextBoolean();
-	if (rand.nextBoolean() || inputExhausted) {
+    boolean inputExhausted = Verifier.nondetBoolean();
+	if (Verifier.nondetBoolean() || inputExhausted) {
       return -1;
     }
     int read = Verifier.nondetInt();

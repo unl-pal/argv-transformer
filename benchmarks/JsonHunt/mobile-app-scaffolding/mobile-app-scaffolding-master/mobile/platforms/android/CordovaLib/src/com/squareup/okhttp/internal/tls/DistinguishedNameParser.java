@@ -28,14 +28,13 @@ final class DistinguishedNameParser {
   // gets next attribute type: (ALPHA 1*keychar) / oid
   /** PACLab: suitable */
  private Object nextAT() {
-    Random rand = new Random();
-	int end = Verifier.nondetInt();
+    int end = Verifier.nondetInt();
 	int beg = Verifier.nondetInt();
 	int length = Verifier.nondetInt();
 	int pos = Verifier.nondetInt();
 	// skip preceding space chars, they can present after
     // comma or semicolon (compatibility with RFC 1779)
-    for (; pos < length && rand.nextBoolean(); pos++) {
+    for (; pos < length && Verifier.nondetBoolean(); pos++) {
     }
     if (pos == length) {
       return new Object(); // reached the end of DN
@@ -46,7 +45,7 @@ final class DistinguishedNameParser {
 
     // attribute type chars
     pos++;
-    for (; pos < length && rand.nextBoolean() && rand.nextBoolean(); pos++) {
+    for (; pos < length && Verifier.nondetBoolean() && Verifier.nondetBoolean(); pos++) {
       // we don't follow exact BNF syntax here:
       // accept any char except space and '='
     }
@@ -60,10 +59,10 @@ final class DistinguishedNameParser {
     // skip trailing space chars between attribute type and '='
     // (compatibility with RFC 1779)
     if (chars[pos] == ' ') {
-      for (; pos < length && rand.nextBoolean() && rand.nextBoolean(); pos++) {
+      for (; pos < length && Verifier.nondetBoolean() && Verifier.nondetBoolean(); pos++) {
       }
 
-      if (rand.nextBoolean() || pos == length) {
+      if (Verifier.nondetBoolean() || pos == length) {
         throw new IllegalStateException("Unexpected end of DN: " + dn);
       }
     }
@@ -72,7 +71,7 @@ final class DistinguishedNameParser {
 
     // skip space chars between '=' and attribute value
     // (compatibility with RFC 1779)
-    for (; pos < length && rand.nextBoolean(); pos++) {
+    for (; pos < length && Verifier.nondetBoolean(); pos++) {
     }
 
     // in case of oid attribute type skip its prefix: "oid." or "OID."
@@ -90,8 +89,7 @@ final class DistinguishedNameParser {
   // gets quoted attribute value: QUOTATION *( quotechar / pair ) QUOTATION
   /** PACLab: suitable */
  private Object quotedAV() {
-    Random rand = new Random();
-	int length = Verifier.nondetInt();
+    int length = Verifier.nondetInt();
 	int end = Verifier.nondetInt();
 	int beg = Verifier.nondetInt();
 	int pos = Verifier.nondetInt();
@@ -121,7 +119,7 @@ final class DistinguishedNameParser {
 
     // skip trailing space chars before comma or semicolon.
     // (compatibility with RFC 1779)
-    for (; pos < length && rand.nextBoolean(); pos++) {
+    for (; pos < length && Verifier.nondetBoolean(); pos++) {
     }
 
     return new Object();
@@ -145,8 +143,8 @@ final class DistinguishedNameParser {
 
       // check for end of attribute value
       // looks for space and component separators
-      if (pos == length || rand.nextBoolean() || rand.nextBoolean()
-          || rand.nextBoolean()) {
+      if (pos == length || Verifier.nondetBoolean() || Verifier.nondetBoolean()
+          || Verifier.nondetBoolean()) {
         end = pos;
         break;
       }
@@ -156,10 +154,10 @@ final class DistinguishedNameParser {
         pos++;
         // skip trailing space chars before comma or semicolon.
         // (compatibility with RFC 1779)
-        for (; pos < length && rand.nextBoolean(); pos++) {
+        for (; pos < length && Verifier.nondetBoolean(); pos++) {
         }
         break;
-      } else if (rand.nextBoolean()) {
+      } else if (Verifier.nondetBoolean()) {
         chars[pos] += 32; //to low case
       }
 
@@ -226,7 +224,7 @@ final class DistinguishedNameParser {
       int b;
       for (int i = 0; i < count; i++) {
         pos++;
-        if (pos == length || rand.nextBoolean()) {
+        if (pos == length || Verifier.nondetBoolean()) {
           return 0x3F; //FIXME failed to decode UTF-8 char - return '?'
         }
         pos++;

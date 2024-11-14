@@ -24,7 +24,7 @@ public class CardsDisplayPanel {
             int diff = Verifier.nondetInt() ;
         }
 
-        if (rand.nextBoolean()) {
+        if (Verifier.nondetBoolean()) {
         }
         for (int i = selectedCard + 1; i <= selectedCard + MARGIN; i++) {
             if (i >= 0 && i < Verifier.nondetInt()) {

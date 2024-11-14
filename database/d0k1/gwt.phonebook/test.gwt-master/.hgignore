@@ -1,0 +1,8 @@
+syntax: glob
+
+.gwt-log
+gwt-unitCache
+*class
+war/nat*
+war/WEB-INF/classes
+war/WEB-INF/deploy

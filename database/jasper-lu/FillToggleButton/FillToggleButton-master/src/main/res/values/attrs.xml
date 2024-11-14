@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FillToggle">
+        <attr name="checked_fill" format="color"/>
+        <attr name="checked_border" format="color"/>
+        <attr name="pressed_fill" format="color"/>
+        <attr name="pressed_border" format="color"/>
+        <attr name="unchecked_fill" format="color"/>
+        <attr name="unchecked_border" format="color"/>
+        <attr name="on_text_color" format="color"/>
+        <attr name="off_text_color" format="color"/>
+        <attr name="shape" format="string"/>
+    </declare-styleable>
+
+</resources>

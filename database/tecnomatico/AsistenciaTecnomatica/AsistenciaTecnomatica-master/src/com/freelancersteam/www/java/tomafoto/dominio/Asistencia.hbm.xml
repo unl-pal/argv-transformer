@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 22/07/2013 12:24:47 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="com.freelancersteam.www.java.tomafoto.dominio.Asistencia" table="asistencia" catalog="toma_foto">
+        <id name="idAsistencia" type="java.lang.Integer">
+            <column name="ID_ASISTENCIA" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="empleado" class="com.freelancersteam.www.java.tomafoto.dominio.Empleado" fetch="select">
+            <column name="LEGAJO" />
+        </many-to-one>
+        <property name="estado" type="string">
+            <column name="ESTADO" length="30" />
+        </property>
+        <property name="imagen" type="binary">
+            <column name="IMAGEN" />
+        </property>
+        <property name="fecha" type="date">
+            <column name="FECHA" length="10" />
+        </property>
+        <property name="hora" type="time">
+            <column name="HORA" length="8" />
+        </property>
+        <property name="modificado" type="java.lang.Boolean">
+            <column name="MODIFICADO" />
+        </property>
+        <property name="fechaModificado" type="date">
+            <column name="FECHA_MODIFICADO" length="10" />
+        </property>
+        <property name="correcto" type="java.lang.Boolean">
+            <column name="CORRECTO" />
+        </property>
+        <property name="observacion" type="string">
+            <column name="OBSERVACION" length="200" />
+        </property>
+        <property name="reajuste" type="java.lang.Boolean">
+            <column name="REAJUSTE" />
+        </property>
+    </class>
+</hibernate-mapping>

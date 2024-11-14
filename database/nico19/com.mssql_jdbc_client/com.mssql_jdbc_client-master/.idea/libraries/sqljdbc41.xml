@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="sqljdbc41">
+    <CLASSES>
+      <root url="jar://C:/Program Files/Microsoft JDBC Driver 4.0 for SQL Server/sqljdbc_4.1/enu/sqljdbc41.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

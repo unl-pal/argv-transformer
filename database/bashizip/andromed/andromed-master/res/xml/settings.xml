@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/infos_volontaire">
+        <EditTextPreference android:summary="Nom ou identifiant" android:title="@string/name" android:key="name"></EditTextPreference>
+        <ListPreference android:entryValues="@array/countries" android:summary="Choisissez votre pays" android:title="Pays" android:key="list_pays" android:entries="@array/countries"></ListPreference>
+        <EditTextPreference android:title="@string/mail" android:key="mail"></EditTextPreference>
+        
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Zone de santé">
+        <EditTextPreference android:title="@string/Zone_sante" android:summary="@string/zone_parameter" android:key="zone"></EditTextPreference>
+        <EditTextPreference android:summary="@string/desc_sommaire" android:title="@string/description" android:key="desc"></EditTextPreference>
+        
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/desease"><ListPreference android:title="Maladie" android:key="list_maladie" android:entryValues="@array/maladies" android:entries="@array/maladies" android:summary="@string/maladie_pref"></ListPreference></PreferenceCategory>
+    <PreferenceCategory android:title="@string/anonymat"><CheckBoxPreference android:key="send_my_number" android:summary="@string/show_num_summ" android:title="@string/show_my_num"></CheckBoxPreference>
+    <CheckBoxPreference android:summary="@string/send_my_mail_summ" android:key="send_my_mail" android:title="@string/send_my_mail"></CheckBoxPreference>
+</PreferenceCategory>
+</PreferenceScreen>

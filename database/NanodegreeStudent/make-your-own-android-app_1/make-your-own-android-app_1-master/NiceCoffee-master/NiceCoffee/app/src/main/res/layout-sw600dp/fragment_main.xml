@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity$PlaceholderFragment"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ViewFlipper
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/special_deals">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView"
+                    android:src="@drawable/banner"
+                    android:visibility="invisible" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView2"
+                    android:src="@drawable/banner_2" />
+            </ViewFlipper>
+
+            <GridView
+                android:id="@+id/main_fragment_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:horizontalSpacing="2dp"
+                android:numColumns="4"
+                android:verticalSpacing="2dp"
+                android:choiceMode="none" />
+
+            <GridView
+                android:id="@+id/main_fragment_category_grid"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:gravity="center"
+                android:horizontalSpacing="2dp"
+                android:numColumns="4"
+                android:verticalSpacing="2dp"
+                android:choiceMode="none"
+                android:paddingTop="2dp"
+                android:background="#ff230f08" />
+
+        </LinearLayout>
+
+</LinearLayout>

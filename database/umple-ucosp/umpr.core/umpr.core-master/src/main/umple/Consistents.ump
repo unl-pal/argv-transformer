@@ -1,0 +1,90 @@
+namespace cruise.umple.umpr.core.consistent;
+
+class ImportFile {
+  depend cruise.umple.compiler.UmpleImportType;
+  depend cruise.umple.umpr.core.*;
+  depend cruise.umple.umpr.core.ImportFSM.State;
+  depend java.util.Optional;
+
+  String path;
+  
+  immutable UmpleImportType importType;
+  
+  immutable State lastState;
+  
+  immutable String message;
+  
+  immutable Optional<ImportAttrib> attrib;
+  
+  Boolean isSuccessful() {
+    return getLastState() == ImportFSM.State.Completed;
+  }
+  
+  key { path }
+}
+
+external License {};
+
+class ImportRepository {
+  depend cruise.umple.compiler.UmpleImportType;
+  depend cruise.umple.umpr.core.DiagramType;
+  depend cruise.umple.umpr.core.ImportFSM.State;
+  depend cruise.umple.umpr.core.ImportAttrib;
+  depend cruise.umple.umpr.core.License;
+
+  depend java.util.Optional;
+  depend java.net.URL;
+  
+  immutable String name;
+  immutable String description;
+  String path;
+
+  /**
+   * Type of diagrams within this repository.
+   */
+  immutable DiagramType diagramType;
+
+  /**
+   * Remotely accessible location for the Repository.
+   */
+  immutable Optional<URL> remoteLoc;
+  immutable License license;
+
+  defaulted Double successRate = 1.0;
+  defaulted Double failRate = 0.0;
+  
+  1 -- * ImportFile files;
+  
+  after setSuccessRate {
+    if (!Double.valueOf(getFailRate()).equals(1.0 - getSuccessRate())) {
+      setFailRate(1.0 - getSuccessRate());
+    }
+  }
+        
+  after setFailRate {
+    if (!Double.valueOf(getSuccessRate()).equals(1.0 - getFailRate())) {
+      setSuccessRate(1.0 - getFailRate());
+    }
+  }
+  
+  key { path }
+}
+
+class ImportRepositorySet {
+  depend cruise.umple.umpr.core.DiagramType;
+  depend cruise.umple.umpr.core.License;
+
+  depend java.net.URL;
+  depend java.util.Optional;
+  
+  immutable Date date;
+  immutable Time time;
+  
+  String umplePath;
+  defaulted String srcPath = null;
+  
+  1 -- * ImportRepository repositories;
+  
+  key { umplePath }
+
+}

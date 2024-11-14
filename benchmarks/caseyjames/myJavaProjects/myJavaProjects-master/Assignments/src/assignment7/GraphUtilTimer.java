@@ -28,9 +28,9 @@ public class GraphUtilTimer {
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
                     // though same graph use different random key names
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
                 }
             }
@@ -38,9 +38,9 @@ public class GraphUtilTimer {
             midTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
                 }
             }
@@ -74,9 +74,9 @@ public class GraphUtilTimer {
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
                     // though same graph use different random key names
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
                 }
             }
@@ -84,9 +84,9 @@ public class GraphUtilTimer {
             midTime = Verifier.nondetInt();
             for (int j = 0; j < timesToLoop; j++) {
                 for (int k = 0; k < 5; k++) {
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
-                    while (rand.nextBoolean()) {
+                    while (Verifier.nondetBoolean()) {
 					}
                 }
             }

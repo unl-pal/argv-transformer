@@ -1,0 +1,78 @@
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:padding="20dp"
+    android:gravity="left" android:orientation="vertical" android:background="#FFFF8800"
+    tools:context="com.app1.neil.ca2emoji.SecondActivity">
+
+     <LinearLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:orientation="horizontal">
+
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/enter_name_text_view" />
+
+         <EditText
+             android:layout_width="200dp"
+             android:layout_height="wrap_content"
+             android:id="@+id/users_name_edit_text"/>
+
+     </LinearLayout>
+
+
+
+
+         <RelativeLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal"
+             android:paddingTop="15dp"
+             android:id="@+id/relative_layout2"/>
+
+         <TextView
+             android:id="@+id/calling_activity_info_text_view"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:paddingRight="15dp"
+             android:text="Add contact to contact list: "/>
+
+           <Button
+               android:layout_height="wrap_content"
+               android:layout_width="wrap_content"
+               android:id="@+id/add_name_button"
+               android:background="@drawable/button_add_gradient"
+               android:text="@string/enter_name_button_text"
+               android:onClick="onSendUsersName"
+               android:layout_gravity="right"
+               android:layout_toRightOf="@+id/calling_activity_info_text_view"/>
+
+              <TextView
+                android:id="@+id/header_play_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="15dp"
+                android:text="Would you like to play the song: "/>
+
+             <Button
+                 android:layout_height="wrap_content"
+                 android:layout_width="wrap_content"
+                 android:id="@+id/play_song_mp3_button"
+                 android:background="@drawable/button_add_gradient"
+                 android:text="@string/button_song_start_play"
+                 android:onClick="PlaySong"
+                 android:layout_below="@+id/add_name_button"/>
+
+             <Button
+                 android:layout_height="wrap_content"
+                 android:layout_width="wrap_content"
+                 android:id="@+id/pause_song_mp3_button"
+                 android:background="@drawable/button_add_gradient_record"
+                 android:text="@string/button_song_stop_play"
+                 android:onClick="StopSong"
+                 android:layout_toRightOf="@+id/play_song_mp3_button"/>
+
+
+</LinearLayout>

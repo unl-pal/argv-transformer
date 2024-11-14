@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Skånetrafiken</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="textViewFran">Från:</string>
+    <string name="textViewTill">Till:</string>
+
+
+    <string-array name="stations">
+        <item>Lund C</item>
+        <item>Ystad Klostret</item>
+        <item>Lund Bankgatan</item>
+        <item>Malmö Triangeln</item>
+        <item>Köpenhamn H</item>
+        <item>Halmstad C</item>
+    </string-array>
+
+    <string-array name="stationNumbers">
+        <item>81216</item>
+        <item>86197</item>
+        <item>81156</item>
+        <item>80140</item>
+        <item>45007</item>
+        <item>13003</item>
+    </string-array>
+</resources>

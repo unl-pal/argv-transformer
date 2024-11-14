@@ -1,0 +1,22 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+		.important {
+			font-weight: bold;
+		}
+	</ui:style>
+	<g:HTMLPanel>
+		<g:VerticalPanel width="510px">
+			<g:HorizontalPanel>
+				<g:Button ui:field="addButton">Добавить</g:Button>
+				<g:Button ui:field="viewButtom">Просмотр</g:Button>
+				<g:Button ui:field="deleteButtom">Удалить</g:Button>
+				<g:TextBox ui:field="filterInput"/>
+				<g:Button ui:field="filterButton">Фильтр</g:Button>
+				<g:Button ui:field="unfilterButton">Очистить</g:Button>
+			</g:HorizontalPanel>
+			<g:ListBox visibleItemCount="15" width="508px" height="332px" ui:field="contactList"/>
+		</g:VerticalPanel>
+	</g:HTMLPanel>
+</ui:UiBinder> 

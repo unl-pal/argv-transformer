@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<testcaseDocument>
+    <testcase>
+        <description>Check balance of Account 1111 and the balance must be 1000.</description>
+        <input name="cardno" value="1234" />
+        <!--Operator can be EQ/GT/LT/GTE/LTE/RNG.-->
+        <expectedOutput name="balance" operator="EQ" value="1000" />
+    </testcase>
+</testcaseDocument>

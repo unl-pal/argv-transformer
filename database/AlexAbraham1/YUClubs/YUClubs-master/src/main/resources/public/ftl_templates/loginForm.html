@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+	<head>
+		<title>Login</title>
+		<link rel="stylesheet" type="text/css" href="css/ssLogin.css"/>
+	</head>
+	<body>
+		<div id="container">
+		<div id="content">
+			<form id="login" action="/api/new/user" method="post">
+				<div id="head">
+					<h1>
+						<legend>Login</legend>
+					</h1>
+				</div>
+				<h3>
+				<ul>
+					<li>
+						<label for="userName">Username:</label>
+						<div class="infoBox">
+							<input id="userName" name="userName" type="text" />
+						</div>
+					</li>
+					<li>
+						<label for="password">Password:</label>
+						<div class="infoBox">
+							<input id="password" name="password" type="text" />
+						</div>
+					</li>
+					</ul>
+					
+						<div id="button">
+							<input id="submit" name="submit" type="submit" value="Submit" />
+						</div>
+		
+				</h3>
+			</form>
+		</div>
+		</div>
+	</body>
+</html>

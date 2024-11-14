@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="hello">Hello World, Launcher!</string>
+	<string name="app_name">Sport Tracker</string>
+	<string name="profile">Profile:</string>
+	<string name="choose_profile">Choose a profile:</string>
+	<string-array name="profiles">
+		<item>Running</item>
+		<item>Cycling</item>
+		<item>Walking</item>
+		<item>Other</item>
+	</string-array>
+	<string name="start_record">Start new record</string>
+	<string name="pause_record">Pause record</string>
+	<string name="stop_record">Stop record</string>
+	<string name="show_records">Show records</string>
+	<string name="show_statistic">Show statistic</string>
+	<string name="test_profile">some profile</string>
+	<string name="time">Time:</string>
+	<string name="zero_time">00:00:00</string>
+	<string name="distance">Distance:</string>
+	<string name="zero_distance">0 m</string>
+	<string name="speed">Speed:</string>
+	<string name="average_speed">Average speed:</string>
+	<string name="zero_speed">0 m/s</string>
+	<string name="location">Location:</string>
+	<string name="lon">Lon:</string>
+	<string name="lat">Lat:</string>
+	<string name="alt">Alt:</string>
+	<string name="acc">Acc:</string>
+	<string name="zero_location">00:00.0000</string>
+	<string name="show_on_map">Show on map</string>
+	<string name="total_time">Total time:</string>
+	<string name="total_distance">Total distance:</string>
+<string name="date_static">Date</string>
+<string name="distance_static">Distance</string>
+<string name="api_key_tp">0H-oqoymL2ufvp7mg9MzwyyOGdd4N475Bjd6Gpg</string>
+<string name="hide_map">Hide map</string>
+<string name="api_key_desktop">0H-oqoymL2uebSgkEvg8nfm4aAOhA0P-Cic_t9Q</string>
+<string name="api_key">0H-oqoymL2uebSgkEvg8nfm4aAOhA0P-Cic_t9Q</string>
+<string name="comment">Comment:</string>
+<string name="no_comment">no comment</string>
+<string name="delete_record">Delete record</string>
+<string name="sure_to_delete_record">Are you sure you want delete this Record?</string>
+<string name="enter_comment">Enter your record comment here:</string>
+<string name="comment_dialog">Enter comment</string>
+<string name="save_comment">Save</string>
+<string name="cancel">Cancel</string>
+<string name="edit_comment">Edit comment</string>
+</resources>

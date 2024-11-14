@@ -10,8 +10,8 @@ public class PriorityQueueTimer {
     /** PACLab: suitable */
 	 public static void PriorityHeapAddTimer() throws Exception {
         int TIMES_TO_LOOP = Verifier.nondetInt();
-		boolean printAtEnd = rand.nextBoolean();
-		boolean printAsRuns = rand.nextBoolean();
+		boolean printAtEnd = Verifier.nondetBoolean();
+		boolean printAsRuns = Verifier.nondetBoolean();
 		int INTERVAL = Verifier.nondetInt();
 		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
@@ -77,8 +77,8 @@ public class PriorityQueueTimer {
     /** PACLab: suitable */
 	 public static void PriorityHeapFindMinTimer() throws Exception {
         int TIMES_TO_LOOP = Verifier.nondetInt();
-		boolean printAtEnd = rand.nextBoolean();
-		boolean printAsRuns = rand.nextBoolean();
+		boolean printAtEnd = Verifier.nondetBoolean();
+		boolean printAsRuns = Verifier.nondetBoolean();
 		int INTERVAL = Verifier.nondetInt();
 		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
@@ -142,8 +142,8 @@ public class PriorityQueueTimer {
     /** PACLab: suitable */
 	 public static void PriorityHeapDelMinTimer() throws Exception {
         int TIMES_TO_LOOP = Verifier.nondetInt();
-		boolean printAtEnd = rand.nextBoolean();
-		boolean printAsRuns = rand.nextBoolean();
+		boolean printAtEnd = Verifier.nondetBoolean();
+		boolean printAsRuns = Verifier.nondetBoolean();
 		int INTERVAL = Verifier.nondetInt();
 		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;
@@ -210,8 +210,8 @@ public class PriorityQueueTimer {
     /** PACLab: suitable */
 	 public static void PriorityBSTAddTimer() throws Exception {
         int TIMES_TO_LOOP = Verifier.nondetInt();
-		boolean printAtEnd = rand.nextBoolean();
-		boolean printAsRuns = rand.nextBoolean();
+		boolean printAtEnd = Verifier.nondetBoolean();
+		boolean printAsRuns = Verifier.nondetBoolean();
 		int INTERVAL = Verifier.nondetInt();
 		int MAX_SIZE = Verifier.nondetInt();
 		long startTime, midTime, endTime;

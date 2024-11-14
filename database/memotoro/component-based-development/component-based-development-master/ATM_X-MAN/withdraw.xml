@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<testcaseDocument>
+    <testcase>
+        <description>Withdraw 100 from Account 1111 and the balance must become 900.</description>
+        <input name="cardno" value="1234" />
+        <input name="amount" value="100" />
+        <!--Operator can be EQ/GT/LT/GTE/LTE/RNG.-->
+        <expectedOutput name="balance" operator="EQ" value="900" />
+    </testcase>
+</testcaseDocument>

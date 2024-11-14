@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="rounded_corner_bootstrap">4dp</dimen>
+
+    <dimen name="rounded_corner_material_design">2dp</dimen>
+</resources>

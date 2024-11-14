@@ -1,0 +1,78 @@
+1, 1 step
+0-2, 0-2 variance
+1+(0-2), 1+(0-2) total
+add H-factor
+
+getStats 
+	returns
+		MAP---
+			STR	|	15
+			DEX	|	14
+			INT	|	8
+			CON	|	16
+			CHA	|	3
+			WIS	|	5
+	but runs the base stats maps through the template that affect it the most?
+	
+	figure out how the templates should interact when applying multiple? or only allow one template?
+	_________________________________________________________________________
+	|	||| Compatibility Matrix, LHS is current template, TOP is attempted |
+	------------------------------------------------------------------------|
+	|	|||	G - Ghost, Z - Zombie, V - Vampire, O - Ooze, D - Divine        |
+	|	|||-----------------------------------------------------------------|
+	|		Z V G O D														|
+	|1st  Z - N N N	N														|
+	|	  V	N - N N N														|
+	|	  G N N - N Y														|
+	|	  O N N N - N														|
+	|	  D Y Y Y Y -														|
+	|																		|
+	|		Templates are exclusive, one at a time.							|
+	|_______________________________________________________________________|
+	
+	mob has currentTemplate = Enum.Template
+	Template.Zombie
+		update() {
+			update hunger, decay
+		}
+		strFactor = function() { currStr * 1.6 }
+		dexFactor ...
+		intFactor = function() { return 1; }
+		wisFactor...
+		chaFactor...
+		conFactor...
+		moveFactor, dex?
+		onHit()?
+		soundTemplate() {
+			onHit
+			onAttack
+			onDie
+			onWander
+			onExplode, etc
+		}
+		
+	Mob has
+		TypeTemplate
+		RacialTemplate
+		ClassTemplate
+				TTemplate -> onHit effects, modified stats, some skills
+				RTemplate -> hitbox, base stats	
+				CTemplate -> skills available, skill bonuses
+			sounds
+				TTemplate -> intonation, speed, lack of sounds, availibility of sounds
+				RTemplate -> base sounds
+				CTemplate -> words if applicable, outlook of phrases
+			movement
+				TTemplate -> modifies
+				RTemplate -> base movement
+				CTemplate -> can modify, skills that can grant movement
+			skills
+				TTemplate -> special abilities, drink blood, regen etc.
+				RTemplate -> racial skills? meh
+				CTemplate -> majority of skillset
+			appearance
+				TTemplate -> color swap, effects around key-points
+				RTemplate -> base sprite
+				CTemplate -> equipment
+	
+	

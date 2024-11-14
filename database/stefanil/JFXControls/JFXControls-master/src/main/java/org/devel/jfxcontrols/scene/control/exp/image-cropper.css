@@ -1,7 +1,0 @@
-.image-cropper-grid {
-   -fx-skin: "org.devel.jfxcontrols.scene.control.skin.ImageCropperGridSkin";
-}
-
-.image-cropper-scroll-pane {
-	-fx-skin: "org.devel.jfxcontrols.scene.control.skin.ImageCropperScrollPaneSkin";
-}

@@ -1,7 +1,0 @@
-server:
-  contextPath: /dubbo-provider
-  port: 8076
-logging:
-  file: build/dubbo-provider.log
-  level:
-    com.gaodashang.demo: DEBUG

@@ -1,7 +1,0 @@
-server:
-  contextPath: /websocket-tomcat
-  port: 8077
-logging:
-  file: build/websocket-tomcat.log
-  level:
-    com.gaodashang.demo: DEBUG

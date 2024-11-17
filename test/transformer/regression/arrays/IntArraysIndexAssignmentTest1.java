@@ -1,4 +1,4 @@
-package testclasses.arrays;
+package transformer.regression.arrays;
 
 import util.ArgVRandom;
 

@@ -1,11 +1,9 @@
-/** filtered and transformed by ARG-V */
- package testclasses.arrays;
+package transformer.regression.arrays;
 
-import gov.nasa.jpf.symbc.Debug;
+import util.ArgVRandom;
 
 public class IntArraysSymbolicLengthTest2 {
-	/** ARG-V: suitable */
-	 public static void sort(int[] a) {
+	public static void sort(int[] a) {
 	    final int N = a.length;
 	    for (int i = 1; i < N; i++) { // N branches
 	    	int j = i - 1;
@@ -20,15 +18,15 @@ public class IntArraysSymbolicLengthTest2 {
 	    }
 	}
 
-	/** ARG-V: suitable */
-	 public static void testFunc() {
-	    int N = Debug.makeSymbolicInteger("x3");
+	public static void testFunc() {
+	    int N = ArgVRandom.randomInt();
 	    int a[] = new int[N];
 	    for (int i = 0; i < N; i++) {
 	    	a[i] = N - i;
 	    }
 
 	    try {
+	    	sort(a); // TODO: figure out how to handle this getting removed
 	    } catch (Exception e) {
 	    	assert false;
 	    }

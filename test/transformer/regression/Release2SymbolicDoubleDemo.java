@@ -1,4 +1,4 @@
-package testclasses;
+package transformer.regression;
 
 import util.ArgVRandom;
 

@@ -26,3 +26,6 @@ hs_err_pid*
 # Build-system generated directories
 /build/
 /dist/
+
+# Jenv variable for setting the version
+.java-version

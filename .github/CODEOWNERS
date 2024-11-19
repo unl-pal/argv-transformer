@@ -1,7 +1,7 @@
 # CODEOWNERS file
 
 # Workflows are owned by admin teams
-.github/workflows/* @unl-pal/arg-v/arg-v-maintainers @unl-pal/arg-v/arg-v-admins
+.github/workflows/* @unl-pal/arg-v-maintainers @unl-pal/arg-v-admins
 
 # Code Owners file is also owned by the admin teams
 # .github/CODEOWNERS @unl-pal/arg-v-maintainers @unl-pal/arg-v-admins

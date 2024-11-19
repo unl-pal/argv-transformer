@@ -1,0 +1,29 @@
+name: Enforce Naming Conventions
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
+
+      - name: Check Name Follows Convention
+        run: |
+          #!/bin/bash
+          branch_name=$(git rev-parse --abbrev-ref HEAD)
+          regex="^(((feature|bug|update)/#[0-9]+)|((team|personal)(/#[0-9]+)?))($|(/([a-z0-9._.-]+/?)+[a-z0-9]+)$)"
+
+          if [[ ! $branch_name =~ $regex ]]; then
+              echo "Branch name '$branch_name' is not allowed. Please use a different name."
+              exit 1
+          else
+              echo "Branch name: '$branch_name' follows standards."
+              exit 0
+          fi
+

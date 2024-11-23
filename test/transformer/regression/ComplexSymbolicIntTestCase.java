@@ -1,11 +1,11 @@
-package testclasses;
+package transformer.regression;
 
 import util.ArgVRandom;
 
 public class ComplexSymbolicIntTestCase {
 	public static int variedTestCase(int x, int y, int z) {
 		int v1 = (int) (ArgVRandom.randomInt() * 5);
-		int v4 = (int) (ArgVRandom.randomInt() * 10) + y + helperFunctionOne(z);
+		int v4 = (int) (ArgVRandom.randomInt() * 10) + y + Math.abs(5);
 		if (x > v1) {
 			return helperFunctionOne(y);
 		} else {

@@ -45,7 +45,6 @@
 	<classpathentry excluding="java/" kind="src" path="src"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="suitablePrgms/moloneycharles"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcel-6.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-csv-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.16.1.jar"/>

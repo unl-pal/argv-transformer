@@ -24,8 +24,8 @@ hs_err_pid*
 /bin/
 
 # Code generate files
-dist/**
-build/**
+dist/
+build/
 
 # code populated files
 database/**

@@ -44,7 +44,7 @@ public class Main {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
 		buildDir = new File(tmpDir, "bin");
 
-		String source = "suitablePrgms/moloneycharles";
+		String source = "test/transformer/regression";
 		String dest = "testOutput";
 
 		if (args.length == 2) {

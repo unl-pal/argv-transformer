@@ -1,6 +1,5 @@
 package transform;
 
-import transform.benchmark.*;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,6 +19,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 
 import transform.TypeChecking.TypeChecker.CType;
+import transform.Benchmark.CreateYmlFile;
 
 /**
  * Given a directory of Java projects, this program attempts to transform each

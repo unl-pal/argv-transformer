@@ -24,7 +24,8 @@ hs_err_pid*
 /bin/
 
 # Build Folder
-build/*
+build/
+!gradle/wrapper/gradle-wrapper.jar
 
 # code populated files
 database/**
@@ -39,3 +40,6 @@ suitablePrgms/**
 !database/README.md
 !benchmarks/README.md
 !suitablePrgms/README.md
+
+kls_database.db
+.DS_Store

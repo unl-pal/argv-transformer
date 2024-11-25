@@ -1,0 +1,37 @@
+bazel_dep(name = "rules_jvm_external", version = "6.2")
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+    "org.apache.bcel:bcel:6.2",
+    "org.apache.commons:commons-csv:1.5",
+    "commons-io:commons-io:2.16.1",
+    "org.eclipse.jdt:org.eclipse.jdt.core:3.39.0",
+    "org.eclipse.platform:org.eclipse.core.contenttype:3.9.500",
+    "org.eclipse.platform:org.eclipse.core.resources:3.7.101.dist",
+    "org.yaml:snakeyaml:2.0",
+    # "lib/bcel-6.2.jar",
+    # "commons-csv-1.5.jar",
+    # "commons-io-2.16.1.jar",
+    # "jpf.jar",
+    # "org.eclipse.core.contenttype-3.4.200-v20140207-1251.jar",
+    # "org.eclipse.core.jobs-3.6.0-v20140424-0053.jar",
+    # "org.eclipse.core.resources_3.7.101.dist.jar",
+    # "org.eclipse.core.runtime-3.7.0.jar",
+    # "org.eclipse.equinox.common-3.6.0.v20100503.jar",
+    # "org.eclipse.equinox.preferences-3.5.200-v20140224-1527.jar",
+    # "org.eclipse.jdt.ui-6.12.2.jar",
+    # "org.eclipse.jface.jar",
+    # "org.eclipse.ltk.core.refactoring-6.12.2.jar",
+    # "org.eclipse.osgi-3.7.1.jar",
+    # "org.eclipse.text_3.5.0.jar",
+    # "sootclasses-trunk-jar-with-dependencies.jar",
+    "org.testng:testng:7.10.2",
+    # "org.checkerframework:checker-qual:3.12.0",
+    # implementation(fileTree(mapOf("dir" to "lib", "includes" to listOf("*.jar")))),
+    # implementation(fileTree(dir("lib"), includes(["*.jar"]))),
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")

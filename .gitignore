@@ -23,6 +23,10 @@
 hs_err_pid*
 /bin/
 
+# Build Folders
+build/
+dist/
+
 # code populated files
 database/**
 benchmarks/**

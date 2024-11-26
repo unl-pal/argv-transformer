@@ -23,6 +23,11 @@
 hs_err_pid*
 /bin/
 
-# Build-system generated directories
+# Build Folders
 /build/
 /dist/
+
+# code populated files
+/database/
+/benchmarks/
+/suitablePrgms/

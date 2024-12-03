@@ -218,7 +218,7 @@ public class TransformVisitor extends ASTVisitor {
 	
 	/**
 	 * Remove imports not in java standard library and intializes the ast with the current nod's ast
-	 * If replacing with random's, sets hasRandom to true if
+	 * If replacing with random's, sets hasRandom to true.
 	 */
 	@Override
 	public boolean visit(CompilationUnit node) {
@@ -721,17 +721,6 @@ public class TransformVisitor extends ASTVisitor {
 			} else if (isDoubleTypeCode(returnType)) {
 				replaceDouble(node.getExpression());
 			}
-			
-			/*
-			 * else if (isStringType(returnType)) { rewriter.replace(node.getExpression(),
-			 * ast.newStringLiteral(), null); }
-			 */
-			
-			/*
-			 * else { ClassInstanceCreation ci = ast.newClassInstanceCreation();
-			 * ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
-			 * rewriter.replace(node.getExpression(), ci, null); }
-			 */
 		}
 		return;
 	}
@@ -765,19 +754,14 @@ public class TransformVisitor extends ASTVisitor {
 		}
 
 		Type type = typeTable.getNodeType(node);
-	//	MethodSTE methodSym = currScope.getMethodSTE(currMethod);
 		ASTNode parent = node.getParent();
 		while (!(parent instanceof MethodDeclaration)) {
 			parent = parent.getParent();
-			//System.out.println("parent " + sym + "\t" + parent);
 		}
 
 		
 		
 		if(sym != null && sym.isFieldVar() && !initializedVars.contains(sym)) {
-//			System.out.println("sym " + node.getParent() + "\t" + !initializedVars.contains(sym) + " " 
-//		+ isIntegerTypeCode(type) + " " + isBooleanTypeCode(type) + " " + type);
-			
 			if(type.isPrimitiveType()) {
 				if(isIntegerTypeCode(type)) {
 					
@@ -788,14 +772,6 @@ public class TransformVisitor extends ASTVisitor {
 					default : randMethodInvocation = replaceWithRandomInteger();
 					}
 							
-//							ast.newMethodInvocation();
-//					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
-//					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicInteger"));
-//					StringLiteral str = ast.newStringLiteral();
-//					str.setLiteralValue("x" + varNum);
-//					randMethodInvocation.arguments().add(str);
-//					varNum++;
-//					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
 					fragment.setInitializer(randMethodInvocation);
@@ -817,17 +793,6 @@ public class TransformVisitor extends ASTVisitor {
 					break;
 					default : expression = replaceWithRandomFloat();
 					}
-									
-//					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
-//					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
-//					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
-//					StringLiteral str = ast.newStringLiteral();
-//					str.setLiteralValue("x" + varNum);
-//					randMethodInvocation.arguments().add(str);
-//					varNum++;
-					
-//					castExpression.setExpression(randMethodInvocation);
-//					castExpression.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -850,13 +815,6 @@ public class TransformVisitor extends ASTVisitor {
 					default : randMethodInvocation = replaceWithRandomDouble();
 					}
 							
-//							ast.newMethodInvocation();
-//					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
-//					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
-//					StringLiteral str = ast.newStringLiteral();
-//					str.setLiteralValue("x" + varNum);
-//					randMethodInvocation.arguments().add(str);
-//					varNum++;
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -893,33 +851,7 @@ public class TransformVisitor extends ASTVisitor {
 					
 					initializedVars.add(sym);
 					
-				}
-				
-//				if (type.isSimpleType()) {
-//
-//					SimpleName variable = ast.newSimpleName(name);
-//					rewriter.replace(node, variable, null);
-//
-//					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-//					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
-//
-//					fragment.setName(ast.newSimpleName(name));
-//
-//					Name typeName = ((SimpleType) type).getName();
-//					String stringTypeName = typeName.getFullyQualifiedName();
-//					SimpleType newType = ast.newSimpleType(ast.newName(stringTypeName));
-//
-//					varDeclaration.setType(newType);
-//					ASTNode parent = node.getParent();
-//					while (!(parent instanceof MethodDeclaration)) {
-//						parent = parent.getParent();
-//					}
-//
-//					Block block = ((MethodDeclaration) parent).getBody();
-//					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
-//					listRewrite.insertFirst(varDeclaration, null);
-//				}
-				
+				}		
 			}
 			
 		}
@@ -1141,8 +1073,6 @@ public class TransformVisitor extends ASTVisitor {
 		default: randMethodInvocation = replaceWithRandomBoolean();
 		}
 		rewriter.replace(exp, randMethodInvocation, null);
-//		randUsedInMethod = true;
-//		randUsedInProgram = true;
 	}
 	
 	private MethodInvocation replaceWithRandomBoolean() {
@@ -1151,7 +1081,6 @@ public class TransformVisitor extends ASTVisitor {
 		randMethodInvocation.setName(ast.newSimpleName("nextBoolean"));
 		
 		randUsedInMethod = true;
-//		randUsedInProgram = true;
 		return randMethodInvocation;
 	}
 
@@ -1185,7 +1114,6 @@ public class TransformVisitor extends ASTVisitor {
 		randMethodInvocation.setName(ast.newSimpleName("nextInt"));
 		
 		randUsedInMethod = true;
-		//randUsedInProgram = true;
 		return randMethodInvocation;
 		
 	}
@@ -1200,9 +1128,6 @@ public class TransformVisitor extends ASTVisitor {
 		rewriter.replace(exp, randMethodInvocation, null);
 	}
 
-
-
-	/* Actually it is Double */
 	private void replaceDouble(Expression exp) {
 		MethodInvocation randMethodInvocation = null;
 		switch(target){
@@ -1495,15 +1420,7 @@ public class TransformVisitor extends ASTVisitor {
 					(isDoubleTypeCode(lhsType) && isIntegerTypeCode(rhsType))) {
 				typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
-		}
-
-		// string concatenation
-		/*
-		 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
-		 * isStringType(rhsType)) { typeTable.setNodeType(node,
-		 * ast.newSimpleType(ast.newSimpleName("String"))); } }
-		 */
-		
+		}		
 	}
 
 	public ASTRewrite getRewriter() {

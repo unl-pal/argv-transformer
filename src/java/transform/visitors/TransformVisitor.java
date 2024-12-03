@@ -216,8 +216,9 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
-	/*
-	 * Remove imports not in java standard library
+	/**
+	 * Remove imports not in java standard library and intializes the ast with the current nod's ast
+	 * If replacing with random's, sets hasRandom to true if
 	 */
 	@Override
 	public boolean visit(CompilationUnit node) {
@@ -231,11 +232,7 @@ public class TransformVisitor extends ASTVisitor {
 			if(!hasRandom && importName.equals("java.util.Random")) {
 				hasRandom = true;
 			}
-			//String[] importSplit = importName.split("\\.");
-			//String className = importSplit[importSplit.length - 1];
-		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
-			if (!importName.startsWith("java.")){
-				//System.out.println("Removing import " + importName);
+			if (!importName.startsWith("java.") && !importName.startsWith("javax.")){
 				rewriter.remove(importDec, null);
 			} 
 		}
@@ -246,6 +243,9 @@ public class TransformVisitor extends ASTVisitor {
 		return true;
 	}
 
+	/**
+	 * Adds necessary imports for the symbolic testing tool we are using. Currently supports java Random and nasa's symbc.Debug
+	 */
 	@Override
 	public void endVisit(CompilationUnit node) {
 		ImportDeclaration id = ast.newImportDeclaration();
@@ -498,12 +498,8 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 	/*
-	 * Currently, we are removing all methods that have parameters that are not
-	 * integer types.
-	 * 
-	 * Eventually (to better preserve the original program structure), we will
-	 * remove non-integer parameters/unresolvable typed parameters and update method
-	 * calls with another pass through the AST.
+	 * Removes MethodDeclarations that are not part of TypeChecker's allowed types. See TypeChecker for a longer description.
+	 * Configures global variable currMethod to this node's method and pushes this method's scope to the top of symbolTableStack
 	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
@@ -574,7 +570,10 @@ public class TransformVisitor extends ASTVisitor {
 		return false;
 	}
 	
-	// expr rule
+	/**
+	 * Checks if a MethodInvocation node is part of the JDK or package environment, replacing/removing it if otherwise.
+	 * Presently replaces primitive types, removing the node otherwise.
+	 */
 	@Override
 	public void endVisit(MethodInvocation node) {
 		IMethodBinding methodBinding = node.resolveMethodBinding();
@@ -587,6 +586,7 @@ public class TransformVisitor extends ASTVisitor {
                 }
                 // Check if it's part of the JDK
                 if (packageName.startsWith("java.") || packageName.startsWith("javax.") || packageName.equals(rootNodePackage)) {
+                	// do nothing for now
                 } else {
                 	ITypeBinding typeBinding = methodBinding.getReturnType();
     				if (typeBinding != null && typeBinding.isPrimitive()) {

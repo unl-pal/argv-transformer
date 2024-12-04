@@ -1,0 +1,15 @@
+
+<LinearLayout android:id="@+id/linearLayout1"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:background="@drawable/back">
+	<EditText android:layout_height="fill_parent"
+		android:layout_width="fill_parent" android:padding="5dip"
+		android:scrollbars="vertical" android:fadingEdge="vertical"
+		android:gravity="top" android:textSize="22sp" android:capitalize="sentences"
+		android:id="@+id/editor" android:text="@string/vide" android:layout_weight="1">
+	</EditText>
+	<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout2">
+		<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1" android:text="@string/anuler" android:id="@+id/btn_ann_quote"></Button>
+		<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1" android:text="@string/save" android:id="@+id/btn_save_quote"></Button>
+	</LinearLayout>
+</LinearLayout>

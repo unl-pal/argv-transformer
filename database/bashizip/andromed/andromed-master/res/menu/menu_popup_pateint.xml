@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/detail_patient" android:id="@+id/option_details" android:checkable="false" android:menuCategory="system"></item>
+    <item android:id="@+id/option_diagnostique" android:menuCategory="system" android:title="@string/option_diagnostic"></item>
+</menu>

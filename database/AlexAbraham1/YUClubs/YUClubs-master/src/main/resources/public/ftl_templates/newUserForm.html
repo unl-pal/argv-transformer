@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+	<head>
+		<title>New User</title>
+		<link rel="stylesheet" type="text/css" href="css/ssNewUser.css"/>
+	</head>
+	<body>
+		<div id="content">
+			<form id="newUser" action="http://129.98.153.24:4567/api/new/user" method="post">
+				<div id="head">
+					<h1>
+						<legend>New User</legend>
+					</h1>
+				</div>
+				<h3>
+				<ul>
+					<li>
+						<label for="fullName">Full Name:</label>
+						<div class="infoBox">
+							<input id="fullName" name="fullName" type="text" />
+						</div>
+					</li>
+					<li>
+						<label for="email">Email:</label>
+						<div class="infoBox">
+							<input id="email" name="email" type="text" />
+						</div>
+					</li>
+					<li>
+						<label for="password1">Enter Password:</label>
+						<div class="infoBox">
+							<input id="password1" name="password1" type="password" />
+						</div>
+					</li>
+					<li>
+						<label for="password2">Re-enter Password:</label>
+						<div class="infoBox">
+							<input id="password2" name="password2" type="password" />
+						</div>
+					</li>
+					</ul>
+					
+						<div id="button">
+							<input id="submit" name="submit" type="submit" value="Submit" />
+						</div>
+		
+				</h3>
+			</form>
+		</div>
+	</body>
+</html>

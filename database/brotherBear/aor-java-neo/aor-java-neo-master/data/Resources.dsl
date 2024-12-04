@@ -1,0 +1,12 @@
+Stone
+Wool
+Timber
+Grain
+Cloth
+Wine
+Metal
+Fur
+Silk
+Spice
+Gold
+Ivory

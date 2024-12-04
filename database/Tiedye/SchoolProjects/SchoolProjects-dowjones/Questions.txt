@@ -1,0 +1,18 @@
+Questions
+
+-Knowledge-
+1. Storing data as binary databases have the advantage of random access
+   capabilities which allow fast access of records from any point in the file.
+2. Records are stored as whole objects in the file.
+3. Text files can be view properly in a text editor as the text editor is
+   designed to read encoded text data.
+4. Text editors cannot read binary data as is in a format that the text editor
+   does not recognize.
+5. Write only writes the least significant 8 bits of the int to the file
+   (1 byte), writeInt writes the whole integer to the file (4 bytes).
+
+-Thinking-
+1. Random accessing a file is way in accessing the file which allows you to read
+   any byte in the file in any order.  This allows you at access certain 
+   information in a file without having to read all the information up to that
+   point.  In java this is done with the RandomAccessFile class.

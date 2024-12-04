@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain" auto-import="true">
+  <class name="School" table="School">
+      <id name="schoolId" column="School_Id" type="long" access="field">
+         <generator class="native" />
+      </id>
+      <property name="name" column="name" type="string" unique="true" not-null="true"/>
+      <property name="website" column="Website" type="java.lang.String"/>
+      <!-- mapping collection of alternative names -->
+      <set name="alternativeNames" table="School_Alternative_Names">
+         <key column="School_Id"/>
+         <element column="Alternative_Name" type="string"/>
+      </set>       
+   
+       <!-- Immutiable column -->
+       <property name="lastModified" 
+              column="Last_Modified" 
+              type="java.sql.Date"
+              update="false"
+              insert="false"
+              generated="always" />
+     
+     <component name="schoolFact" class="SchoolFact">
+        <property name="type" column="Type" type="string"/>
+        <property name="setting" column="Setting" type="string"/>
+        <property name="category" column="Category" type="string"/>
+        <property name="academicCalendar" column="Academic_Calendar" type="string"/>
+        <property name="internationalAid" column="International_Aid" type="string"/>
+        <property name="acceptRate" column="Accept_Rate" type="integer"/>
+        <property name="facultyStudentRatio" column="Faculty_Student_Ratio" type="integer"/>
+        <property name="applicationDeadline" column="Application_Deadline" type="java.util.Date"/>
+     </component>
+     <component name="schoolRank" class="SchoolRank">
+        <property name="overallRank" column="Rank_Overall" type="integer"/>
+        <property name="selectivityRank" column="Selectivity" type="integer"/>
+        <property name="reputationScore" column="Reputation_Score" type="integer"/>
+     </component> 
+     <component name="schoolRequirement" class="SchoolRequirement">
+        <property name="toefl" column="Toefl" type="integer"/>
+        <property name="sat1Min" column="SAT_1_25_percent" type="integer"/>
+        <property name="sat1Up" column="SAT_1_75_percent" type="integer"/>
+        <property name="sat2" column="Sat_2" type="integer"/>
+        <property name="numOfRecomLetter" column="Num_Recom_Letter" type="integer"/>
+     </component>
+     <component name="schoolStudentBody" class="SchoolStudentBody">
+        <property name="foriegnPercent" column="ForiegnPercent" type="integer"/>
+        <property name="asianPercent" column="AsianPercent" type="integer"/>
+        <property name="numberOfStudents" column="Num_Students" type="integer"/>
+     </component> 
+     <!-- unirectional one-to-one association via foreign key association-->
+     <many-to-one name="schoolAddress" 
+                  class="Address" 
+                  column="Address_Id"
+                  cascade="save-update"
+                  unique="true"
+                  lazy="false"/>
+     <!-- unirectional one-to-one association via foreign key association-->
+     <many-to-one name="schoolExpense" 
+                  class="SchoolExpense"
+                  column="Expense_Id"
+                  cascade="save-update"
+                  unique="true"
+                  lazy="false"/>
+     <!-- unidirectional many-to-many association -->
+     <!-- inverse="true": this end is the mirror of the BestMajor end. Ignore the changes on this end and changes on the other end, the BestMajor class should synchronize with DB-->
+     <set name="bestMajors" 
+          table="Best_Major_School" 
+          inverse="true" 
+          cascade="all" 
+          lazy="false">
+       <key column="School_Id"/>
+       <many-to-many class="BestMajors" column="Major_Id"/>
+     </set>
+   </class>
+</hibernate-mapping>  

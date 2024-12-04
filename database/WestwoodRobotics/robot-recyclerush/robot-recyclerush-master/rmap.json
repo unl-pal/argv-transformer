@@ -1,0 +1,138 @@
+{
+
+  "drawer_out_speed": 0.5,
+  "drawer_in_speed": 0.9,
+  "armlift_speed": 0.75,
+  "boxlift_speed": 0.70,
+
+  "drivetrain_speed_slow": 0.70,
+  "drivetrain_speed_fast": 0.90,
+
+  "auton_basic_enabled": false,
+
+  "auton_basic_lift_time": 0.85,
+  "auton_basic_drop_time": 1,
+  "auton_basic_drive_forward_speed_left": 0.45,
+  "auton_basic_drive_forward_speed_right": 0.45,
+  "auton_basic_drive_forward_time": 2.5,
+  "auton_basic_drive_reverse_speed_left": 0.4,
+  "auton_basic_drive_reverse_speed_right": 0.4,
+  "auton_basic_drive_reverse_time": 0.1,
+
+  
+  "motor_drive_front_left": {
+    "type": "talon",
+    "device_channel": 1,
+    "description": "Front Left Drive Motor",
+    "power_channel": 2,
+    "inverted": true
+  },
+  "motor_drive_front_right": {
+    "type": "talon",  
+    "device_channel": 3,
+    "description": "Front Right Drive Motor",
+    "power_channel": 0,
+    "inverted": false
+  },
+  "motor_drive_back_left": {
+    "type": "talon",  
+    "device_channel": 0,
+    "description": "Rear Left Drive Motor", 
+    "power_channel": 3,
+    "inverted": true
+  },
+  "motor_drive_back_right": {
+    "type": "talon",  
+    "device_channel": 2,
+    "description": "Rear Right Drive Motor",
+    "power_channel": 1,
+    "inverted": false
+  },
+  
+  "motor_drawer": {
+    "type": "victor", 
+    "device_channel": 4,
+    "description": "Drawer Motor",          
+    "power_channel": 4,
+    "inverted": true
+  },
+  
+  "motor_boxlift_left": {
+    "type": "canjag", 
+    "device_channel": 4,
+    "description": "Left Box Lift",         
+    "power_channel": 9,
+    "inverted": false
+  },
+  "motor_boxlift_right": {
+    "type": "canjag", 
+    "device_channel": 2,
+    "description": "Right Box Lift",        
+    "power_channel": 10,
+    "inverted": false
+  },
+  
+  "motor_elevator_left": {
+    "type": "canjag", 
+    "device_channel": 8,
+    "description": "Left Elevator",         
+    "power_channel": 8,
+    "inverted": false
+  },
+  "motor_elevator_right": {
+    "type": "canjag", 
+    "device_channel": 1,
+    "description": "Right Elevator",        
+    "power_channel": 11,
+    "inverted": false
+  },
+
+//  Module Key Name                Solenoid Type    Solenoid Channel    Solenoid Channel 2
+  "solenoid_tailgate": {
+    "type": "solenoid",
+    "channel": 0
+  },
+  "solenoid_boxEjector": {
+    "type": "solenoid",
+    "channel": 2
+  },
+  "solenoid_left_hand": {
+    "type": "solenoid",
+    "channel": 4
+  },
+  "solenoid_right_hand": {
+    "type": "solenoid",
+    "channel": 5
+  },
+//  Module Key Name                Digital Input Type   Digital Channel 
+  "limit_switch_drawer_in": {
+    "type": "limit_switch",
+    "channel": 0,
+    "circuit_type": "open"
+  },
+  "limit_switch_drawer_out": {
+    "type": "limit_switch",
+    "channel": 1,
+    "circuit_type": "open"
+  },
+  "limit_switch_hand_left": {
+    "type": "limit_switch",
+    "channel": 2,
+    "circuit_type": "open"
+  },
+  "limit_switch_hand_right": {
+    "type": "limit_switch",
+    "channel": 3,
+    "circuit_type": "open"
+  },
+
+  "limited_controller_drawer": {
+    "type": "limited_controller",
+    "motor": "motor_drawer",
+    "system": {
+      "type": "double_limit_system",
+      "forward_limit": "limit_switch_drawer_in",
+      "reverse_limit": "limit_switch_drawer_out"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+--begin
+.text
+	this is the text 
+	that you should skip
+	i hate this text
+
+.equ Mass_of_Mat, 123
+
+Location1: 	addi r3, r2, 5 --This is a comment :)
+			stw r2, 0(r3)		--ANOTHER COMMMENT
+			br Location1
+End:

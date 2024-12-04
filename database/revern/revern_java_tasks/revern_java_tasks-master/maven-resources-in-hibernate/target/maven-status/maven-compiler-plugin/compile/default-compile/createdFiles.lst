@@ -1,0 +1,5 @@
+com\kzn\itis\db\model\User.class
+com\kzn\itis\db\util\SessionUtil.class
+com\kzn\itis\db\repositories\impl\UserRepositoryImpl.class
+com\kzn\itis\db\repositories\UserRepository.class
+com\kzn\itis\ExampleMain.class

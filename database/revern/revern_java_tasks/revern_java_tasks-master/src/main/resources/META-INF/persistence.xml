@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="NewPersistenceUnit">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+        <class>com.kzn.itis.db.model.User</class>
+
+        <properties>
+
+            <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
+
+            <!--<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>-->
+
+            <property name="hibernate.connection.url" value="${hibernate.db.url}"/>
+            <property name="hibernate.connection.username" value="${hibernate.db.user}"/>
+            <property name="hibernate.connection.password" value="${hibernate.db.password}"/>
+            <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto.init-param}"/>
+            <property name="hibernate.hbm2ddl.import_files" value="init-create.sql"/>
+
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+
+            <property name="hibernate.jdbc.batch_size" value="20"/>
+
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+
+            <property name="hibernate.generate_statistics" value="false"/>
+
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+
+            <!-- Connection Pool -->
+            <!--
+            <property name="hibernate.c3p0.min_size" value="5"/>
+            <property name="hibernate.c3p0.max_size" value="100"/>
+            <property name="hibernate.c3p0.timeout" value="600"/>
+            <property name="hibernate.c3p0.max_statements" value="50"/>
+            <property name="hibernate.c3p0.idle_test_period" value="30"/>
+            <property name="hibernate.c3p0.acquire_increment" value="5"/>
+            -->
+
+        </properties>
+    </persistence-unit>
+</persistence>

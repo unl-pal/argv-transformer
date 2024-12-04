@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">NiceCoffee</string>
+
+    <string name="drawer_head">Nice Coffee</string>
+    <string name="drawer_catalog">Catalog</string>
+
+    <string name="drawer_main_1">Personal info</string>
+    <string name="drawer_main_2">Contacts</string>
+    <string name="drawer_main_3" translatable="false">+7 (495) 973-09-01</string>
+    <string name="drawer_main_4">About us</string>
+
+    <string name="drawer_main_pic_1" translatable="false">drawable/drawer_personal</string>
+    <string name="drawer_main_pic_2" translatable="false">drawable/drawer_contacts</string>
+    <string name="drawer_main_pic_3" translatable="false">drawable/drawer_call</string>
+    <string name="drawer_main_pic_4" translatable="false">drawable/drawer_about</string>
+
+    <string name="drawer_catalog_1">Coffee</string>
+    <string name="drawer_catalog_2">Coffee machines</string>
+    <string name="drawer_catalog_3">Supplies</string>
+    <string name="drawer_catalog_4">Syrups</string>
+    <string name="drawer_catalog_5">Gift kits</string>
+    <string name="drawer_catalog_6">Candies</string>
+    <string name="drawer_catalog_7">Accessories</string>
+    <string name="drawer_catalog_8">Tee</string>
+    <string name="drawer_catalog_9">Coffee machines rent</string>
+    <string name="drawer_catalog_10">Coffee machines repair</string>
+    <string name="drawer_catalog_11">Trade in</string>
+    <string name="drawer_catalog_12">Deals</string>
+
+    <string name="drawer_catalog_pic_1" translatable="false">drawable/drawer_coffee</string>
+    <string name="drawer_catalog_pic_2" translatable="false">drawable/drawer_coffeemachines</string>
+    <string name="drawer_catalog_pic_3" translatable="false">drawable/drawer_supplies</string>
+    <string name="drawer_catalog_pic_4" translatable="false">drawable/drawer_syrups</string>
+    <string name="drawer_catalog_pic_5" translatable="false">drawable/drawer_gift_kits</string>
+    <string name="drawer_catalog_pic_6" translatable="false">drawable/drawer_candies</string>
+    <string name="drawer_catalog_pic_7" translatable="false">drawable/drawer_accessories</string>
+    <string name="drawer_catalog_pic_8" translatable="false">drawable/drawer_tee</string>
+    <string name="drawer_catalog_pic_9" translatable="false">drawable/drawer_coffee_machines_rent</string>
+    <string name="drawer_catalog_pic_10" translatable="false">drawable/drawer_coffee_machines_repair</string>
+    <string name="drawer_catalog_pic_11" translatable="false">drawable/drawer_trade_in</string>
+    <string name="drawer_catalog_pic_12" translatable="false">drawable/drawer_deals</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="cart">Cart</string>
+    <string name="search">Search</string>
+    <string name="action_buy">Buy</string>
+
+    <string name="content_authority" translatable="false">ru.nicecoffee.app</string>
+
+    <string name="back_stack_tag" translatable="false">nicecoffee</string>
+
+    <string name="first_run_head">First run</string>
+    <string name="first_run_text">App need to download some files from internet, please, press Now to download, or Later if you want to download it later</string>
+    <string name="first_run_now">Now</string>
+    <string name="first_run_later">Later</string>
+</resources>

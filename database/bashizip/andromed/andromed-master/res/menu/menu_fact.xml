@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:menuCategory="system" android:id="@+id/option_add_fact"
+     android:title="@string/add_fact" android:icon="@drawable/ic_menu_globe"></item>
+    <item android:id="@+id/option_share_fact" android:title="@string/share_fact"></item>
+    <item android:id="@+id/option_goto" android:menuCategory="system"
+     android:title="@string/go_to"></item>
+</menu>

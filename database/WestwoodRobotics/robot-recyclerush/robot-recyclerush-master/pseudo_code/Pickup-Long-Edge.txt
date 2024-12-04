@@ -1,0 +1,12 @@
+Pickup (Long Side of Tote)
+ILM(L&R) -> Up to Top Limit
+ELM(L|R) -> Lift Box
+TP -> Lower
+DM -> Extend Drawer (To Far Limit Switch)
+SP(L|R) -> Extend
+ELM(L|R) -> Lower Box To Drawer
+SP(L|R) -> Retract
+DM -> Retract Drawer (To Inner Limit Switch)
+TP -> Raise
+ILM(L&R) -> Down to Lower Limit
+

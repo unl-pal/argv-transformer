@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>Przyklad POST</TITLE>
+</HEAD>
+ 
+<H1 ALIGN="CENTER">KALKULATOR MACIERZY</H1>
+
+Wybierz wielkość macierzy 
+<FORM id="Formularz" name="Formularz" method="post" >
+     
+	<select name="wielkosc">
+		<option>2X2</option>
+		<option>3X3</option>
+		<option>4X4</option>
+		<option>5X5</option>
+		<option>6X6</option>
+	</select>
+	<br>
+I typ operacji
+<br>
+	<select name="operacja">
+		<option>Mnożenie</option>
+		<option>Dodawanie</option>
+		<option>odejmowane</option>
+		<option>dzielenie</option>
+	</select>
+	<br>
+	<button onclick="getParam()">ok</button>
+</form>
+ 
+ <script type="text/javascript">
+ function getParam()
+ {
+	 var wielkoscmacierzy = document.getElementById('Formularz').wielkosc;
+	 var operacja = document.getElementById('Formularz').operacja;
+	 var adres = "http://localhost:8080/kalkulator?parametr1=" + wielkoscmacierzy + "&parametr2="+ operacja;
+	 window.open(adres);
+ }
+ 
+ </script>
+ 
+ 
+</BODY>
+</HTML>

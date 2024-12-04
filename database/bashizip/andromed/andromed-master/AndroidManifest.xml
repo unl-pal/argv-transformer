@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	android:versionCode="1" package="com.bashizip.andromed" android:versionName="1.0.1">
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+<uses-permission android:name="android.permission.WRITE_CONTACTS"></uses-permission>
+<uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+	<application android:label="@string/app_name" android:description="@string/detail_devise" android:name=".application.AndromedApplication" 	android:debuggable="true" android:icon="@drawable/appbrain72">
+
+		<activity android:name=".Splash">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+
+		</activity>
+		<activity android:name=".Andromed" android:label="@string/app_name">
+		</activity>
+		<activity android:name="AddPost" android:label="@string/add_patient"></activity>
+		<activity android:name="PostList" android:label="@string/case_list">
+
+		</activity>
+		<activity android:name=".NewQuote" android:label="@string/new_quote"></activity>
+		<activity android:name="QuotesActivity" android:label="@string/facts"></activity>
+		<activity android:name="SyncCenterActivity" android:label="Publier les resultats"></activity>
+		<activity android:label="Countries" android:name="CountriesList"></activity>
+		<activity android:name="Settings" android:label="@string/params"></activity>
+
+	</application>
+
+</manifest>

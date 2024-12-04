@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="de.eatgate.placessearch.activity.TakePhotoActivity">
+    <item
+        android:id="@+id/action_back_take"
+        android:icon="@drawable/back_ic"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_back" />
+    <item
+        android:id="@+id/action_close"
+        android:icon="@drawable/close_icon_w"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_close" />
+</menu>
+

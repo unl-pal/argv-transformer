@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 22/07/2013 12:24:47 by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="com.freelancersteam.www.java.tomafoto.dominio.Empleado" table="empleado" catalog="toma_foto">
+        <id name="legajo" type="int">
+            <column name="LEGAJO" />
+            <generator class="assigned" />
+        </id>
+        <many-to-one name="empresa" class="com.freelancersteam.www.java.tomafoto.dominio.Empresa" fetch="select">
+            <column name="ID_EMPRESA" />
+        </many-to-one>
+        <property name="dni" type="int">
+            <column name="DNI" not-null="true" />
+        </property>
+        <property name="apellido" type="string">
+            <column name="APELLIDO" length="100" />
+        </property>
+        <property name="nombre" type="string">
+            <column name="NOMBRE" length="100" />
+        </property>
+        <property name="fechaIngreso" type="date">
+            <column name="FECHA_INGRESO" length="10" />
+        </property>
+        <property name="direccion" type="string">
+            <column name="DIRECCION" length="200" />
+        </property>
+        <property name="localidad" type="string">
+            <column name="LOCALIDAD" length="100" />
+        </property>
+        <property name="clave" type="string">
+            <column name="CLAVE" length="30" />
+        </property>
+        <property name="administrador" type="java.lang.Boolean">
+            <column name="ADMINISTRADOR" />
+        </property>
+        <property name="imagen" type="binary">
+            <column name="IMAGEN" />
+        </property>
+        <property name="telefono" type="string">
+            <column name="TELEFONO" length="20" />
+        </property>
+        <set name="asistencias" inverse="true">
+            <key>
+                <column name="LEGAJO" />
+            </key>
+            <one-to-many class="com.freelancersteam.www.java.tomafoto.dominio.Asistencia" />
+        </set>
+    </class>
+</hibernate-mapping>

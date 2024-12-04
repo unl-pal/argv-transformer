@@ -1,0 +1,18 @@
+name: EasterEggs
+version: 0.0.1
+author: AniSkywalker
+authors: [AniSkywalker, 20zinnm]
+main: com.gmail.meyerzinn.eastereggs.EasterEggs
+commands:
+  eggs:
+    description: Toggle the usage of easter eggs.
+    usage: /eggs [allow/deny]
+  adddrop:
+    description: Use to add a drop.
+    usage: /adddrop (with item and amount of them in hand)
+  removedrop:
+    description: Use to remove drops.
+    usage: /removedrop [indexnumber]
+  listdrops:
+    description: Use to list drops.
+    usage: /removedrop [indexnumber]

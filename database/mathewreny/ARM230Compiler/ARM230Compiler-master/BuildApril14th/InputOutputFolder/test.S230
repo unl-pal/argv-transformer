@@ -1,0 +1,22 @@
+START:
+addi r2 r3 40
+cmp r2 r9
+bne -53
+add r3 r2 r10
+sub r5 r12 r3
+and r12 r3 r0
+or r5 r5 r5
+sll r10 10
+cmp r5 r6
+--OMG comment! Will the code work?
+jr r3
+lw r1 10(r5)
+sw r10 53(r2)
+si 120
+b -50
+bal -34
+j 100
+jal 1000
+li r3 1024
+sub r2 r4 r1
+add r3 r6 r8

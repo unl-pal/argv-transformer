@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>fr.devoxx</groupId>
+  <artifactId>java-evolving-fr</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Devoxx FR 2015 Demos</name>
+  <description>
+    Apache Maven @ DevoxxFR 2015 - Demos
+    http://cfp.devoxx.fr/2015/talk/FEM-9840/Quand_Java_prend_de_la_vitesse,_Apache_Maven_vous_garde_sur_les_rails
+
+    Pour chaque démo, un README.txt explique ce qu'il faut voir et un run-demo.sh à sourcer
+    permet d'exécuter ( . run-demo.sh )
+  </description>
+
+  <modules>
+    <module>bytecode</module>
+    <module>animalsniffer</module>
+    <module>toolchains</module>
+  </modules>
+</project>

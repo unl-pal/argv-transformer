@@ -1,0 +1,4 @@
+ORG 32
+addi $s6, $s6, -20
+add $s6, $s6, $s1
+lw $s0, 8($s6) 

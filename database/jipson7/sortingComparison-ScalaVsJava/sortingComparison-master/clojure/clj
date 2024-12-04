@@ -1,0 +1,5 @@
+#!/bin/bash
+
+dir=$(dirname $0)
+
+java -cp $dir/tools/jline-1.0.jar:$dir/tools/clojure-1.6.0.jar:$CLASSPATH jline.ConsoleRunner clojure.main $*

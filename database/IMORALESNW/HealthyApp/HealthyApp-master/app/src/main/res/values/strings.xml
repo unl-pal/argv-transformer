@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">HealthyApp</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="open_button">Abrir</string>
+    <string name="hint_firstname">First Name</string>
+    <string name="hint_lastname">Last Name</string>
+    <string name="hint_profession">Profession</string>
+    <string name="title_activity_application">ApplicationActivity</string>
+    <string name="hint_street">Street</string>
+    <string name="hint_city">City</string>
+    <string-array name="provinces_array">
+        <item>Province</item>
+        <item>AB</item>
+        <item>BC</item>
+        <item>MB</item>
+        <item>NB</item>
+        <item>NL</item>
+        <item>NS</item>
+        <item>NT</item>
+        <item>NU</item>
+        <item>ON</item>
+        <item>PE</item>
+        <item>QC</item>
+        <item>SK</item>
+        <item>YK</item>
+    </string-array>
+    <string name="hint_postalcode">Postal Code</string>
+    <string name="hint_homephone">Home Phone</string>
+    <string name="hint_workphone">Work Phone</string>
+    <string name="hint_mobile">Mobile</string>
+    <string name="hint_mail">Email</string>
+    <string name="receive_mail">Would you like to receive occasional information via email about Light Energy, In Light Wellness Systems and Whole Health at Home?</string>
+    <string name="radio_yes">Yes</string>
+    <string name="radio_no">No</string>
+    <string name="taking_med">Are you taking any medications or herbal remedies that may make you light sensitive? (ex. Belladonna, Tetracycline, Doxycycline, etc.) If "YES", please list:</string>
+    <string name="help_us">Please help us to serve you better. Please check all of the following conditions that apply to you.</string>
+    <string name="are_you">Are you:</string>
+    <string name="pregnant">Pregnant?</string>
+    <string name="light_sensitive">Light Sensitive?</string>
+    <string name="cancer">Undergoing cancer treatments?</string>
+    <string name="you_have">Do you have:</string>
+    <string name="acne">Acne</string>
+    <string name="allergies">Allergies</string>
+    <string name="alzheimer">Alzheimer</string>
+    <string name="arthritis">Arthritis</string>
+    <string name="circadian">Circadian Rhythm / Sleep Problems</string>
+    <string name="circulation">Circulation Problems</string>
+    <string name="chronic">Chronic Pain</string>
+    <string name="dermatological">Dermatological Issues(psoriasis, exzema, etc)</string>
+    <string name="depression">Depression / Mood Disorder / PTSD</string>
+    <string name="diabetes">Diabetes</string>
+    <string name="fibro">Fibromyalgia</string>
+    <string name="hair">Hair Loss</string>
+    <string name="nerve">Nerve Damage</string>
+    <string name="stroke">Stroke</string>
+    <string name="tbi">TBI / Concussion</string>
+    <string name="thyroid">Thyroid Issues</string>
+    <string name="interested">Are you interested in:</string>
+    <string name="physical">Physical Training and Exercise</string>
+    <string name="skin">Skin Rejuvenation</string>
+    <string name="weight_loss">Weight Loss / Body Contouring</string>
+    <string name="wound">Wound Healing</string>
+    <string name="top_areas">Please list your top areas of concern:</string>
+    <string name="hint_top1">Concern 1</string>
+    <string name="hint_top2">Concern 2</string>
+    <string name="hint_top3">Concern 3</string>
+    <string name="read_waiver">I have read this Release prior to signing and I understand its effect. I am aware that by signing this Release I am waiving certain legal rights, which I or my heirs, next of kin, executors, administrators and assigns may otherwise have had against Releasees.</string>
+    <string name="hint_printname">Print Name</string>
+    <string name="hint_initial">Initial</string>
+    <string name="hint_witnessname">Witness Name</string>
+    <string name="external_dir">Directory</string>
+</resources>

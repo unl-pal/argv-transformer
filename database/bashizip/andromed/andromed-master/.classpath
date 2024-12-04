@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="lib" path="E:/bash_workspace/bash/db4o-8.0-java/db4o-8.0/lib/db4o-8.0.184.15484-all-java5.jar"/>
+	<classpathentry kind="lib" path="E:/bash_workspace/bash/db4o-8.0-java/dRS-8.0-java/drs-8.0/lib/dRS-8.0.184.15484-core.jar"/>
+	<classpathentry kind="lib" path="E:/WorkspaceEE/andromedserver/libs/lib_droid/lib/org.codehaus.jackson.core.jar"/>
+	<classpathentry kind="lib" path="E:/WorkspaceEE/andromedserver/libs/lib_droid/lib/org.codehaus.jackson.mapper.jar"/>
+	<classpathentry kind="lib" path="E:/WorkspaceEE/andromedserver/libs/lib_droid/lib/org.restlet.ext.httpclient.jar"/>
+	<classpathentry kind="lib" path="E:/WorkspaceEE/andromedserver/libs/lib_droid/lib/org.restlet.ext.jackson.jar"/>
+	<classpathentry kind="lib" path="E:/WorkspaceEE/andromedserver/libs/lib_droid/lib/org.restlet.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

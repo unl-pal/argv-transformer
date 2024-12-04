@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffd995ff">
+
+    <TextView
+        android:text="@string/desc_activity_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView" />
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Students"
+        android:id="@+id/btnStudents"
+        android:onClick="onClickStudents" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Courses"
+        android:id="@+id/btnCourses"
+        android:onClick="onClickCourses" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Enrollment"
+        android:id="@+id/btnEnrollment"
+        android:onClick="onClickEnrollment" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Assessment"
+        android:id="@+id/btnAssessment"
+        android:onClick="onClickAssessment" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:id="@+id/btnExit"
+        android:onClick="onClickLogout" />
+
+</LinearLayout>

@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/MainStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="de.eatgate.placessearch.activities.MakeReviewActivity">
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/MainStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/review_head"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/editTexHeadline"
+        style="@style/TextInputStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:padding="5dp" />
+
+    <EditText
+        android:id="@+id/editTextReview"
+        style="@style/TextInputStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:editable="true"
+        android:ems="10"
+        android:gravity="top|left"
+        android:inputType="textMultiLine"
+        android:minHeight="150dp"
+        android:padding="5dp" />
+
+    <RatingBar
+        android:id="@+id/ratingSingleReview"
+        style="@style/RatingBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:clickable="true"
+        android:numStars="5"
+        android:rating="0"
+        android:stepSize=".5" />
+
+    <Button
+        android:id="@+id/btnSndRev"
+        style="@style/ButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/eatgate_main_button"
+        android:longClickable="true"
+        android:onClick="onClickSendRev"
+        android:text="@string/Send" />
+
+</LinearLayout>

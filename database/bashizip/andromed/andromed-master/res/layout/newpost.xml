@@ -1,0 +1,26 @@
+ <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="fill_parent" android:id="@+id/scrollView1" android:layout_width="fill_parent" android:background="@drawable/back">
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="fill_parent" android:id="@+id/tableLayout1" android:layout_width="fill_parent" >
+        <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/tableRow5" android:baselineAligned="false" android:layout_marginTop="80dip">
+            <EditText android:layout_height="wrap_content" android:text="@string/vide" android:layout_width="fill_parent" android:layout_weight="1" android:id="@+id/tv_age" android:inputType="number" android:hint="Age du malade"></EditText>
+        </TableRow>
+        <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/tableRow1" android:layout_gravity="right" android:layout_marginTop="0dip">
+            <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/anonymous" android:layout_gravity="center_vertical" android:id="@+id/tv_name" android:hint="Nom du malade"></EditText>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <Spinner android:layout_width="wrap_content" android:id="@+id/spiner_categorie" android:soundEffectsEnabled="true" android:layout_weight="3" android:layout_gravity="top" android:layout_height="wrap_content"></Spinner>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <EditText android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1" android:text="@string/vide" android:id="@+id/tv_days" android:inputType="number" android:hint="nombre de jours"></EditText>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow4" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:id="@+id/textView4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/under_treatement" android:textColor="@color/noir" android:layout_gravity="right" android:layout_marginLeft="10dip" android:layout_marginTop="15dip"></TextView>
+            <CheckBox android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_weight="1" android:text="@string/vide" android:layout_marginRight="20dip" android:layout_marginBottom="20dip" android:id="@+id/cb_underTreatement"></CheckBox>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow6" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <LinearLayout android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
+                <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/anuler" android:id="@+id/btn_annuler_post"></Button>
+                <Button android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/save" android:id="@+id/btn_save_new_post"></Button>
+            </LinearLayout>
+        </TableRow>
+    </TableLayout>
+</ScrollView>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="domain" auto-import="false">
+  <class name="TestingScore" table="TestingScore">
+  
+    <id name="id" column="Test_Score_id" type="long">
+        <generator class="native" />
+    </id>
+    <discriminator column="Score_Type" type="string"/>
+    <property name="toefl" column="Toefl" type="integer"/>
+        <property name="sat1Min" column="SAT_1_25_percent" type="integer"/>
+        <property name="sat1Up" column="SAT_1_75_percent" type="integer"/>
+        <property name="sat2" column="Sat_2" type="integer"/>
+    
+    <subclass name="SchoolRequirement" discriminator-value="Test_Score_School">
+       <property name="numOfRecomLetter" column="Test_Score_School_Num_Recom_Letter"/>
+    </subclass>                 
+  </class>
+</hibernate-mapping>  

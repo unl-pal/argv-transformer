@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:orientation="vertical" android:background="@drawable/back">
+    <Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="0" android:text="@string/device_cloud" android:id="@+id/btn_sync_cloud" android:layout_marginLeft="30dip" android:layout_marginRight="30dip" android:layout_marginTop="70dip" android:drawableTop="@drawable/ic_menu_cloud"></Button>
+    <ImageView android:src="@drawable/refresh2" android:id="@+id/imageView1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_marginTop="10dip"></ImageView>
+    <TextView android:text="@string/unsycn" android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_width="wrap_content" android:textColor="@color/noir"></TextView>
+    <TextView android:text="TextView" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_width="wrap_content" android:fadeScrollbars="true" android:freezesText="true" android:textColorHighlight="@color/noir" android:layout_marginTop="5dip" android:focusableInTouchMode="true" android:textColor="@color/fondBleu" android:textStyle="bold" android:id="@+id/tv_sync_count"></TextView>
+</LinearLayout>

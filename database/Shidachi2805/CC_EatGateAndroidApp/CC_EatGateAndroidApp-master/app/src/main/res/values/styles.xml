@@ -1,0 +1,41 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="MainStyle">
+        <item name="android:background">@color/dark_orange</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextStyle">
+        <item name="android:background">@color/dark_orange</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextInputStyle">
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="ButtonStyle">
+
+        <item name="android:textColor">@color/white</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
+
+    <style name="RatingBarStyle">
+        <item name="android:background">@color/dark_orange</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ActionBarStyle">
+        <item name="android:background">@color/dark_brown</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+</resources>

@@ -1,0 +1,12 @@
+
+    <TableLayout android:id="@+id/tableLayout1" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:background="@drawable/back">
+        <TableRow android:id="@+id/tableRow1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:layout_width="wrap_content" android:text="@string/current" android:layout_height="wrap_content" android:textColor="@color/noir" android:id="@+id/tv_curr_id" android:textStyle="bold" android:layout_gravity="center_horizontal" android:layout_marginLeft="80dip"></TextView>
+        </TableRow>
+        <FrameLayout android:id="@+id/frameLayout1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1">
+            <EditText android:gravity="center" android:layout_gravity="left" android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/edit_quote" android:text="@string/hello" android:editable="false" android:focusable="false" android:background="@drawable/tempbg" android:cursorVisible="false"></EditText>
+        </FrameLayout>
+        <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/noir" android:text="@string/author" android:id="@+id/tv_from"></TextView>
+        </TableRow>
+    </TableLayout>

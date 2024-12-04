@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FillToggle</string>
+    <color name="grey">#a0a0a0</color>
+    <color name="darkGrey">#808080</color>
+    <color name="charcoal">#505050</color>
+    <color name="myRed">#e74a3c</color>
+    <color name="myRedLight">#f59a91</color>
+    <color name="myRedDark">#bd4032</color>
+    <color name="white">#ffffff</color>
+    <color name="smokyWhite">#e0e0e0</color>
+</resources>

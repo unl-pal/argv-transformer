@@ -1,0 +1,35 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wernerapps.ezbongo.StopListing.StopFragment">
+
+    <!--<android.support.v4.widget.SwipeRefreshLayout-->
+    <com.wernerapps.ezbongo.StopListing.CustomSwipeRefreshLayout
+        android:id="@+id/swipe_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/errorDisplay"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:padding="15dp"
+                    android:gravity="center"
+                    android:textColor="#000000"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    style="?android:attr/borderlessButtonStyle"/>
+                <ExpandableListView
+                    android:id="@+id/listview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            </LinearLayout>
+
+
+    </com.wernerapps.ezbongo.StopListing.CustomSwipeRefreshLayout>
+    <!--</android.support.v4.widget.SwipeRefreshLayout>-->
+</FrameLayout>

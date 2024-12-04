@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<SurfaceView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@+id/camerasurface"></SurfaceView><ScrollView android:layout_height="wrap_content" android:layout_width="fill_parent"
+		android:scrollbarStyle="insideOverlay" android:layout_alignParentBottom="true" android:isScrollContainer="true" android:id="@+id/debugscroller">
+		<TextView android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:id="@+id/textstuff"
+			android:text="DriveLapse test console\n" />
+	</ScrollView>
+	<LinearLayout android:orientation="vertical" android:gravity="center_vertical" android:layout_alignParentRight="true" android:layout_alignParentBottom="false" android:layout_width="wrap_content" android:layout_height="fill_parent" android:background="@color/background_button">
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="GO!" android:id="@+id/gobutton"
+			android:width="100dip" android:height="70dip"></Button>
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="PAUSE!" android:id="@+id/pausebutton"
+			android:height="70dip" android:width="100dip"></Button>	
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="STOP!" android:id="@+id/stopbutton"
+			android:height="70dip" android:width="100dip"></Button>
+</LinearLayout>
+
+
+</RelativeLayout>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:weightSum="1"
+    android:id="@+id/search_layout"
+    android:background="#EEEEEE">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:hint="@string/from_string"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="25dp"
+            android:id="@+id/editText2"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="111dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:layout_gravity="center_horizontal">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:hint="@string/to_string"
+            android:layout_height="40dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="20dp"
+            android:id="@+id/editText"
+            android:layout_marginEnd="285dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.48">
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:text="@string/favourite_string"
+            android:id="@+id/button"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="20dp">
+
+
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/myRadioGroup"
+            android:checkedButton="@+id/sound"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:id="@+id/radioButton"
+                android:text="@string/ankomst_string" />
+
+            <RadioButton
+                android:layout_width="122dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:id="@+id/sound"
+                android:text="@string/avgang_string"
+                android:checked="true"
+                android:layout_weight="0.02" />
+
+
+        </RadioGroup>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_weight="0.08">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:hint="@string/klockslag_string"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText3"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="23dp"
+            android:layout_toStartOf="@+id/editText4" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:hint="@string/datum_string"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText4"
+            android:layout_alignTop="@+id/editText3"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="22dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.06">
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:text="@string/trafikslag_string"
+            android:id="@+id/button2"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.07">
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:text="@string/bevakningar_string"
+            android:id="@+id/button3"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+</LinearLayout>

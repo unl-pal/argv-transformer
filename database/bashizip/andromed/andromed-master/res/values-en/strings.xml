@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="about_text">Andromed Tropical est un outil de receuil de données sanitaires permettant aux enquêteurs volonatires 
+	de stocker des informations directement sur leurs terminaux Android puis de les  publier sur le serveur Andromed.
+	Mais c\'est aussi un outil de sensibilisation
+informative contre les maladies tropicales les plus meurtières en Afrique telles que le paludisme.
+\n\nAll  rights Reserved by Patrick Bashizi.\n
+Bug Report :bashizip@gmail.com</string>
+</resources>

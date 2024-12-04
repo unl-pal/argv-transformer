@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+   <LinearLayout
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="60dp">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:hint="@string/hint_firstname"
+                android:id="@+id/txtFirstName"
+                android:layout_weight="0.3"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:hint="@string/hint_lastname"
+                android:id="@+id/txtLastName"
+                android:layout_weight="0.3"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:id="@+id/txtProfession"
+                android:hint="@string/hint_profession"
+                android:layout_weight="0.3"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="60dp">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:id="@+id/txtCity"
+                android:hint="@string/hint_city"
+                android:layout_weight="0.25"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:id="@+id/txtStreet"
+                android:hint="@string/hint_street"
+                android:layout_weight="0.25"/>
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/dropProvince"
+                android:layout_weight="0.25"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters"
+                android:id="@+id/txtPostalCode"
+                android:hint="@string/hint_postalcode"
+                android:layout_weight="0.25"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="60dp">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:hint="@string/hint_homephone"
+                android:id="@+id/txtHomePhone"
+                android:layout_weight="0.5"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:hint="@string/hint_workphone"
+                android:id="@+id/txtWorkPhone"
+                android:layout_weight="0.5"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="60dp">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:hint="@string/hint_mobile"
+                android:id="@+id/txtMobile"
+                android:layout_weight="0.5"/>
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:hint="@string/hint_mail"
+                android:id="@+id/txtEmail"
+                android:layout_weight="0.5"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/receive_mail"
+            android:id="@+id/textView"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="60dp" />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/interested"
+            android:orientation="horizontal">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_yes"
+                    android:id="@+id/radioYes"
+                    android:layout_gravity="center_horizontal"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_no"
+                    android:id="@+id/radioNo"
+                    android:checked="true"
+                    android:layout_gravity="center_horizontal"/>
+        </RadioGroup>
+
+    </LinearLayout>
+    </ScrollView>
+</LinearLayout>

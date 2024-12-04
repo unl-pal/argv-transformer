@@ -1,0 +1,16 @@
+ACTUATORS
+Interior Lift Motor Left -> ILML*
+Interior Lift Motor Right -> ILMR*
+Exterior Lift Moter Right -> ELMR*
+Exterior Lift Motor Left -> ELML*
+Drawer Moter -> DM
+
+Swing Piston Right -> SPR
+Swing Piston Left -> SPL
+Drawer Raise Piston -> DRP
+Tailgate Piston -> TP
+Railroad Piston -> RRP
+
+INPUTS
+Pickup Switch Left -> PSL
+Pickup Switch Right -> PSR

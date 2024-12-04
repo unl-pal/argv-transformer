@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Placessearch</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_back">Back</string>
+    <string name="str_rest_name">Restaurant Name:</string>
+    <string name="str_adress">Adresse</string>
+    <string name="str_offnungsZeit">Öffnungszeiten</string>
+    <string name="str_rating">Rating</string>
+    <string name="title_activity_web_service">WebServiceActivity</string>
+    <string name="Vorname">Vorname</string>
+    <string name="vorname">Vorname</string>
+    <string name="nachname">Nachname</string>
+    <string name="register">Register</string>
+    <string name="title_activity_make_review">Bewertung schreiben</string>
+    <string name="Send">Senden</string>
+    <string name="title_activity_upload_loc_photo">UploadLocPhotoActivity</string>
+    <string name="oeffnungsZeit">Öffnungszeiten</string>
+    <string name="addresse">Adresse</string>
+    <string name="restaurantName">Name</string>
+    <string name="action_close">Beenden</string>
+    <string name="writeRv"> + Review</string>
+    <string name="upload">+ Photo</string>
+    <string name="title_activity_activity_test">ActivityTestActivity</string>
+    <string name="title_activity_my_camera">MyCameraActivity</string>
+    <string name="title_activity_image_pick">ImagePickActivity</string>
+    <string name="button_camera">Take</string>
+    <string name="image_view_camera">Shows the taken pic</string>
+    <string name="get_photo">Camera</string>
+    <string name="title_activity_place_list">PlaceListActivity</string>
+    <string name="get_gallery">Gallery</string>
+    <string name="title_activity_upload_photo">UploadPhotoActivity</string>
+    <string name="title_activity_start">EatGate</string>
+    <string name="title_activity_activity_start">ActivityStart</string>
+    <string name="ToMap">Standortsuche</string>
+    <string name="ToTxt">Textsuche</string>
+    <string name="gps_chech">GPS einschalten</string>
+    <string name="welcome_txt">Find your way - Standort oder Textsuche?</string>
+    <string name="searchLocTxt"><![CDATA[< Ort eingeben Bsp. Berlin >]]></string>
+    <string name="title_activity_camera">CameraActivity</string>
+    <string name="action_info">Info</string>
+    <string name="auswahlPhoto">Foto hochladen</string>
+    <string name="action_menu">Menü</string>
+    <string name="write">+ Review</string>
+    <string name="take"> + Photo</string>
+    <string name="plusShow">Anzeigen +</string>
+    <string name="preview">Vorschau</string>
+    <string name="action_addNewLoc">Neue Location</string>
+    <string name="title_activity_make_location">MakeLocation</string>
+    <string name="add_loc">Neue Location anlegen</string>
+    <string name="review_head">Dein Beitrag</string>
+    <string name="your_position">Deine Position - kein GPS</string>
+    <string name="action_gps">GPS Optionen</string>
+
+</resources>

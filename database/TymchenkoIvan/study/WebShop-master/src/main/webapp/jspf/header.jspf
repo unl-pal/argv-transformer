@@ -1,0 +1,49 @@
+<%@ include file="/jspf/directive/page.jspf"%>
+
+<div class="header">
+	<div class="container">
+		<div class="header-top">
+			<div class="logo">
+				<a href="index.jsp">EDGE</a>
+			</div>
+			<div class="login-bars">
+				<util:login />&nbsp;&nbsp;
+				<util:locale />
+			</div>
+			<!---menu-----bar--->
+			<div class="header-botom">
+				<div class="content white">
+					<nav class="navbar navbar-default nav-menu" role="navigation">
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle"
+								data-toggle="collapse"
+								data-target="#bs-example-navbar-collapse-1">
+								<span class="sr-only">Toggle navigation</span> <span
+									class="icon-bar"></span> <span class="icon-bar"></span> <span
+									class="icon-bar"></span>
+							</button>
+						</div>
+						<div class="clearfix"></div>
+						<!--/.navbar-header-->
+
+						<div class="collapse navbar-collapse collapse-pdng"
+							id="bs-example-navbar-collapse-1">
+							<ul class="nav navbar-nav nav-font">
+								<li><a href="products">Products</a></li>
+								<li><a href="contact.jsp">Contacts</a></li>
+								<li><a href="basket.jsp">My basket (<span class="basketCount"><c:if test="${basket == null}">0</c:if>${basket.productsCount}</span>)</a></li>
+								<div class="clearfix"></div>
+							</ul>
+							<div class="clearfix"></div>
+						</div>
+						<!--/.navbar-collapse-->
+						<div class="clearfix"></div>
+					</nav>
+					<!--/.navbar-->
+					<div class="clearfix"></div>
+				</div>
+				<!--/.content--->
+			</div>
+			<!--header-bottom-->
+		</div>
+	</div>

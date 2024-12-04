@@ -863,6 +863,8 @@ public class TransformVisitor extends ASTVisitor {
 					switch(target) {
 					case "SPF": expression = replaceWithSymbolicFloat();
 					break;
+					case "SVCOMP" : expression = replaceWithNodeFloat();
+					break;
 					default : expression = replaceWithRandomFloat();
 					}
 									
@@ -895,6 +897,9 @@ public class TransformVisitor extends ASTVisitor {
 					switch(target) {
 					case "SPF": randMethodInvocation = replaceWithSymbolicDouble();
 					break;
+					case "SVCOMP": randMethodInvocation = replaceWithNodeDouble();
+					break;
+					
 					default : randMethodInvocation = replaceWithRandomDouble();
 					}
 							
@@ -924,6 +929,8 @@ public class TransformVisitor extends ASTVisitor {
 					MethodInvocation randMethodInvocation = null;
 					switch(target) {
 					case "SPF": randMethodInvocation = replaceWithSymbolicBoolean();
+					break;
+					case "SVCOMP" : randMethodInvocation = replaceWithNodeBoolean();
 					break;
 					default : randMethodInvocation = replaceWithRandomBoolean();
 					}
@@ -1179,10 +1186,14 @@ public class TransformVisitor extends ASTVisitor {
 		return true;
 	}
 	
+/**================================================BOOLEAN==========================================================================*/	
+	
 	private void replaceBoolean(Expression exp) {
 		MethodInvocation randMethodInvocation = null;
 		switch(target) {
 		case "SPF" : randMethodInvocation = replaceWithSymbolicBoolean();
+		break;
+		case "SVCOMP" : randMethodInvocation = replaceWithNodeBoolean();
 		break;
 		default: randMethodInvocation = replaceWithRandomBoolean();
 		}
@@ -1197,9 +1208,23 @@ public class TransformVisitor extends ASTVisitor {
 		randMethodInvocation.setName(ast.newSimpleName("nextBoolean"));
 		
 		randUsedInMethod = true;
-//		randUsedInProgram = true;
+		//randUsedInProgram = true;
 		return randMethodInvocation;
+		
 	}
+	
+	private MethodInvocation replaceWithNodeBoolean() {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetBoolean"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+		
+	}
+	
+	
+	
 
 	private MethodInvocation replaceWithSymbolicBoolean() {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
@@ -1211,7 +1236,8 @@ public class TransformVisitor extends ASTVisitor {
 		varNum++;
 		return randMethodInvocation;
 	}
-
+/**==============================================INTEGER==========================================================================*/
+	
 	private MethodInvocation replaceWithSymbolicInteger() {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
@@ -1258,13 +1284,15 @@ public class TransformVisitor extends ASTVisitor {
 		rewriter.replace(exp, randMethodInvocation, null);
 	}
 
-
+/**==============================================DOUBLE==========================================================================*/
 
 	/* Actually it is Double */
 	private void replaceDouble(Expression exp) {
 		MethodInvocation randMethodInvocation = null;
 		switch(target){
 		case "SPF" : randMethodInvocation = replaceWithSymbolicDouble();
+		break;
+		case "SVCOMP" : randMethodInvocation = replaceWithNodeDouble();
 		break;
 		default: randMethodInvocation = replaceWithRandomDouble();
 		}
@@ -1291,15 +1319,39 @@ public class TransformVisitor extends ASTVisitor {
 		return randMethodInvocation;
 	}
 	
+	
+	private MethodInvocation replaceWithNodeDouble() {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetDouble"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+		
+	}
+	
+/**==============================================FLOAT==========================================================================*/
+	
 	private void replaceFloat(Expression exp) {
 		
 		ASTNode expression = null;
 		switch(target) {
 		case "JPF":  expression = replaceWithSymbolicFloat();
 		break;
+		case "SVCOMP" : expression = replaceWithNodeFloat();
+		break;
 		default: expression = replaceWithRandomFloat();
 		}
 		rewriter.replace(exp, expression , null);
+	}
+	private MethodInvocation replaceWithNodeFloat() {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetFloat"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+		
 	}
 	
 	private MethodInvocation replaceWithRandomFloat() {

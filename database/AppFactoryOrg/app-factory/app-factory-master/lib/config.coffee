@@ -1,2 +1,0 @@
-@Config =
-	'MAX_TABLE_RECORDS': 500

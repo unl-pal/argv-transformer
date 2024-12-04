@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
@@ -27,3 +28,71 @@
 	<classpathentry exported="true" kind="lib" path="/Users/rubalgoyal/Downloads/snakeyaml-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.resources_3.7.101.dist.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="benchmarks/caseyjames/myJavaProjects/myJavaProjects-master/Assignments/src"/>
+	<classpathentry kind="src" path="benchmarks/Jarcionek/MTG-Deck-Builder/MTG-Deck-Builder-master/src/main/java"/>
+	<classpathentry kind="src" path="benchmarks/jipson7/sortingComparison-ScalaVsJava/sortingComparison-master/java"/>
+	<classpathentry kind="src" path="benchmarks/JsonHunt/mobile-app-scaffolding/mobile-app-scaffolding-master/mobile/platforms/android/CordovaLib/src"/>
+	<classpathentry kind="src" path="benchmarks/mathewreny/ARM230Compiler/ARM230Compiler-master/Build415/Program_Files"/>
+	<classpathentry kind="src" path="benchmarks/mathewreny/ARM230Compiler/ARM230Compiler-master/BuildApril14th/Program_Files"/>
+	<classpathentry kind="src" path="benchmarks/mathewreny/ARM230Compiler/ARM230Compiler-master/CSCELAB/ARM230Assembler/ARM230Assembler/Program_Files"/>
+	<classpathentry kind="src" path="benchmarks/mathewreny/ARM230Compiler/ARM230Compiler-master/MostRecentEclipseBuild/Program_Files"/>
+	<classpathentry kind="src" path="benchmarks/mathewreny/ARM230Compiler/ARM230Compiler-master/Program_Files"/>
+	<classpathentry kind="src" path="benchmarks/PIfagor/Checkers/Checkers-master/src"/>
+	<classpathentry kind="src" path="benchmarks/PunchApp/volley/volley-master/src"/>
+	<classpathentry kind="src" path="benchmarks/ronak1790/Contested_Massive_Multiplayer_Online_Role_Playing_Game/Contested_Massive_Multiplayer_Online_Role_Playing_Game-master/Contested_Server-master/Contested_Server-master/ContestedServer"/>
+	<classpathentry kind="src" path="benchmarks/stefanil/JFXControls/JFXControls-master/src/main/java"/>
+	<classpathentry kind="src" path="benchmarks/The-WUUSTER/Randoms/Randoms-master/src"/>
+	<classpathentry kind="src" path="benchmarks/wangjia55/CircleChooseDisc/CircleChooseDisc-master/app/src/main/java"/>
+	<classpathentry kind="src" path="database/caseyjames/myJavaProjects/myJavaProjects-master/Assignments/src"/>
+	<classpathentry kind="src" path="database/caseyjames/myJavaProjects/myJavaProjects-master/Labs/src"/>
+	<classpathentry kind="src" path="database/jakubrojcek/GPR/GPR-master/src"/>
+	<classpathentry kind="src" path="database/jakubrojcek/GPR/GPR-master/tests"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/accumulo/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/cassandra/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/core/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/core/src/test/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/dynamodb/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/elasticsearch/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/elasticsearch/src/test/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/gemfire/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/hbase/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/hypertable/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/infinispan/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/jdbc/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/mapkeeper/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/mongodb/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/nosqldb/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/orientdb/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/redis/src/main/java"/>
+	<classpathentry kind="src" path="database/Sonnbc/modelCheckingNobi/modelCheckingNobi-master/YCSB/voldemort/src/main/java"/>
+	<classpathentry kind="src" path="database/yue31313/ShellCommand/ShellCommand-master/gen"/>
+	<classpathentry kind="src" path="database/yue31313/ShellCommand/ShellCommand-master/src"/>
+	<classpathentry kind="src" path="programs"/>
+	<classpathentry excluding="java/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry exported="true" kind="lib" path="lib/bcel-6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-csv-1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.16.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jpf.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.contenttype-3.4.200-v20140207-1251.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.jobs-3.6.0-v20140424-0053.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.runtime-3.7.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.equinox.common-3.6.0.v20100503.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.equinox.preferences-3.5.200-v20140224-1527.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.jface.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.ltk.core.refactoring-6.12.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.osgi-3.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.text_3.5.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sootclasses-trunk-jar-with-dependencies.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/eclipse.jdt.core.jar"/>
+	<classpathentry exported="true" kind="src" path="/jpf-symbc"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.jdt.ui-6.12.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+>>>>>>> ed176acbf9e3813d120e1e688579b6fc99ca5542

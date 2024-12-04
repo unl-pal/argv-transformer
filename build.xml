@@ -1,0 +1,115 @@
+<?xml version="1.0" ?>
+<project name="argv-transformer" default="package">
+
+  <!-- Debug Properties -->
+  <property name="debug.enabled" value="on" />
+  <property name="debug.level" value="lines,vars,source" />
+  
+  <!-- Paths -->
+  <path id="project.class.path">
+    <fileset dir="lib">
+      <include name="**/*.jar" />
+    </fileset>
+    <dirset dir="build/classes">
+      <include name="**" />
+    </dirset>
+  </path>
+
+  <path id="src.paths">
+    <pathelement location="src/java" />
+  </path>
+  <property name="src.paths" refid="src.paths" />
+
+  <!-- Ensure Target Directories -->
+  <target name="-init">
+    <mkdir dir="build/classes" />
+    <mkdir dir="build/depcache" />
+    <mkdir dir="dist" />
+  </target>
+
+  <!-- Dependency Check -->
+  <target name="-check-deps">
+    <depend srcdir="${src.paths}" destdir="build/classes" cache="build/depcache" closure="yes" />
+  </target>
+
+  <!-- Compile -->
+  <target name="compile" depends="-init,-check-deps" description="Compile the project">
+    <javac includeantruntime="true"
+           srcdir="${src.paths}"
+           destdir="build/classes"
+           debug="${debug.enabled}"
+           debuglevel="${debug.level}">
+          <classpath refid="project.class.path" />
+        </javac>
+  </target>
+
+  <!-- Clean -->
+  <target name="clean.build" description="Clean compiled files">
+    <delete>
+      <fileset dir="build/classes">
+        <patternset>
+          <include name="**" />
+        </patternset>
+      </fileset>
+    </delete>
+  </target>
+
+  <!-- Packaging -->
+  <target name="git.revision" description="Store git revision in ${repository.version}">
+    <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+      <arg value="log" />
+      <arg value="-1" />
+      <arg value="--pretty=format:%H" />
+    </exec>
+    <condition property="repository.version" value="${git.revision}" else="unknown">
+      <and>
+	<isset property="git.revision"/>
+	<length string="${git.revision}" trim="yes" length="0" when="greater" />
+      </and>
+    </condition>
+  </target>
+
+  <target name="git.branch" description="Store git branch in ${repository.branch}">
+    <exec executable="git" outputproperty="git.branch" failifexecutionfails="false" errorproperty="">
+      <arg value="branch" />
+      <arg value="--show-current" />
+    </exec>
+    <condition property="repository.branch" value="${git.branch}" else="unknown">
+      <and>
+	<isset property="git.branch"/>
+	<length string="${git.branch}" trim="yes" length="0" when="greater" />
+      </and>
+    </condition>
+  </target>
+
+  <target name="package" depends="compile,git.branch,git.revision" description="Package utilities">
+    <tstamp>
+      <format property="time.stamp" pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+    </tstamp>
+    <jar destfile="dist/transformer.jar">
+      <manifest>
+        <section name="transformer">
+          <attribute name="Transformer-Branch" value="${repository.branch}" />
+          <attribute name="Transformer-Commit" value="${repository.version}" />
+          <attribute name="Transformer-CompiledDate" value="${time.stamp}" />
+        </section>
+      </manifest>
+      <fileset dir="build/classes">
+        <patternset>
+          <include name="*/" />
+        </patternset>
+      </fileset>
+    </jar>
+  </target>
+  
+  <target name="clean.dist" description="Clean all JAR files.">
+    <delete dir="dist" />
+  </target>
+
+  <!-- Project Cleanup -->
+  <target name="clean"
+          depends="clean.dist,clean.build"
+          description="Clean all generated/compiled files."
+          />
+  
+</project>

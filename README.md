@@ -92,3 +92,19 @@ ifStmt:
  
  minIfStmt:
   * a minimum number of conditional statements defined above required in a method.
+
+## Database
+The '''database''' directory is populated by ARG-V with the set amount of potential repositories 
+to be filtered. This process currently uses the dataset.csv file
+
+## Suitable Programs Database
+Using the repositories in database, ARG-V filters the repositories for suitable 
+programs then places them in the '''suitablePrgms''' directory. 
+
+Suitable programs are defined as programs containing all attributes described 
+by the user at the start of the ARG-V process.
+
+## Benchmarks
+This directory is populated by the ARG-V Transformation code run on the 
+'''suitablePrgms''' directory to create SV-COMP compliant benchmarks.
+

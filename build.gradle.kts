@@ -17,7 +17,7 @@ dependencies {
   implementation(files("lib/commons-csv-1.5.jar"))
   implementation(files("lib/commons-io-2.16.1.jar"))
   implementation(files("lib/eclipse.jdt.core.jar"))
-  implementation(files("lib/jpf.jar"))
+//  implementation(files("lib/jpf.jar"))
   implementation(files("lib/org.eclipse.core.contenttype-3.4.200-v20140207-1251.jar"))
   implementation(files("lib/org.eclipse.core.jobs-3.6.0-v20140424-0053.jar"))
   implementation(files("lib/org.eclipse.core.resources_3.7.101.dist.jar"))
@@ -29,8 +29,8 @@ dependencies {
   implementation(files("lib/org.eclipse.ltk.core.refactoring-6.12.2.jar"))
   implementation(files("lib/org.eclipse.osgi-3.7.1.jar"))
   implementation(files("lib/org.eclipse.text_3.5.0.jar"))
-  implementation(files("lib/snakeyaml-2.0.jar"))
-  implementation(files("lib/sootclasses-trunk-jar-with-dependencies.jar"))
+  // implementation(files("lib/snakeyaml-2.0.jar"))
+  // implementation(files("lib/sootclasses-trunk-jar-with-dependencies.jar"))
   // implementation("org.apache.commons:commons-csv:1.5")
   // implementation("commons-io:commons-io:2.16.1")
   // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.40.0")
@@ -42,8 +42,8 @@ dependencies {
   // implementation("org.eclipse.platform:org.eclipse.ltk.core.refactoring:3.14.600") // not the same
   // implementation("org.eclipse.osgi:org.eclipse.osgi:3.7.1")
   // implementation("org.eclipse.text:org.eclipse.text:3.5.101") // not the same
-  // implementation("org.yaml:snakeyaml:2.0")
-  // implementation("org.soot-oss:soot:4.6.0")
+  implementation("org.yaml:snakeyaml:2.0")
+  implementation("org.soot-oss:soot:4.6.0")
   testImplementation("org.mockito:mockito-core:5.14.2")
   testImplementation("org.testng:testng:7.10.2")
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
@@ -90,7 +90,8 @@ tasks.register<ExecOperationsTask>("run") {
     execOperations.javaexec {
     // classpath = configurations.runtimeClasspath
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-    classpath += files(":build/classes/java")
+//      classpath.files.joinToString(File.pathSeparator, "build/classes/java")
+    classpath += files(File.pathSeparator + file("build/classes/java"))
     mainClass.set("full.Driver")
     args("-cp")
     standardOutput = System.out
@@ -108,13 +109,28 @@ tasks.register<ExecOperationsTask>("transform") {
     execOperations.javaexec {
     // classpath = configurations.runtimeClasspath
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-    classpath += files(":build/classes/java")
+    classpath += files(File.pathSeparator + file("build/classes/java"))
+    // classpath += files(":build/classes/java")
     mainClass.set("transform.Main")
     args("-cp")
     standardOutput = System.out
     errorOutput = System.err
     }
   }
+}
+
+tasks.register<Delete>("reset") {
+  group = "clean"
+  description = "Resets the program - deletes build, database, suitablePrgms and benchmarks"
+  delete(files("benchmarks", "suitablePrgms","build","database"))
+  // delete(fileTree("benchmarks"), fileTree("suitablePrgms"), fileTree("build"), fileTree("database"))
+  // outputs.files(fileTree("benchmarks"), fileTree("suitablePrgms"), fileTree("build"), fileTree("database"))
+  // delete(fileTree("build"))
+  // delete(fileTree("database"))
+  // delete(fileTree("suitablePrgms"))
+  // delete(fileTree("benchmarks"))
+  // outputs.files(fileTree("build"))
+  println("Deleted Files")
 }
 
 // tasks.register("transform") { // Custom named task for clarity

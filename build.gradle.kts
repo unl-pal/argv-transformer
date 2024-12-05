@@ -49,36 +49,12 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
 }
 
-// include("lib/sootclasses-trunk-with-dependencies.jar")
-// include("jpf.jar")
-// source(fileTree("src/java"), "lib/sootclasses-trunk-with-dependencies.jar", "jpf.jar")
 task<JavaCompile>("compile") { // Custom named task for clarity
   source(fileTree("src/java"))
   classpath = configurations.runtimeClasspath.get()
   destinationDirectory = file("build/classes/java/")
   outputs.files(fileTree((destinationDirectory)))
 }
-
-// task<JavaCompile>("compTransform") { // Custom named task for clarity
-//   source(fileTree("src/java"))
-//   classpath = configurations.runtimeClasspath.get()
-//   destinationDirectory = file("build/classes/java/")
-//   outputs.files(fileTree((destinationDirectory)))
-// }
-
-// tasks.register("run") { // Custom named task for clarity
-//   group = "execution"
-//   description = "Runs the compiled application"
-//   dependsOn("compile")
-//   doLast {
-//     val mainClass = "full.Driver" // Replace with the actual main class
-//     val classpath = configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator) { it.absolutePath }
-    // exec {
-    //   commandLine("java", "-cp", classpath, mainClass)
-    //   // commandLine("java", "-cp", "build/classes/java/", mainClass)
-    // }
-//   }
-// }
 
 open class ExecOperationsTask @Inject constructor(@Internal val execOperations: ExecOperations) : DefaultTask()
 
@@ -88,9 +64,7 @@ tasks.register<ExecOperationsTask>("run") {
   dependsOn("compile")
   doLast {
     execOperations.javaexec {
-    // classpath = configurations.runtimeClasspath
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-//      classpath.files.joinToString(File.pathSeparator, "build/classes/java")
     classpath += files(File.pathSeparator + file("build/classes/java"))
     mainClass.set("full.Driver")
     args("-cp")
@@ -107,10 +81,8 @@ tasks.register<ExecOperationsTask>("transform") {
   dependsOn("compile")
   doLast {
     execOperations.javaexec {
-    // classpath = configurations.runtimeClasspath
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
     classpath += files(File.pathSeparator + file("build/classes/java"))
-    // classpath += files(":build/classes/java")
     mainClass.set("transform.Main")
     args("-cp")
     standardOutput = System.out
@@ -123,27 +95,5 @@ tasks.register<Delete>("reset") {
   group = "clean"
   description = "Resets the program - deletes build, database, suitablePrgms and benchmarks"
   delete(files("benchmarks", "suitablePrgms","build","database"))
-  // delete(fileTree("benchmarks"), fileTree("suitablePrgms"), fileTree("build"), fileTree("database"))
-  // outputs.files(fileTree("benchmarks"), fileTree("suitablePrgms"), fileTree("build"), fileTree("database"))
-  // delete(fileTree("build"))
-  // delete(fileTree("database"))
-  // delete(fileTree("suitablePrgms"))
-  // delete(fileTree("benchmarks"))
-  // outputs.files(fileTree("build"))
   println("Deleted Files")
 }
-
-// tasks.register("transform") { // Custom named task for clarity
-//   group = "execution"
-//   description = "Runs the transformer"
-//   dependsOn("compile")
-//   doLast {
-//     val mainClass = "transform.Main" // Replace with the actual main class
-//     val classpath = configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator) { it.absolutePath } + files(":build/classes/java")
-//     exec {
-//       commandLine("java", "-cp", classpath, mainClass)
-//       // commandLine("java", "-cp", "build/classes/java/", mainClass)
-//     }
-//   }
-// }
-

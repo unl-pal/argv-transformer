@@ -30,8 +30,11 @@ kls_database.db
 /build/
 /dist/
 
+# Gradle
+.gradle
+/gradle/
+
 # code populated files
 /database/
 /benchmarks/
 /suitablePrgms/
->>>>>>> develop

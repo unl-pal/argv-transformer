@@ -8,14 +8,38 @@ on:
       - develop
 
 jobs:
-  build-and-test:
-    runs-on: [windows-latest, macos-latest, ubuntu-latest]
+  build-and-test-on-windows:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '21'
+          java-version: 21
+      - name: Build and Test with Gradle
+        run: |
+          gradle clean build run transform reset
+
+  build-and-test-on-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+      - name: Build and Test with Gradle
+        run: |
+          gradle clean build run transform reset
+
+  build-and-test-on-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
       - name: Build and Test with Gradle
         run: |
           gradle clean build run transform reset

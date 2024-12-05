@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="lib/org.eclipse.core.resources_3.7.101.dist.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mockito-core-4.11.0-javadoc.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mockito-core-4.11.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/byte-buddy-1.12.19.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/byte-buddy-agent-1.12.19.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/objenesis-3.3.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="programs"/>
 	<classpathentry excluding="java/" kind="src" path="src"/>

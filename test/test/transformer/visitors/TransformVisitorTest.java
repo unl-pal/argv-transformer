@@ -3,11 +3,17 @@ package test.transformer.visitors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -169,16 +175,18 @@ public class TransformVisitorTest {
         		compilationUnit.types().get(0)).bodyDeclarations().get(0))
         		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
         // TODO: use mocking to resolve method binding
-//        IMethodBinding mockBinding = mock(IMethodBinding.class);
-//        ITypeBinding mockReturnType = mock(ITypeBinding.class);
-//        ITypeBinding mockDeclaringClass = mock(ITypeBinding.class);
-//
-//        when(mockBinding.getName()).thenReturn("externalMethod");
-//        when(mockBinding.getReturnType()).thenReturn(mockReturnType);
-//        when(mockReturnType.isPrimitive()).thenReturn(true);
-//        when(mockReturnType.getName()).thenReturn("int");
-//        when(mockBinding.getDeclaringClass()).thenReturn(mockDeclaringClass);
-//        when(mockDeclaringClass.getPackage().getName()).thenReturn("external.pkg");
+        IMethodBinding mockBinding = mock(IMethodBinding.class);
+        ITypeBinding mockReturnType = mock(ITypeBinding.class);
+        ITypeBinding mockDeclaringClass = mock(ITypeBinding.class);
+        IPackageBinding mockPackage = mock(IPackageBinding.class);
+
+        when(mockBinding.getName()).thenReturn("externalMethod");
+        when(mockBinding.getReturnType()).thenReturn(mockReturnType);
+        when(mockReturnType.isPrimitive()).thenReturn(true);
+        when(mockReturnType.getName()).thenReturn("int");
+        when(mockBinding.getDeclaringClass()).thenReturn(mockDeclaringClass);
+        when(mockDeclaringClass.getPackage()).thenReturn(mockPackage);
+        when(mockPackage.getName()).thenReturn("external.pkg");
 
         visitor = new TransformVisitor(null, rewriter, null, null, "SPF");
         visitor.endVisit(methodInvocation);

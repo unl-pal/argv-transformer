@@ -32,7 +32,7 @@ kls_database.db
 
 # Gradle
 .gradle
-/gradle/
+# /gradle/
 
 # code populated files
 /database/

@@ -8,8 +8,11 @@ on:
       - develop
 
 jobs:
-  build-and-test-on-windows:
-    runs-on: windows-latest
+  build-and-test-on-all-OS:
+    strategy:
+    matrix:
+      os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -25,40 +28,3 @@ jobs:
           ./gradlew run
           ./gradlew transform
           ./gradlew reset
-
-  build-and-test-on-ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: temurin
-      - name: Build and Test with Gradle
-        run: |
-          ./gradlew
-          ./gradlew clean
-          ./gradlew build
-          ./gradlew run
-          ./gradlew transform
-          ./gradlew reset
-
-  build-and-test-on-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: temurin
-      - name: Build and Test with Gradle
-        run: |
-          ./gradlew
-          ./gradlew clean
-          ./gradlew build
-          ./gradlew run
-          ./gradlew transform
-          ./gradlew reset
-          gradle reset

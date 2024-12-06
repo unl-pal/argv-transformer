@@ -2,7 +2,7 @@ plugins {
   id("java")
 }
 
-group "com.argv-transform"
+group "dev.arg-v.transformer"
 version "1.0.0"
 
 repositories {

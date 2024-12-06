@@ -20,11 +20,16 @@ jobs:
         with:
           java-version: 21
           distribution: temurin
-      - name: Build and Test with Gradle
+      - name: Set Up App
         run: |
           ./gradlew
           ./gradlew clean
           ./gradlew build
+      - name: Compile
+        run: ./gradlew compile
+      - name: Run
+        run: |
           ./gradlew run
           ./gradlew transform
-          ./gradlew reset
+      - name: Clean Up
+        run: ./gradlew reset

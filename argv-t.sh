@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ $# -lt 2 ]
 then
@@ -20,11 +20,11 @@ classpath=./lib/commons-io-2.16.1.jar:lib/eclipse.jdt.core.jar:lib/org.eclipse.c
 
 if [ "$1" == "compile" ]; then
   if [ "$2" == "full" ]; then
-    javac -cp $classpath -d ./build/classes/java/ src/java/full/Driver.java
+    javac -cp "${classpath}" -d ./build/classes/java/ src/java/full/Driver.java
     exit 0
 
   elif [ "$2" == "transform" ]; then
-    javac -cp $classpath -d ./build/classes/java/ src/java/transform/Main.java
+    javac -cp "${classpath}" -d ./build/classes/java/ src/java/transform/Main.java
     exit 0
 
   else
@@ -35,11 +35,11 @@ if [ "$1" == "compile" ]; then
 
 elif [ "$1" == "run" ]; then
   if [ "$2" == "full" ]; then
-    java -cp $classpath:build/classes/java full.Driver
+    java -cp "${classpath}":build/classes/java full.Driver
     exit 0
 
   elif [ "$2" == "transform" ]; then
-    java -cp $classpath:build/classes/java transform.Main
+    java -cp "${classpath}":build/classes/java transform.Main
     exit 0
 
   else

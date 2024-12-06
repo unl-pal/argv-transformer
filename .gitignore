@@ -42,3 +42,5 @@ kls_database.db
 # IDE specific folders
 # IntelliJ
 .idea/
+.vscode/
+.dir-local.el

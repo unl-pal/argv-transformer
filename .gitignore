@@ -30,7 +30,7 @@ kls_database.db
 /build/
 /dist/
 
-# Gradle
+# Gradle cache
 .gradle
 # /gradle/
 
@@ -38,3 +38,7 @@ kls_database.db
 /database/
 /benchmarks/
 /suitablePrgms/
+
+# IDE specific folders
+# IntelliJ
+.idea/

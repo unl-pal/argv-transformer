@@ -1,1 +1,0 @@
-ALTER TABLE cartao ADD COLUMN categoria_id INTEGER

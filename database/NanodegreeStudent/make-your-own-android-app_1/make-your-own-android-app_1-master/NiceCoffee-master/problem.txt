@@ -1,1 +1,0 @@
-App for my favorite internet coffee shop. Final Project is small part of it. Now only catalog. Later it will be full internet shop app.

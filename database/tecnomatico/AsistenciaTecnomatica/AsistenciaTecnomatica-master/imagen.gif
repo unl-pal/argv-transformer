@@ -1,1 +1,0 @@
-BufferedImage@10facc4: type = 1 DirectColorModel: rmask=ff0000 gmask=ff00 bmask=ff amask=0 IntegerInterleavedRaster: width = 160 height = 120 #Bands = 3 xOff = 0 yOff = 0 dataOffset[0] 0

@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="OracleDB:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/OracleDB_jar</output-path>
-    <root id="archive" name="OracleDB.jar">
-      <element id="module-output" name="OracleDB" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/inc/ojdbc6.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>

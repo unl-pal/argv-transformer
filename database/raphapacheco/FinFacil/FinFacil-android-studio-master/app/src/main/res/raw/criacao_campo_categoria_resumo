@@ -1,1 +1,0 @@
-ALTER TABLE resumo ADD COLUMN categoria_id INTEGER

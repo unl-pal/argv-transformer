@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="menu_button_width">136dp</dimen>
-    <dimen name="menu_button_height">108dp</dimen>
-    <dimen name="menu_inner_padding">12dp</dimen>
-    <dimen name="detail_control_min_width">512dp</dimen>
-    <dimen name="menu_button_top_padding">32dp</dimen>
-    <dimen name="menu_button_right_padding">32dp</dimen>
-</resources>

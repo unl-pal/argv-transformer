@@ -295,7 +295,7 @@ public class TransformVisitorTest {
         		.getBody().statements().get(0)).getExpression();
 	    
 	    // Create the visitor
-        TypeChecker typeChecker = new TypeChecker();
+	    TypeChecker typeChecker = new TypeChecker();
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SPF");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(simpleName);
@@ -347,7 +347,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0)).getExpression();
 	    
 	    // Create the visitor
-        TypeChecker typeChecker = new TypeChecker();
+	    TypeChecker typeChecker = new TypeChecker();
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SPF");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
@@ -400,7 +400,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0)).getExpression();
 	    
 	    // Create the visitor
-        TypeChecker typeChecker = new TypeChecker();
+	    TypeChecker typeChecker = new TypeChecker();
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SPF");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
@@ -445,7 +445,7 @@ public class TransformVisitorTest {
 	    // Mock SymbolTableStack and TypeTable
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    SymbolTable mockSymbolTable = mock(SymbolTable.class);
-        TypeChecker mockTypeChecker = mock(TypeChecker.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
 	    MethodSTE mockMethodSTE = mock(MethodSTE.class);
 	    PrimitiveType mockType = mock(PrimitiveType.class);
 
@@ -506,7 +506,7 @@ public class TransformVisitorTest {
 	    // Mock SymbolTableStack and TypeTable
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    SymbolTable mockSymbolTable = mock(SymbolTable.class);
-        TypeChecker mockTypeChecker = mock(TypeChecker.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
 	    MethodSTE mockMethodSTE = mock(MethodSTE.class);
 	    PrimitiveType mockType = mock(PrimitiveType.class);
 
@@ -702,9 +702,9 @@ public class TransformVisitorTest {
 
 	    MethodDeclaration method = 
 	            (MethodDeclaration) ((TypeDeclaration) compilationUnit.types().get(0)).getMethods()[0];
-        SwitchStatement switchStatement = 
+	    SwitchStatement switchStatement = 
             (SwitchStatement) method.getBody().statements().get(0);
-        VariableDeclarationStatement varDecl = 
+	    VariableDeclarationStatement varDecl = 
             (VariableDeclarationStatement) switchStatement.statements().get(1); // 0th case is "case 0:"
         
 	    // Visit the nodes

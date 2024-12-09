@@ -2,8 +2,8 @@ plugins {
   id("java")
 }
 
-group "com.argv-transform" // Replace with your group name
-version "1.0.0" // Adjust version as needed
+group "dev.arg-v.transformer"
+version "1.0.0"
 
 repositories {
   flatDir {
@@ -52,7 +52,7 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
 }
 
-task<JavaCompile>("compile") { // Custom named task for clarity
+task<JavaCompile>("compile") {
   source(fileTree("src/java"))
   classpath = configurations.runtimeClasspath.get()
   destinationDirectory = file("build/classes/java/")

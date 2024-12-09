@@ -2,96 +2,34 @@ name: Build and Test
 
 on:
   workflow_dispatch:
-  push:
   pull_request:
     branches:
       - master
       - develop
 
 jobs:
-  build-and-test-on-windows:
-    runs-on: windows-latest
+  build-and-test-on-all-OS:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: 21
-          distribution: oracle
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@v4
-      #   with:
-      #     gradle-version: "8.11.1"
-      # - name: Build and Test with Gradle
-      #   run: |
-      #     gradle clean
-      #     gradle build
-      #     gradle run
-      #     gradle transform
-      #     gradle reset
-      - name: Build and Test with Gradle
+          java-version: 8
+          distribution: zulu
+      - name: Set Up App
         run: |
           ./gradlew
           ./gradlew clean
           ./gradlew build
-          ./gradlew run
-          ./gradlew transform
-          ./gradlew reset
-
-  build-and-test-on-ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: oracle
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@v4
-      #   with:
-      #     gradle-version: "8.11.1"
-      # - name: Build and Test with Gradle
-      #   run: |
-      #     gradle clean
-      #     gradle build
-      #     gradle run
-      #     gradle transform
-      #     gradle reset
-      - name: Build and Test with Gradle
+      - name: Compile
+        run: ./gradlew compile
+      - name: Run
         run: |
-          ./gradlew
-          ./gradlew clean
-          ./gradlew build
           ./gradlew run
           ./gradlew transform
-          ./gradlew reset
-
-  build-and-test-on-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: oracle
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@v4
-      #   with:
-      #     gradle-version: "8.11.1"
-      # - name: Build and Test with Gradle
-      #   run: |
-      #     gradle clean
-      #     gradle build
-      #     gradle run
-      #     gradle transform
-      - name: Build and Test with Gradle
-        run: |
-          ./gradlew
-          ./gradlew clean
-          ./gradlew build
-          ./gradlew run
-          ./gradlew transform
-          ./gradlew reset
-          gradle reset
+      - name: Clean Up
+        run: ./gradlew reset

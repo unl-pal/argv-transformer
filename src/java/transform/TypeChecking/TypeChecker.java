@@ -123,7 +123,7 @@ public class TypeChecker {
 	 * @param type
 	 * @return true if the type is allowed, false otherwise.
 	 */
-	public static boolean allowedType(Type type) {
+	public boolean allowedType(Type type) {
 		if(type == null) return false;
 		
 		if(type.isArrayType()) {

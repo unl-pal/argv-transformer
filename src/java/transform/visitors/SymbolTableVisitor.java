@@ -92,7 +92,7 @@ public class SymbolTableVisitor extends ASTVisitor {
 			 * the method getMethodSTEName(), where we only consider primitive type 
 			 * parameters).
 			 */
-			if (!TypeChecker.allowedType(type)) {
+			if (!typeChecker.allowedType(type)) {
 				return false;
 			}
 		}
@@ -125,7 +125,7 @@ public class SymbolTableVisitor extends ASTVisitor {
 			 * we did not create a symbol table element for it and thus 
 			 * there is nothing to pop.
 			 */
-			if (!TypeChecker.allowedType(type)) {
+			if (!typeChecker.allowedType(type)) {
 				pushedMethod = false;
 			}
 		}

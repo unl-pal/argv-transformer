@@ -6,45 +6,24 @@ group "dev.arg-v.transformer"
 version "1.0.0"
 
 repositories {
-  flatDir {
-    dirs("lib")
-  }
-  mavenCentral() // Replace with your preferred repository if needed
+  mavenCentral()
   maven {
     url = uri("https://repo.eclipse.org/content/groups/releases/")
   }
 }
 
 dependencies {
-// only 1 files holding back the project
-  // implementation(files("lib/eclipse.jdt.core.jar"))
-  // implementation(files("lib/org.eclipse.core.contenttype-3.4.200-v20140207-1251.jar"))
-// faulty fetches cannot be run
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.13.0")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.16.0")
-  // implementation("org.eclipse:org.eclipse.jdt.core:3.3.1.v_780_R33x")
   implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.40.0")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.ui:3.33.200")
-  // implementation("org.eclipse.platform:org.eclipse.swt:3.128.0")
-  // compileOnly("org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64:4.3")
-  // implementation("org.eclipse.osgi:org.eclipse.osgi")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.40.0")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.10.0")
-  // implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.7.1")
-  // implementation("org.eclipse.platform:org.eclipse.ltk.core.refactoring:3.14.600") // not the same
-// all other fetches work
   implementation("org.apache.commons:commons-csv:1.5")
   implementation("commons-io:commons-io:2.16.1")
   implementation("org.eclipse.core:contenttype:3.4.200-v20140207-1251")
-  implementation("org.eclipse.core:org.eclipse.core.resources:3.7.100") // not the same
+  implementation("org.eclipse.core:org.eclipse.core.resources:3.7.100")
   implementation("org.eclipse.core:org.eclipse.core.runtime:3.7.0")
   implementation("org.eclipse.equinox:org.eclipse.equinox.common:3.6.0.v20100503")
   implementation("org.eclipse.platform:org.eclipse.core.jobs:3.8.0")
-  implementation("org.eclipse.platform:org.eclipse.equinox.preferences:3.6.1") // not the same
+  implementation("org.eclipse.platform:org.eclipse.equinox.preferences:3.6.1")
   implementation("org.eclipse.osgi:org.eclipse.osgi:3.7.1")
-  implementation("org.eclipse.text:org.eclipse.text:3.5.101") // not the same
+  implementation("org.eclipse.text:org.eclipse.text:3.5.101")
   implementation("org.yaml:snakeyaml:2.0")
   implementation("org.soot-oss:soot:4.6.0")
   testImplementation("org.mockito:mockito-core:5.14.2")
@@ -61,7 +40,7 @@ task<JavaCompile>("compile") {
 
 open class ExecOperationsTask @Inject constructor(@Internal val execOperations: ExecOperations) : DefaultTask()
 
-tasks.register<ExecOperationsTask>("run") {
+tasks.register<ExecOperationsTask>("full") {
   group = "execution"
   description = "Runs the compiled application"
   dependsOn("compile")
@@ -77,6 +56,21 @@ tasks.register<ExecOperationsTask>("run") {
   }
 }
 
+tasks.register<ExecOperationsTask>("filter") {
+  group = "execution"
+  description = "Runs the filter"
+  dependsOn("compile")
+  doLast {
+    execOperations.javaexec {
+    classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
+    classpath += files(File.pathSeparator + file("build/classes/java"))
+    mainClass.set("filter.Main")
+    args("-cp")
+    standardOutput = System.out
+    errorOutput = System.err
+    }
+  }
+}
 
 tasks.register<ExecOperationsTask>("transform") {
   group = "execution"

@@ -23,11 +23,24 @@
 hs_err_pid*
 /bin/
 
+kls_database.db
+.DS_Store
+
 # Build Folders
 /build/
 /dist/
+
+# Gradle cache
+.gradle
+# /gradle/
 
 # code populated files
 /database/
 /benchmarks/
 /suitablePrgms/
+
+# IDE specific folders
+# IntelliJ
+.idea/
+.vscode/
+.dir-local.el

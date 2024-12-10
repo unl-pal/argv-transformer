@@ -1313,8 +1313,6 @@ public class TransformVisitor extends ASTVisitor {
 		break;
 		case "SVCOMP" : expression = replaceWithNodeFloat();
 		break;
-		case "SVCOMP" : expression = replaceWithNodeFloat();
-		break;
 		default: expression = replaceWithRandomFloat();
 		}
 		rewriter.replace(exp, expression , null);

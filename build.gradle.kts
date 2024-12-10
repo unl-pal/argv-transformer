@@ -130,26 +130,38 @@ tasks.register<ExecOperationsTask>("regression") {
   description = "Runs Regression Tests"
   dependsOn("compile-test")
   doLast {
-      val transformerRegressionTests = listOf(
-        "SymbolicFloatTest",
-        "SymbolicDoubleTest",
-        "SymbolicInttest"//,
-        // "Release2SymbolicDoubleDemo"
-      )
-      for (test in transformerRegressionTests) {
+      // val transformerRegressionTests = listOf(
+      //   "SymbolicFloatTest",
+      //   "SymbolicDoubleTest",
+      //   "SymbolicInttest"//,
+      //   // "Release2SymbolicDoubleDemo"
+      // )
+      // for (test in transformerRegressionTests) {
+      val filePath = "build/classes/test"
+      val classDir = file(filePath)
+      classDir.walk().filter { it.isFile && it.extension == "class" }.forEach {
+        val test = it.relativeTo(classDir).path.removeSuffix(".class")
+        test.replace('/', '.')
+        try {
+          logger.lifecycle("================\nNow Trying: " + it.relativeTo(classDir))
+          // logger.lifecycle(test)
         execOperations.javaexec {
           classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
           classpath += files(configurations.testRuntimeClasspath.get().files.joinToString(File.pathSeparator))
           classpath += files(File.pathSeparator + file("build/classes/java"))
           classpath += files(File.pathSeparator + file("build/classes/test"))
           // mainClass.set("SuitableMethodFinderTest.Class")
-          mainClass.set("transformer.regression." + test)
+          // mainClass.set("transformer.regression." + test)
+          // mainClass.set(classDir.joinToString('.', test)
+          mainClass.set(test)
           args("-cp")
           standardOutput = System.out
           errorOutput = System.err
-          logger.lifecycle(test)
         }
+    } catch (e: Exception) {
+      logger.lifecycle("Tried: " + filePath + test +"\nAndFailed")
       }
+    }
   }
 }
 

@@ -1156,17 +1156,11 @@ public class TransformVisitor extends ASTVisitor {
 		return true;
 	}
 	
-<<<<<<< HEAD:src/java/transform/visitors/TransformVisitor.java
-<<<<<<< HEAD:src/transform/visitors/TransformVisitor.java
-/**================================================BOOLEAN==========================================================================*/	
-	
-=======
 
->>>>>>> ed176acbf9e3813d120e1e688579b6fc99ca5542:src/java/transform/visitors/TransformVisitor.java
-=======
 /**================================================BOOLEAN==========================================================================*/	
-	
->>>>>>> 6f4e1767d04cb3da31fb56589727268a4c7b5f06:src/transform/visitors/TransformVisitor.java
+
+/**================================================BOOLEAN==========================================================================*/	
+
 	private void replaceBoolean(Expression exp) {
 		MethodInvocation randMethodInvocation = null;
 		switch(target) {

@@ -44,3 +44,5 @@ kls_database.db
 .idea/
 .vscode/
 .dir-local.el
+.classpath
+.settings

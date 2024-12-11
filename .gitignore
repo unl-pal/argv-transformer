@@ -42,7 +42,10 @@ kls_database.db
 # IDE specific folders
 # IntelliJ
 .idea/
+# VS Code
 .vscode/
 .dir-local.el
+# Eclipse
+.settings/
+# This one seems to be more widely adopted by many IDEs
 .classpath
-.settings

@@ -2,6 +2,7 @@ plugins {
   id("java")
   id("application")
   id("java-library")
+  id("idea")
 }
 
 java {
@@ -34,9 +35,9 @@ dependencies {
   implementation("org.eclipse.text:org.eclipse.text:3.5.101")
   implementation("org.yaml:snakeyaml:2.0")
   implementation("org.soot-oss:soot:4.6.0")
-  implementation("org.mockito:mockito-core:5.14.2")
+  // implementation("org.mockito:mockito-core:5.14.2")
   // implementation("org.testng:testng:7.10.2")
-  implementation("org.testng:testng:7.5.1")
+  // implementation("org.testng:testng:7.5.1")
   implementation("org.junit.jupiter:junit-jupiter:5.11.3")
   implementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   implementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
@@ -45,6 +46,43 @@ dependencies {
   // testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testImplementation("org.mockito:mockito-core:5.14.2")
   testImplementation("org.testng:testng:7.5.1")
+}
+
+tasks.register("ide-paths") {
+  group = "Set-Up"
+  description = "Generate classpath file for IDEs to use for syntax and compiling"
+  doLast {
+    val classpathFile = file(".classpath")
+    if (classpathFile.exists()) {
+      classpathFile.delete()
+    }
+    val paths = listOf(
+      configurations.compileClasspath,
+      configurations.runtimeClasspath,
+      configurations.testCompileClasspath,
+      configurations.testRuntimeClasspath
+    )
+    val dependencyList = mutableListOf("")
+    classpathFile.appendText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+    classpathFile.appendText("<classpath>\n")
+    // classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src/java\"/>\n")
+    // classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src/test\"/>\n")
+    classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src\"/>\n")
+
+    paths.forEach { path ->
+      path.get().forEach { file ->
+        if (!dependencyList.contains(file.toString())) {
+          dependencyList.add(file.toString())
+          classpathFile.appendText(
+            // " <classpathentry kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
+            "  <classpathentry exported=\"true\" path=\"${file.absolutePath}\"/>\n"
+            // " <classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
+          )
+        }
+      }
+    }
+    classpathFile.appendText("</classpath>")
+  }
 }
 
 task<JavaCompile>("compile") {
@@ -58,7 +96,7 @@ task<JavaCompile>("compile-test") {
   dependsOn("compile")
   // source(fileTree("build/classes/java"), fileTree("src/test"))
   source(fileTree("src/test"), fileTree("test"))
-  classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get()
+  classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get() + configurations.testCompileClasspath.get()
   classpath += files("build/classes/java")
   destinationDirectory = file("build/classes/test")
   outputs.files(fileTree((destinationDirectory)))
@@ -125,9 +163,9 @@ tasks.register<Delete>("reset") {
   println("Deleted Files")
 }
 
-tasks.register<ExecOperationsTask>("regression") {
+tasks.register<ExecOperationsTask>("multitest") {
   group = "testing"
-  description = "Runs Regression Tests"
+  description = "Experimental code for identifying and running many files in a dir"
   dependsOn("compile-test")
   doLast {
       // val transformerRegressionTests = listOf(

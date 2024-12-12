@@ -1,5 +1,6 @@
 package transform;
 
+
 import transform.benchmark.*;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -42,15 +43,17 @@ public class Main {
 	private final static String DEFAULT_MIN_TYPE_PARAMS = "0";
 	private final static String DEFAULT_TRANSFORM_ALL = "False";
 	private final static CType DEFAULT_TYPE = CType.INT;
-
-	public static String source = "suitablePrgms";
-	public static String dest = "benchmarks";
-	// public static String source = "test/transformer/regression";
-	// public static String dest = "testOutput";
+	
+	 public static String source = "suitablePrgms";
+	 public static String dest = "benchmarks";
+//	 public static String source = "test/transformer/regression";
+//	 public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
 		buildDir = new File(tmpDir, "bin");
+
+
 
 		if (args.length == 2) {
 			source = args[0];
@@ -147,8 +150,10 @@ public class Main {
 		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
 		System.out.println("================================================");
 
-		// System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
+//		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 
+		
+		
 		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
@@ -161,11 +166,12 @@ public class Main {
 
 		file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
+    
 		// also delete those files where all methods after transformations
 		// were not be able to meet the selection criteria.
 		// do not remove uncompiled files if target is SVCOMP as for SVCOMP one
 		// dependency will not be compileable
-
+    
 		file_itr.forEachRemaining(file -> {
 			boolean success = compile(file);
 			if (!success && !target.equals("SVCOMP")) {
@@ -183,12 +189,12 @@ public class Main {
 			if (target.equals("SVCOMP")) {
 				prepareForSvcompBenchmark(file);
 			}
-
-			if (target.equals("SVCOMP")) {
+			
+			if(target.equals("SVCOMP")) {
 				prepareForSvcompBenchmark(file);
 			}
 		});
-
+    
 		System.out.println("================================================\t");
 		System.out.println("After Transformation:\t");
 		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size() + "\t");
@@ -197,7 +203,7 @@ public class Main {
 
 		// System.out.println(unsuccessfulCompiles.size() + " +++++ " +
 		// successfulCompiles.size());
-
+    
 		try {
 			FileUtils.forceDelete(tmpDir);
 		} catch (IOException e) {
@@ -214,6 +220,7 @@ public class Main {
 		final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null)
 			throw new RuntimeException("Could not get javac - are you running with a JDK or a JRE?");
+
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
@@ -241,6 +248,7 @@ public class Main {
 				e.printStackTrace();
 			}
 	}
+
 
 	private static void prepareForSvcompBenchmark(File file) {
 		// Path to Save YML file

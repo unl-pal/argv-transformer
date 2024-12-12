@@ -47,5 +47,6 @@ kls_database.db
 .dir-local.el
 # Eclipse
 .settings/
+.project
 # This one seems to be more widely adopted by many IDEs
 .classpath

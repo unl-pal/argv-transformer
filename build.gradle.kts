@@ -5,12 +5,6 @@ plugins {
   id("idea")
 }
 
-// java {
-//   toolchain {
-//     languageVersion = JavaLanguageVersion.of(8)
-//   }
-// }
-
 group "dev.arg-v.transformer"
 version "1.0.0"
 
@@ -35,17 +29,11 @@ dependencies {
   implementation("org.eclipse.text:org.eclipse.text:3.5.101")
   implementation("org.yaml:snakeyaml:2.0")
   implementation("org.soot-oss:soot:4.6.0")
-  implementation("org.mockito:mockito-core:5.14.2")
-  // implementation("org.testng:testng:7.10.2")
-  implementation("org.testng:testng:7.5.1")
-  implementation("org.junit.jupiter:junit-jupiter:5.11.3")
-  implementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-  implementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-  // testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
-  // testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-  // testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-  // testImplementation("org.mockito:mockito-core:5.14.2")
-  // testImplementation("org.testng:testng:7.5.1")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
+  testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
+  testImplementation("org.mockito:mockito-core:5.14.2")
+  testImplementation("org.testng:testng:7.5.1")
 }
 
 tasks.register("ide-paths") {
@@ -65,8 +53,6 @@ tasks.register("ide-paths") {
     val dependencyList = mutableListOf("")
     classpathFile.appendText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
     classpathFile.appendText("<classpath>\n")
-    // classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src/java\"/>\n")
-    // classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src/test\"/>\n")
     classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src\"/>\n")
 
     paths.forEach { path ->
@@ -74,9 +60,7 @@ tasks.register("ide-paths") {
         if (!dependencyList.contains(file.toString())) {
           dependencyList.add(file.toString())
           classpathFile.appendText(
-            // " <classpathentry kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
-            // "  <classpathentry exported=\"true\" path=\"${file.absolutePath}\"/>\n"
-            "  <classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
+            "\t<classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
           )
         }
       }
@@ -91,20 +75,6 @@ task<JavaCompile>("compile") {
   destinationDirectory = file("build/classes/java")
   outputs.files(fileTree((destinationDirectory)))
 }
-
-task<JavaCompile>("compile-test") {
-  dependsOn("compile")
-  // source(fileTree("build/classes/java"), fileTree("src/test"))
-  source(fileTree("src/test"), fileTree("test"))
-  classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get() + configurations.testCompileClasspath.get()
-  classpath += files("build/classes/java")
-  destinationDirectory = file("build/classes/test")
-  outputs.files(fileTree((destinationDirectory)))
-}
-
-// if (name == "compile-test") {
-  //   logger.lifecycle("Classpath: ${classpath.joinToString(separator = "\n")}")
-  // }
 
 open class ExecOperationsTask @Inject constructor(@Internal val execOperations: ExecOperations) : DefaultTask()
 
@@ -162,88 +132,3 @@ tasks.register<Delete>("reset") {
   delete(files("benchmarks", "suitablePrgms","build","database"))
   println("Deleted Files")
 }
-
-tasks.register<ExecOperationsTask>("multitest") {
-  group = "testing"
-  description = "Experimental code for identifying and running many files in a dir"
-  dependsOn("compile-test")
-  doLast {
-      // val transformerRegressionTests = listOf(
-      //   "SymbolicFloatTest",
-      //   "SymbolicDoubleTest",
-      //   "SymbolicInttest"//,
-      //   // "Release2SymbolicDoubleDemo"
-      // )
-      // for (test in transformerRegressionTests) {
-      val filePath = "build/classes/test"
-      val classDir = file(filePath)
-      classDir.walk().filter { it.isFile && it.extension == "class" }.forEach {
-        val test = it.relativeTo(classDir).path.removeSuffix(".class")
-        test.replace('/', '.')
-        try {
-          logger.lifecycle("================\nNow Trying: " + it.relativeTo(classDir))
-          // logger.lifecycle(test)
-        execOperations.javaexec {
-          classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-          classpath += files(configurations.testRuntimeClasspath.get().files.joinToString(File.pathSeparator))
-          classpath += files(File.pathSeparator + file("build/classes/java"))
-          classpath += files(File.pathSeparator + file("build/classes/test"))
-          // mainClass.set("SuitableMethodFinderTest.Class")
-          // mainClass.set("transformer.regression." + test)
-          // mainClass.set(classDir.joinToString('.', test)
-          mainClass.set(test)
-          args("-cp")
-          standardOutput = System.out
-          errorOutput = System.err
-        }
-    } catch (e: Exception) {
-      logger.lifecycle("Tried: " + filePath + test +"\nAndFailed")
-      }
-    }
-  }
-}
-
-// CODE FOR SEARCHING FOR AND RUNNING UNIT TESTS WITH VARIOUS LIBRARIES
-// test {
-//   // discover and execute JUnit4-based tests
-//   useJUnit()
-//
-//   // discover and execute TestNG-based tests
-//   useTestNG()
-//
-//   // discover and execute JUnit Platform-based tests
-//   useJUnitPlatform()
-//
-//   // set a system property for the test JVM(s)
-//   systemProperty 'some.prop', 'value'
-//
-//   // explicitly include or exclude tests
-//   include 'org/foo/**'
-//   exclude 'org/boo/**'
-//
-//   // show standard out and standard error of the test JVM(s) on the console
-//   testLogging.showStandardStreams = true
-//
-//   // set heap size for the test JVM(s)
-//   minHeapSize = "128m"
-//   maxHeapSize = "512m"
-//
-//   // set JVM arguments for the test JVM(s)
-//   jvmArgs '-XX:MaxPermSize=256m'
-//
-//   // listen to events in the test execution lifecycle
-//   beforeTest { descriptor ->
-//      logger.lifecycle("Running test: " + descriptor)
-//   }
-//
-//   // fail the 'test' task on the first test failure
-//   failFast = true
-//
-//   // skip an actual test execution
-//   dryRun = true
-//
-//   // listen to standard out and standard error of the test JVM(s)
-//   onOutput { descriptor, event ->
-//      logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
-//   }
-// }

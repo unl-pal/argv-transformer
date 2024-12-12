@@ -259,7 +259,7 @@ public class Transformer {
      */
     private void setupAST(File file) throws IOException {
         source = new String(Files.readAllBytes(file.toPath()));
-        ASTParser parser = ASTParser.newParser(AST.JLS3);
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setSource(source.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
 

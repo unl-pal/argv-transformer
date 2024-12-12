@@ -29,7 +29,7 @@ jobs:
         run: ./gradlew compile
       - name: Run
         run: |
-          ./gradlew run
+          ./gradlew full
           ./gradlew transform
       - name: Clean Up
         run: ./gradlew reset

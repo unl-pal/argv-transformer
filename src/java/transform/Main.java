@@ -41,15 +41,17 @@ public class Main {
 	private final static String DEFAULT_MIN_TYPE_PARAMS = "0";
 	private final static String DEFAULT_TRANSFORM_ALL = "False";
 	private final static CType DEFAULT_TYPE = CType.INT;
+	
+//	public static String source = "suitablePrgms";
+//	public static String dest = "benchmarks";
+	public static String source = "test/transformer/regression";
+	public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
 		buildDir = new File(tmpDir, "bin");
 
-		String source = "suitablePrgms";
-		String dest = "benchmarks";
-		// String source = "test/transformer/regression";
-		// String dest = "testOutput";
+		
 
 		if (args.length == 2) {
 			source = args[0];
@@ -127,14 +129,19 @@ public class Main {
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
-		file_itr.forEachRemaining(file -> {
-			boolean success = compile(file);
-			if (!success) {
-				unsuccessfulCompiles.add(file);
-			} else {
-				successfulCompiles.add(file);
-			}
-		});
+		
+		if (transformAll) {
+			file_itr.forEachRemaining(file -> unsuccessfulCompiles.add(file));
+		} else {
+			file_itr.forEachRemaining(file -> {
+				boolean success = compile(file);
+				if (!success) {
+					unsuccessfulCompiles.add(file);
+				} else {
+					successfulCompiles.add(file);
+				}
+			});
+		}
 		// TODO: Temporary added some extra Print statements
 		System.out.println("================================================\t");
 		System.out.println("Before Transformation:\t");
@@ -157,24 +164,7 @@ public class Main {
 		// were not be able to meet the selection criteria.
 		// do not remove uncompiled files if target is SVCOMP as for SVCOMP one
 		// dependency will not be compileable
-		file_itr.forEachRemaining(file -> {
-			boolean success = compile(file);
-			if (!success && !target.equals("SVCOMP")) {
-				try {
-					Files.delete(file.toPath());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				// System.out.println("compiled " + file.getName());
-				successfulCompiles.add(file);
-				// unsuccessfulCompiles.remove(file);
-			}
-
-			if (target.equals("SVCOMP")) {
-				prepareForSvcompBenchmark(file);
-			}
-		});
+		
 		// TODO: Temporary added some extra Print statements
 		System.out.println("================================================\t");
 		System.out.println("After Transformation:\t");

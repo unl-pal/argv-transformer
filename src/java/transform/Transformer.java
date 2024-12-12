@@ -148,8 +148,8 @@ public class Transformer {
 				parser.setCompilerOptions(options);
 				parser.setUnitName(file.getPath());
 				
-				String[] classPath = {Paths.get("build", "classes").toString()};
-				String[] sourcePath = { Paths.get("suitablePrgms").toString() , Paths.get("src").toString()};
+				String[] classPath = {Paths.get("build", "classes", "java").toString()};
+				String[] sourcePath = { Paths.get(Main.source).toString() , Paths.get("src").toString()};
 				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);

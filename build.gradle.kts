@@ -5,11 +5,11 @@ plugins {
   id("idea")
 }
 
-java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(8)
-  }
-}
+// java {
+//   toolchain {
+//     languageVersion = JavaLanguageVersion.of(8)
+//   }
+// }
 
 group "dev.arg-v.transformer"
 version "1.0.0"
@@ -35,24 +35,24 @@ dependencies {
   implementation("org.eclipse.text:org.eclipse.text:3.5.101")
   implementation("org.yaml:snakeyaml:2.0")
   implementation("org.soot-oss:soot:4.6.0")
-  // implementation("org.mockito:mockito-core:5.14.2")
+  implementation("org.mockito:mockito-core:5.14.2")
   // implementation("org.testng:testng:7.10.2")
-  // implementation("org.testng:testng:7.5.1")
+  implementation("org.testng:testng:7.5.1")
   implementation("org.junit.jupiter:junit-jupiter:5.11.3")
   implementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   implementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
   // testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
   // testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
   // testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-  testImplementation("org.mockito:mockito-core:5.14.2")
-  testImplementation("org.testng:testng:7.5.1")
+  // testImplementation("org.mockito:mockito-core:5.14.2")
+  // testImplementation("org.testng:testng:7.5.1")
 }
 
 tasks.register("ide-paths") {
   group = "Set-Up"
   description = "Generate classpath file for IDEs to use for syntax and compiling"
   doLast {
-    val classpathFile = file(".classpath")
+    val classpathFile = file("my.classpath")
     if (classpathFile.exists()) {
       classpathFile.delete()
     }
@@ -75,8 +75,8 @@ tasks.register("ide-paths") {
           dependencyList.add(file.toString())
           classpathFile.appendText(
             // " <classpathentry kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
-            "  <classpathentry exported=\"true\" path=\"${file.absolutePath}\"/>\n"
-            // " <classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
+            // "  <classpathentry exported=\"true\" path=\"${file.absolutePath}\"/>\n"
+            "  <classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n"
           )
         }
       }

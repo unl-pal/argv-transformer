@@ -38,7 +38,7 @@ dependencies {
 
 tasks.register("ide-paths") {
   group = "Set-Up"
-  description = "Generate classpath file for IDEs to use for syntax and compiling"
+  description = "Generate a file, 'my.classpath'\nFile is a template with class path entries for gradle dependencies"
   doLast {
     val classpathFile = file("my.classpath")
     if (classpathFile.exists()) {

@@ -53,7 +53,8 @@ tasks.register("ide-paths") {
     val dependencyList = mutableListOf("")
     classpathFile.appendText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
     classpathFile.appendText("<classpath>\n")
-    classpathFile.appendText("  <classpathentry kind=\"src\" path=\"src\"/>\n")
+    classpathFile.appendText("\t<classpathentry kind=\"src\" path=\"src/java\"/>\n")
+    classpathFile.appendText("\t<classpathentry kind=\"src\" path=\"src/test\"/>\n")
 
     paths.forEach { path ->
       path.get().forEach { file ->

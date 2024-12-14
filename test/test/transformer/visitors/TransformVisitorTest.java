@@ -111,7 +111,7 @@ public class TransformVisitorTest {
         ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
 
         // Instantiate the visitor and set the rewriter/target
-        visitor = new TransformVisitor(null, rewriter, null, null, "SPF");
+        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
         visitor.visit(compilationUnit); // sets ast
         visitor.endVisit(compilationUnit);
 
@@ -121,7 +121,7 @@ public class TransformVisitorTest {
 
         // Check the updated source code
         String expectedSource = 
-        		"import gov.nasa.jpf.symbc.Debug;\n" 
+        		"import org.sosy_lab.sv_benchmarks.Verifier;\n" 
         		+ "import java.util.List;\n";
         assertEquals(expectedSource.trim(), document.get().trim());
 	}
@@ -210,7 +210,7 @@ public class TransformVisitorTest {
         when(mockDeclaringClass.getPackage()).thenReturn(mockPackage);
         when(mockPackage.getName()).thenReturn("external.pkg");
 
-        visitor = new TransformVisitor(null, rewriter, null, null, "SPF");
+        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
         visitor.visit(compilationUnit);
         visitor.endVisit(methodInvocation);
 	    TransformVisitor.varNum = 0;
@@ -223,7 +223,7 @@ public class TransformVisitorTest {
         	"package internal.pkg;\n" +
             "public class TestClass {\n" +
             "    public void testMethod() {\n" +
-            "        int result = Debug.makeSymbolicInteger(\"x0\");\n" +
+            "        int result = Verifier.nondetInt();\n" +
             "    }\n" +
             "}";
         assertEquals(expectedOutput.trim(), document.get().trim());
@@ -250,7 +250,7 @@ public class TransformVisitorTest {
 
 	    NormalAnnotation normalAnnotation = (NormalAnnotation)((TypeDeclaration)compilationUnit.types().get(0)).modifiers().get(0);
 
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SPF");
+	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
 	    visitor.visit(normalAnnotation);
 	    // Apply the changes made by the rewriter
 	    TextEdit edits = rewriter.rewriteAST(document, null);
@@ -296,7 +296,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(simpleName);
 	    TransformVisitor.varNum = 0;
@@ -308,7 +308,7 @@ public class TransformVisitorTest {
 	    String expectedSource = 
 	        "public class TestClass {\n" +
 	        "    public void testMethod() {\n" +
-	        "        if (Debug.makeSymbolicBoolean(\"x0\")) {\n" +
+	        "        if (Verifier.nondetBoolean()) {\n" +
 	        "            // Do something\n" +
 	        "        }\n" +
 	        "    }\n" +
@@ -348,7 +348,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
 	    TransformVisitor.varNum = 0;
@@ -361,7 +361,7 @@ public class TransformVisitorTest {
 	    String expectedSource = 
 	        "public class TestClass {\n" +
 	        "    public void testMethod() {\n" +
-	        "        if (Debug.makeSymbolicBoolean(\"x0\")) {\n" +
+	        "        if (Verifier.nondetBoolean()) {\n" +
 	        "            // Do something\n" +
 	        "        }\n" +
 	        "    }\n" +
@@ -401,7 +401,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
 	    TransformVisitor.varNum = 0;
@@ -414,7 +414,7 @@ public class TransformVisitorTest {
 	    String expectedSource = 
 	        "public class TestClass {\n" +
 	        "    public void testMethod() {\n" +
-	        "        while (Debug.makeSymbolicBoolean(\"x0\")) {\n" +
+	        "        while (Verifier.nondetBoolean()) {\n" +
 	        "            // Do something\n" +
 	        "        }\n" +
 	        "    }\n" +
@@ -464,7 +464,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0);
 
 	    // Create the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(returnStatement);
 	    TransformVisitor.varNum = 0;
@@ -477,7 +477,7 @@ public class TransformVisitorTest {
 	    String expectedSource = 
 	        "public class TestClass {\n" +
 	        "    public int testMethod() {\n" +
-	        "        return Debug.makeSymbolicInteger(\"x0\");\n" +
+	        "        return Verifier.nondetInt();\n" +
 	        "    }\n" +
 	        "}";
 	    assertEquals(expectedSource.trim(), document.get().trim());
@@ -524,7 +524,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0);
 
 	    // Create the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(returnStatement);
 	    TransformVisitor.varNum = 0;
@@ -567,7 +567,7 @@ public class TransformVisitorTest {
 	        ((TypeDeclaration) compilationUnit.types().get(0)).modifiers().get(0);
 
 	    // Visit the annotation node
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SPF");
+	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
 	    visitor.visit(singleMemberAnnotation);
 
 	    // Apply the changes made by the rewriter
@@ -607,7 +607,7 @@ public class TransformVisitorTest {
 	        (SuperConstructorInvocation) (((TypeDeclaration) compilationUnit.types().get(0)).getMethods()[0]).getBody().statements().get(0);
 
 	    // Visit the node
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SPF");
+	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
 	    visitor.visit(superConstructorInvocation);
 
 	    // Apply the changes made by the rewriter
@@ -760,7 +760,7 @@ public class TransformVisitorTest {
 	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.visit(typeDeclaration);
 	
@@ -797,7 +797,7 @@ public class TransformVisitorTest {
 	    SymbolTable mockRoot = mock(SymbolTable.class);	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(typeDeclaration);
 	    
@@ -825,7 +825,7 @@ public class TransformVisitorTest {
 	    SymbolTable mockRoot = mock(SymbolTable.class);	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SPF");
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP");
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(typeDeclaration);
 	    

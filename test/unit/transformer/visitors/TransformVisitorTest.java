@@ -11,6 +11,7 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
@@ -830,6 +831,110 @@ public class TransformVisitorTest {
 	    visitor.endVisit(typeDeclaration);
 	    
 	    assertTrue(visitor.getSymbolTableStack().contains(mockRoot));
+	}
+	
+	@Test
+	public void test_endVisitClassInstanceCreation_removesDisallowedTypesInVariableAssignment() throws Exception {
+	    // Example source code to test disallowed types handling in ClassInstanceCreation
+	    String source =
+	        "public class TestClass {\n" +
+	        "    public void method() {\n" +
+	        "        Object obj = new DisallowedType();\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    AST ast = compilationUnit.getAST();
+	    ASTRewrite rewriter = ASTRewrite.create(ast);
+
+	    // Mock the type checker and type table using Mockito
+	    TypeChecker typeChecker = Mockito.mock(TypeChecker.class);
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
+	    
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null);
+	    ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) 
+	      		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
+	            		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
+
+	    // Visit the nodes in the AST
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(classInstanceCreation);
+	    
+	    
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource =
+	        "public class TestClass {\n" +
+	        "    public void method() {\n" +
+	        "    }\n" +
+	        "}";
+
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	@Test
+	public void test_endVisitClassInstanceCreation_replacesDisallowedTypeInReturnStatement() throws Exception {
+	    // Example source code to test disallowed types handling in ClassInstanceCreation
+	    String source =
+	        "public class TestClass {\n" +
+	        "    public DisallowedType method() {\n" +
+	        "        return new DisallowedType();\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    AST ast = compilationUnit.getAST();
+	    ASTRewrite rewriter = ASTRewrite.create(ast);
+
+	    // Mock the type checker and type table using Mockito
+	    TypeChecker typeChecker = Mockito.mock(TypeChecker.class);
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
+	    
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null);
+	    ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) 
+	    	    ((ReturnStatement)((MethodDeclaration)((TypeDeclaration)
+	    	            compilationUnit.types().get(0)).bodyDeclarations().get(0))
+	    	            .getBody().statements().get(0)).getExpression();
+
+	    // Visit the nodes in the AST
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(classInstanceCreation);
+	    
+	    
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource =
+	        "public class TestClass {\n" +
+	        "    public DisallowedType method() {\n" +
+	        "        return new Object();\n"+
+	        "    }\n" +
+	        "}";
+
+	    assertEquals(expectedSource.trim(), document.get().trim());
 	}
 		
 }

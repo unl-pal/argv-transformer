@@ -193,6 +193,10 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
+	/**
+	 * On a method containing a disallowed ClassInstanceCreation (such as new DisallowedType()), removing it if it's in
+	 * an initializer or right hand side, and replacing it with a blank object if in a return statement.
+	 */
 	@Override
 	public void endVisit(ClassInstanceCreation node) {
 

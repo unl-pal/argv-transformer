@@ -287,6 +287,10 @@ public class TransformVisitor extends ASTVisitor {
 	}
 
 
+	/**
+	 * Checks if then or else expression in a conditional is not of an allowed type, replacing it with a symbolic value of
+	 * the type of the variable declaration. Also replaces the conditional statement with a symbolic boolean if it is not boolean type code.
+	 */
 	@Override
 	public void endVisit(ConditionalExpression node) {
 		Expression expr = node.getExpression();

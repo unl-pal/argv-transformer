@@ -13,12 +13,14 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -934,6 +936,114 @@ public class TransformVisitorTest {
 	        "    }\n" +
 	        "}";
 
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_endVisitConditionalExpression_replacesDisallowedIntegerType() throws Exception {
+	    // Example source code with variable declarations
+		String source = 
+		        "public class TestClass {\n" +
+		        "    public void someMethod(int x) {\n" +
+		        "        int x = 3 > 5 ? ExternalClass.disallowedMethod() : ExternalClass.disallowedMethod();\n" +
+		        "    }\n" +
+		        "}";
+	    // Parse the source code
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Mock the TypeChecker to disallow certain types
+	    TypeChecker typeChecker = Mockito.mock(TypeChecker.class);
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    when(mockTypeTable.getNodeType(Mockito.any(VariableDeclarationFragment.class))).thenReturn(mockType);
+	    when(typeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+
+
+	    // Retrieve the variable declaration statements
+
+	    ConditionalExpression conditionalExpression = (ConditionalExpression)
+	    		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
+	            		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
+        
+	    // Visit the nodes
+	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(conditionalExpression);
+
+	    // Apply the changes made by the rewriter
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource =
+	    		"public class TestClass {\n" + 
+	    		"    public void someMethod(int x) {\n" + 
+	    		"        int x = Verifier.nondetBoolean() ? Verifier.nondetInt() : Verifier.nondetInt();\n" +
+	    		"    }\n" + 
+	    		"}";
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_endVisitConditionalExpression_replacesDisallowedDoubleType() throws Exception {
+	    // Example source code with variable declarations
+		String source = 
+		        "public class TestClass {\n" +
+		        "    public void someMethod(int x) {\n" +
+		        "        double x = 3 > 5 ? ExternalClass.disallowedMethod() : ExternalClass.disallowedMethod();\n" +
+		        "    }\n" +
+		        "}";
+	    // Parse the source code
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Mock the TypeChecker to disallow certain types
+	    TypeChecker typeChecker = Mockito.mock(TypeChecker.class);
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    when(mockTypeTable.getNodeType(Mockito.any(VariableDeclarationFragment.class))).thenReturn(mockType);
+	    when(typeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.DOUBLE);
+
+
+	    // Retrieve the variable declaration statements
+
+	    ConditionalExpression conditionalExpression = (ConditionalExpression)
+	    		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
+	            		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
+        
+	    // Visit the nodes
+	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(conditionalExpression);
+
+	    // Apply the changes made by the rewriter
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource =
+	    		"public class TestClass {\n" + 
+	    		"    public void someMethod(int x) {\n" + 
+	    		"        double x = Verifier.nondetBoolean() ? Verifier.nondetDouble() : Verifier.nondetDouble();\n" +
+	    		"    }\n" + 
+	    		"}";
 	    assertEquals(expectedSource.trim(), document.get().trim());
 	}
 		

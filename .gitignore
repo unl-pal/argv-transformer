@@ -38,6 +38,7 @@ kls_database.db
 /database/
 /benchmarks/
 /suitablePrgms/
+/testOutput/
 
 # IDE specific folders
 # IntelliJ

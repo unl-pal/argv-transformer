@@ -57,6 +57,7 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -90,7 +91,7 @@ public class TransformVisitor extends ASTVisitor {
 	private Stack<SymbolTable> symbolTableStack;
 	private String currMethod;
 	private ArrayList<VarSTE> initializedVars;
-	private static int varNum = 0;
+	public static int varNum = 0;
 	private String target;
 	private boolean randUsedInMethod;
 	private boolean hasRandom;
@@ -104,8 +105,7 @@ public class TransformVisitor extends ASTVisitor {
 	 * @param typeChecker
 	 * @throws IOException
 	 */
-	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String target)
-			throws IOException {
+	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String target) {
 		this.root = root;
 		this.rewriter = rewriter;
 		this.typeTable = typeTable;
@@ -121,7 +121,7 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(ArrayAccess node) {
 		Type type = typeTable.getNodeType(node);
-		if (type != null && TypeChecker.allowedType(type)) {
+		if (type != null && typeChecker.allowedType(type)) {
 			return;
 		}
 
@@ -144,7 +144,7 @@ public class TransformVisitor extends ASTVisitor {
 
 		Type lhsType = typeTable.getNodeType(lhs);
 	
-		if ((lhsType == null || !TypeChecker.allowedType(lhsType)) || lhs instanceof FieldAccess) {
+		if ((lhsType == null || !typeChecker.allowedType(lhsType)) || lhs instanceof FieldAccess) {
 			ASTNode parent = node.getParent(); // ExpressionStatement
 			if (parent.getParent() instanceof Block) {
 				rewriter.remove(parent, null);
@@ -164,7 +164,7 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(CastExpression node) {
 		Type castType = node.getType();
-		if(TypeChecker.allowedType(castType)) {
+		if(typeChecker.allowedType(castType)) {
 			return;
 		}
 		
@@ -193,12 +193,16 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
+	/**
+	 * On a method containing a disallowed ClassInstanceCreation (such as new DisallowedType()), removing it if it's in
+	 * an initializer or right hand side, and replacing it with a blank object if in a return statement.
+	 */
 	@Override
 	public void endVisit(ClassInstanceCreation node) {
 
 		Type type = typeTable.getNodeType(node);
 
-		if (!TypeChecker.allowedType(type)) {
+		if (!typeChecker.allowedType(type)) {
 			if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
 				Assignment parent = (Assignment) node.getParent();
 
@@ -220,8 +224,9 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
-	/*
-	 * Remove imports not in java standard library
+	/**
+	 * Remove imports not in java standard library and intializes the ast with the current nod's ast
+	 * If replacing with random's, sets hasRandom to true.
 	 */
 	@Override
 	public boolean visit(CompilationUnit node) {
@@ -238,7 +243,7 @@ public class TransformVisitor extends ASTVisitor {
 			//String[] importSplit = importName.split("\\.");
 			//String className = importSplit[importSplit.length - 1];
 		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
-			if (!importName.startsWith("java.") || !importName.startsWith("org.sosy_lab.sv_benchmarks")){
+			if (!importName.startsWith("java.") && !importName.startsWith("org.sosy_lab.sv_benchmarks") && !importName.startsWith("javax.")){
 				//System.out.println("Removing import " + importName);
 				rewriter.remove(importDec, null);
 			} 
@@ -250,6 +255,9 @@ public class TransformVisitor extends ASTVisitor {
 		return true;
 	}
 
+	/**
+	 * Adds necessary imports for the symbolic testing tool we are using. Currently supports java Random and nasa's symbc.Debug
+	 */
 	@Override
 	public void endVisit(CompilationUnit node) {
 		ImportDeclaration id = ast.newImportDeclaration();
@@ -279,6 +287,10 @@ public class TransformVisitor extends ASTVisitor {
 	}
 
 
+	/**
+	 * Checks if then or else expression in a conditional is not of an allowed type, replacing it with a symbolic value of
+	 * the type of the variable declaration. Also replaces the conditional statement with a symbolic boolean if it is not boolean type code.
+	 */
 	@Override
 	public void endVisit(ConditionalExpression node) {
 		Expression expr = node.getExpression();
@@ -294,7 +306,7 @@ public class TransformVisitor extends ASTVisitor {
 			typeTable.setNodeType(expr, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 		}
 
-		if (TypeChecker.allowedType(typeThenExpr) && TypeChecker.allowedType(typeElseExpr)) {
+		if (typeChecker.allowedType(typeThenExpr) && typeChecker.allowedType(typeElseExpr)) {
 			return;
 		}
 
@@ -397,14 +409,14 @@ public class TransformVisitor extends ASTVisitor {
 		Type rhsType = typeTable.getNodeType(rhs);
 
 		// nothing to be done
-		if ((lhsType != null && TypeChecker.allowedType(lhsType))
-				&& (rhsType != null && TypeChecker.allowedType(rhsType))) {
+		if ((lhsType != null && typeChecker.allowedType(lhsType))
+				&& (rhsType != null && typeChecker.allowedType(rhsType))) {
 			return;
 		}
 
 		// if we can infer the type of lhs form rhs
-		if ((lhsType == null || !TypeChecker.allowedType(lhsType))
-				&& (rhsType != null && TypeChecker.allowedType(rhsType))) {
+		if ((lhsType == null || !typeChecker.allowedType(lhsType))
+				&& (rhsType != null && typeChecker.allowedType(rhsType))) {
 			if (isIntegerTypeCode(rhsType)) {
 				replaceInteger(lhs);
 				typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.INT));
@@ -420,8 +432,8 @@ public class TransformVisitor extends ASTVisitor {
 			}
 
 			// if we can infer the type of rhs from lhs
-		} else if ((rhsType == null || !TypeChecker.allowedType(rhsType))
-				&& (lhsType != null && TypeChecker.allowedType(lhsType))) {
+		} else if ((rhsType == null || !typeChecker.allowedType(rhsType))
+				&& (lhsType != null && typeChecker.allowedType(lhsType))) {
 			if (isIntegerTypeCode(lhsType)) {
 				replaceInteger(rhs);
 				typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.INT));
@@ -500,7 +512,7 @@ public class TransformVisitor extends ASTVisitor {
 			return;
 		}
 		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
-			if (!TypeChecker.allowedType(type)) {
+			if (!typeChecker.allowedType(type)) {
 				replaceBoolean(node);
 			}
 		}
@@ -513,13 +525,9 @@ public class TransformVisitor extends ASTVisitor {
 		return false;
 	}
 	
-	/*
-	 * Currently, we are removing all methods that have parameters that are not
-	 * integer types.
-	 * 
-	 * Eventually (to better preserve the original program structure), we will
-	 * remove non-integer parameters/unresolvable typed parameters and update method
-	 * calls with another pass through the AST.
+	/**
+	 * Removes MethodDeclarations that are not part of typeChecker's allowed types. See typeChecker for a longer description.
+	 * Configures global variable currMethod to this node's method and pushes this method's scope to the top of symbolTableStack
 	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
@@ -528,7 +536,7 @@ public class TransformVisitor extends ASTVisitor {
 		List<SingleVariableDeclaration> params = node.parameters();
 		for (SingleVariableDeclaration param : params) {
 			Type type = param.getType();
-			if (!TypeChecker.allowedType(type)) {
+			if (!typeChecker.allowedType(type)) {
 				rewriter.remove(node, null);
 				return false;
 			}
@@ -559,7 +567,7 @@ public class TransformVisitor extends ASTVisitor {
 		List<SingleVariableDeclaration> params = node.parameters();
 		for (SingleVariableDeclaration param : params) {
 			Type type = param.getType();
-			if (!TypeChecker.allowedType(type)) {
+			if (!typeChecker.allowedType(type)) {
 				pushedMethod = false;
 			}
 		}
@@ -589,7 +597,10 @@ public class TransformVisitor extends ASTVisitor {
 		return false;
 	}
 	
-	// expr rule
+	/**
+	 * Checks if a MethodInvocation node is part of the JDK or package environment, replacing/removing it if otherwise.
+	 * Presently replaces primitive types, removing the node otherwise.
+	 */
 	@Override
 	public void endVisit(MethodInvocation node) {
 		IMethodBinding methodBinding = node.resolveMethodBinding();
@@ -602,6 +613,7 @@ public class TransformVisitor extends ASTVisitor {
                 }
                 // Check if it's part of the JDK
                 if (packageName.startsWith("java.") || packageName.startsWith("javax.") || packageName.equals(rootNodePackage)) {
+                	// do nothing for now
                 } else {
                 	ITypeBinding typeBinding = methodBinding.getReturnType();
     				if (typeBinding != null && typeBinding.isPrimitive()) {
@@ -628,6 +640,9 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 
+	/**
+	 * Unconditionally removes NormalAnnotation nodes from the tree
+	 */
 	@Override
 	public boolean visit(NormalAnnotation node) {
 		rewriter.remove(node, null);
@@ -638,7 +653,7 @@ public class TransformVisitor extends ASTVisitor {
 	public boolean visit(PostfixExpression node) {
 		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
 			Type type = typeTable.getNodeType(node);
-			if ((type == null) || !TypeChecker.allowedType(type)) {
+			if ((type == null) || !typeChecker.allowedType(type)) {
 				ASTNode parent = node.getParent(); // ExpressionStatement
 				if (parent.getParent() instanceof Block) {
 					rewriter.remove(parent, null);
@@ -651,12 +666,15 @@ public class TransformVisitor extends ASTVisitor {
 		return true;
 	}
 
-	
+	/**
+	 * Checks if a PrefixExpression node is an allowed type. 
+	 * If not and part of an if or while statement, replaces with a symbolic boolean
+	 */
 	@Override
 	public void endVisit(PrefixExpression node) {
 		Type type = typeTable.getNodeType(node);
 
-		if (TypeChecker.allowedType(type)) {
+		if (typeChecker.allowedType(type)) {
 			return;
 		}
 		if (node.getLocationInParent() == IfStatement.EXPRESSION_PROPERTY) {
@@ -672,7 +690,7 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(QualifiedName node) {
 		Type type = typeTable.getNodeType(node);
-		if (type != null && TypeChecker.allowedType(type)) {
+		if (type != null && typeChecker.allowedType(type)) {
 			return;
 		}
 		if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
@@ -703,6 +721,11 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 
+	/**
+	 * If the return type is resolveable and not of an allowed type, replaces it with a new blank Object
+	 * If resolvable and of an allowed type but not in typeTable, replaces it with a corresponding symbolic value.
+	 * Otherwise, does nothing.
+	 */
 	@Override
 	public void endVisit(ReturnStatement node) {
 		if (node.getExpression() == null) {
@@ -711,7 +734,7 @@ public class TransformVisitor extends ASTVisitor {
 		SymbolTable currScope = symbolTableStack.peek();
 		MethodSTE sym = currScope.getMethodSTE(currMethod);
 
-		if (sym != null && !TypeChecker.allowedType(sym.getReturnType())) {
+		if (sym != null && !typeChecker.allowedType(sym.getReturnType())) {
 			ClassInstanceCreation ci = ast.newClassInstanceCreation();
 			ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
 			rewriter.replace(node.getExpression(), ci, null);
@@ -736,17 +759,6 @@ public class TransformVisitor extends ASTVisitor {
 			} else if (isDoubleTypeCode(returnType)) {
 				replaceDouble(node.getExpression());
 			}
-			
-			/*
-			 * else if (isStringType(returnType)) { rewriter.replace(node.getExpression(),
-			 * ast.newStringLiteral(), null); }
-			 */
-			
-			/*
-			 * else { ClassInstanceCreation ci = ast.newClassInstanceCreation();
-			 * ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
-			 * rewriter.replace(node.getExpression(), ci, null); }
-			 */
 		}
 		return;
 	}
@@ -763,7 +775,7 @@ public class TransformVisitor extends ASTVisitor {
 				node.getLocationInParent() == PackageDeclaration.NAME_PROPERTY ||
 				node.getLocationInParent() == SimpleType.NAME_PROPERTY ||
 				node.getLocationInParent() == ImportDeclaration.NAME_PROPERTY ||
-				node.getLocationInParent() == org.eclipse.jdt.core.dom.TypeParameter.NAME_PROPERTY){
+				node.getLocationInParent() == TypeParameter.NAME_PROPERTY){
 			return true;
 		}
 		
@@ -780,19 +792,14 @@ public class TransformVisitor extends ASTVisitor {
 		}
 
 		Type type = typeTable.getNodeType(node);
-	//	MethodSTE methodSym = currScope.getMethodSTE(currMethod);
 		ASTNode parent = node.getParent();
 		while (!(parent instanceof MethodDeclaration)) {
 			parent = parent.getParent();
-			//System.out.println("parent " + sym + "\t" + parent);
 		}
 
 		
 		
 		if(sym != null && sym.isFieldVar() && !initializedVars.contains(sym)) {
-//			System.out.println("sym " + node.getParent() + "\t" + !initializedVars.contains(sym) + " " 
-//		+ isIntegerTypeCode(type) + " " + isBooleanTypeCode(type) + " " + type);
-			
 			if(type.isPrimitiveType()) {
 				if(isIntegerTypeCode(type)) {
 					
@@ -805,14 +812,6 @@ public class TransformVisitor extends ASTVisitor {
 					default : randMethodInvocation = replaceWithRandomInteger();
 					}
 							
-//							ast.newMethodInvocation();
-//					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
-//					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicInteger"));
-//					StringLiteral str = ast.newStringLiteral();
-//					str.setLiteralValue("x" + varNum);
-//					randMethodInvocation.arguments().add(str);
-//					varNum++;
-//					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
 					fragment.setInitializer(randMethodInvocation);
@@ -836,17 +835,6 @@ public class TransformVisitor extends ASTVisitor {
 					break;
 					default : expression = replaceWithRandomFloat();
 					}
-									
-//					MethodInvocation randMethodInvocation = ast.newMethodInvocation();
-//					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
-//					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
-//					StringLiteral str = ast.newStringLiteral();
-//					str.setLiteralValue("x" + varNum);
-//					randMethodInvocation.arguments().add(str);
-//					varNum++;
-					
-//					castExpression.setExpression(randMethodInvocation);
-//					castExpression.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -872,13 +860,6 @@ public class TransformVisitor extends ASTVisitor {
 					default : randMethodInvocation = replaceWithRandomDouble();
 					}
 							
-//							ast.newMethodInvocation();
-//					randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
-//					randMethodInvocation.setName(ast.newSimpleName("makeSymbolicReal"));
-//					StringLiteral str = ast.newStringLiteral();
-//					str.setLiteralValue("x" + varNum);
-//					randMethodInvocation.arguments().add(str);
-//					varNum++;
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -917,44 +898,22 @@ public class TransformVisitor extends ASTVisitor {
 					
 					initializedVars.add(sym);
 					
-				}
-				
-//				if (type.isSimpleType()) {
-//
-//					SimpleName variable = ast.newSimpleName(name);
-//					rewriter.replace(node, variable, null);
-//
-//					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-//					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
-//
-//					fragment.setName(ast.newSimpleName(name));
-//
-//					Name typeName = ((SimpleType) type).getName();
-//					String stringTypeName = typeName.getFullyQualifiedName();
-//					SimpleType newType = ast.newSimpleType(ast.newName(stringTypeName));
-//
-//					varDeclaration.setType(newType);
-//					ASTNode parent = node.getParent();
-//					while (!(parent instanceof MethodDeclaration)) {
-//						parent = parent.getParent();
-//					}
-//
-//					Block block = ((MethodDeclaration) parent).getBody();
-//					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
-//					listRewrite.insertFirst(varDeclaration, null);
-//				}
-				
+				}		
 			}
 			
 		}
 		return true;
 	}
 
+	/**
+	 * If a simpleName node is not of an allowed type and belongs to an if statement, replaces it with a symbolic boolean.
+	 * Otherwise, do nothing.
+	 */
 	@Override
 	public void endVisit(SimpleName node) {
 		Type type = typeTable.getNodeType(node);
 
-		if (TypeChecker.allowedType(type)) {
+		if (typeChecker.allowedType(type)) {
 			return;
 		}
 
@@ -964,14 +923,18 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 	
-	
+	/**
+	 * Unconditionally removes SingleMemberAnnotation nodes from the tree.
+	 */
 	@Override
 	public boolean visit(SingleMemberAnnotation node) {
 		rewriter.remove(node, null);
 		return false;
 	}
 	
-	
+	/**
+	 * Unconditionally removes SuperConstructorAnnotation nodes from the tree.
+	 */
 	@Override
 	public boolean visit(SuperConstructorInvocation node) {
 		rewriter.remove(node, null);
@@ -1110,6 +1073,10 @@ public class TransformVisitor extends ASTVisitor {
 		return false;
 	}
 
+	/**
+	 * Removes Interfaces and strips and "extends" and "implements" from a class' type declaration
+	 * Pushes a new scope to the symbol table for the class we are about to enter for this type declaration
+	 */
 	@Override
 	public boolean visit(TypeDeclaration node) {
 		if (node.isInterface()) {
@@ -1135,6 +1102,9 @@ public class TransformVisitor extends ASTVisitor {
 		return true;
 	}
 
+	/**
+	 * Escapes from our current symbolTable scope. Does not pop on interfaces because we do not enter the scope of interfaces.
+	 */
 	@Override
 	public void endVisit(TypeDeclaration node) {
 		if (!node.isInterface()) {
@@ -1143,9 +1113,14 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 
+	/**
+	 * If a VariableDeclarationStatement is not an allowed type, it is removed.
+	 * If its parent is not a block, instead of directly removing the VariableDeclarationStatement,
+	 * it is replaced with an empty block "{}". Note: This can create issues for some statements
+	 */
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		if (!TypeChecker.allowedType(node.getType())) {
+		if (!typeChecker.allowedType(node.getType())) {
 			if (node.getParent() instanceof Block) {
 				rewriter.remove(node, null);
 			} else {
@@ -1171,8 +1146,6 @@ public class TransformVisitor extends ASTVisitor {
 		default: randMethodInvocation = replaceWithRandomBoolean();
 		}
 		rewriter.replace(exp, randMethodInvocation, null);
-//		randUsedInMethod = true;
-//		randUsedInProgram = true;
 	}
 	
 	private MethodInvocation replaceWithRandomBoolean() {
@@ -1230,7 +1203,6 @@ public class TransformVisitor extends ASTVisitor {
 		randMethodInvocation.setName(ast.newSimpleName("nextInt"));
 		
 		randUsedInMethod = true;
-		//randUsedInProgram = true;
 		return randMethodInvocation;
 		
 	}
@@ -1245,6 +1217,8 @@ public class TransformVisitor extends ASTVisitor {
 		
 	}
 	
+
+	
 	private void replaceInteger(Expression exp) {
 		MethodInvocation randMethodInvocation = null;
 		switch(target) {
@@ -1257,7 +1231,7 @@ public class TransformVisitor extends ASTVisitor {
 		rewriter.replace(exp, randMethodInvocation, null);
 	}
 
-/**==============================================DOUBLE==========================================================================*/
+
 
 	/* Actually it is Double */
 	private void replaceDouble(Expression exp) {
@@ -1510,7 +1484,7 @@ public class TransformVisitor extends ASTVisitor {
 	
 	private void checkReturnType(MethodDeclaration node) {
 		Type type = node.getReturnType2();
-		if(!TypeChecker.allowedType(type)) {
+		if(!typeChecker.allowedType(type)) {
 			rewriter.replace(node.getReturnType2(), ast.newSimpleType(ast.newName("Object")), null);
 		}
 	}
@@ -1578,15 +1552,7 @@ public class TransformVisitor extends ASTVisitor {
 					(isDoubleTypeCode(lhsType) && isIntegerTypeCode(rhsType))) {
 				typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
 			}
-		}
-
-		// string concatenation
-		/*
-		 * if (op == Operator.PLUS) { if (isStringType(lhsType) ||
-		 * isStringType(rhsType)) { typeTable.setNodeType(node,
-		 * ast.newSimpleType(ast.newSimpleName("String"))); } }
-		 */
-		
+		}		
 	}
 
 	public ASTRewrite getRewriter() {
@@ -1626,5 +1592,13 @@ public class TransformVisitor extends ASTVisitor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Getter for symbolTableStack
+	 * @return symbolTableStack a stack of all symbolTables (innermost scope on top)
+	 */
+	public Stack<SymbolTable> getSymbolTableStack(){
+		return symbolTableStack;
 	}
 }

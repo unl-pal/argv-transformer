@@ -11,25 +11,25 @@ version "1.0.0"
 // rootProject.name.set("argv-transformer")
 
 repositories {
-  mavenCentral()
+  mavenCentral() // Most commonly used reposistory
   maven {
     url = uri("https://repo.eclipse.org/content/groups/releases/")
-  }
+  } // Eclipse specific repo that cannot be found on maven central
 }
 
+// set run to run the entire program via driver
 application {
   mainClass.set("full.Driver")
 }
 
+// This enforces java 8 compiance with the code
+// also allows for the use of later compilers as long as the code conforms
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
-  toolchain {
-    languageVersion.set(JavaLanguageVersion.of(8))
-    // vendor.set(JvmVendorSpec.AZUL)
-  }
 }
 
+// All External Dependencies from either repo
 dependencies {
   implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726")
   implementation("org.apache.commons:commons-csv:1.5")
@@ -57,7 +57,6 @@ tasks.compileJava {
     main {
       java {
         srcDirs("src/java")
-        // srcDirs(configurations.runtimeClasspath)
       }
     }
   }
@@ -110,6 +109,20 @@ tasks.testClasses {
 tasks.test {
 }
 
+tasks.javadoc {
+}
+
+// tasks.register("testdoc", Javadoc::class) {
+//   classpath += configurations.testRuntimeClasspath.get()
+//   classpath += configurations.runtimeClasspath.get()
+//   classpath += files("build/classes/test")
+//   source(fileTree("test"), fileTree("src/java"))
+//   destinationDir = file("build/docs/testdoc")
+// }
+
+// Task that generates a file called my.classpath
+// my.classpath is a template file with many necessary parts used by various common IDEs
+// This file is not meant to be an end all file, rather a starting point
 tasks.register("ide-paths") {
   group = "Set-Up"
   description = "Generate a file, 'my.classpath'\nFile is a template with class path entries for gradle-managed dependencies"
@@ -147,55 +160,29 @@ tasks.register("ide-paths") {
   }
 }
 
+// Custom Compile task used to run the individual parts from root
 task<JavaCompile>("compile") {
-  // source(fileTree("src/java"), fileTree("test"))
   source(fileTree("src/java"))
   classpath = configurations.runtimeClasspath.get()
   destinationDirectory = file("build/classes/java")
   outputs.files(fileTree((destinationDirectory)))
 }
 
+// Custom Test Compile task for use with test types other than unit tests
 task<JavaCompile>("compile-test") {
   dependsOn("compile")
-  // source(fileTree("build/classes/java"), fileTree("src/test"))
-  // source(fileTree("src/test"), fileTree("test"))
   source(fileTree("src/java"), fileTree("src/test"), fileTree("test"))
   classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get()
-  // classpath += files("test/unit")
-  // classpath += files("test/testresources")
-  // classpath += files("test/transformer")
   classpath += files("build/classes/java")
   destinationDirectory = file("build/classes/test")
   outputs.files(fileTree((destinationDirectory)))
 }
 
-// tasks.register("full") {
-//   group = "execution"
-//   description = "Runs the 'Full' thing"
-//   sourceSets {
-//     main {
-//       java {
-//         srcDirs("src/java")
-//       }
-//     }
-//   }
-//   dependsOn("compileJava")
-//   doLast {
-//     execOperations.javaexec  {
-//       classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-//       classpath += files(File.pathSeparator + file("build/classes/java"))
-//       mainClass.set("full.Driver")
-//       args("-cp")
-//       standardOutput = System.out
-//       errorOutput = System.err
-//     }
-//   }
-//   // classpath.set(configurations.runtimeClasspath)
-//   // classpath(sourceSets.main.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-// }
-
+// Custom task class used for creating tasks for individual parts of the code
 open class ExecOperationsTask @Inject constructor(@Internal val execOperations: ExecOperations) : DefaultTask()
 
+// This is currently the same as 'run'
+// Does not actually run the full application despite the name, only what is in Driver
 tasks.register<ExecOperationsTask>("full") {
   group = "execution"
   description = "Runs the compiled application"
@@ -212,6 +199,8 @@ tasks.register<ExecOperationsTask>("full") {
   }
 }
 
+// Runs only the filter task
+// Assumes that necesary folders already exist eg database
 tasks.register<ExecOperationsTask>("filter") {
   group = "execution"
   description = "Runs the filter"
@@ -228,6 +217,8 @@ tasks.register<ExecOperationsTask>("filter") {
   }
 }
 
+// Runs only the transform task
+// Assumes that necessary folders already exist eg suitablePrgms
 tasks.register<ExecOperationsTask>("transform") {
   group = "execution"
   description = "Runs the transformer"
@@ -244,6 +235,8 @@ tasks.register<ExecOperationsTask>("transform") {
   }
 }
 
+// Wipes all folders created by the code as well as the build folder
+// Use for fresh run of code
 tasks.register<Delete>("reset") {
   group = "clean"
   description = "Resets the program - deletes build, database, suitablePrgms and benchmarks"
@@ -251,6 +244,10 @@ tasks.register<Delete>("reset") {
   println("Deleted Files")
 }
 
+// Experimental code in developement for running other types of tests besides unit tests
+// Junit (specifically JUnit 4) is currently in use by the test code base
+// JUnit4 framework integrates Unit tests with Gradle but does not allow for the
+//     creation or running of other types of tests at this time
 tasks.register<ExecOperationsTask>("regression") {
   group = "testing"
   description = "Runs Regression Tests"
@@ -290,4 +287,3 @@ tasks.register<ExecOperationsTask>("regression") {
     }
   }
 }
-

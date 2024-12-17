@@ -107,6 +107,9 @@ tasks.testClasses {
 
 
 tasks.test {
+  testLogging {
+    events("FAILED")
+  }
 }
 
 tasks.javadoc {

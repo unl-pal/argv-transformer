@@ -26,7 +26,7 @@ import transform.Transformer;
  * Given a CSV of GitHub repositories (as gathered by RepoReaper), this program
  * will select suitable repositories, download them, search for classes
  * containing SPF-suitable methods, and transform suitable classes into
- * compilable, benchmark programs.
+ * compilable, benchmark programs. 
  * 
  * @author mariapaquin
  *
@@ -42,7 +42,7 @@ public class Main {
 	private static int totalSuitableMethods;
 	private static int compilableSpfSuitableMethodCount;
 	private static int compilableAfterTransformSpfSuitableMethodCount;
-
+	
 	private final static String SPF_COMPILE = "javac -g -d bin/ -cp .:/Users/elenasherman/git/jpf-symbc/build/classes/ ";
 	private final static String DEFAULT_COMPILE = "javac -g -d bin/ ";
 	private static String COMPILE = "";
@@ -63,24 +63,21 @@ public class Main {
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
-			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams, String target)
-			throws IOException {
+			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams, String target) throws IOException {
 
 		fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
-
+		
 		totalNumFiles = 0;
 		totalNumMethods = 0;
 		totalSuitableMethods = 0;
 		compilableSpfSuitableMethodCount = 0;
 		compilableAfterTransformSpfSuitableMethodCount = 0;
-
-		switch (target) {
-			case "SPF":
-				COMPILE = SPF_COMPILE;
-				break;
-			default:
-				COMPILE = DEFAULT_COMPILE;
+		
+		switch(target) {
+		case "SPF" : COMPILE = SPF_COMPILE;
+		break;
+		default: COMPILE = DEFAULT_COMPILE;
 		}
 
 		File benchmarks = new File(benchmarkDir);
@@ -92,7 +89,7 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-
+		
 		File suitablePrgms = new File("suitablePrgms");
 
 		if (suitablePrgms.exists()) {
@@ -102,8 +99,8 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-
-		Logger.defaultLogger.setDebugLevel(debugLevel); // TODO: Read what this debugLevel parameter is doing here
+		
+		Logger.defaultLogger.setDebugLevel(debugLevel); //TODO: Read what this debugLevel parameter is doing here
 		Logger.defaultLogger.enterContext("MAIN");
 
 		Downloader downloader = new Downloader(filename);
@@ -126,7 +123,7 @@ public class Main {
 
 		Logger.defaultLogger.enterContext("FILTER");
 
-		FileFilter filter = new FileFilter(projects, type, minExpr, minIfStmt, minParams);
+		FileFilter filter = new FileFilter(projects,type,  minExpr, minIfStmt, minParams);
 		filter.collectSuitableFilesInProjectList();
 
 		totalSuitableMethods = filter.getSuitableMethodCount();
@@ -136,62 +133,55 @@ public class Main {
 		Logger.defaultLogger.exitContext("FILTER");
 
 		ArrayList<File> copiedFiles = copyFiles(suitableFiles, downloadDir, "suitablePrgms");
-		// ArrayList<File> successfulCompiles = new ArrayList<File>();
-		// ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-		//
-		// for (File file : copiedFiles) {
-		// Logger.defaultLogger.enterContext("COMPILING");
-		//
-		// boolean success = compile(file);
-		// if (success) {
-		// compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
-		// successfulCompiles.add(file);
-		// } else {
-		// unsuccessfulCompiles.add(file);
-		// }
-		// Logger.defaultLogger.exitContext("COMPILING");
-		// }
-		//
-		// secondCompile = true;
-		//
-		// Transformer transformer = new Transformer(unsuccessfulCompiles, target);
-		// transformer.transformFiles();
-		//
-		// ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
-		// ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
-		//
-		// for (File file : copiedFiles) {
-		// Logger.defaultLogger.enterContext("RECOMPILING");
-		// boolean success = compile(file);
-		// if (success) {
-		// compilableAfterTransformSpfSuitableMethodCount +=
-		// countSpfSuitableMethods(file);
-		// successfulCompilesAfterTransform.add(file);
-		// } else {
-		// unsuccessfulCompilesAfterTransform.add(file);
-		// }
-		// Logger.defaultLogger.exitContext("RECOMPILING");
-		// }
-		//
-		// long endTime = System.currentTimeMillis();
-		//
-		// copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
-		//
-		// System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods:
-		// " + totalNumMethods
-		// + "\nFiles suitable for SPF: " + suitableFiles.size() + "\nMethods suitable
-		// for SPF: "
-		// + totalSuitableMethods + "\nFiles with successful compile: " +
-		// successfulCompiles.size()
-		// + "\nMethods suitable for SPF in successfully compiled classes: " +
-		// compilableSpfSuitableMethodCount
-		// + "\nFiles with successful compile after transform: " +
-		// successfulCompilesAfterTransform.size()
-		// + "\nMethods suitable for symbolic execution: " +
-		// compilableAfterTransformSpfSuitableMethodCount
-		// + "\n\nTime: " + (endTime - startTime));
-		//
-		// Logger.defaultLogger.exitContext("MAIN");
+//		ArrayList<File> successfulCompiles = new ArrayList<File>();
+//		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
+//		
+//		for (File file : copiedFiles) {
+//			Logger.defaultLogger.enterContext("COMPILING");
+//
+//			boolean success = compile(file);
+//			if (success) {
+//				compilableSpfSuitableMethodCount += countSpfSuitableMethods(file);
+//				successfulCompiles.add(file);
+//			} else {
+//				unsuccessfulCompiles.add(file);
+//			}
+//			Logger.defaultLogger.exitContext("COMPILING");
+//		}
+//
+//		secondCompile = true;
+//
+//		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
+//		transformer.transformFiles();
+//
+//		ArrayList<File> successfulCompilesAfterTransform = new ArrayList<File>();
+//		ArrayList<File> unsuccessfulCompilesAfterTransform = new ArrayList<File>();
+//		
+//		for (File file : copiedFiles) {
+//			Logger.defaultLogger.enterContext("RECOMPILING");
+//			boolean success = compile(file);
+//			if (success) {
+//				compilableAfterTransformSpfSuitableMethodCount += countSpfSuitableMethods(file);
+//				successfulCompilesAfterTransform.add(file);
+//			} else {
+//				unsuccessfulCompilesAfterTransform.add(file);
+//			}
+//			Logger.defaultLogger.exitContext("RECOMPILING");
+//		}
+//
+//		long endTime = System.currentTimeMillis();
+//
+//		copyFiles(successfulCompilesAfterTransform, "suitablePrgms", benchmarkDir);
+//
+//		System.out.println("" + "\nTotal files: " + totalNumFiles + "\nTotal methods: " + totalNumMethods
+//				+ "\nFiles suitable for SPF: " + suitableFiles.size() + "\nMethods suitable for SPF: "
+//				+ totalSuitableMethods + "\nFiles with successful compile: " + successfulCompiles.size()
+//				+ "\nMethods suitable for SPF in successfully compiled classes: " + compilableSpfSuitableMethodCount
+//				+ "\nFiles with successful compile after transform: " + successfulCompilesAfterTransform.size()
+//				+ "\nMethods suitable for symbolic execution: " + compilableAfterTransformSpfSuitableMethodCount
+//				+ "\n\nTime: " + (endTime - startTime));
+//
+//		Logger.defaultLogger.exitContext("MAIN");
 
 		printWriter.close();
 	}
@@ -218,10 +208,10 @@ public class Main {
 	/**
 	 * Copy a list of files from a source directory to a target directory.
 	 * 
-	 * @param files   Files to copy.
+	 * @param files Files to copy.
 	 * @param fromDir Source directory.
-	 * @param toDir   Target directory.
-	 * @return The list of copied files (updated paths).
+	 * @param toDir Target directory.
+	 * @return The list of copied files (updated paths).  
 	 */
 	private static ArrayList<File> copyFiles(ArrayList<File> files, String fromDir, String toDir) {
 

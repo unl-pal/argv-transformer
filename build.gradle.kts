@@ -238,6 +238,24 @@ tasks.register<ExecOperationsTask>("transform") {
   }
 }
 
+tasks.register<ExecOperationsTask>("regression-transformer") {
+  group = "testing"
+  description = "Runs regression test for transformer"
+  dependsOn("compile")
+  doLast {
+    execOperations.javaexec {
+      classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
+      // classpath = files(configurations.testRuntimeClasspath.get().files.joinToString(File.pathSeparator))
+      classpath += files(File.pathSeparator + file("build/classes/java"))
+      mainClass.set("transform.Main")
+      args("test/transformer/regression", "testOutput")
+      // args("-cp")
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+  }
+}
+
 // Wipes all folders created by the code as well as the build folder
 // Use for fresh run of code
 tasks.register<Delete>("reset") {

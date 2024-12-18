@@ -232,7 +232,7 @@ public class TypeChecker {
 	/**
 	 * Integer array type of desired dimension
 	 * @param type
-	 * @param dem - desired dimensions, >= 1
+	 * @param dim - desired dimensions, >= 1
 	 * @return
 	 */
 	public static boolean isIntegerArrayType(Type type, int dim) {

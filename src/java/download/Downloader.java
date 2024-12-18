@@ -59,8 +59,8 @@ public class Downloader {
 	/**
 	 * Filter GitHub projects according to the filtering criteria.
 	 * 
-	 * @param minLinesOfCode Minimum number of lines of code for projects.
-	 * @param maxLinesOfCode Maximum number of lines of code for projects.
+	 * @param minLoc Minimum number of lines of code for projects.
+	 * @param maxLoc Maximum number of lines of code for projects.
 	 */
 	public void filterProjects(int minLoc, int maxLoc) {
 		JavaProjectFilter filter = new JavaProjectFilter(minLoc, maxLoc, 0);

@@ -103,7 +103,6 @@ public class TransformVisitor extends ASTVisitor {
 	 * @param rewriter
 	 * @param typeTable
 	 * @param typeChecker
-	 * @throws IOException
 	 */
 	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String target) {
 		this.root = root;

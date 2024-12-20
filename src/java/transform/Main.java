@@ -44,6 +44,10 @@ public class Main {
 	private final static String DEFAULT_TRANSFORM_ALL = "False";
 	private final static CType DEFAULT_TYPE = CType.INT;
 	
+	private static String verifier = "src/java/transform/benchmark/Verifier.java";
+	private static boolean debug = false;
+	private static boolean transformAll = false;
+
 	 public static String source = "suitablePrgms";
 	 public static String dest = "benchmarks";
 //	 public static String source = "test/transformer/regression";
@@ -65,7 +69,7 @@ public class Main {
 		int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
 		int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
 		int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
-		boolean transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
+		transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
 		CType type = DEFAULT_TYPE;
 		try {
 			FileReader reader = new FileReader(configFile);
@@ -94,6 +98,8 @@ public class Main {
 			minTypeCond = Integer.parseInt(props.getProperty("minTypeCond", DEFAULT_MIN_TYPE_COND));
 			minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
 			transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
+			debug = Boolean.parseBoolean(props.getProperty("debug"));
+			//verifier = props.getProperty(verifier).toString();
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);
@@ -131,30 +137,36 @@ public class Main {
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
-		if (transformAll) {
-			file_itr.forEachRemaining(file -> unsuccessfulCompiles.add(file));
-		} else {
-			file_itr.forEachRemaining(file -> {
-				boolean success = compile(file);
-				if (!success) {
-					unsuccessfulCompiles.add(file);
-				} else {
-					successfulCompiles.add(file);
-				}
-			});
-		}
+		file_itr.forEachRemaining (file -> {
+			boolean success = compile(file);
+			if (!success || transformAll) {
+				unsuccessfulCompiles.add(file);
+			} 
+		  if (success) {
+				successfulCompiles.add(file);
+			}
+		});
 
-		System.out.println("================================================\t");
-		System.out.println("Before Transformation:\t");
-		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size() + "\t");
-		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
+		// TODO should all the different outputs alsways be printed or a part of debug or other?
+
+		System.out.println("================================================");
+		System.out.println("Before Transformation:");
 		System.out.println("================================================");
 
-//		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
+		int failedCompilation = (transformAll) ? unsuccessfulCompiles.size() - successfulCompiles.size():unsuccessfulCompiles.size();
+		System.out.println("================ FAILURES ================");
+		System.out.println("Number of unsuccessful intial compilation " + failedCompilation);
+		for (File file : unsuccessfulCompiles) {
+			System.out.println(file.toString());
+			}
 
-		
-		
-		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
+		System.out.println("================ SUCCESS =================");
+		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
+		for (File file : successfulCompiles) {
+			System.out.println(file.toString());
+			}
+    
+		//System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles(minTypeExpr, minTypeCond, minTypeParams, type);
@@ -171,39 +183,60 @@ public class Main {
 		// were not be able to meet the selection criteria.
 		// do not remove uncompiled files if target is SVCOMP as for SVCOMP one
 		// dependency will not be compileable
-    
+
 		file_itr.forEachRemaining(file -> {
 			boolean success = compile(file);
-			if (!success && !target.equals("SVCOMP")) {
+			// Do Not delete failed to compile benchmarks if debugging
+			// With changes to compile() SVCOMP Benchmarks can be compiled
+			if (!success && !debug) {
 				try {
 					Files.delete(file.toPath());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			} else {
-				// System.out.println("compiled " + file.getName());
-				successfulCompiles.add(file);
-				// unsuccessfulCompiles.remove(file);
+			} else if (success) {
+				if (!successfulCompiles.contains(file)) successfulCompiles.add(file);
+				unsuccessfulCompiles.remove(file);
 			}
 
-			if (target.equals("SVCOMP")) {
-				prepareForSvcompBenchmark(file);
-			}
-			
+			// Create the YAML if targeting SVCOMP
 			if(target.equals("SVCOMP")) {
 				prepareForSvcompBenchmark(file);
 			}
 		});
-    
-		System.out.println("================================================\t");
-		System.out.println("After Transformation:\t");
-		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size() + "\t");
-		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
-		System.out.println("================================================");
 
-		// System.out.println(unsuccessfulCompiles.size() + " +++++ " +
-		// successfulCompiles.size());
+		// Catch any benchmarks that can no longer be compiled after transformation
+		ArrayList<File> newFails = new ArrayList<File>();
+		for (File file : successfulCompiles) {
+			if (unsuccessfulCompiles.contains(file)) {
+				newFails.add(file);
+			}
+		}
+
+		// Fix later so these ^V can be combined, unsafe as is
+		for (File file : newFails) {
+			successfulCompiles.remove(file);
+		}
     
+		System.out.println("================================================");
+		System.out.println("After Transformation:");
+		System.out.println("================ FAILURES ================");
+		System.out.println("Number of unsuccessful compilations " + unsuccessfulCompiles.size());
+		for (File file : unsuccessfulCompiles) {
+			System.out.println(file.toString());
+			}
+
+		System.out.println("================ SUCCESS =================");
+		System.out.println("Number of successful compilations " + successfulCompiles.size());
+		for (File file : successfulCompiles) {
+			System.out.println(file.toString());
+			}
+		System.out.println("================ No More =======================");
+		System.out.println("No longer compiles after Transform " + newFails.size());
+		for (File file : newFails) {
+			System.out.println(file.toString());
+		}
+
 		try {
 			FileUtils.forceDelete(tmpDir);
 		} catch (IOException e) {
@@ -216,6 +249,11 @@ public class Main {
 			System.exit(-1);
 	}
 
+	/**
+	 * Takes a file and attemps to compile using the file and verifier
+	 * @param file - suitablePrgms file to attempt compilation
+	 * @return completion status of the attempted compilation
+	 */
 	private static boolean compile(File file) {
 		final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null)
@@ -225,8 +263,7 @@ public class Main {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 		int runErrors = compiler.run(null, outputStream, errorStream, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
-				System.getProperty("java.class.path"), file.toString());
-		// if (runErrors > 0)
+				System.getProperty("java.class.path"), file.toString(), verifier);
 		// System.out.println("Num compilation erros in " + file.getParent() + " are " +
 		// runErrors);
 		return runErrors == 0;
@@ -250,6 +287,10 @@ public class Main {
 	}
 
 
+	/**
+	 * Creates YML for matching benchmark for SVCOMP benchmarks
+	 * @param file - svcomp compatible benchmark file
+	 */
 	private static void prepareForSvcompBenchmark(File file) {
 		// Path to Save YML file
 		File parentDirectory = new File(file.getParent());

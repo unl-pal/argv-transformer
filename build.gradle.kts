@@ -15,7 +15,16 @@ repositories {
   }
 }
 
+// sourceSets {
+//   create("svcompile") {
+//     java {
+//       srcDirs("")
+//     }
+//   }
+// }
+
 dependencies {
+  // implementation(project(":svcompile"))
   implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726")
   implementation("org.apache.commons:commons-csv:1.5")
   implementation("commons-io:commons-io:2.16.1")
@@ -29,12 +38,21 @@ dependencies {
   implementation("org.eclipse.text:org.eclipse.text:3.5.101")
   implementation("org.yaml:snakeyaml:2.0")
   implementation("org.soot-oss:soot:4.6.0")
+  implementation("com.google.guava:guava:33.4.0-jre")
+  implementation("org.sosy-lab:common:0.3000-609-g90a352c")
+  implementation(gradleApi())
   testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
   testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testImplementation("org.mockito:mockito-core:4.11.0")
   testImplementation("org.testng:testng:7.5.1")
 }
+
+// sourceSets.named("svcomile") {
+//   dependencies {
+//     implementation("org.sosy-lab:common:0.3000-609-g90a352c")
+//   }
+// }
 
 tasks.register("ide-paths") {
   group = "Set-Up"
@@ -132,4 +150,18 @@ tasks.register<Delete>("reset") {
   description = "Resets the program - deletes build, database, suitablePrgms and benchmarks"
   delete(files("benchmarks", "suitablePrgms","build","database"))
   println("Deleted Files")
+}
+
+// Experimental code in developement for running other types of tests besides unit tests
+// Junit (specifically JUnit 4) is currently in use by the test code base
+// JUnit4 framework integrates Unit tests with Gradle but does not allow for the
+//     creation or running of other types of tests at this time
+tasks.register<JavaCompile>("test-bench") {
+  group = "testing"
+  description = "Test the created benchmarks"
+  source(fileTree("benchmarks"))
+  classpath = configurations.compileClasspath.get()
+  @Optional
+  destinationDirectory = file("bench2/build")
+  // outputs.files(fileTree(destinationDirectory))
 }

@@ -157,8 +157,10 @@ public class Main {
 		System.out.println("================ FAILURES ================");
 		System.out.println("Number of unsuccessful intial compilation " + failedCompilation);
 		for (File file : unsuccessfulCompiles) {
-			System.out.println(file.toString());
+			if (!successfulCompiles.contains(file)) {
+				System.out.println(file.toString());
 			}
+		}
 
 		System.out.println("================ SUCCESS =================");
 		System.out.println("Number of successful intial compilation " + successfulCompiles.size());

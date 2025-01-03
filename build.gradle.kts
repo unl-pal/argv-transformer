@@ -115,14 +115,6 @@ tasks.test {
 tasks.javadoc {
 }
 
-// tasks.register("testdoc", Javadoc::class) {
-//   classpath += configurations.testRuntimeClasspath.get()
-//   classpath += configurations.runtimeClasspath.get()
-//   classpath += files("build/classes/test")
-//   source(fileTree("test"), fileTree("src/java"))
-//   destinationDir = file("build/docs/testdoc")
-// }
-
 // Task that generates a file called my.classpath
 // my.classpath is a template file with many necessary parts used by various common IDEs
 // This file is not meant to be an end all file, rather a starting point

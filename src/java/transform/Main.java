@@ -44,7 +44,7 @@ public class Main {
 	private final static String DEFAULT_TRANSFORM_ALL = "False";
 	private final static CType DEFAULT_TYPE = CType.INT;
 	
-	private static String verifier = "src/java/transform/benchmark/Verifier.java";
+	private static String verifier = "";
 	private static boolean debug = false;
 	private static boolean transformAll = false;
 
@@ -99,7 +99,7 @@ public class Main {
 			minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
 			transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
 			debug = Boolean.parseBoolean(props.getProperty("debug"));
-			//verifier = props.getProperty(verifier).toString();
+			verifier = props.getProperty("verifier");
 		} catch (IOException exp) {
 			System.out.println("Invalid configuration file.");
 			System.exit(1);
@@ -138,28 +138,23 @@ public class Main {
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
 		file_itr.forEachRemaining (file -> {
-			boolean success = compile(file);
-			if (!success || transformAll) {
-				unsuccessfulCompiles.add(file);
-			} 
-		  if (success) {
+			if (compile(file)) {
 				successfulCompiles.add(file);
+			} 
+			else {
+				unsuccessfulCompiles.add(file);
 			}
 		});
 
 		// TODO should all the different outputs alsways be printed or a part of debug or other?
-
 		System.out.println("================================================");
 		System.out.println("Before Transformation:");
 		System.out.println("================================================");
 
-		int failedCompilation = (transformAll) ? unsuccessfulCompiles.size() - successfulCompiles.size():unsuccessfulCompiles.size();
 		System.out.println("================ FAILURES ================");
-		System.out.println("Number of unsuccessful intial compilation " + failedCompilation);
+		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size());
 		for (File file : unsuccessfulCompiles) {
-			if (!successfulCompiles.contains(file)) {
-				System.out.println(file.toString());
-			}
+			System.out.println(file.toString());
 		}
 
 		System.out.println("================ SUCCESS =================");
@@ -169,6 +164,10 @@ public class Main {
 			}
     
 		//System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
+
+		if (transformAll) {
+			unsuccessfulCompiles.addAll(successfulCompiles);
+		}
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles(minTypeExpr, minTypeCond, minTypeParams, type);
@@ -197,7 +196,8 @@ public class Main {
 					e.printStackTrace();
 				}
 			} else if (success) {
-				if (!successfulCompiles.contains(file)) successfulCompiles.add(file);
+				if (!successfulCompiles.contains(file))
+					successfulCompiles.add(file);
 				unsuccessfulCompiles.remove(file);
 			}
 

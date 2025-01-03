@@ -25,11 +25,11 @@ jobs:
           ./gradlew
           ./gradlew clean
           ./gradlew build
-      - name: Compile
-        run: ./gradlew compile
       - name: Run
         run: |
-          ./gradlew full
+          ./gradlew run
           ./gradlew transform
+      - name: Test
+        run: ./gradlew test
       - name: Clean Up
         run: ./gradlew reset

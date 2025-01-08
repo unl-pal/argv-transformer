@@ -55,10 +55,11 @@ public class Main {
 	 * @param debugLevel
 	 * @param downloadDir
 	 * @param benchmarkDir
-	 * @param minIfStmt 
-	 * @param ifStmt 
-	 * @param minExpr 
-	 * @param type 
+	 * @param type
+	 * @param minExpr
+	 * @param minIfStmt
+	 * @param minParams
+	 * @param target
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,

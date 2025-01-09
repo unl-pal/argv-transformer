@@ -3,6 +3,7 @@ plugins {
   id("application")
   id("java-library")
   id("idea")
+  id("eclipse")
   id("jvm-test-suite")
 }
 
@@ -164,7 +165,7 @@ task<JavaCompile>("compile") {
 }
 
 // Custom Test Compile task for use with test types other than unit tests
-task<JavaCompile>("compile-test") {
+task<JavaCompile>("compileTest") {
   dependsOn("compile")
   source(fileTree("src/java"), fileTree("src/test"), fileTree("test"))
   classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get()
@@ -182,16 +183,19 @@ tasks.register<ExecOperationsTask>("full") {
   group = "execution"
   description = "Runs the compiled application"
   dependsOn("compile")
-  doLast {
-    execOperations.javaexec {
-    classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-    classpath += files(File.pathSeparator + file("build/classes/java"))
-    mainClass.set("full.Driver")
-    args("-cp")
-    standardOutput = System.out
-    errorOutput = System.err
-    }
-  }
+  dependsOn("download")
+  dependsOn("filter")
+  dependsOn("transform")
+  // doLast {
+  //   execOperations.javaexec {
+  //   classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
+  //   classpath += files(File.pathSeparator + file("build/classes/java"))
+  //   mainClass.set("full.Driver")
+  //   args("-cp")
+  //   standardOutput = System.out
+  //   errorOutput = System.err
+  //   }
+  // }
 }
 
 // Runs only the filter task
@@ -230,7 +234,7 @@ tasks.register<ExecOperationsTask>("transform") {
   }
 }
 
-tasks.register<ExecOperationsTask>("regression-transformer") {
+tasks.register<ExecOperationsTask>("regressionTransformer") {
   group = "testing"
   description = "Runs regression test for transformer"
   dependsOn("compile")

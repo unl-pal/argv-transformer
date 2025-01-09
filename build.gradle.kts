@@ -81,7 +81,6 @@ tasks.run {
   group = "execution"
 }
 
-
 tasks.compileTestJava {
   sourceSets {
     test {
@@ -176,6 +175,22 @@ task<JavaCompile>("compileTest") {
 
 // Custom task class used for creating tasks for individual parts of the code
 open class ExecOperationsTask @Inject constructor(@Internal val execOperations: ExecOperations) : DefaultTask()
+
+tasks.register<ExecOperationsTask>("download") {
+  group = "execution"
+  description = "downloads the repos for database"
+  dependsOn("compile")
+  doLast {
+    execOperations.javaexec {
+    classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
+    classpath += files(File.pathSeparator + file("build/classes/java"))
+    mainClass.set("download.Main")
+    args("-cp")
+    standardOutput = System.out
+    errorOutput = System.err
+    }
+  }
+}
 
 // This is currently the same as 'run'
 // Does not actually run the full application despite the name, only what is in Driver

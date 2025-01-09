@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import sourceAnalysis.AnalyzedFile;
 import sourceAnalysis.AnalyzedMethod;

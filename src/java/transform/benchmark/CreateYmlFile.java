@@ -2,7 +2,6 @@ package transform.benchmark;
 
 import java.util.LinkedHashMap;
 import org.yaml.snakeyaml.Yaml;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;

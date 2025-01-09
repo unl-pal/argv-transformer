@@ -2,27 +2,53 @@
 
 ## About
 Welcome to PAClab Automated Program Transformations.
-This program automatically downloads, filters and transforms open source reposistories into benchmarks for static analysis tools.
+This application automatically downloads, filters and transforms open source reposistories into benchmarks for static analysis tools.
 
-## Download
-```git clone ```
+## Setting Up the Project
+### Download
+Clone the repository e.g.
+```git clone git@github.com:unl-pal/argv-transformer.git```
 
-## Setting Up && Running the Project
-This project uses gradle
+### Setting Up the Project
+This project uses gradle to build, compile and run the program.
+After cloning the repository run the graddle wrapper with no arguments ```./gradlew``` to set up the project.
+This will fetch the apporpriate version of Gradle, if needed, as well as all dependencies, and set to build Java 8 compatible code.
 
-### Code Steps
-The tool uses the file **config.properties** to set the options and properties of the tool before each run.
-This file can be edited manually to suit the users needs and will be covered in greater detail later.
-This tool uses a csv file of github repository urls as input to begin the program.
-This list of urls can be obtained using the **BOA** tool, RepoReaper or other available programs.
-<!--TODO --COORECT ME WHEN WRONG-->
-At this point the program will then download the repos into the **database**.
-From there the programs are filtered using the requirements set in the **config.properties** file and stored in **suiatablePrgms**.
-Finally these **suitablePrgrms** are transformed by the tool and the new benchmarks stored in **benchmarks**
+## Running the Project
+Run ```./gradlew``` followed by any of the following tasks to get desired effect.
+### Clean Tasks
+- reset - Resets the program - deletes build, database, suitablePrgms and benchmarks directories
 
-All newly created benchmarks are tested for compilability and can be set to follow SVCOMP standards.
+### Documentation Tasks
+- javadoc - Generates Javadoc API documentation for the 'main' feature.
+
+### Execution Tasks
+- download - Compiles and Runs the download program
+- filter - Compiles and Runs the filter program
+- full - Compiles Runs the full application
+- transform - Compiles and Runs the transformer program
+
+### Testing Tasks
+- regression-transformer - Runs regression test for transformer
+- test - Runs the test suite.
+
+<!--## Using the Tool-->
+<!--The tool uses the file **config.properties** to set the options and properties of the tool before each run.-->
+<!--This file can be edited manually to suit the users needs and will be covered in greater detail later.-->
+<!--This tool uses a csv file of github repository urls as input to begin the program.-->
+<!--This list of urls can be obtained using the **BOA** tool, RepoReaper or other available programs.-->
+<!--<!--TODO --COORECT ME WHEN WRONG-->
+<!--At this point the program will then download the repos into the **database**.-->
+<!--From there the programs are filtered using the requirements set in the **config.properties** file and stored in **suiatablePrgms**.-->
+<!--Finally these **suitablePrgrms** are transformed by the tool and the new benchmarks stored in **benchmarks**-->
+
+<!--All newly created benchmarks are tested for compilability and can be set to follow SVCOMP standards.-->
 
 ## Config Properties
+The tool uses the file **config.properties** to set the options and properties of the tool before each run.
+This file can be edited manually to suit the users needs by changing the values of the file.
+
+The available options to set are as follows:
 - csv - relative file path to file with OSS github URLs
 - projectCount - how many projects to grab that meet the requirements
 - maxLoc - upper limit to number of lines of code
@@ -32,7 +58,7 @@ All newly created benchmarks are tested for compilability and can be set to foll
 - debug - run code with debugging logs and features on
 - debugLevel - what level of debug errors are reported
 - type - type of expression
-- minExpr - int minimum number of expressions required
+- minExpr - a minimum number of infix, prefix or postfix expression of the defined type encountered in a method
 - minIfStmt - int minimum number of if statements required
 - minParams - int minimum number of parameters required
 - minTypeExpr - int minimum number of type expressions required
@@ -43,16 +69,14 @@ All newly created benchmarks are tested for compilability and can be set to foll
 - verifier - location of the verifier code needed to compile benchmarks using x compatibility
 
 ### Supported Properties
-exprType:
+expression Types Available for value:type:
  * X - don't care what type of expression is
  * I - integer type (int, short, byte, long)
  * R - real type (double, float)
  * S - string type (String, char)
  Currently code also ensures that the arguments to a method of that type too (plus boolean).
 
-minExpr:
- * a minimum number of infix, prefix or postfix expression of the defined type encountered in a method
-
+### In Development
 ifStmt:
  * X - don't care if there is an ifStmt in a method
  * Y - a conditional statement should be present in a method
@@ -64,87 +88,103 @@ ifStmt:
  * R - real type (double, float)
  * S - string type (String, char)
  
- minIfStmt:
-  * a minimum number of conditional statements defined above required in a method.
+## Tools
+### download
+Given a csv file with names and meta data of repositories this program
+downloads repositories and stores them in a database.
 
-## Main Classes
+Input:
+* csv - csv file with meta data and names of repositories such as created by RepoReaper
 
-**filter.Main.java** 
-This program filters a directory of repositories for java files suitable for symbolic execution. 
+Config Settings:
+- csv - relative file path to file with OSS github URLs
+- projectCount - how many projects to grab that meet the requirements
+- maxLoc - upper limit to number of lines of code
+- minLoc - lower limit to number of lines of code
+- downloadDir - where to download the repos to
+
+Output:
+* creates database directory of downloaded repositories for next steps
+
+### filter
+This program filters a directory of repositories for java files suitable for symbolic execution using the values set by the user.
 
 (Suitability is defined in sourceAnalysis.AnalyzedMethod.java by isSymbolicSuitable() method. A java file 
 is suitable if at least one of its methods is suitable.)
 
 Input:
  * database - Directory of repositories. 
- 
+
+Config Settings:
+- maxLoc - upper limit to number of lines of code
+- minLoc - lower limit to number of lines of code
+- downloadDir - where to download the repos to
+- benchmarkDir - where to write the benchmarks to
+- type - type of expression
+- minExpr - int minimum number of expressions required
+- minIfStmt - int minimum number of if statements required
+- minParams - int minimum number of parameters required
+- minTypeExpr - int minimum number of type expressions required
+- minTypeCond - int minimum number of type conditions required
+- minTypeParams - int minimum number of type parameters required
+
 Output:
  * suitablePrgms - Directory of repositories containing only java files suitable for analysis (in original directory structure). 
  
-**transform.Main.java** 
+### transform
 Given a directory of suitable java files, this program attempts to transform each into a compilable benchmark.
  
 A directory of benchmarks is created, containing the programs that would successfully compile in their original directory structure. 
 
 Input:
  * suitablePrgms - Directory of repositories containing only java files suitable for symbolic execution. 
+
+Config Settings:
+- debug - run code with debugging logs and features on
+- debugLevel - what level of debug errors are reported
+- transformAll - boolean to transform all code regardless of if it already compiles
+- target - string for compatibility i.e. SVCOMP 
+- verifier - location of the verifier code needed to compile benchmarks using x compatibility
+
+- csv - relative file path to file with OSS github URLs
  
 Output:
  * benchmarks - Directory of compilable, suitable programs (in original directory structure). 
 
-**full.Main.java**
+### full
 Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs.
 
 Input:
-* CSV of GitHub repositories as gathered by RepoReaper.
+ * CSV of GitHub repositories as gathered by RepoReaper.
+
+Config Settings:
+ * All settings
 
 Output:
  * database - Directory of GitHub repos that meet project filter specification.
  * suitablePrgms - Directory containing suitable files extracted from GitHub repos. (This is where the transformation of the source code takes place.)
  * benchmarks - Directory of compilable, suitable programs, in their original directory structure. 
 
-## PACKAGES
-
- * download - Downloading GitHub projects
- * filter - Filtering for relevant projects and files
- <!--* jpf - Running JPF-->
- * logging - For simple logging
- * full - Contains main for running with full framework, i.e. download, filter, transform, output
- * sourceAnalysis - Used to track files and methods suitable for symbolic execution
- * tests
- * transform - Transforming files into compilable benchmarks
- 
 ## ADDITIONAL FILES
 
  * dataset.csv - First 5,000 entries (each entry is a GitHub project url with metadata) from RepoReaper dataset.
  * filtered-dataset.csv - 250 Java projects with min and max loc of 100 and 10,000
  * config.properties - Properties for running the full framework (i.e. downloading, filtering, transforming). 
 
-## RUNNING WITH SPF
-
-The paths for rt.jar and jfxrt.jar need to be added to Soot's classpath in jpf.ProgramUnderTest.java. (Soot is used for loop detection in class file). 
-
-The path for jpf-symbc/build needs to be added to classpath in the compile() methods. (For transformations specific to SPF, i.e. using Debug.makeSymbolicInteger() in place of rand.nextInt().)
-
-For SPF, the environment variable LD_LIBRARY_PATH needs to be set (in Eclipse, Run configurations -> Environment).
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/MariaPaquin/pathfinder/jpf-symbc/lib/64bit:/home/MariaPaquin/pathfinder/jpf-symbc/lib
-
 ## TROUBLESHOOTING
 
 The javac version (used in main.MainTransform.java and mainFullFramework.MainAnalysis.java to compile benchmarks) needs to be the same version as JDK for rt.jar set in Soot classpath (in jpf.ProgramUnderTest.java, used for loop detection). 
 
-## Database
-The '''database''' directory is populated by ARG-V with the set amount of potential repositories 
-to be filtered. This process currently uses the dataset.csv file
+## Development
+### Contributing to the Project
 
-## Suitable Programs Database
-Using the repositories in database, ARG-V filters the repositories for suitable 
-programs then places them in the '''suitablePrgms''' directory. 
+## PACKAGES
 
-Suitable programs are defined as programs containing all attributes described 
-by the user at the start of the ARG-V process.
-
-## Benchmarks
-This directory is populated by the ARG-V Transformation code run on the 
-'''suitablePrgms''' directory to create SV-COMP compliant benchmarks.
-
+ * download - Downloading GitHub projects
+ * filter - Filtering for relevant projects and files
+ * logging - For simple logging
+ * full - Contains main for running with full framework, i.e. download, filter, transform, output
+ * sourceAnalysis - Used to track files and methods suitable for symbolic execution
+ * tests
+ * transform - Transforming files into compilable benchmarks
+ 

@@ -2,7 +2,7 @@
 
 ## About
 Welcome to PAClab Automated Program Transformations.
-This application automatically downloads, filters and transforms open source reposistories into benchmarks for static analysis tools.
+This application automatically downloads, filters and transforms open source repositories into benchmarks for static analysis tools.
 
 ## Setting Up the Project
 ### Download
@@ -12,19 +12,19 @@ git clone git@github.com:unl-pal/argv-transformer.git
 ```
 
 ### Setting Up the Project
-This project uses gradle to build, compile and run the program.
-After cloning the repository run the graddle wrapper with no arguments `./gradlew` to set up the project.
-This will fetch the apporpriate version of Gradle, if needed, as well as all dependencies, and set to build Java 8 compatible code.
+This project uses [gradle](https://gradle.org) to build, compile and run the program.
+After cloning the repository run the gradle wrapper with no arguments `./gradlew` to set up the project.
+This will fetch the appropriate version of Gradle, if needed, as well as all dependencies, and set to build Java 8 compatible code.
 
 ## Running the Project
 Run `./gradlew` followed by any of the following tasks to get desired effect.
 
 ### Clean Tasks
-- `reset` - Resets the program - deletes build, database, suitablePrgms and benchmarks directories
+- `reset` - Resets the program - deletes `build`, `database`, `suitablePrgms` and `benchmarks` directories
 
 ### Documentation Tasks
-- `javadoc` - Generates Javadocs in the build/docs/javadoc direcotry with
-  index.html as the entry point. These docs can be viewed and navigated from
+- `javadoc` - Generates Javadocs in the `build/docs/javadoc` directory with
+  `index.html` as the entry point. These docs can be viewed and navigated from
   the browser.
 
 ### Execution Tasks
@@ -36,11 +36,11 @@ Run `./gradlew` followed by any of the following tasks to get desired effect.
 ### Testing Tasks
 - `regressionTransformer` - Runs regression test for transformer
 - `test` - Runs the test suite and creates a report that can be viewed in a
-  browser. The report is located in the build/reports/tests/test directory
-  with the index.html file as the main entry point.
+  browser. The report is located in the `build/reports/tests/test` directory
+  with the `index.html` file as the main entry point.
 
 Other tasks are available and can be seen by running `./gradlew tasks` from
-the commandline. This will display all tasks available and a brief description
+the command line. This will display all tasks available and a brief description
 of what they do.
 <!--## Using the Tool-->
 <!--The tool uses the file **config.properties** to set the options and properties of the tool before each run.-->
@@ -59,7 +59,7 @@ The tool uses the file **config.properties** to set the options and properties o
 This file can be edited manually to suit the users needs by changing the values of the file.
 
 The available options to set are as follows:
-- `csv` - relative file path to file with OSS github URLs
+- `csv` - relative file path to file with OSS GitHub URLs
 - `projectCount` - how many projects to grab that meet the requirements
 - `maxLoc` - upper limit to number of lines of code
 - `minLoc` - lower limit to number of lines of code
@@ -119,7 +119,7 @@ Output:
 ### filter
 This program filters a directory of repositories for java files suitable for symbolic execution using the values set by the user.
 
-(Suitability is defined in sourceAnalysis.AnalyzedMethod.java by isSymbolicSuitable() method. A java file 
+(Suitability is defined in `sourceAnalysis.AnalyzedMethod.java` by the `isSymbolicSuitable()` method. A Java file 
 is suitable if at least one of its methods is suitable.)
 
 Input:
@@ -142,12 +142,12 @@ Output:
  * `suitablePrgms` - Directory of repositories containing only java files suitable for analysis (in original directory structure). 
  
 ### transform
-Given a directory of suitable java files, this program attempts to transform each into a compilable benchmark.
+Given a directory of suitable Java files, this program attempts to transform each into a compilable benchmark.
  
 A directory of benchmarks is created, containing the programs that would successfully compile in their original directory structure. 
 
 Input:
- * `suitablePrgms` - Directory of repositories containing only java files suitable for symbolic execution. 
+ * `suitablePrgms` - Directory of repositories containing only Java files suitable for symbolic execution. 
 
 Config Settings:
 - `debug` - run code with debugging logs and features on
@@ -156,7 +156,7 @@ Config Settings:
 - `target` - string for compatibility i.e. SVCOMP 
 - `verifier` - location of the verifier code needed to compile benchmarks using x compatibility
 
-- `csv` - relative file path to file with OSS github URLs
+- `csv` - relative file path to file with OSS GitHub URLs
  
 Output:
  * `benchmarks` - Directory of compilable, suitable programs (in original directory structure). 

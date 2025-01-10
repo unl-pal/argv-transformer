@@ -167,7 +167,8 @@ task<JavaCompile>("compile") {
 task<JavaCompile>("compileTest") {
   dependsOn("compile")
   source(fileTree("src/java"), fileTree("src/test"), fileTree("test"))
-  classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get()
+  classpath = configurations.runtimeClasspath.get()
+  classpath += configurations.testRuntimeClasspath.get()
   classpath += files("build/classes/java")
   destinationDirectory = file("build/classes/test")
   outputs.files(fileTree((destinationDirectory)))
@@ -182,12 +183,11 @@ tasks.register<ExecOperationsTask>("download") {
   dependsOn("compile")
   doLast {
     execOperations.javaexec {
-    classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-    classpath += files(File.pathSeparator + file("build/classes/java"))
-    mainClass.set("download.Main")
-    args("-cp")
-    standardOutput = System.out
-    errorOutput = System.err
+      classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
+      classpath += files(File.pathSeparator + file("build/classes/java"))
+      mainClass.set("download.Main")
+      standardOutput = System.out
+      errorOutput = System.err
     }
   }
 }
@@ -197,20 +197,9 @@ tasks.register<ExecOperationsTask>("download") {
 tasks.register<ExecOperationsTask>("full") {
   group = "execution"
   description = "Runs the compiled application"
-  dependsOn("compile")
   dependsOn("download")
   dependsOn("filter")
   dependsOn("transform")
-  // doLast {
-  //   execOperations.javaexec {
-  //   classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-  //   classpath += files(File.pathSeparator + file("build/classes/java"))
-  //   mainClass.set("full.Driver")
-  //   args("-cp")
-  //   standardOutput = System.out
-  //   errorOutput = System.err
-  //   }
-  // }
 }
 
 // Runs only the filter task
@@ -224,7 +213,6 @@ tasks.register<ExecOperationsTask>("filter") {
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
     classpath += files(File.pathSeparator + file("build/classes/java"))
     mainClass.set("filter.Main")
-    args("-cp")
     standardOutput = System.out
     errorOutput = System.err
     }
@@ -242,13 +230,15 @@ tasks.register<ExecOperationsTask>("transform") {
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
     classpath += files(File.pathSeparator + file("build/classes/java"))
     mainClass.set("transform.Main")
-    args("-cp")
     standardOutput = System.out
     errorOutput = System.err
     }
   }
 }
 
+// runs the transformer on the regression test cases in
+// test/transformer/regression and generates fake benchmarks to the testOutput
+// directory
 tasks.register<ExecOperationsTask>("regressionTransformer") {
   group = "testing"
   description = "Runs regression test for transformer"
@@ -256,11 +246,9 @@ tasks.register<ExecOperationsTask>("regressionTransformer") {
   doLast {
     execOperations.javaexec {
       classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-      // classpath = files(configurations.testRuntimeClasspath.get().files.joinToString(File.pathSeparator))
       classpath += files(File.pathSeparator + file("build/classes/java"))
       mainClass.set("transform.Main")
       args("test/transformer/regression", "testOutput")
-      // args("-cp")
       standardOutput = System.out
       errorOutput = System.err
     }

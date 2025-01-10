@@ -32,8 +32,6 @@ public class Main {
 			outputPath = args[0];
 		}
 
-		System.out.println("OutputPathoutputPath);
-
 		File configFile = new File("config.properties");
 
 		int minLoc = 1;

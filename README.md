@@ -16,11 +16,14 @@ This will fetch the apporpriate version of Gradle, if needed, as well as all dep
 
 ## Running the Project
 Run ```./gradlew``` followed by any of the following tasks to get desired effect.
+
 ### Clean Tasks
 - reset - Resets the program - deletes build, database, suitablePrgms and benchmarks directories
 
 ### Documentation Tasks
-- javadoc - Generates Javadoc API documentation for the 'main' feature.
+- javadoc - Generates Javadocs in the build/docs/javadoc direcotry with
+  index.html as the entry point. These docs can be viewed and navigated from
+  the browser.
 
 ### Execution Tasks
 - download - Compiles and Runs the download program
@@ -29,9 +32,14 @@ Run ```./gradlew``` followed by any of the following tasks to get desired effect
 - transform - Compiles and Runs the transformer program
 
 ### Testing Tasks
-- regression-transformer - Runs regression test for transformer
-- test - Runs the test suite.
+- regressionTransformer - Runs regression test for transformer
+- test - Runs the test suite and creates a report that can be viewed in a
+  browser. The report is located in the build/reports/tests/test directory
+  with the index.html file as the main entry point.
 
+Other tasks are available and can be seen by running ```./gradlew tasks``` from
+the commandline. This will display all tasks available and a brief description
+of what they do.
 <!--## Using the Tool-->
 <!--The tool uses the file **config.properties** to set the options and properties of the tool before each run.-->
 <!--This file can be edited manually to suit the users needs and will be covered in greater detail later.-->

@@ -190,10 +190,10 @@ The `javac` version (used in `main.MainTransform.java` and `mainFullFramework.Ma
 
 ## PACKAGES
 
- * download - Downloading GitHub projects
- * filter - Filtering for relevant projects and files
- * logging - For simple logging
- * full - Contains main for running with full framework, i.e. download, filter, transform, output
- * sourceAnalysis - Used to track files and methods suitable for symbolic execution
- * tests
- * transform - Transforming files into compilable benchmarks
+ * `download` - Downloading GitHub projects
+ * `filter` - Filtering for relevant projects and files
+ * `logging` - For simple logging
+ * `full` - Contains main for running with full framework, i.e. download, filter, transform, output
+ * `sourceAnalysis` - Used to track files and methods suitable for symbolic execution
+ * `tests`
+ * `transform` - Transforming files into compilable benchmarks

@@ -1,12 +1,16 @@
 package transform;
 
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
@@ -15,6 +19,13 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.TextEdit;
 
 import transform.TypeChecking.TypeChecker.CType;
 import transform.benchmark.CreateYmlFile;
@@ -199,7 +210,7 @@ public class Main {
 
 			// Create the YAML if targeting SVCOMP
 			if(target.equals("SVCOMP")) {
-				prepareForSvcompBenchmark(file);
+				createSVCompYmlFile(file);
 			}
 		});
 
@@ -239,6 +250,12 @@ public class Main {
 			FileUtils.forceDelete(tmpDir);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		
+		if (target.equals("SVCOMP")) {
+			Files.walk(Paths.get(dest))
+		        .filter(path -> path.toString().endsWith(".java"))
+		        .forEach(Main::restructureForSVCompFormat);
 		}
 
 		removeEmptyDirs(destDir);
@@ -289,7 +306,7 @@ public class Main {
 	 * Creates YML for matching benchmark for SVCOMP benchmarks
 	 * @param file - svcomp compatible benchmark file
 	 */
-	private static void prepareForSvcompBenchmark(File file) {
+	private static void createSVCompYmlFile(File file) {
 		// Path to Save YML file
 		File parentDirectory = new File(file.getParent());
 
@@ -315,4 +332,70 @@ public class Main {
 		CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, file.getParentFile().getName(), true);
 
 	}
+	
+	private static void restructureForSVCompFormat(Path javaFilePath) {
+        try {
+            String content = readFile(javaFilePath);
+            String newContent = updateClassName(content);
+
+            Path parentDir = javaFilePath.getParent();
+            String fileNameWithoutExt = javaFilePath.getFileName().toString().replace(".java", "");
+            Path newDir = parentDir.resolve(fileNameWithoutExt);
+            Files.createDirectories(newDir);
+
+            Path newFilePath = newDir.resolve("Main.java");
+            writeFile(newFilePath, newContent);
+
+            Files.delete(javaFilePath);
+            System.out.println("Moved and renamed: " + javaFilePath + " -> " + newFilePath);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String updateClassName(String source) {
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
+        parser.setSource(source.toCharArray());
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+        CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+        cu.recordModifications();
+
+        cu.accept(new ASTVisitor() {
+            @Override
+            public boolean visit(TypeDeclaration node) {
+                if (!node.isInterface()) {
+                    node.setName(cu.getAST().newSimpleName("Main"));
+                }
+                return true;
+            }
+        });
+
+        Document doc = new Document(source);
+        TextEdit edits = cu.rewrite(doc, null);
+        try {
+            edits.apply(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return doc.get();
+    }
+
+    private static String readFile(Path path) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append(System.lineSeparator());
+            }
+        }
+        return content.toString();
+    }
+
+    private static void writeFile(Path path, String content) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write(content);
+        }
+    }
 }

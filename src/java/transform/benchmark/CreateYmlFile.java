@@ -13,7 +13,7 @@ import org.yaml.snakeyaml.DumperOptions;
 
 public class CreateYmlFile {
 	
-	public static void buildFile(String filePath, String fileName, String programPath, boolean isAssertionTrue) {
+	public static void buildFile(String filePath, String fileName, String programPath, boolean isAssertionTrue, boolean noRuntimeExceptions) {
 		Map<String, Object> yamlContent = new LinkedHashMap<>();
         yamlContent.put("format_version", "2.0");
         
@@ -24,17 +24,28 @@ public class CreateYmlFile {
         yamlContent.put("input_files", inputFiles);
 
         List<Map<String, Object>> properties = new ArrayList<>();
-        Map<String, Object> property = new LinkedHashMap<>();
-        property.put("property_file", "../properties/assert_java.prp");
+        Map<String, Object> assertProperty = new LinkedHashMap<>();
+        assertProperty.put("property_file", "../properties/assert_java.prp");
         
+        if (isAssertionTrue) {
+        	assertProperty.put("expected_verdict", true);
+        } else {
+        	assertProperty.put("expected_verdict", false);
+        }
         
-        if (isAssertionTrue)
-        	property.put("expected_verdict", true);
+        properties.add(assertProperty);
         
-        else
-        	property.put("expected_verdict", false);
+        Map<String, Object> exceptionProperty = new LinkedHashMap<>();
+        exceptionProperty.put("property_file", "../properties/runtime-exception.prp");
         
-        properties.add(property);
+        if (noRuntimeExceptions) {
+        	exceptionProperty.put("expected_verdict", true);
+        } else {
+        	exceptionProperty.put("expected_verdict", false);
+        }
+        
+        properties.add(exceptionProperty);
+        
         yamlContent.put("properties", properties);
         
 

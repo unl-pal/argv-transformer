@@ -1,7 +1,7 @@
-# PAClab Automated Program Transformations
+# ARG-V Automated Program Transformations
 
 ## About
-Welcome to PAClab Automated Program Transformations.
+Welcome to ARG-V Automated Program Transformations.
 This application automatically downloads, filters and transforms open source repositories into benchmarks for static analysis tools.
 
 ## Setting Up the Project

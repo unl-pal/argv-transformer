@@ -1,3 +1,10 @@
+/*
+ * Headers above the package
+ * header2
+ */
+// header using single line
+// another header using single line
+
 package transformer.integration;
 
 import util.ArgVRandom;
@@ -37,5 +44,10 @@ public class PreservationOfCommentsTest {
 		int var2 = (int) (Math.random() * 5);
 		System.out.println(splitter(time, var2));
 	}
-
 }
+
+// end of file comments
+/*
+ * More end of file comments
+ * more end of file commments
+ */

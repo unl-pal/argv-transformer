@@ -7,18 +7,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
@@ -34,6 +38,7 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -50,10 +55,13 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -96,6 +104,7 @@ public class TransformVisitor extends ASTVisitor {
 	private boolean randUsedInMethod;
 	private boolean hasRandom;
 	private String rootNodePackage = null; // instantiated as needed
+	private String source;
 
 	/**
 	 * 
@@ -104,7 +113,7 @@ public class TransformVisitor extends ASTVisitor {
 	 * @param typeTable
 	 * @param typeChecker
 	 */
-	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String target) {
+	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String target, String source) {
 		this.root = root;
 		this.rewriter = rewriter;
 		this.typeTable = typeTable;
@@ -112,6 +121,7 @@ public class TransformVisitor extends ASTVisitor {
 		this.target = target;
 		randUsedInMethod = false;
 		hasRandom = false;
+		this.source = source;
 	}
 	
 
@@ -231,22 +241,7 @@ public class TransformVisitor extends ASTVisitor {
 	public boolean visit(CompilationUnit node) {
 		ast = node.getAST();
 
-		@SuppressWarnings("unchecked")
-		List<ImportDeclaration> imports = node.imports();
-
-		for (ImportDeclaration importDec : imports) {
-			String importName = importDec.getName().getFullyQualifiedName();
-			if(!hasRandom && importName.equals("java.util.Random")) {
-				hasRandom = true;
-			}
-			//String[] importSplit = importName.split("\\.");
-			//String className = importSplit[importSplit.length - 1];
-		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
-			if (!importName.startsWith("java.") && !importName.startsWith("org.sosy_lab.sv_benchmarks") && !importName.startsWith("javax.")){
-				//System.out.println("Removing import " + importName);
-				rewriter.remove(importDec, null);
-			} 
-		}
+		
 
 		symbolTableStack = new Stack<SymbolTable>();
 		symbolTableStack.push(root);
@@ -282,6 +277,58 @@ public class TransformVisitor extends ASTVisitor {
 			id.setName(ast.newName(importName.split("\\.")));
 			ListRewrite listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
 			listRewrite.insertFirst(id, null);
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<ImportDeclaration> imports = node.imports();
+		
+	    // Retrieve all comments from the CompilationUnit
+	    List<Comment> comments = node.getCommentList();
+
+		for (ImportDeclaration importDec : imports) {
+			importName = importDec.getName().getFullyQualifiedName();
+			if(!hasRandom && importName.equals("java.util.Random")) {
+				hasRandom = true;
+			}
+			List<Comment> attachedComments = new ArrayList<Comment>();
+	        for (Comment comment : comments) {
+	        	ast.newBlockComment(); // TODO: fix this
+	            int commentEnd = comment.getStartPosition() + comment.getLength();
+	            if (commentEnd <= importDec.getStartPosition() && comment.getStartPosition() > node.getPackage().getStartPosition()) {
+	                attachedComments.add(comment);
+	            }
+	        }
+	        
+			//String[] importSplit = importName.split("\\.");
+			//String className = importSplit[importSplit.length - 1];
+		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
+			if (!importName.startsWith("java.") && !importName.startsWith("org.sosy_lab.sv_benchmarks") && !importName.startsWith("javax.")){
+				//System.out.println("Removing import " + importName);
+				// Find the next import or first type declaration to move comments to
+                ListRewrite listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
+                
+                Collections.reverse(attachedComments);
+                for (Comment comment : attachedComments) {
+                	 // Extract the text from the original source.
+                    String commentText = source.substring(comment.getStartPosition(),
+                            comment.getStartPosition() + comment.getLength());
+                    Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(commentText, ASTNode.EMPTY_STATEMENT);
+                    
+                    
+//                    // Create a new Javadoc node.
+//                    Javadoc javadoc = ast.newJavadoc();
+//                    TagElement tag = ast.newTagElement();
+//                    TextElement text = ast.newTextElement();
+//                    text.setText(cleanCommentText(commentText));
+//                    tag.fragments().add(text);
+//                    javadoc.tags().add(tag);
+                    
+                    // Insert the new Javadoc into the imports list (before the current import).
+                    listRewrite.insertFirst(commentPlaceholder, null);
+                }
+				rewriter.remove(importDec, null);
+				
+			} 
 		}
 	}
 
@@ -1553,6 +1600,7 @@ public class TransformVisitor extends ASTVisitor {
 			}
 		}		
 	}
+	
 
 	public ASTRewrite getRewriter() {
 		return rewriter;

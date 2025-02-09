@@ -5,29 +5,32 @@
 // header using single line
 // another header using single line
 
-package transformer.integration;
+/** filtered and transformed by ARG-V */
+ package transformer.integration;
 /*
  * Headers below the package
  * header2
  */
 // header with single line
 // another header
-import util.ArgVRandom;
+import org.sosy_lab.sv_benchmarks.Verifier;
 
 /**
  * This class is a copy of SymbolicIntTest with comments added in.
  * This is a multiline JavaDoc Comment on the class
  * @author Charles Moloney
  */
-public class PreservationOfCommentsTest {
+/** filtered by ARG-V */
+ public class Main {
 	/**
 	 * This is a JavaDoc Comment on a method
 	 * @param input1 an integer
 	 * @param input2 another integer
 	 * @return something nonsensical from our if statements
 	 */
-	public static int splitter(int input1, int input2) {
-		int value = (int) (ArgVRandom.randomInt() * 10);
+	/** ARG-V: suitable */
+	 public static int splitter(int input1, int input2) {
+		int value = (int) (Verifier.nondetInt() * 10);
 		/* This is a single line block comment */
 		// This is a single line comment
 		/*
@@ -43,11 +46,11 @@ public class PreservationOfCommentsTest {
 		}
 	}
 	
-	public static void main (String[] args) {
+	/** ARG-V: suitable */
+	 public static void main (String[] args) {
 		// int fake = Fake.getInt();
 		int time = (int) System.nanoTime();
 		int var2 = (int) (Math.random() * 5);
-		System.out.println(splitter(time, var2));
 	}
 }
 

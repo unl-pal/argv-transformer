@@ -382,6 +382,7 @@ public class Main {
         return doc.get();
     }
 
+
     private static String readFile(Path path) throws IOException {
         StringBuilder content = new StringBuilder();
         try (BufferedReader reader = Files.newBufferedReader(path)) {
@@ -396,6 +397,7 @@ public class Main {
     private static void writeFile(Path path, String content) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write(content);
+            writer.close();
         }
     }
 }

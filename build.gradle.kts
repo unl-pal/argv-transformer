@@ -120,6 +120,7 @@ tasks.testClasses {
 tasks.test {
   testLogging {
     events("FAILED")
+    exclude("test/integrationExpected/**")
   }
 }
 

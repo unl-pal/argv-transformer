@@ -45,7 +45,7 @@ public class DirectoryDiffTest {
             tempDir = Files.createTempDirectory("tmp");
             System.out.println("Temporary directory created: " + tempDir.toAbsolutePath());
             // Run the transformation so that files are written into the temp directory.
-            Main.main(new String[] {"test/transformer/integration", tempDir.toAbsolutePath().toString()});
+            Main.main(new String[] {Paths.get("test", "transformer", "integration").toString(), tempDir.toAbsolutePath().toString()});
         } catch (IOException e) {
             throw new RuntimeException("Failed to set up temporary directory", e);
         }

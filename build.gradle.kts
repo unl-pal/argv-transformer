@@ -58,6 +58,7 @@ tasks.compileJava {
     main {
       java {
         srcDirs("src/java")
+        exclude("test/integrationExpected/**")
       }
     }
   }
@@ -86,6 +87,7 @@ tasks.compileTestJava {
     test {
       java {
         srcDirs("test")
+        exclude("test/integrationExpected/**")
       }
     }
   }

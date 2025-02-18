@@ -31,18 +31,11 @@ java {
 }
 
 sourceSets {
-    main {
-        java {
-            srcDirs("src/java")
-            // Exclude integrationExpected if accidentally present
-            exclude("test/integrationExpected/**")
-        }
-    }
     test {
         java {
             srcDirs("test")
             // Exclude integrationExpected from test sources
-            exclude("test/integrationExpected/**")
+            exclude("integrationExpected/**")
         }
     }
 }

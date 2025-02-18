@@ -28,6 +28,18 @@ application {
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
+  main {
+    java {
+      setSrcDirs(listOf("src/java"))
+      exclude("test/integrationExpected/**")
+    }
+  }
+    test {
+      java {
+        setSrcDirs(listOf("test"))
+        exclude("test/integrationExpected/**")
+      }
+  }
 }
 
 // All External Dependencies from either repo
@@ -58,7 +70,6 @@ tasks.compileJava {
     main {
       java {
         srcDirs("src/java")
-        exclude("test/integrationExpected/**")
       }
     }
   }
@@ -87,7 +98,6 @@ tasks.compileTestJava {
     test {
       java {
         srcDirs("test")
-        exclude("test/integrationExpected/**")
       }
     }
   }

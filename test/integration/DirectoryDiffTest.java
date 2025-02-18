@@ -22,7 +22,7 @@ public class DirectoryDiffTest {
     // Static temporary directory that will be used across all tests.
     private static Path tempDir;
     // Directory with the expected output files.
-    private static final Path expectedDir = Paths.get("test/integrationExpected");
+    private static final Path expectedDir = Paths.get("test", "integrationExpected");
 
     // Instance fields for the parameterized test.
     private String relativePath;

@@ -28,18 +28,17 @@ application {
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
-  main {
-    java {
-      setSrcDirs(listOf("src/java"))
-      exclude("test/integrationExpected/**")
+}
+
+java.sourceSets {
+    named("main") {
+        java.srcDirs("src/java")
+        java.exclude("test/integrationExpected/**")
     }
-  }
-    test {
-      java {
-        setSrcDirs(listOf("test"))
-        exclude("test/integrationExpected/**")
-      }
-  }
+    named("test") {
+        java.srcDirs("test")
+        java.exclude("test/integrationExpected/**")
+    }
 }
 
 // All External Dependencies from either repo

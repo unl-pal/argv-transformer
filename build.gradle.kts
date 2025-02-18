@@ -31,16 +31,20 @@ java {
 }
 
 sourceSets {
-  main {
-    java{
-      exclude("test/integrationExpected/**")
+    main {
+        java {
+            srcDirs("src/java")
+            // Exclude integrationExpected if accidentally present
+            exclude("test/integrationExpected/**")
+        }
     }
-  }
-  test {
-    java{
-      exclude("test/integrationExpected/**")
+    test {
+        java {
+            srcDirs("test")
+            // Exclude integrationExpected from test sources
+            exclude("test/integrationExpected/**")
+        }
     }
-  }
 }
 
 // All External Dependencies from either repo

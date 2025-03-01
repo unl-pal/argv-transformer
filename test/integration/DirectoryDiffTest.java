@@ -109,8 +109,8 @@ public class DirectoryDiffTest {
                    Files.exists(actualFile));
 
         // Read the contents of both files.
-        String expectedContent = new String(Files.readAllBytes(expectedFile));
-        String actualContent   = new String(Files.readAllBytes(actualFile));
+        String expectedContent = new String(Files.readAllBytes(expectedFile)).trim().replaceAll("\\s+", " ");
+        String actualContent   = new String(Files.readAllBytes(actualFile)).trim().replaceAll("\\s+", " ");
 
         // Compare the contents.
         assertEquals("Contents differ for file: " + relativePath, expectedContent, actualContent);

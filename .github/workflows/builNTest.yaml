@@ -22,6 +22,7 @@ jobs:
           distribution: zulu
       - name: Set Up App
         run: |
+          ./gradlew test --debug
           ./gradlew
           ./gradlew clean
           ./gradlew build
@@ -33,5 +34,4 @@ jobs:
         run: ./gradlew test
       - name: Clean Up
         run: ./gradlew reset
-      - name: Upload Test Report
-        uses: actions/upload-artifact@v4
+

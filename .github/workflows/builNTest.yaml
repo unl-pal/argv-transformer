@@ -22,7 +22,7 @@ jobs:
           distribution: zulu
       - name: Set Up App
         run: |
-          ./gradlew
+          ./gradlew --debug
           ./gradlew clean
           ./gradlew build
       - name: Run
@@ -30,6 +30,6 @@ jobs:
           ./gradlew run
           ./gradlew transform
       - name: Test
-        run: ./gradlew test --debug
+        run: ./gradlew test
       - name: Clean Up
         run: ./gradlew reset

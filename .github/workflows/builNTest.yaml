@@ -30,6 +30,6 @@ jobs:
           ./gradlew run
           ./gradlew transform
       - name: Test
-        run: ./gradlew test
+        run: ./gradlew test --debug
       - name: Clean Up
         run: ./gradlew reset

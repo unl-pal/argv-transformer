@@ -22,7 +22,6 @@ jobs:
           distribution: zulu
       - name: Set Up App
         run: |
-          ./gradlew test --debug
           ./gradlew
           ./gradlew clean
           ./gradlew build

@@ -18,8 +18,10 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
@@ -234,15 +236,11 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 	/**
-	 * Remove imports not in java standard library and intializes the ast with the current nod's ast
-	 * If replacing with random's, sets hasRandom to true.
+	 * Initializes AST and symbolTableStack and pushes root to symbolTableStack. Additional changes handled in endVisit
 	 */
 	@Override
 	public boolean visit(CompilationUnit node) {
 		ast = node.getAST();
-
-		
-
 		symbolTableStack = new Stack<SymbolTable>();
 		symbolTableStack.push(root);
 
@@ -251,9 +249,30 @@ public class TransformVisitor extends ASTVisitor {
 
 	/**
 	 * Adds necessary imports for the symbolic testing tool we are using. Currently supports java Random and nasa's symbc.Debug
+	 * Removes imports not in Java Standard Library and ensures comments are preserved.
 	 */
 	@Override
 	public void endVisit(CompilationUnit node) {
+	    // Determine the start position of the first class signature.
+	    int firstBodyStart = Integer.MAX_VALUE;
+	    for (Object typeObj : node.types()) {
+	        if (typeObj instanceof TypeDeclaration) {
+	            TypeDeclaration typeDecl = (TypeDeclaration) typeObj;
+	            int startPosition = typeDecl.getJavadoc() != null ? typeDecl.getJavadoc().getStartPosition() : typeDecl.getStartPosition();
+	            firstBodyStart = Math.min(firstBodyStart, startPosition);
+	        }
+	    }
+	    // If no method is found, default to the end of the file.
+	    if (firstBodyStart == Integer.MAX_VALUE) {
+	    	firstBodyStart = node.getLength();
+	    }
+	    
+		int packageEnd = 0; 
+        PackageDeclaration pkg = node.getPackage();
+		if (pkg != null) {
+			packageEnd = pkg.getLength() + pkg.getStartPosition();
+			rewriter.remove(pkg, null);
+		}
 		ImportDeclaration id = ast.newImportDeclaration();
 		String importName = "";
 		switch(target){
@@ -267,12 +286,7 @@ public class TransformVisitor extends ASTVisitor {
 				importName = hasRandom?"":"java.util.Random";
 				break;
 		}
-//		if (target.equals("SPF"))
-//			importName = "gov.nasa.jpf.symbc.Debug";
-//		else if (target.equals("SVCOMP"))
-//			importName = "org.sosy_lab.sv_benchmarks.Verifier";
-//		else
-//			importName = hasRandom?"":"java.util.Random";
+
 		if(!importName.isEmpty()) {
 			id.setName(ast.newName(importName.split("\\.")));
 			ListRewrite listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
@@ -280,56 +294,64 @@ public class TransformVisitor extends ASTVisitor {
 		}
 		
 		@SuppressWarnings("unchecked")
-		List<ImportDeclaration> imports = node.imports();
+		List<ImportDeclaration> imports = node.imports() != null ? node.imports() : new ArrayList<ImportDeclaration>();
 		
-	    // Retrieve all comments from the CompilationUnit
-	    List<Comment> comments = node.getCommentList();
-
+		int importStart = packageEnd;
+		int importEnd = packageEnd;
+		if (imports.size() != 0) {
+			importStart = imports.get(0).getStartPosition();
+		}
 		for (ImportDeclaration importDec : imports) {
 			importName = importDec.getName().getFullyQualifiedName();
 			if(!hasRandom && importName.equals("java.util.Random")) {
 				hasRandom = true;
 			}
-			List<Comment> attachedComments = new ArrayList<Comment>();
-	        for (Comment comment : comments) {
-	        	ast.newBlockComment(); // TODO: fix this
-	            int commentEnd = comment.getStartPosition() + comment.getLength();
-	            if (commentEnd <= importDec.getStartPosition() && comment.getStartPosition() > node.getPackage().getStartPosition()) {
-	                attachedComments.add(comment);
-	            }
-	        }
-	        
-			//String[] importSplit = importName.split("\\.");
-			//String className = importSplit[importSplit.length - 1];
-		//	if (!importName.startsWith("java.") && !importName.startsWith("javax.")) {
 			if (!importName.startsWith("java.") && !importName.startsWith("org.sosy_lab.sv_benchmarks") && !importName.startsWith("javax.")){
-				//System.out.println("Removing import " + importName);
-				// Find the next import or first type declaration to move comments to
-                ListRewrite listRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
-                
-                Collections.reverse(attachedComments);
-                for (Comment comment : attachedComments) {
-                	 // Extract the text from the original source.
-                    String commentText = source.substring(comment.getStartPosition(),
-                            comment.getStartPosition() + comment.getLength());
-                    Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(commentText, ASTNode.EMPTY_STATEMENT);
-                    
-                    
-//                    // Create a new Javadoc node.
-//                    Javadoc javadoc = ast.newJavadoc();
-//                    TagElement tag = ast.newTagElement();
-//                    TextElement text = ast.newTextElement();
-//                    text.setText(cleanCommentText(commentText));
-//                    tag.fragments().add(text);
-//                    javadoc.tags().add(tag);
-                    
-                    // Insert the new Javadoc into the imports list (before the current import).
-                    listRewrite.insertFirst(commentPlaceholder, null);
-                }
+				// Find the next import or first type declaration to move comments to                
 				rewriter.remove(importDec, null);
-				
-			} 
+			}
+			importStart = Math.min(importDec.getStartPosition(), importStart);
+			importEnd = Math.max(importDec.getStartPosition() + importDec.getLength(), importEnd);
 		}
+		
+	    // Retrieve all comments from the CompilationUnit
+	    List<Comment> comments = node.getCommentList();
+		List<Comment> aboveImportsComments = new ArrayList<Comment>();
+		List<Comment> belowImportsComments = new ArrayList<Comment>();
+
+        for (Comment comment : comments) {
+        	int commentStart = comment.getStartPosition();
+        	if (commentStart < firstBodyStart && commentStart >= importEnd) {
+        		belowImportsComments.add(comment);
+        	} else if (commentStart < importStart && commentStart >= packageEnd) {
+        		aboveImportsComments.add(comment);
+        	}
+        } 
+        
+		for (Comment comment : comments) {
+			comment.getAlternateRoot().delete();
+		}
+		
+        ListRewrite aboveImportsRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
+        ListRewrite belowImportsRewrite = rewriter.getListRewrite(node, CompilationUnit.TYPES_PROPERTY);
+        Collections.reverse(belowImportsComments);
+        Collections.reverse(aboveImportsComments);
+        for (Comment comment : aboveImportsComments) {
+        	 // Extract the text from the original source.
+            String commentText = source.substring(comment.getStartPosition(),
+                    comment.getStartPosition() + comment.getLength());
+            Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(commentText, ASTNode.EMPTY_STATEMENT);                 
+            aboveImportsRewrite.insertFirst(commentPlaceholder, null);
+        }
+		Statement disclaimer = (Statement) rewriter.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
+		aboveImportsRewrite.insertFirst(disclaimer, null);
+        for (Comment comment : belowImportsComments) {
+       	 // Extract the text from the original source.
+           String commentText = source.substring(comment.getStartPosition(),
+                   comment.getStartPosition() + comment.getLength());
+           Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(commentText, ASTNode.EMPTY_STATEMENT);                 
+           belowImportsRewrite.insertFirst(commentPlaceholder, null);
+       }
 	}
 
 
@@ -774,12 +796,16 @@ public class TransformVisitor extends ASTVisitor {
 	 */
 	@Override
 	public void endVisit(ReturnStatement node) {
+		if (node.getParent() instanceof Block) {
+			String assertStmt = "assert true; //inline assert generated by ARG-V";
+	        ASTNode newAssert = rewriter.createStringPlaceholder(assertStmt, ASTNode.EMPTY_STATEMENT);
+	        rewriter.getListRewrite(node.getParent(), Block.STATEMENTS_PROPERTY).insertBefore(newAssert, node, null);
+		}
 		if (node.getExpression() == null) {
 			return;
 		}
 		SymbolTable currScope = symbolTableStack.peek();
 		MethodSTE sym = currScope.getMethodSTE(currMethod);
-
 		if (sym != null && !typeChecker.allowedType(sym.getReturnType())) {
 			ClassInstanceCreation ci = ast.newClassInstanceCreation();
 			ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));

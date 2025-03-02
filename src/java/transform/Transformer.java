@@ -241,14 +241,7 @@ public class Transformer {
 				
 				//getting to the insert position
 				PackageDeclaration packDec = cuR.getPackage();
-				//update
-				
-				
-				ListRewrite listRewrite = rewriterComm.getListRewrite(packDec, PackageDeclaration.ANNOTATIONS_PROPERTY);
-				//rewriterComm.get
-				Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
-				listRewrite.insertFirst(comment, null);
-				
+				//update			
 				
 				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + " in " + file);
 				if(af.getSuitableMethods().size() > 0) {
@@ -269,8 +262,8 @@ public class Transformer {
 							//check if such method has not been found, then insert comments
 							if(found) {
 								System.out.println("Found suitable MDecl");
-								listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
-								comment = (Statement) rewriterComm.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
+								ListRewrite listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
+								Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
 								listRewrite.insertFirst(comment, null);
 							}
 						}

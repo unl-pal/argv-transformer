@@ -13,7 +13,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -253,9 +255,10 @@ public class Main {
 		}
 		
 		if (target.equals("SVCOMP")) {
-			Files.walk(Paths.get(dest))
-		        .filter(path -> path.toString().endsWith(".java"))
-		        .forEach(Main::restructureForSVCompFormat);
+			List<Path> javaFiles = Files.walk(Paths.get(dest))
+                    .filter(path -> path.toString().endsWith(".java"))
+                    .collect(Collectors.toList());
+			javaFiles.forEach(Main::restructureForSVCompFormat);
 		}
 
 		removeEmptyDirs(destDir);

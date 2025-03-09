@@ -2,7 +2,7 @@ package transformer.integration;
 
 import util.ArgVRandom;
 
-public class MinimalSymbolicIntTestCase {
+public class MinimalStaticSymbolicIntTestCase {
 	public static int baseTestCase(int x) {
 		int replaceTarget = ArgVRandom.randomInt() * 10;
 		if (x > replaceTarget) {

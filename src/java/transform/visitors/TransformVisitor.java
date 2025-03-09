@@ -17,10 +17,13 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -44,6 +47,7 @@ import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -101,6 +105,8 @@ public class TransformVisitor extends ASTVisitor {
 	private Stack<SymbolTable> symbolTableStack;
 	private String currMethod;
 	private ArrayList<VarSTE> initializedVars;
+	private List<String> preImportComments = new ArrayList<String>();
+	private List<String> postImportComments = new ArrayList<String>();
 	public static int varNum = 0;
 	private String target;
 	private boolean randUsedInMethod;
@@ -267,10 +273,8 @@ public class TransformVisitor extends ASTVisitor {
 	    	firstBodyStart = node.getLength();
 	    }
 	    
-		int packageEnd = 0; 
         PackageDeclaration pkg = node.getPackage();
 		if (pkg != null) {
-			packageEnd = pkg.getLength() + pkg.getStartPosition();
 			rewriter.remove(pkg, null);
 		}
 		ImportDeclaration id = ast.newImportDeclaration();
@@ -296,11 +300,7 @@ public class TransformVisitor extends ASTVisitor {
 		@SuppressWarnings("unchecked")
 		List<ImportDeclaration> imports = node.imports() != null ? node.imports() : new ArrayList<ImportDeclaration>();
 		
-		int importStart = packageEnd;
-		int importEnd = packageEnd;
-		if (imports.size() != 0) {
-			importStart = imports.get(0).getStartPosition();
-		}
+		int importEnd = 0;
 		for (ImportDeclaration importDec : imports) {
 			importName = importDec.getName().getFullyQualifiedName();
 			if(!hasRandom && importName.equals("java.util.Random")) {
@@ -310,48 +310,20 @@ public class TransformVisitor extends ASTVisitor {
 				// Find the next import or first type declaration to move comments to                
 				rewriter.remove(importDec, null);
 			}
-			importStart = Math.min(importDec.getStartPosition(), importStart);
 			importEnd = Math.max(importDec.getStartPosition() + importDec.getLength(), importEnd);
 		}
 		
 	    // Retrieve all comments from the CompilationUnit
 	    List<Comment> comments = node.getCommentList();
-		List<Comment> aboveImportsComments = new ArrayList<Comment>();
-		List<Comment> belowImportsComments = new ArrayList<Comment>();
 
         for (Comment comment : comments) {
         	int commentStart = comment.getStartPosition();
         	if (commentStart < firstBodyStart && commentStart >= importEnd) {
-        		belowImportsComments.add(comment);
-        	} else if (commentStart < importStart && commentStart >= packageEnd) {
-        		aboveImportsComments.add(comment);
+        		postImportComments.add(source.substring(commentStart, commentStart + comment.getLength()));
+        	} else if (commentStart < importEnd) {
+        		preImportComments.add(source.substring(commentStart, commentStart + comment.getLength()));
         	}
         } 
-        
-		for (Comment comment : comments) {
-			comment.getAlternateRoot().delete();
-		}
-		
-        ListRewrite aboveImportsRewrite = rewriter.getListRewrite(node, CompilationUnit.IMPORTS_PROPERTY);
-        ListRewrite belowImportsRewrite = rewriter.getListRewrite(node, CompilationUnit.TYPES_PROPERTY);
-        Collections.reverse(belowImportsComments);
-        Collections.reverse(aboveImportsComments);
-        for (Comment comment : aboveImportsComments) {
-        	 // Extract the text from the original source.
-            String commentText = source.substring(comment.getStartPosition(),
-                    comment.getStartPosition() + comment.getLength());
-            Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(commentText, ASTNode.EMPTY_STATEMENT);                 
-            aboveImportsRewrite.insertFirst(commentPlaceholder, null);
-        }
-		Statement disclaimer = (Statement) rewriter.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
-		aboveImportsRewrite.insertFirst(disclaimer, null);
-        for (Comment comment : belowImportsComments) {
-       	 // Extract the text from the original source.
-           String commentText = source.substring(comment.getStartPosition(),
-                   comment.getStartPosition() + comment.getLength());
-           Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(commentText, ASTNode.EMPTY_STATEMENT);                 
-           belowImportsRewrite.insertFirst(commentPlaceholder, null);
-       }
 	}
 
 
@@ -1175,10 +1147,99 @@ public class TransformVisitor extends ASTVisitor {
 	}
 
 	/**
+	 * Generates a new main method that invokes all of the suitable methods found in the AST.
 	 * Escapes from our current symbolTable scope. Does not pop on interfaces because we do not enter the scope of interfaces.
 	 */
 	@Override
 	public void endVisit(TypeDeclaration node) {
+		// Remove any existing main method.
+	    List<BodyDeclaration> declarationsToRemove = new ArrayList<>();
+	    for (Object memberObj : node.bodyDeclarations()) {
+	        if (memberObj instanceof MethodDeclaration) {
+	            MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
+	            if (methodDecl.getName().getIdentifier().equals("main")) {
+	                declarationsToRemove.add(methodDecl);
+	            }
+	        }
+	    }
+	    for (BodyDeclaration bd : declarationsToRemove) {
+	        rewriter.remove(bd, null);
+	    }
+	    
+		 // Create the main method declaration.
+	    MethodDeclaration mainMethod = ast.newMethodDeclaration();
+	    mainMethod.setName(ast.newSimpleName("main"));
+	    mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+	    mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+	    mainMethod.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+
+	    // Create the String[] args parameter.
+	    SingleVariableDeclaration param = ast.newSingleVariableDeclaration();
+	    ArrayType arrayType = ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String")));
+	    param.setType(arrayType);
+	    param.setName(ast.newSimpleName("args"));
+	    mainMethod.parameters().add(param);
+
+	    Block mainBlock = ast.newBlock();
+	    mainMethod.setBody(mainBlock);
+
+	    // Collect all methods to invoke (skip constructors and any existing main).
+	    boolean needsInstance = false;
+	    List<MethodDeclaration> methodDeclarations = new ArrayList<>();
+	    for (Object memberObj : node.bodyDeclarations()) {
+	        if (memberObj instanceof MethodDeclaration) {
+	            MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
+	            if (!methodDecl.isConstructor() && !methodDecl.getName().getIdentifier().equals("main")) {
+	            	methodDeclarations.add(methodDecl);
+		            // If any method is non-static, we will need an instance.
+		            if (!Modifier.isStatic(methodDecl.getModifiers())) {
+		                needsInstance = true;
+		            }
+	            }
+	        }
+	    }
+
+	    // If at least one non-static method exists, create an instance using the no-arg constructor.
+	    if (needsInstance) {
+	        // Creates: ClassName instance = new ClassName();
+	        VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+	        fragment.setName(ast.newSimpleName("instance"));
+	        ClassInstanceCreation cic = ast.newClassInstanceCreation();
+	        cic.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
+	        fragment.setInitializer(cic);
+
+	        VariableDeclarationStatement instanceDecl = ast.newVariableDeclarationStatement(fragment);
+	        instanceDecl.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
+	        mainBlock.statements().add(instanceDecl);
+	    }
+
+	    // For each method, create a method invocation statement with symbolic arguments.
+	    for (MethodDeclaration methodDecl : methodDeclarations) {
+	        MethodInvocation invocation = ast.newMethodInvocation();
+	        invocation.setName(ast.newSimpleName(methodDecl.getName().getIdentifier()));
+
+	        // If the method is non-static, invoke it on the instance.
+	        if (!Modifier.isStatic(methodDecl.getModifiers())) {
+	            invocation.setExpression(ast.newSimpleName("instance"));
+	        }
+
+	        // Process each parameter of the method.
+	        for (Object paramObj : methodDecl.parameters()) {
+	            if (paramObj instanceof SingleVariableDeclaration) {
+	                SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
+	                Expression arg = createSymbolicArgument(svd.getType());
+	                invocation.arguments().add(arg);
+	            }
+	        }
+
+	        ExpressionStatement invocationStmt = ast.newExpressionStatement(invocation);
+	        mainBlock.statements().add(invocationStmt);
+	    }
+
+	    // Insert the newly created main method into the class.
+	    rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
+	            .insertLast(mainMethod, null);
+	    
 		if (!node.isInterface()) {
 			symbolTableStack.pop();
 		}
@@ -1627,6 +1688,46 @@ public class TransformVisitor extends ASTVisitor {
 		}		
 	}
 	
+	/**
+	 * Helper method that creates a symbolic argument for a given parameter type.
+	 * For primitives, it uses the corresponding symbolic replacement method.
+	 * For array types, it creates an array literal with one symbolic element.
+	 * For other types, it returns a null literal.
+	 */
+	private Expression createSymbolicArgument(Type type) {
+	    if (type.isPrimitiveType()) {
+	        PrimitiveType pt = (PrimitiveType) type;
+	        PrimitiveType.Code code = pt.getPrimitiveTypeCode();
+	        if (code == PrimitiveType.BOOLEAN) {
+	            return replaceWithNodeBoolean();
+	        } else if (code == PrimitiveType.CHAR || code == PrimitiveType.INT ||
+	                   code == PrimitiveType.LONG || code == PrimitiveType.SHORT ||
+	                   code == PrimitiveType.BYTE) {
+	            return replaceWithNodeInteger();
+	        } else if (code == PrimitiveType.DOUBLE) {
+	            return replaceWithNodeDouble();
+	        } else if (code == PrimitiveType.FLOAT) {
+	            return replaceWithNodeFloat();
+	        }
+	    } else if (type.isArrayType()) {
+	        ArrayType arrType = (ArrayType) type;
+	        // Create an array creation expression with an initializer.
+	        ArrayCreation arrayCreation = ast.newArrayCreation();
+	        // Copy the array type structure.
+	        ArrayType newArrayType = (ArrayType) ASTNode.copySubtree(ast, arrType);
+	        arrayCreation.setType(newArrayType);
+
+	        // Create an array initializer with one symbolic element.
+	        ArrayInitializer initializer = ast.newArrayInitializer();
+	        Expression elementArg = createSymbolicArgument(arrType.getElementType());
+	        initializer.expressions().add(elementArg);
+	        arrayCreation.setInitializer(initializer);
+	        return arrayCreation;
+	    }
+	    // For non-primitive, non-array types, return a null literal.
+	    return ast.newNullLiteral();
+	}
+	
 
 	public ASTRewrite getRewriter() {
 		return rewriter;
@@ -1673,5 +1774,17 @@ public class TransformVisitor extends ASTVisitor {
 	 */
 	public Stack<SymbolTable> getSymbolTableStack(){
 		return symbolTableStack;
+	}
+
+
+
+	public List<String> getPreImportComments() {
+		return preImportComments;
+	}
+
+
+
+	public List<String> getPostImportComments() {
+		return postImportComments;
 	}
 }

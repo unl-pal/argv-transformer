@@ -1,0 +1,16 @@
+plugins {
+  java
+}
+
+dependencies {
+  implementation("")
+}
+
+tasks.named<Test>("test") {
+  useJUnitPlatform()\
+}
+
+tasks.named<Jar>("jar") {
+  archiveBaseName.set("filter")
+  version.set("1.0.0")
+}

@@ -7,10 +7,10 @@ plugins {
     id 'jvm-test-suite'
 }
 
+// rootProject.name = 'argv-transformer'
 group = 'dev.arg-v.transformer'
 version = '1.0.0'
 
-// rootProject.name = 'argv-transformer'
 //allprojects {
 //buildscript {
     repositories {
@@ -47,8 +47,7 @@ version = '1.0.0'
 //}
 
 
-dependencies {
-}
+//dependencies {
     //implementation project(':download')
     //implementation project(':filter')
     //implementation project(':transform')
@@ -77,6 +76,11 @@ java {
 }
 
 sourceSets {
+    main {
+        java {
+            srcDirs = ['src/java']
+        }
+    }
     test {
         java {
             srcDirs = ['test']
@@ -87,16 +91,22 @@ sourceSets {
 }
 
 tasks.named('compileJava') {
+    group = "compile"
+    description = """Compiles project
+        Use -Djava.compiler.args='<args>' to set additional compiler args
+            ex: '-Xlint:all'
+        Use --rerun to force recompilation"""
     sourceSets.main.java.srcDirs = ['src/java']
+    options.compilerArgs.addAll(System.getProperty("java.compiler.args")?.split() ?: [])
 }
 
 tasks.named('processResources') {
     // yup this is blank
 }
 
-tasks.named('classes') {
-    sourceSets.main.java.srcDirs = ['build/classes/java']
-}
+//tasks.named('classes') {
+//    sourceSets.main.java.srcDirs = ['build/classes/java']
+//}
 
 tasks.named('run') {
     group = 'execution'
@@ -167,8 +177,8 @@ task('ide-paths') {
 task('compile', type: JavaCompile) {
     source fileTree('src/java')
     classpath = configurations.runtimeClasspath
-    destinationDir = file('build/classes/java')
-    outputs.files(fileTree(destinationDir))
+    destinationDirectory = file('build/classes/java')
+    outputs.files(fileTree(destinationDirectory))
 }
 
 // Custom Test Compile task for use with test types other than unit tests
@@ -176,8 +186,8 @@ task('compileTest', type: JavaCompile) {
     dependsOn 'compile'
     source fileTree('src/java'), fileTree('src/test'), fileTree('test')
     classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java')
-    destinationDir = file('build/classes/test')
-    outputs.files(fileTree(destinationDir))
+    destinationDirectory = file('build/classes/test')
+    outputs.files(fileTree(destinationDirectory))
 }
 
 // Custom task class used for creating tasks for individual parts of the code
@@ -198,14 +208,6 @@ class ExecOperationsTask extends DefaultTask {
     @Internal
     ExecOperations getExecOperations() {
         return execOperations
-    }
-}
-
-tasks.register('testInjection', ExecOperationsTask) {
-    group = 'testing'
-    description = "fml"
-    doLast {
-        execute()
     }
 }
 

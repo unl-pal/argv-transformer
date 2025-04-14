@@ -1,0 +1,83 @@
+plugins {
+  java
+}
+
+dependencies {
+  implementation(":sourceAnalysis")
+  implementation(":nonlinearExprSub")
+  implementation("org.yaml:snakeyaml:2.0")
+  implementation("org.soot-oss:soot:4.6.0")
+}
+
+tasks.compileJava {
+  sourceSets {
+    main {
+      java {
+        srcDirs("src/java")
+      }
+    }
+  }
+}
+
+tasks.processResources {
+  // yup this is blank
+}
+
+tasks.classes {
+  sourceSets {
+    main {
+      java {
+        srcDirs("build/classes/java")
+      }
+    }
+  }
+}
+
+tasks.run {
+  group = "execution"
+}
+
+tasks.compileTestJava {
+  sourceSets {
+    test {
+      java {
+        srcDirs("test")
+      }
+    }
+  }
+}
+
+tasks.processTestResources {
+  // yup this is blank
+}
+
+tasks.testClasses {
+  sourceSets {
+    test {
+      java {
+        srcDirs("build/classes/test")
+      }
+    }
+  }
+}
+
+
+tasks.test {
+  testLogging {
+    events("FAILED")
+    exclude("test/integrationExpected/**")
+  }
+}
+
+tasks.javadoc {
+}
+
+
+tasks.named<Test>("test") {
+  useJUnitPlatform()\
+}
+
+tasks.named<Jar>("jar") {
+  archiveBaseName.set("transform")
+  version.set("1.0.0")
+}

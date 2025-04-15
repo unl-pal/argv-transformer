@@ -47,24 +47,9 @@ version = '1.0.0'
 //}
 
 
-//dependencies {
-    //implementation project(':download')
-    //implementation project(':filter')
-    //implementation project(':transform')
-//}
-
-subprojects {
-    if (!project.childProjects.empty) {
-        return
-    }
-    repositories {
-        mavenCentral()
-    }
-    //apply plugin: '' // Note: The Kotlin DSL had an empty string, which is valid in Groovy as well
-}
-
 // set run to run the entire program via driver
 application {
+    //mainClass = 'download.Main'
     mainClass = 'full.Driver'
 }
 
@@ -78,7 +63,7 @@ java {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/java']
+            srcDirs = ['src/java/']
         }
     }
     test {
@@ -96,28 +81,16 @@ tasks.named('compileJava') {
         Use -Djava.compiler.args='<args>' to set additional compiler args
             ex: '-Xlint:all'
         Use --rerun to force recompilation"""
-    sourceSets.main.java.srcDirs = ['src/java']
     options.compilerArgs.addAll(System.getProperty("java.compiler.args")?.split() ?: [])
 }
 
-tasks.named('processResources') {
-    // yup this is blank
-}
-
-//tasks.named('classes') {
-//    sourceSets.main.java.srcDirs = ['build/classes/java']
-//}
-
+// Does not actually run the full application despite the name, only what is in Driver
 tasks.named('run') {
     group = 'execution'
 }
 
 tasks.named('compileTestJava') {
     sourceSets.test.java.srcDirs = ['test']
-}
-
-tasks.named('processTestResources') {
-    // yup this is blank
 }
 
 tasks.named('testClasses') {
@@ -138,52 +111,55 @@ tasks.named('javadoc') {
 // Task that generates a file called my.classpath
 // my.classpath is a template file with many necessary parts used by various common IDEs
 // This file is not meant to be an end all file, rather a starting point
-task('ide-paths') {
-    group = 'Set-Up'
-    description = 'Generate a file, \'my.classpath\'\nFile is a template with class path entries for gradle-managed dependencies'
-    doLast {
-        def classpathFile = file('my.classpath')
-        if (classpathFile.exists()) {
-            classpathFile.delete()
-        }
-        def paths = [
-                configurations.compileClasspath,
-                configurations.runtimeClasspath,
-                configurations.testCompileClasspath,
-                configurations.testRuntimeClasspath
-        ]
-        def dependencyList = ['']
-        classpathFile.appendText('<?xml version="1.0" encoding="UTF-8"?>\n')
-        classpathFile.appendText('<classpath>\n')
-        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="src" path="src/java"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="src" path="src/test"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="src" path="test"/>\n')
-
-        paths.each { path ->
-            path.files.each { file ->
-                if (!dependencyList.contains(file.toString())) {
-                    dependencyList.add(file.toString())
-                    classpathFile.appendText("\t<classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n")
-                }
-            }
-        }
-        classpathFile.appendText('</classpath>')
-    }
-}
+//task('ide-paths') {
+//    group = 'Set-Up'
+//    description = 'Generate a file, \'my.classpath\'\nFile is a template with class path entries for gradle-managed dependencies'
+//    doLast {
+//        def classpathFile = file('my.classpath')
+//        if (classpathFile.exists()) {
+//            classpathFile.delete()
+//        }
+//        def paths = [
+//                configurations.compileClasspath,
+//                configurations.runtimeClasspath,
+//                configurations.testCompileClasspath,
+//                configurations.testRuntimeClasspath
+//        ]
+//        def dependencyList = ['']
+//        classpathFile.appendText('<?xml version="1.0" encoding="UTF-8"?>\n')
+//        classpathFile.appendText('<classpath>\n')
+//        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>\n')
+//        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>\n')
+//        classpathFile.appendText('\t<classpathentry kind="src" path="src/java"/>\n')
+//        classpathFile.appendText('\t<classpathentry kind="src" path="src/test"/>\n')
+//        classpathFile.appendText('\t<classpathentry kind="src" path="test"/>\n')
+//
+//        paths.each { path ->
+//            path.files.each { file ->
+//                if (!dependencyList.contains(file.toString())) {
+//                    dependencyList.add(file.toString())
+//                    classpathFile.appendText("\t<classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n")
+//                }
+//            }
+//        }
+//        classpathFile.appendText('</classpath>')
+//    }
+//}
 
 // Custom Compile task used to run the individual parts from root
-task('compile', type: JavaCompile) {
-    source fileTree('src/java')
-    classpath = configurations.runtimeClasspath
-    destinationDirectory = file('build/classes/java')
-    outputs.files(fileTree(destinationDirectory))
-}
+//task('compile', type: JavaCompile) {
+//    group = "compile"
+//    source fileTree('src/java')
+//    classpath = configurations.runtimeClasspath
+//    destinationDirectory = file('build/classes/java')
+//    outputs.files(fileTree(destinationDirectory))
+//    options.compilerArgs.addAll(System.getProperty("java.compiler.args")?.split() ?: [])
+//}
 
 // Custom Test Compile task for use with test types other than unit tests
 task('compileTest', type: JavaCompile) {
-    dependsOn 'compile'
+    group = "compile"
+    dependsOn 'compileJava'
     source fileTree('src/java'), fileTree('src/test'), fileTree('test')
     classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java')
     destinationDirectory = file('build/classes/test')
@@ -214,7 +190,7 @@ class ExecOperationsTask extends DefaultTask {
 tasks.register('download', ExecOperationsTask) {
     group = 'execution'
     description = 'downloads the repos for database'
-    dependsOn 'compile'
+    dependsOn 'compileJava'
     doLast {
         println "Value of Exec: ${execOperations}"
         execOperations.javaexec {
@@ -227,7 +203,6 @@ tasks.register('download', ExecOperationsTask) {
 }
 
 // This is currently the same as 'run'
-// Does not actually run the full application despite the name, only what is in Driver
 tasks.register('full', ExecOperationsTask) {
     group = 'execution'
     description = 'Runs the compiled application'
@@ -239,7 +214,7 @@ tasks.register('full', ExecOperationsTask) {
 tasks.register('filter', ExecOperationsTask) {
     group = 'execution'
     description = 'Runs the filter'
-    dependsOn 'compile'
+    dependsOn 'compileJava'
     doLast {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java')
@@ -255,7 +230,7 @@ tasks.register('filter', ExecOperationsTask) {
 tasks.register('transform', ExecOperationsTask) {
     group = 'execution'
     description = 'Runs the transformer'
-    dependsOn 'compile'
+    dependsOn 'compileJava'
     doLast {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java')
@@ -272,7 +247,7 @@ tasks.register('transform', ExecOperationsTask) {
 tasks.register('regressionTransformer', ExecOperationsTask) {
     group = 'testing'
     description = 'Runs regression test for transformer'
-    dependsOn 'compile'
+    dependsOn 'compileJava'
     doLast {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java')

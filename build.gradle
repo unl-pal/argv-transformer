@@ -7,41 +7,51 @@ plugins {
     id 'jvm-test-suite'
 }
 
+// rootProject.name = 'argv-transformer'
 group = 'dev.arg-v.transformer'
 version = '1.0.0'
 
-repositories {
-    mavenCentral() // Most commonly used repository
-    maven {
-        url = uri('https://repo.eclipse.org/content/groups/releases/')
-    } // Eclipse specific repo that cannot be found on maven central
-}
-// All External Dependencies from either repo
-dependencies {
-    implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726'
-    implementation 'org.apache.commons:commons-csv:1.5'
-    implementation 'commons-io:commons-io:2.16.1'
-    implementation 'org.eclipse.core:contenttype:3.4.200-v20140207-1251'
-    implementation 'org.eclipse.core:org.eclipse.core.resources:3.7.100'
-    implementation 'org.eclipse.core:org.eclipse.core.runtime:3.7.0'
-    implementation 'org.eclipse.equinox:org.eclipse.equinox.common:3.6.0.v20100503'
-    implementation 'org.eclipse.platform:org.eclipse.core.jobs:3.8.0'
-    implementation 'org.eclipse.platform:org.eclipse.equinox.preferences:3.6.1'
-    implementation 'org.eclipse.osgi:org.eclipse.osgi:3.7.1'
-    implementation 'org.eclipse.text:org.eclipse.text:3.5.101'
-    implementation 'org.yaml:snakeyaml:2.0'
-    implementation 'org.soot-oss:soot:4.6.0'
-    testImplementation 'net.bytebuddy:byte-buddy:1.12.19'
-    testImplementation 'net.bytebuddy:byte-buddy-agent:1.12.19'
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:4.11.0'
-    testImplementation 'org.objenesis:objenesis:3.3'
-    testImplementation 'org.testng:testng:7.5.1' 
+    repositories {
+        mavenCentral() // Most commonly used repository
+        maven {
+            url = uri('https://repo.eclipse.org/content/groups/releases/')
+        } // Eclipse specific repo that cannot be found on maven central
+    }
+    // All External Dependencies from either repo
+    dependencies {
+        implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726'
+        implementation 'org.apache.commons:commons-csv:1.5'
+        implementation 'commons-io:commons-io:2.16.1'
+        implementation 'org.eclipse.core:contenttype:3.4.200-v20140207-1251'
+        implementation 'org.eclipse.core:org.eclipse.core.resources:3.7.100'
+        implementation 'org.eclipse.core:org.eclipse.core.runtime:3.7.0'
+        implementation 'org.eclipse.equinox:org.eclipse.equinox.common:3.6.0.v20100503'
+        implementation 'org.eclipse.platform:org.eclipse.core.jobs:3.8.0'
+        implementation 'org.eclipse.platform:org.eclipse.equinox.preferences:3.6.1'
+        implementation 'org.eclipse.osgi:org.eclipse.osgi:3.7.1'
+        implementation 'org.eclipse.text:org.eclipse.text:3.5.101'
+        implementation 'org.yaml:snakeyaml:2.0'
+        implementation 'org.soot-oss:soot:4.6.0'
+        testImplementation 'net.bytebuddy:byte-buddy:1.12.19'
+        testImplementation 'net.bytebuddy:byte-buddy-agent:1.12.19'
+        testImplementation 'junit:junit:4.13.2'
+        testImplementation 'org.mockito:mockito-core:4.11.0'
+        testImplementation 'org.objenesis:objenesis:3.3'
+        testImplementation 'org.testng:testng:7.5.1' 
+    }
+
+
+subprojects {
+    if (!project.childProjects.empty) {
+        return
+    }
+    repositories {
+        mavenCentral()
+    }
 }
 
 // set run to run the entire program via driver
 application {
-    //mainClass = 'download.Main'
     mainClass = 'full.Driver'
 }
 
@@ -55,7 +65,7 @@ java {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/java/']
+            srcDirs = ['src/java']
         }
     }
     test {
@@ -73,10 +83,10 @@ tasks.named('compileJava') {
         Use -Djava.compiler.args='<args>' to set additional compiler args
             ex: '-Xlint:all'
         Use --rerun to force recompilation"""
+    sourceSets.main.java.srcDirs = ['src/java']
     options.compilerArgs.addAll(System.getProperty("java.compiler.args")?.split() ?: [])
 }
 
-// Does not actually run the full application despite the name, only what is in Driver
 tasks.named('run') {
     group = 'execution'
 }
@@ -100,12 +110,57 @@ tasks.named('test') {
 tasks.named('javadoc') {
 }
 
+// Task that generates a file called my.classpath
+// my.classpath is a template file with many necessary parts used by various common IDEs
+// This file is not meant to be an end all file, rather a starting point
+task('ide-paths') {
+    group = 'Set-Up'
+    description = 'Generate a file, \'my.classpath\'\nFile is a template with class path entries for gradle-managed dependencies'
+    doLast {
+        def classpathFile = file('my.classpath')
+        if (classpathFile.exists()) {
+            classpathFile.delete()
+        }
+        def paths = [
+                configurations.compileClasspath,
+                configurations.runtimeClasspath,
+                configurations.testCompileClasspath,
+                configurations.testRuntimeClasspath
+        ]
+        def dependencyList = ['']
+        classpathFile.appendText('<?xml version="1.0" encoding="UTF-8"?>\n')
+        classpathFile.appendText('<classpath>\n')
+        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>\n')
+        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>\n')
+        classpathFile.appendText('\t<classpathentry kind="src" path="src/java"/>\n')
+        classpathFile.appendText('\t<classpathentry kind="src" path="src/test"/>\n')
+        classpathFile.appendText('\t<classpathentry kind="src" path="test"/>\n')
+
+        paths.each { path ->
+            path.files.each { file ->
+                if (!dependencyList.contains(file.toString())) {
+                    dependencyList.add(file.toString())
+                    classpathFile.appendText("\t<classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n")
+                }
+            }
+        }
+        classpathFile.appendText('</classpath>')
+    }
+}
+
+// Custom Compile task used to run the individual parts from root
+task('compile', type: JavaCompile) {
+    source fileTree('src/java')
+    classpath = configurations.runtimeClasspath
+    destinationDirectory = file('build/classes/java')
+    outputs.files(fileTree(destinationDirectory))
+}
+
 // Custom Test Compile task for use with test types other than unit tests
 task('compileTest', type: JavaCompile) {
-    group = "compile"
     dependsOn 'compileJava'
     source fileTree('src/java'), fileTree('src/test'), fileTree('test')
-    classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java')
+    classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java/main')
     destinationDirectory = file('build/classes/test')
     outputs.files(fileTree(destinationDirectory))
 }
@@ -138,7 +193,7 @@ tasks.register('download', ExecOperationsTask) {
     doLast {
         println "Value of Exec: ${execOperations}"
         execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java')
+            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'download.Main'
             standardOutput = System.out
             errorOutput = System.err
@@ -147,6 +202,7 @@ tasks.register('download', ExecOperationsTask) {
 }
 
 // This is currently the same as 'run'
+// Does not actually run the full application despite the name, only what is in Driver
 tasks.register('full', ExecOperationsTask) {
     group = 'execution'
     description = 'Runs the compiled application'
@@ -161,7 +217,7 @@ tasks.register('filter', ExecOperationsTask) {
     dependsOn 'compileJava'
     doLast {
         execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java')
+            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'filter.Main'
             standardOutput = System.out
             errorOutput = System.err
@@ -177,7 +233,7 @@ tasks.register('transform', ExecOperationsTask) {
     dependsOn 'compileJava'
     doLast {
         execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java')
+            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'transform.Main'
             standardOutput = System.out
             errorOutput = System.err
@@ -194,7 +250,7 @@ tasks.register('regressionTransformer', ExecOperationsTask) {
     dependsOn 'compileJava'
     doLast {
         execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java')
+            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'transform.Main'
             args 'test/transformer/regression', 'testOutput'
             standardOutput = System.out

@@ -9,27 +9,37 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.Type;
@@ -47,6 +57,7 @@ import org.mockito.Mockito;
 import transform.SymbolTable.ClassSTE;
 import transform.SymbolTable.MethodSTE;
 import transform.SymbolTable.SymbolTable;
+import transform.SymbolTable.VarSTE;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.visitors.TransformVisitor;
@@ -62,7 +73,7 @@ public class TransformVisitorTest {
 	public void setup() {
 		parser = ASTParser.newParser(AST.JLS8); // Use appropriate JLS version
         ast = AST.newAST(AST.JLS8);
-		visitor = new TransformVisitor(null, null, null, null, null);
+		visitor = new TransformVisitor(null, null, null, null, null, null);
 	}
 	
 	@Test
@@ -84,8 +95,9 @@ public class TransformVisitorTest {
         ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
 
         // Instantiate the visitor and set the rewriter
-        visitor = new TransformVisitor(null, rewriter, null, null, null);
+        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
         visitor.visit(compilationUnit);
+        visitor.endVisit(compilationUnit);
 
         // Apply the changes made by the rewriter
         TextEdit edits = rewriter.rewriteAST(document, null);
@@ -93,6 +105,7 @@ public class TransformVisitorTest {
 
         // Check the updated source code
         String expectedSource = 
+        	"import org.sosy_lab.sv_benchmarks.Verifier;\n" +
             "import java.util.List;\n";
         assertEquals(expectedSource.trim(), document.get().trim());
 	}
@@ -114,7 +127,7 @@ public class TransformVisitorTest {
         ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
 
         // Instantiate the visitor and set the rewriter/target
-        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
+        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
         visitor.visit(compilationUnit); // sets ast
         visitor.endVisit(compilationUnit);
 
@@ -151,7 +164,7 @@ public class TransformVisitorTest {
         SymbolTable root = new SymbolTable(null);
         root.put("allowedMethodi", new MethodSTE("allowedMethodi")); // configuring methodSTE to work with system
         TypeChecker typeChecker = new TypeChecker();
-        visitor = new TransformVisitor(root, rewriter, null, typeChecker, null);
+        visitor = new TransformVisitor(root, rewriter, null, typeChecker, null, source);
         
         List<MethodDeclaration> methodDeclarations = ((TypeDeclaration)compilationUnit.types().get(0)).bodyDeclarations();
         visitor.visit(compilationUnit);
@@ -213,7 +226,7 @@ public class TransformVisitorTest {
         when(mockDeclaringClass.getPackage()).thenReturn(mockPackage);
         when(mockPackage.getName()).thenReturn("external.pkg");
 
-        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
+        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
         visitor.visit(compilationUnit);
         visitor.endVisit(methodInvocation);
 	    TransformVisitor.varNum = 0;
@@ -253,7 +266,7 @@ public class TransformVisitorTest {
 
 	    NormalAnnotation normalAnnotation = (NormalAnnotation)((TypeDeclaration)compilationUnit.types().get(0)).modifiers().get(0);
 
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
+	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
 	    visitor.visit(normalAnnotation);
 	    // Apply the changes made by the rewriter
 	    TextEdit edits = rewriter.rewriteAST(document, null);
@@ -299,7 +312,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(simpleName);
 	    TransformVisitor.varNum = 0;
@@ -351,7 +364,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
 	    TransformVisitor.varNum = 0;
@@ -404,7 +417,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
 	    TransformVisitor.varNum = 0;
@@ -467,7 +480,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0);
 
 	    // Create the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(returnStatement);
 	    TransformVisitor.varNum = 0;
@@ -527,7 +540,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0);
 
 	    // Create the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(returnStatement);
 	    TransformVisitor.varNum = 0;
@@ -570,7 +583,7 @@ public class TransformVisitorTest {
 	        ((TypeDeclaration) compilationUnit.types().get(0)).modifiers().get(0);
 
 	    // Visit the annotation node
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
+	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
 	    visitor.visit(singleMemberAnnotation);
 
 	    // Apply the changes made by the rewriter
@@ -610,7 +623,7 @@ public class TransformVisitorTest {
 	        (SuperConstructorInvocation) (((TypeDeclaration) compilationUnit.types().get(0)).getMethods()[0]).getBody().statements().get(0);
 
 	    // Visit the node
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP");
+	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
 	    visitor.visit(superConstructorInvocation);
 
 	    // Apply the changes made by the rewriter
@@ -656,7 +669,7 @@ public class TransformVisitorTest {
 	    		compilationUnit.types().get(0)).getMethods()[0]).getBody()).statements()).get(0);
 
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, null);
+	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, null, source);
 	    visitor.visit(varDecl);
 
 	    // Apply the changes made by the rewriter
@@ -711,7 +724,7 @@ public class TransformVisitorTest {
             (VariableDeclarationStatement) switchStatement.statements().get(1); // 0th case is "case 0:"
         
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, null);
+	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, null, source);
 	    visitor.visit(compilationUnit);
 	    visitor.visit(varDecl);
 
@@ -763,7 +776,7 @@ public class TransformVisitorTest {
 	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.visit(typeDeclaration);
 	
@@ -800,7 +813,7 @@ public class TransformVisitorTest {
 	    SymbolTable mockRoot = mock(SymbolTable.class);	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(typeDeclaration);
 	    
@@ -828,7 +841,7 @@ public class TransformVisitorTest {
 	    SymbolTable mockRoot = mock(SymbolTable.class);	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP");
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(typeDeclaration);
 	    
@@ -862,7 +875,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 	    
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null, source);
 	    ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) 
 	      		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
 	            		compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -913,7 +926,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 	    
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null, source);
 	    ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) 
 	    	    ((ReturnStatement)((MethodDeclaration)((TypeDeclaration)
 	    	            compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -975,7 +988,7 @@ public class TransformVisitorTest {
 	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
         
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(conditionalExpression);
 
@@ -1029,7 +1042,7 @@ public class TransformVisitorTest {
 	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
         
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP");
+	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(conditionalExpression);
 
@@ -1046,5 +1059,637 @@ public class TransformVisitorTest {
 	    		"}";
 	    assertEquals(expectedSource.trim(), document.get().trim());
 	}
-		
+	
+	@Test
+	public void test_endVisitSuperMethodInvocation_replacesInVariableDeclaration() throws Exception {
+	    // Example source code containing a SuperMethodInvocation in a variable assignment
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x = super.hashCode();\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+
+	    // Mock the current method and return type
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation)
+	        		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
+	        		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+	        		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(superMethodInvocation);
+	    
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x = Verifier.nondetInt();\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_endVisitSuperMethodInvocation_replacesInVariableAssignment() throws Exception {
+	    // Example source code containing a SuperMethodInvocation in a variable assignment
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x;\n" +
+	        "        x = super.hashCode();\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+
+	    // Mock the current method and return type
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation)
+	        		 ((Assignment)(((ExpressionStatement)((MethodDeclaration)((TypeDeclaration)
+		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+		.getBody().statements().get(1)).getExpression())).getRightHandSide();
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(superMethodInvocation);
+	    
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x;\n" +
+	        "        x = Verifier.nondetInt();\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_endVisitSuperMethodInvocation_handlesDifferentContexts() throws Exception {
+	    // Example source code containing a SuperMethodInvocation in various contexts
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public int someMethod() {\n" +
+	        "        if (super.toString()) {}\n" +
+	        "        while (super.toString()) {}\n" +
+	        "        int x = super.hashCode();\n" +
+	        "        double y = (double) super.hashCode();\n" +
+	        "        return super.hashCode();\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    SymbolTable mockSymbolTable = mock(SymbolTable.class);
+	    MethodSTE mockMethodSTE = mock(MethodSTE.class);
+	    
+
+	    // Mock the current method and return type
+	    when(mockMethodSTE.getReturnType()).thenReturn(mockType);
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockSymbolTable.getVarSTE(Mockito.any())).thenReturn(null);
+	    when(mockSymbolTable.getMethodSTE(Mockito.any())).thenReturn(mockMethodSTE);
+	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(true);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    MethodDeclaration methodDeclaration = (MethodDeclaration)((TypeDeclaration)
+	    		compilationUnit.types().get(0)).bodyDeclarations().get(0);
+	    visitor.visit(compilationUnit);
+	    for (Object node: methodDeclaration.getBody().statements()) {
+	    	((ASTNode)node).accept(visitor);
+	    }
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public int someMethod() {\n" +
+	        "        if (Verifier.nondetBoolean()) {}\n" +
+	        "        while (Verifier.nondetBoolean()) {}\n" +
+	        "        int x = Verifier.nondetInt();\n" +
+	        "        double y = Verifier.nondetDouble();\n" +
+	        "        return Verifier.nondetInt();\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_visitAssignment_removesFieldAccessAssignment() throws Exception {
+	    // Example source code containing an assignment to a field
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    int field;\n" +
+	        "    public void someMethod() {\n" +
+	        "        this.field = 42;\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+	    Type mockType = mock(Type.class);
+	    Mockito.when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    Mockito.when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(true);
+
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    Assignment assignment =
+       		 (Assignment)(((ExpressionStatement)((MethodDeclaration)((TypeDeclaration)
+				compilationUnit.types().get(0)).bodyDeclarations().get(1))
+				.getBody().statements().get(0)).getExpression());
+	    visitor.visit(compilationUnit);
+	    visitor.visit(assignment);
+	    
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    int field;\n" +
+	        "    public void someMethod() {\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_visitEnhancedForStatement_removesOrReplacesLoop() throws Exception {
+	    // Example source code containing an enhanced for loop
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        for (int num : new int[]{1, 2, 3}) {\n" +
+	        "            System.out.println(num);\n" +
+	        "        }\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up the visitor
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+	    EnhancedForStatement enhancedForStatement =
+	       		 (EnhancedForStatement)(((MethodDeclaration)((TypeDeclaration)
+					compilationUnit.types().get(0)).bodyDeclarations().get(0))
+					.getBody().statements().get(0));
+	    visitor.visit(enhancedForStatement);
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_visitFieldAccess_replacesThisExpressionWithSimpleName() throws Exception {
+	    // Example source code containing a field access
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    SomeClass field = this.field;\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(null);
+
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+        FieldAccess fieldAccess = (FieldAccess)((VariableDeclarationFragment)((FieldDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(0)).fragments().get(0)).getInitializer();
+	    visitor.visit(compilationUnit);
+        visitor.visit(fieldAccess);
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    SomeClass field = field;\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_visitFieldAccess_replacesPrimitiveThisExpressionWithSymbolic() throws Exception {
+	    // Example source code containing a field access
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    int field = this.field;\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+	    
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+
+	    // Mock the current method and return type
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+        FieldAccess fieldAccess = (FieldAccess)((VariableDeclarationFragment)((FieldDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(0)).fragments().get(0)).getInitializer();
+	    visitor.visit(compilationUnit);
+        visitor.visit(fieldAccess);
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    int field = Verifier.nondetInt();\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_endVisitInstanceofExpression_replacesWithFalse() throws Exception {
+	    // Example source code containing an InstanceofExpression inside an if-statement
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod(Object obj) {\n" +
+	        "        if (obj instanceof String) {\n" +
+	        "        }\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+	    
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+
+	    // Mock the current method and return type
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(false);
+
+	    // Apply the visitor
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    InstanceofExpression instanceofExpression = (InstanceofExpression)((IfStatement)((MethodDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+        		.getBody().statements().get(0)).getExpression();
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(instanceofExpression);
+	    
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod(Object obj) {\n" +
+	        "        if (Verifier.nondetBoolean()) {\n" +
+	        "        }\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_visitPostfixExpression_removesDisallowedExpressions() throws Exception {
+	    // Example source code containing a PostfixExpression inside an expression statement
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        x++;\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	 // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+
+	    // Mock the current method and return type
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(null);
+
+	    // Apply the visitor
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    PostfixExpression postfixExpression = (PostfixExpression)((ExpressionStatement)((MethodDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+        		.getBody().statements().get(0)).getExpression();
+	    visitor.visit(postfixExpression);
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+
+	@Test
+	public void test_endVisitQualifiedName_replacesDisallowedTypes() throws Exception {
+	    // Example source code containing a QualifiedName in an assignment
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    int value = SomeClass.someField;\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+
+	    // Mock the current method and return type
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(false);
+
+	    // Apply the visitor
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    // Mock behavior for replaceInteger
+        QualifiedName qualifiedName = (QualifiedName)
+        		((VariableDeclarationFragment)((FieldDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+        		.fragments().get(0)).getInitializer();
+        visitor.visit(compilationUnit);
+        visitor.endVisit(qualifiedName);
+	    
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    int value = Verifier.nondetInt();\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	/*
+	 * This is an overly-simplified test and decoupling this node should be a TODO 
+	 */
+	@Test
+	public void test_visitSimpleName_initializesUninitializedFields() throws Exception {
+	    // Example source code containing an uninitialized field usage
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    int value;\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x = value;\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    SymbolTable mockSymbolTable = mock(SymbolTable.class);
+	    VarSTE mockVarSTE = mock(VarSTE.class);
+	    MethodSTE mockMethodSTE = mock(MethodSTE.class);
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+
+	    // Mock the current method and return type
+	    when(mockSymbolTable.getVarSTE(Mockito.any())).thenReturn(mockVarSTE);
+	    when(mockSymbolTable.getMethodSTE(Mockito.any())).thenReturn(mockMethodSTE);
+	    when(mockVarSTE.isFieldVar()).thenReturn(true);
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(true);
+
+
+	    // Apply the visitor
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    MethodDeclaration methodDeclaration = (MethodDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(1);
+	    SimpleName simpleName = (SimpleName) 
+	      		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
+	            		compilationUnit.types().get(0)).bodyDeclarations().get(1))
+	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
+	    visitor.visit(compilationUnit);
+	    visitor.visit(methodDeclaration); // setting up initializedVars
+	    visitor.endVisit(methodDeclaration);
+	    visitor.visit(simpleName);
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    int value;\n" +
+	        "    public void someMethod() {\n" +
+	        "        int value = Verifier.nondetInt();\n" +
+	        "		int x = value;\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+	@Test
+	public void test_endVisitInfixExpression_replacesInvalidTypes() throws Exception {
+	    // Example source code containing an InfixExpression in an assignment
+	    String source = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x = unknownVar + 5;\n" +
+	        "    }\n" +
+	        "}";
+
+	    // Parse the source code
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(source.toCharArray());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+
+	    // Create a document and an ASTRewrite instance
+	    Document document = new Document(source);
+	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
+
+	    // Set up mock behavior
+	    TypeTable mockTypeTable = mock(TypeTable.class);
+	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
+	    PrimitiveType mockType = mock(PrimitiveType.class);
+
+	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
+	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
+	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(false);
+
+	    // Apply the visitor
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    InfixExpression infixExpression = (InfixExpression)
+        		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
+        		compilationUnit.types().get(0)).bodyDeclarations().get(0))
+        		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
+	    visitor.visit(compilationUnit);
+	    visitor.endVisit(infixExpression);
+
+	    // Apply the changes made by the visitor
+	    TextEdit edits = rewriter.rewriteAST(document, null);
+	    edits.apply(document);
+
+	    // Verify the updated source code
+	    String expectedSource = 
+	        "public class TestClass {\n" +
+	        "    public void someMethod() {\n" +
+	        "        int x = Verifier.nondetInt();\n" +
+	        "    }\n" +
+	        "}";
+	    
+	    assertEquals(expectedSource.trim(), document.get().trim());
+	}
+	
+
 }

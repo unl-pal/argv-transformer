@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -84,6 +86,7 @@ public class Transformer {
 				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setSource(source.toCharArray());
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
+				parser.setStatementsRecovery(true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				
@@ -134,18 +137,21 @@ public class Transformer {
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 				parser.setResolveBindings(true);
 				parser.setBindingsRecovery(true);
+				parser.setStatementsRecovery(true);
 				Map<String, String> options = JavaCore.getOptions();
 				options.put(JavaCore.COMPILER_SOURCE, "1.8");
 				parser.setCompilerOptions(options);
 				parser.setUnitName(file.getPath());
 				
-				String[] classPath = {Paths.get("build", "classes", "java").toString()};
+				String[] classPath = {Paths.get("build", "classes", "java", "main").toString()};
 				String[] sourcePath = { Paths.get(Main.source).toString() , Paths.get("src").toString()};
 				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
+				cu.recordModifications();
 				ASTRewrite rewriter = ASTRewrite.create(ast);
+
 
 				//those are the same as in filtering
 				TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
@@ -174,7 +180,7 @@ public class Transformer {
 				
 				//the actual transformation
 				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
-						typeChecker, target);
+						typeChecker, target, source);
 				cu.accept(typeCheckingVisitor);
 				rewriter = typeCheckingVisitor.getRewriter();
 				
@@ -205,11 +211,13 @@ public class Transformer {
 				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
 				parserR.setResolveBindings(true);
 				parserR.setBindingsRecovery(true);
+				parserR.setStatementsRecovery(true);
 				parserR.setCompilerOptions(options);
 				parserR.setUnitName(file.getPath());
 				parserR.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
+				cuR.recordModifications();
 
 				
 

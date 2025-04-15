@@ -2,8 +2,6 @@ package nonlinearExprSub.reachingDef.Constraint.Term;
 
 import org.eclipse.jdt.core.dom.*;
 
-import java.util.Set;
-
 
 /**
  * RD_entry[n]

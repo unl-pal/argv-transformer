@@ -3,6 +3,7 @@ plugins {
   id("application")
   id("java-library")
   id("idea")
+  id("eclipse")
   id("jvm-test-suite")
 }
 
@@ -27,6 +28,16 @@ application {
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+sourceSets {
+    test {
+        java {
+            srcDirs("test")
+            // Exclude integrationExpected from test sources
+            exclude("integrationExpected/**")
+        }
+    }
 }
 
 // All External Dependencies from either repo
@@ -80,7 +91,6 @@ tasks.run {
   group = "execution"
 }
 
-
 tasks.compileTestJava {
   sourceSets {
     test {
@@ -109,6 +119,7 @@ tasks.testClasses {
 tasks.test {
   testLogging {
     events("FAILED")
+    exclude("test/integrationExpected/**")
   }
 }
 
@@ -164,10 +175,11 @@ task<JavaCompile>("compile") {
 }
 
 // Custom Test Compile task for use with test types other than unit tests
-task<JavaCompile>("compile-test") {
+task<JavaCompile>("compileTest") {
   dependsOn("compile")
   source(fileTree("src/java"), fileTree("src/test"), fileTree("test"))
-  classpath = configurations.runtimeClasspath.get() + configurations.testRuntimeClasspath.get()
+  classpath = configurations.runtimeClasspath.get()
+  classpath += configurations.testRuntimeClasspath.get()
   classpath += files("build/classes/java")
   destinationDirectory = file("build/classes/test")
   outputs.files(fileTree((destinationDirectory)))
@@ -176,22 +188,29 @@ task<JavaCompile>("compile-test") {
 // Custom task class used for creating tasks for individual parts of the code
 open class ExecOperationsTask @Inject constructor(@Internal val execOperations: ExecOperations) : DefaultTask()
 
+tasks.register<ExecOperationsTask>("download") {
+  group = "execution"
+  description = "downloads the repos for database"
+  dependsOn("compile")
+  doLast {
+    execOperations.javaexec {
+      classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
+      classpath += files(File.pathSeparator + file("build/classes/java"))
+      mainClass.set("download.Main")
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+  }
+}
+
 // This is currently the same as 'run'
 // Does not actually run the full application despite the name, only what is in Driver
 tasks.register<ExecOperationsTask>("full") {
   group = "execution"
   description = "Runs the compiled application"
-  dependsOn("compile")
-  doLast {
-    execOperations.javaexec {
-    classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-    classpath += files(File.pathSeparator + file("build/classes/java"))
-    mainClass.set("full.Driver")
-    args("-cp")
-    standardOutput = System.out
-    errorOutput = System.err
-    }
-  }
+  dependsOn("download")
+  dependsOn("filter")
+  dependsOn("transform")
 }
 
 // Runs only the filter task
@@ -205,7 +224,6 @@ tasks.register<ExecOperationsTask>("filter") {
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
     classpath += files(File.pathSeparator + file("build/classes/java"))
     mainClass.set("filter.Main")
-    args("-cp")
     standardOutput = System.out
     errorOutput = System.err
     }
@@ -223,25 +241,25 @@ tasks.register<ExecOperationsTask>("transform") {
     classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
     classpath += files(File.pathSeparator + file("build/classes/java"))
     mainClass.set("transform.Main")
-    args("-cp")
     standardOutput = System.out
     errorOutput = System.err
     }
   }
 }
 
-tasks.register<ExecOperationsTask>("regression-transformer") {
+// runs the transformer on the regression test cases in
+// test/transformer/regression and generates fake benchmarks to the testOutput
+// directory
+tasks.register<ExecOperationsTask>("regressionTransformer") {
   group = "testing"
   description = "Runs regression test for transformer"
   dependsOn("compile")
   doLast {
     execOperations.javaexec {
       classpath = files(configurations.runtimeClasspath.get().files.joinToString(File.pathSeparator))
-      // classpath = files(configurations.testRuntimeClasspath.get().files.joinToString(File.pathSeparator))
       classpath += files(File.pathSeparator + file("build/classes/java"))
       mainClass.set("transform.Main")
       args("test/transformer/regression", "testOutput")
-      // args("-cp")
       standardOutput = System.out
       errorOutput = System.err
     }

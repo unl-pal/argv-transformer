@@ -19,7 +19,6 @@ import filter.file.FileFilter;
 import filter.file.SymbolicSuitableMethodFinder;
 import logging.Logger;
 import sourceAnalysis.AnalyzedFile;
-import transform.Transformer;
 
 /**
  *

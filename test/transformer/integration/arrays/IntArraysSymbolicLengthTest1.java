@@ -1,4 +1,4 @@
-package transformer.regression.arrays;
+package transformer.integration.arrays;
 
 import util.ArgVRandom;
 

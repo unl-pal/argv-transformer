@@ -11,5 +11,4 @@ public class MinimalStaticSymbolicIntTestCase {
 			return 0;
 		}
 	}
-
 }

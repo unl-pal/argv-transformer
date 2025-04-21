@@ -46,6 +46,7 @@ import transform.visitors.TypeTableVisitor;
 import transform.visitors.CommentAddingVisitor;
 import transform.visitors.CommentPruningVisitor;
 import transform.visitors.FinalizerVisitor;
+import transform.visitors.RemoveEmptyBlockVisitor;
 import transform.visitors.SymbolTableVisitor;
 import transform.visitors.TypeCollectVisitor;
 /**
@@ -238,32 +239,47 @@ public class Transformer {
 				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
 				cuR.recordModifications();
 				
+				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());
+				
+				RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(rewriterComm);
+				cuR.accept(removeEmptyBlockVisitor);
+				
+				CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterComm, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
+				cuR.accept(commentAddingVisitor);
+				
+				edits = rewriterComm.rewriteAST(document, null);
+				edits.apply(document);
+				ASTParser finalizerParser = ASTParser.newParser(AST.JLS8);
+				
+				finalizerParser.setSource(editedSource.toCharArray());
+				finalizerParser.setKind(ASTParser.K_COMPILATION_UNIT);
+				finalizerParser.setResolveBindings(true);
+				finalizerParser.setBindingsRecovery(true);
+				finalizerParser.setStatementsRecovery(true);
+				finalizerParser.setCompilerOptions(options);
+				finalizerParser.setUnitName(file.getPath());
+				finalizerParser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
+				CompilationUnit finalCu = (CompilationUnit) finalizerParser.createAST(null);
+				finalCu.recordModifications();
+								
 				typeCollectVisitor = new TypeCollectVisitor();
-				cuR.accept(typeCollectVisitor);
+				finalCu.accept(typeCollectVisitor);
 				typeChecker = typeCollectVisitor.getTypeChecker();
 				
 				symTableVisitor = new SymbolTableVisitor(typeChecker);
-				cuR.accept(symTableVisitor);
+				finalCu.accept(symTableVisitor);
 				rootScope = symTableVisitor.getRoot();
 
 				typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
-				cuR.accept(typeTableVisitor);
+				finalCu.accept(typeTableVisitor);
 				typeTable = typeTableVisitor.getTypeTable();
 				
 				//cannot use old typeTable, things has changed
 				AnalyzedFile af = new AnalyzedFile(file);
 				FinalizerVisitor fv = new FinalizerVisitor(af, typeTable, minTypeExpr, minTypeCond, minTypeParams, type);
-				cuR.accept(fv);
+				finalCu.accept(fv);
 				
-				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());
-				
-				CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterComm, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
-				cuR.accept(commentAddingVisitor);
-				
-				//getting to the insert position
-				PackageDeclaration packDec = cuR.getPackage();
-				//update			
 				
 				System.out.println("Suitable methods " + af.getSuitableMethods().size() + " in " + file);
 				if(af.getSuitableMethods().size() > 0) {
@@ -297,8 +313,7 @@ public class Transformer {
 					//}
 					}//end for all types
 //					
-					edits = rewriterComm.rewriteAST(document, null);
-					edits.apply(document);
+
 					BufferedWriter out = new BufferedWriter(new FileWriter(file));
 					out.write(document.get());
 					out.flush();

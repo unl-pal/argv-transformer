@@ -116,23 +116,6 @@ public class Main {
 		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
 		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
 
-<<<<<<< HEAD:src/transform/Main.java
-		file_itr.forEachRemaining(file -> {
-			boolean success = compile(file);
-			if (!success) {
-				unsuccessfulCompiles.add(file);
-			} else {
-				successfulCompiles.add(file);
-			}
-		});
-		//TODO: Temporary added some extra Print statements
-		System.out.println("================================================\t");
-		System.out.println("Before Transformation:\t");
-		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size() + "\t");
-		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
-		System.out.println("================================================");
-//		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
-=======
 		if (transformAll) {
 			file_itr.forEachRemaining(file -> unsuccessfulCompiles.add(file));
 		} else {
@@ -147,7 +130,6 @@ public class Main {
 		}
 		
 		System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
->>>>>>> ed176acbf9e3813d120e1e688579b6fc99ca5542:src/java/transform/Main.java
 
 		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
 		transformer.transformFiles(minTypeExpr, minTypeCond, minTypeParams, type);

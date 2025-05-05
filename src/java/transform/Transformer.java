@@ -196,12 +196,12 @@ public class Transformer {
 				cu.accept(transformVisitor);
 				rewriter = transformVisitor.getRewriter();
 				
-				//now we can write it
-
 				Document document = new Document(source);
 				TextEdit edits = rewriter.rewriteAST(document, null);
 				edits.apply(document);
 				
+				// removing comments to avoid duplicates when we put them back in. This adding/removal process in necessary
+				// to preserve provenance information
 				String commentSource = document.get();
 				ASTParser commentParser = ASTParser.newParser(AST.JLS8);
 				commentParser.setSource(commentSource.toCharArray());
@@ -215,6 +215,32 @@ public class Transformer {
 				commentPruningVisitor.getCommentsToDelete().apply(document);
 				
 				
+				// cleaning up empty blocks and putting comments back in
+				String editedSource = document.get();
+				ASTParser cleanupParser = ASTParser.newParser(AST.JLS8);
+				cleanupParser.setSource(editedSource.toCharArray());
+				cleanupParser.setKind(ASTParser.K_COMPILATION_UNIT);
+				cleanupParser.setResolveBindings(true);
+				cleanupParser.setBindingsRecovery(true);
+				cleanupParser.setStatementsRecovery(true);
+				cleanupParser.setCompilerOptions(options);
+				cleanupParser.setUnitName(file.getPath());
+				cleanupParser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
+
+				CompilationUnit cleanupCu = (CompilationUnit) cleanupParser.createAST(null);
+				cleanupCu.recordModifications();
+				
+				ASTRewrite rewriterComm = ASTRewrite.create(cleanupCu.getAST());
+				
+				RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(rewriterComm);
+				cleanupCu.accept(removeEmptyBlockVisitor);
+				
+				CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterComm, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
+				cleanupCu.accept(commentAddingVisitor);
+				
+				edits = rewriterComm.rewriteAST(document, null);
+				edits.apply(document);
+				
 				// check if the new AST meets selection criteria requirements
 				//If some method in the class now do not meet the requirement, 
 				//then we insert a comment before that method stating that
@@ -224,33 +250,7 @@ public class Transformer {
 				//If all method in a class becomes not good, then we don't output 
 				//that class at all
 				
-				//edits.
-				String editedSource = document.get();
-				ASTParser parserR = ASTParser.newParser(AST.JLS8);
-				parserR.setSource(editedSource.toCharArray());
-				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
-				parserR.setResolveBindings(true);
-				parserR.setBindingsRecovery(true);
-				parserR.setStatementsRecovery(true);
-				parserR.setCompilerOptions(options);
-				parserR.setUnitName(file.getPath());
-				parserR.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
-
-				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
-				cuR.recordModifications();
-				
-				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());
-				
-				RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(rewriterComm);
-				cuR.accept(removeEmptyBlockVisitor);
-				
-				CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterComm, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
-				cuR.accept(commentAddingVisitor);
-				
-				edits = rewriterComm.rewriteAST(document, null);
-				edits.apply(document);
 				ASTParser finalizerParser = ASTParser.newParser(AST.JLS8);
-				
 				finalizerParser.setSource(editedSource.toCharArray());
 				finalizerParser.setKind(ASTParser.K_COMPILATION_UNIT);
 				finalizerParser.setResolveBindings(true);
@@ -284,7 +284,7 @@ public class Transformer {
 				System.out.println("Suitable methods " + af.getSuitableMethods().size() + " in " + file);
 				if(af.getSuitableMethods().size() > 0) {
 					
-					for(Object typeDecl : cuR.types()) {
+					for(Object typeDecl : cleanupCu.types()) {
 					MethodDeclaration[] methodDeclArr = ((TypeDeclaration)typeDecl).getMethods();
 					//if(methodDeclArr.length > af.getSuitableMethods().size()) {
 						//there are methods that are in the class, but do not meet the filtering criteria

@@ -57,8 +57,8 @@ public class Main {
 	private static boolean debug = false;
 	private static boolean transformAll = false;
 
-	 public static String source = "suitablePrgms";
-	 public static String dest = "benchmarks";
+	public static String source = "suitablePrgms";
+	public static String dest = "benchmarks";
 //	 public static String source = "test/transformer/integration";
 //	 public static String source = "testsFromReport";
 //	 public static String dest = "testOutput";

@@ -31,7 +31,7 @@ import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
 
-public class FinilizerVisitor extends ASTVisitor {
+public class FinalizerVisitor extends ASTVisitor {
 	
 	private AnalyzedMethod currAnalyzedMethod;
 	private AnalyzedFile af;
@@ -44,7 +44,7 @@ public class FinilizerVisitor extends ASTVisitor {
 	private int operationsInExpression;
 
 	
-	public FinilizerVisitor(AnalyzedFile af, TypeTable typeTable, int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {
+	public FinalizerVisitor(AnalyzedFile af, TypeTable typeTable, int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {
 		this.af = af;
 		this.typeTable = typeTable;
 		this.minTypeExpr = minTypeExpr;

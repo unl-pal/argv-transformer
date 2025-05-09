@@ -40,17 +40,8 @@ version = '1.0.0'
         testImplementation 'org.testng:testng:7.5.1' 
     }
 
-
-subprojects {
-    if (!project.childProjects.empty) {
-        return
-    }
-    repositories {
-        mavenCentral()
-    }
-}
-
 // set run to run the entire program via driver
+// Currently the full.Main does not handle transform, only download and filter
 application {
     mainClass = 'full.Driver'
 }
@@ -108,44 +99,6 @@ tasks.named('test') {
 }
 
 tasks.named('javadoc') {
-}
-
-// Task that generates a file called my.classpath
-// my.classpath is a template file with many necessary parts used by various common IDEs
-// This file is not meant to be an end all file, rather a starting point
-task('ide-paths') {
-    group = 'Set-Up'
-    description = 'Generate a file, \'my.classpath\'\nFile is a template with class path entries for gradle-managed dependencies'
-    doLast {
-        def classpathFile = file('my.classpath')
-        if (classpathFile.exists()) {
-            classpathFile.delete()
-        }
-        def paths = [
-                configurations.compileClasspath,
-                configurations.runtimeClasspath,
-                configurations.testCompileClasspath,
-                configurations.testRuntimeClasspath
-        ]
-        def dependencyList = ['']
-        classpathFile.appendText('<?xml version="1.0" encoding="UTF-8"?>\n')
-        classpathFile.appendText('<classpath>\n')
-        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="src" path="src/java"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="src" path="src/test"/>\n')
-        classpathFile.appendText('\t<classpathentry kind="src" path="test"/>\n')
-
-        paths.each { path ->
-            path.files.each { file ->
-                if (!dependencyList.contains(file.toString())) {
-                    dependencyList.add(file.toString())
-                    classpathFile.appendText("\t<classpathentry exported=\"true\" kind=\"lib\" path=\"${file.absolutePath}\"/>\n")
-                }
-            }
-        }
-        classpathFile.appendText('</classpath>')
-    }
 }
 
 // Custom Compile task used to run the individual parts from root

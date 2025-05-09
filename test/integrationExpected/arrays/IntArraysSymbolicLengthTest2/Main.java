@@ -1,12 +1,12 @@
+
+
 /** filtered and transformed by ARG-V */
- package transformer.integration.arrays;
 
 import org.sosy_lab.sv_benchmarks.Verifier;
 
 /** filtered by ARG-V */
  public class Main {
-	/** ARG-V: suitable */
-	 public static void sort(int[] a) {
+	public static void sort(int[] a) {
 		// insertion sort
 	    final int N = a.length;
 	    for (int i = 1; i < N; i++) { // N-1 branches
@@ -22,8 +22,7 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 	    }
 	}
 
-	/** ARG-V: suitable */
-	 public static void testFunc() {
+	public static void testFunc() {
 	    int N = Verifier.nondetInt();
 	    int a[] = new int[N];
 	    for (int i = 0; i < N; i++) {
@@ -34,5 +33,10 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 	    } catch (Exception e) {
 	    	assert false;
 	    }
+	}
+
+	public static void main(String[] args) {
+		sort(new int[] { Verifier.nondetInt() });
+		testFunc();
 	}
 }

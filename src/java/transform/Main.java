@@ -57,9 +57,10 @@ public class Main {
 	private static boolean debug = false;
 	private static boolean transformAll = false;
 
-	 public static String source = "suitablePrgms";
-	 public static String dest = "benchmarks";
+	public static String source = "suitablePrgms";
+	public static String dest = "benchmarks";
 //	 public static String source = "test/transformer/integration";
+//	 public static String source = "testsFromReport";
 //	 public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {
@@ -338,11 +339,12 @@ public class Main {
 	
 	private static void restructureForSVCompFormat(Path javaFilePath) {
         try {
-            String content = readFile(javaFilePath);
-            String newContent = updateClassName(content);
-
-            Path parentDir = javaFilePath.getParent();
             String fileNameWithoutExt = javaFilePath.getFileName().toString().replace(".java", "");
+            String content = readFile(javaFilePath);
+            String newContent = Transformer.updateClassName(content);
+            newContent = Transformer.renameInstanceVariables(newContent, fileNameWithoutExt);
+            
+            Path parentDir = javaFilePath.getParent();
             Path newDir = parentDir.resolve(fileNameWithoutExt);
             Files.createDirectories(newDir);
 
@@ -356,35 +358,6 @@ public class Main {
             e.printStackTrace();
         }
     }
-
-    private static String updateClassName(String source) {
-        ASTParser parser = ASTParser.newParser(AST.JLS8);
-        parser.setSource(source.toCharArray());
-        parser.setKind(ASTParser.K_COMPILATION_UNIT);
-
-        CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-        cu.recordModifications();
-
-        cu.accept(new ASTVisitor() {
-            @Override
-            public boolean visit(TypeDeclaration node) {
-                if (!node.isInterface()) {
-                    node.setName(cu.getAST().newSimpleName("Main"));
-                }
-                return true;
-            }
-        });
-
-        Document doc = new Document(source);
-        TextEdit edits = cu.rewrite(doc, null);
-        try {
-            edits.apply(doc);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return doc.get();
-    }
-
 
     private static String readFile(Path path) throws IOException {
         StringBuilder content = new StringBuilder();

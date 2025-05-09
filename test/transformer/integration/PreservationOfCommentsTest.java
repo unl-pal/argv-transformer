@@ -1,18 +1,31 @@
 /*
- * Headers above the package
- * header2
+ * Headers above the package 1
+ * header2 2
  */
-// header using single line
-// another header using single line
+// header using single line 3
+// another header using single line 4
 
 package transformer.integration;
 /*
- * Headers below the package
- * header2
+ * Headers below the package 5
+ * header2 6
  */
-// header with single line
-// another header
+// header with single line 7
+// another header 8
 import util.ArgVRandom;
+// in-between import 9
+/*
+ * block between import 10
+ */
+import transform.visitors.TypeTableVisitor;
+// another comment 11
+import java.util.Collections;
+// java.util should be kept 12
+import transform.visitors.TransformVisitor;
+/*
+ * Headers below the import 13
+ */
+// another header 14/14
 
 /**
  * This class is a copy of SymbolicIntTest with comments added in.

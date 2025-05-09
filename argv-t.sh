@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /bin/sh
 
 if [ $# -lt 2 ]
 then
@@ -42,9 +42,15 @@ elif [ "$1" == "run" ]; then
     java -cp "${classpath}":build/classes/java transform.Main
     exit 0
 
+  elif [ "$2" == "all" ]; then
+    javac -cp "${classpath}" -d ./build/classes/java/ src/java/full/Driver.java
+    javac -cp "${classpath}" -d ./build/classes/java/ src/java/transform/Main.java
+    java -cp "${classpath}":build/classes/java full.Driver 
+    java -cp "${classpath}":build/classes/java transform.Main suitablePrgms benchmarks
+
   else
     echo "Argument: $2 is invalid"
-    echo "Please use format: <scriptname> <run|compile> <desiredModule>"
+    echo "Please use format: <scriptname> <run|compile> <full|transform|all>"
     exit 1
   fi
 

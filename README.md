@@ -38,6 +38,8 @@ Run `./gradlew` followed by any of the following tasks to get desired effect.
 - `test` - Runs the test suite and creates a report that can be viewed in a
   browser. The report is located in the `build/reports/tests/test` directory
   with the `index.html` file as the main entry point.
+  
+  Note: Be sure to exclude integrationExpected from the classpath.
 
 Other tasks are available and can be seen by running `./gradlew tasks` from
 the command line. This will display all tasks available and a brief description

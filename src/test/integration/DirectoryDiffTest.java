@@ -16,13 +16,15 @@ import org.junit.runners.Parameterized;
 
 import transform.Main;
 
+
+
 @RunWith(Parameterized.class)
 public class DirectoryDiffTest {
 
     // Static temporary directory that will be used across all tests.
     private static Path tempDir;
     // Directory with the expected output files.
-    private static final Path expectedDir = Paths.get("test", "integrationExpected");
+    private static final Path expectedDir = Paths.get("src", "test", "integrationExpected");
 
     // Instance fields for the parameterized test.
     private String relativePath;
@@ -45,7 +47,7 @@ public class DirectoryDiffTest {
             tempDir = Files.createTempDirectory("tmp");
             System.out.println("Temporary directory created: " + tempDir.toAbsolutePath());
             // Run the transformation so that files are written into the temp directory.
-            Main.main(new String[] {Paths.get("test", "transformer", "integration").toString(), tempDir.toAbsolutePath().toString()});
+            Main.main(new String[] {Paths.get("src", "test", "transformer", "integration").toString(), tempDir.toAbsolutePath().toString()});
         } catch (IOException e) {
             throw new RuntimeException("Failed to set up temporary directory", e);
         }

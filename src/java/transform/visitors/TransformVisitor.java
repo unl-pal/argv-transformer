@@ -676,7 +676,10 @@ public class TransformVisitor extends ASTVisitor {
     				typeTable.setNodeType(node.getParent(), null);
                 }
             } 
-        }
+        } else {
+			rewriter.remove(node, null);
+			typeTable.setNodeType(node.getParent(), null);
+		}
 	}
 	
 
@@ -1167,78 +1170,80 @@ public class TransformVisitor extends ASTVisitor {
 	    }
 	    
 		 // Create the main method declaration.
-	    MethodDeclaration mainMethod = ast.newMethodDeclaration();
-	    mainMethod.setName(ast.newSimpleName("main"));
-	    mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
-	    mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
-	    mainMethod.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+	    if (node.getParent() instanceof CompilationUnit) {
+	        MethodDeclaration mainMethod = ast.newMethodDeclaration();
+	        mainMethod.setName(ast.newSimpleName("main"));
+	        mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+	        mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+	        mainMethod.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
 
-	    // Create the String[] args parameter.
-	    SingleVariableDeclaration param = ast.newSingleVariableDeclaration();
-	    ArrayType arrayType = ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String")));
-	    param.setType(arrayType);
-	    param.setName(ast.newSimpleName("args"));
-	    mainMethod.parameters().add(param);
+	        // Create the String[] args parameter.
+	        SingleVariableDeclaration param = ast.newSingleVariableDeclaration();
+	        ArrayType arrayType = ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String")));
+	        param.setType(arrayType);
+	        param.setName(ast.newSimpleName("args"));
+	        mainMethod.parameters().add(param);
 
-	    Block mainBlock = ast.newBlock();
-	    mainMethod.setBody(mainBlock);
+	        Block mainBlock = ast.newBlock();
+	        mainMethod.setBody(mainBlock);
 
-	    // Collect all methods to invoke (skip constructors and any existing main).
-	    boolean needsInstance = false;
-	    List<MethodDeclaration> methodDeclarations = new ArrayList<>();
-	    for (Object memberObj : node.bodyDeclarations()) {
-	        if (memberObj instanceof MethodDeclaration) {
-	            MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
-	            if (!methodDecl.isConstructor() && !methodDecl.getName().getIdentifier().equals("main")) {
-	            	methodDeclarations.add(methodDecl);
-		            // If any method is non-static, we will need an instance.
-		            if (!Modifier.isStatic(methodDecl.getModifiers())) {
-		                needsInstance = true;
-		            }
-	            }
-	        }
-	    }
-
-	    // If at least one non-static method exists, create an instance using the no-arg constructor.
-	    if (needsInstance) {
-	        // Creates: ClassName instance = new ClassName();
-	        VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-	        fragment.setName(ast.newSimpleName("instance"));
-	        ClassInstanceCreation cic = ast.newClassInstanceCreation();
-	        cic.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
-	        fragment.setInitializer(cic);
-
-	        VariableDeclarationStatement instanceDecl = ast.newVariableDeclarationStatement(fragment);
-	        instanceDecl.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
-	        mainBlock.statements().add(instanceDecl);
-	    }
-
-	    // For each method, create a method invocation statement with symbolic arguments.
-	    for (MethodDeclaration methodDecl : methodDeclarations) {
-	        MethodInvocation invocation = ast.newMethodInvocation();
-	        invocation.setName(ast.newSimpleName(methodDecl.getName().getIdentifier()));
-
-	        // If the method is non-static, invoke it on the instance.
-	        if (!Modifier.isStatic(methodDecl.getModifiers())) {
-	            invocation.setExpression(ast.newSimpleName("instance"));
-	        }
-
-	        // Process each parameter of the method.
-	        for (Object paramObj : methodDecl.parameters()) {
-	            if (paramObj instanceof SingleVariableDeclaration) {
-	                SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
-	                Expression arg = createSymbolicArgument(svd.getType());
-	                invocation.arguments().add(arg);
+	        // Collect all methods to invoke (skip constructors and any existing main).
+	        boolean needsInstance = false;
+	        List<MethodDeclaration> methodDeclarations = new ArrayList<>();
+	        for (Object memberObj : node.bodyDeclarations()) {
+	            if (memberObj instanceof MethodDeclaration) {
+	                MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
+	                if (!methodDecl.isConstructor() && !methodDecl.getName().getIdentifier().equals("main")) {
+	                    methodDeclarations.add(methodDecl);
+	                    // If any method is non-static, we will need an instance.
+	                    if (!Modifier.isStatic(methodDecl.getModifiers())) {
+	                        needsInstance = true;
+	                    }
+	                }
 	            }
 	        }
 
-	        ExpressionStatement invocationStmt = ast.newExpressionStatement(invocation);
-	        mainBlock.statements().add(invocationStmt);
-	    }
+	        // If at least one non-static method exists, create an instance using the no-arg constructor.
+	        if (needsInstance) {
+	            // Creates: ClassName instance = new ClassName();
+	            VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+	            fragment.setName(ast.newSimpleName("instance"));
+	            ClassInstanceCreation cic = ast.newClassInstanceCreation();
+	            cic.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
+	            fragment.setInitializer(cic);
 
-	    // Insert the newly created main method into the class.
-	    rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
-	            .insertLast(mainMethod, null);
+	            VariableDeclarationStatement instanceDecl = ast.newVariableDeclarationStatement(fragment);
+	            instanceDecl.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
+	            mainBlock.statements().add(instanceDecl);
+	        }
+
+	        // For each method, create a method invocation statement with symbolic arguments.
+	        for (MethodDeclaration methodDecl : methodDeclarations) {
+	            MethodInvocation invocation = ast.newMethodInvocation();
+	            invocation.setName(ast.newSimpleName(methodDecl.getName().getIdentifier()));
+
+	            // If the method is non-static, invoke it on the instance.
+	            if (!Modifier.isStatic(methodDecl.getModifiers())) {
+	                invocation.setExpression(ast.newSimpleName("instance"));
+	            }
+
+	            // Process each parameter of the method.
+	            for (Object paramObj : methodDecl.parameters()) {
+	                if (paramObj instanceof SingleVariableDeclaration) {
+	                    SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
+	                    Expression arg = createSymbolicArgument(svd.getType());
+	                    invocation.arguments().add(arg);
+	                }
+	            }
+
+	            ExpressionStatement invocationStmt = ast.newExpressionStatement(invocation);
+	            mainBlock.statements().add(invocationStmt);
+	        }
+
+	        // Insert the newly created main method into the class.
+	        rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
+	                .insertLast(mainMethod, null);
+	    }
 	    
 		if (!node.isInterface()) {
 			symbolTableStack.pop();

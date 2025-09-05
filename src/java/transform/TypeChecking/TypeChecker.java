@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -122,7 +123,7 @@ public class TypeChecker {
 	 * @param type
 	 * @return true if the type is allowed, false otherwise.
 	 */
-	public static boolean allowedType(Type type) {
+	public boolean allowedType(Type type) {
 		if(type == null) return false;
 		
 		if(type.isArrayType()) {
@@ -145,7 +146,9 @@ public class TypeChecker {
 //				|| javaImportTypes.contains(type.toString())
 //				|| classTypes.contains(type.toString())
 //				|| inJavaLangLibrary(type));
-		return (type.isPrimitiveType());
+		ITypeBinding typeBinding = type.resolveBinding();
+		String qualifiedName = typeBinding != null ? typeBinding.getQualifiedName() : "unknown";
+		return (type.isPrimitiveType() || qualifiedName.startsWith("java.") || qualifiedName.startsWith("javax."));
 	}
 //-------------------------------------------------------------------------------------	
 	//eas taken from TransformVisitor and made it static
@@ -229,7 +232,7 @@ public class TypeChecker {
 	/**
 	 * Integer array type of desired dimension
 	 * @param type
-	 * @param dem - desired dimensions, >= 1
+	 * @param dim - desired dimensions, >= 1
 	 * @return
 	 */
 	public static boolean isIntegerArrayType(Type type, int dim) {

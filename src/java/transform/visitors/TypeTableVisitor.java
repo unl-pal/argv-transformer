@@ -444,6 +444,10 @@ public class TypeTableVisitor extends ASTVisitor {
 		 * = currScope.getVarSTE(node.getQualifier().toString()); if (sym != null) {
 		 * type = sym.getVarType(); }
 		 */
+        ITypeBinding typeBinding = node.resolveTypeBinding();
+        if (typeBinding != null && typeBinding.isPrimitive()) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+		}
 
 		return true;
 	}
@@ -468,7 +472,12 @@ public class TypeTableVisitor extends ASTVisitor {
 //		if(name.contains("currentSize")) {
 //			System.out.println("SimpleName " + node + " " + node.getParent() + "\t" + type);
 //		}
-		table.setNodeType(node, type);
+		ITypeBinding typeBinding = node.resolveTypeBinding();
+        if (typeBinding != null && typeBinding.isPrimitive()) {
+			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+		} else {
+			table.setNodeType(node, type);
+		}
 		return true;
 	}
 

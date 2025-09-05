@@ -23,6 +23,7 @@ public class Driver {
 	private final static String DEFAULT_MIN_PARAMS = "0";
 
 	public static void main(String[] args) {
+
 		File configFile = new File("config.properties");
 		try {
 			FileReader reader = new FileReader(configFile);

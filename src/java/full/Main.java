@@ -19,7 +19,6 @@ import filter.file.FileFilter;
 import filter.file.SymbolicSuitableMethodFinder;
 import logging.Logger;
 import sourceAnalysis.AnalyzedFile;
-import transform.Transformer;
 
 /**
  *
@@ -55,10 +54,11 @@ public class Main {
 	 * @param debugLevel
 	 * @param downloadDir
 	 * @param benchmarkDir
-	 * @param minIfStmt 
-	 * @param ifStmt 
-	 * @param minExpr 
-	 * @param type 
+	 * @param type
+	 * @param minExpr
+	 * @param minIfStmt
+	 * @param minParams
+	 * @param target
 	 * @throws IOException
 	 */
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
@@ -99,7 +99,7 @@ public class Main {
 			}
 		}
 		
-		Logger.defaultLogger.setDebugLevel(debugLevel);
+		Logger.defaultLogger.setDebugLevel(debugLevel); //TODO: Read what this debugLevel parameter is doing here
 		Logger.defaultLogger.enterContext("MAIN");
 
 		Downloader downloader = new Downloader(filename);

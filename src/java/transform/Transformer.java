@@ -1,32 +1,35 @@
 package transform;
 
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.io.FileUtils;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jface.text.Document;
@@ -40,7 +43,10 @@ import transform.TypeChecking.TypeChecker.CType;
 import transform.TypeChecking.TypeTable;
 import transform.visitors.TransformVisitor;
 import transform.visitors.TypeTableVisitor;
-import transform.visitors.FinilizerVisitor;
+import transform.visitors.CommentAddingVisitor;
+import transform.visitors.CommentPruningVisitor;
+import transform.visitors.FinalizerVisitor;
+import transform.visitors.RemoveEmptyBlockVisitor;
 import transform.visitors.SymbolTableVisitor;
 import transform.visitors.TypeCollectVisitor;
 /**
@@ -92,6 +98,7 @@ public class Transformer {
 				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setSource(source.toCharArray());
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
+				parser.setStatementsRecovery(true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				
@@ -142,19 +149,21 @@ public class Transformer {
 				parser.setKind(ASTParser.K_COMPILATION_UNIT);
 				parser.setResolveBindings(true);
 				parser.setBindingsRecovery(true);
+				parser.setStatementsRecovery(true);
 				Map<String, String> options = JavaCore.getOptions();
 				options.put(JavaCore.COMPILER_SOURCE, "1.8");
 				parser.setCompilerOptions(options);
 				parser.setUnitName(file.getPath());
-//				String[] classPath = {"C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\build\\classes"};
-//				String[] sourcePath = { Paths.get("paclab-transformer", "suitablePrgms").toString() };
-//				sourcePath = new String[] {"C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\suitablePrgms", "C:\\Users\\molon\\OneDrive\\Documents\\GitHub\\paclab-transformer\\src\\java\\util"};
-//				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
-				parser.setEnvironment(null, null, null, true);
+				
+				String[] classPath = {Paths.get("build", "classes", "java", "main").toString()};
+				String[] sourcePath = { Paths.get(Main.source).toString() , Paths.get("src").toString()};
+				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
+				cu.recordModifications();
 				ASTRewrite rewriter = ASTRewrite.create(ast);
+
 
 				//those are the same as in filtering
 				TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
@@ -182,21 +191,55 @@ public class Transformer {
 //				}
 				
 				//the actual transformation
-				TransformVisitor typeCheckingVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
-						typeChecker, target);
-				cu.accept(typeCheckingVisitor);
-				rewriter = typeCheckingVisitor.getRewriter();
+				TransformVisitor transformVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
+						typeChecker, target, source);
+				cu.accept(transformVisitor);
+				rewriter = transformVisitor.getRewriter();
 				
-		
-				
-				
-				//now we can write it
-
 				Document document = new Document(source);
 				TextEdit edits = rewriter.rewriteAST(document, null);
 				edits.apply(document);
 				
+				// removing comments to avoid duplicates when we put them back in. This adding/removal process in necessary
+				// to preserve provenance information
+				String commentSource = document.get();
+				ASTParser commentParser = ASTParser.newParser(AST.JLS8);
+				commentParser.setSource(commentSource.toCharArray());
+				commentParser.setKind(ASTParser.K_COMPILATION_UNIT);
+				CompilationUnit commentCu = (CompilationUnit) commentParser.createAST(null);
+				commentCu.recordModifications();
 				
+				CommentPruningVisitor commentPruningVisitor = new CommentPruningVisitor(commentSource);
+				commentCu.accept(commentPruningVisitor);
+				
+				commentPruningVisitor.getCommentsToDelete().apply(document);
+				
+				
+				// cleaning up empty blocks and putting comments back in
+				String editedSource = document.get();
+				ASTParser cleanupParser = ASTParser.newParser(AST.JLS8);
+				cleanupParser.setSource(editedSource.toCharArray());
+				cleanupParser.setKind(ASTParser.K_COMPILATION_UNIT);
+				cleanupParser.setResolveBindings(true);
+				cleanupParser.setBindingsRecovery(true);
+				cleanupParser.setStatementsRecovery(true);
+				cleanupParser.setCompilerOptions(options);
+				cleanupParser.setUnitName(file.getPath());
+				cleanupParser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
+
+				CompilationUnit cleanupCu = (CompilationUnit) cleanupParser.createAST(null);
+				cleanupCu.recordModifications();
+				
+				ASTRewrite rewriterComm = ASTRewrite.create(cleanupCu.getAST());
+				
+				RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(rewriterComm);
+				cleanupCu.accept(removeEmptyBlockVisitor);
+				
+				CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterComm, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
+				cleanupCu.accept(commentAddingVisitor);
+				
+				edits = rewriterComm.rewriteAST(document, null);
+				edits.apply(document);
 				
 				// check if the new AST meets selection criteria requirements
 				//If some method in the class now do not meet the requirement, 
@@ -207,55 +250,41 @@ public class Transformer {
 				//If all method in a class becomes not good, then we don't output 
 				//that class at all
 				
-				//edits.
-				String editedSource = document.get();
-				ASTParser parserR = ASTParser.newParser(AST.JLS8);
-				parserR.setSource(editedSource.toCharArray());
-				parserR.setKind(ASTParser.K_COMPILATION_UNIT);
-				parserR.setResolveBindings(true);
-				parserR.setBindingsRecovery(true);
-				parserR.setCompilerOptions(options);
-				parserR.setUnitName(file.getPath());
-				// parserR.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
-				parserR.setEnvironment(null, null, null, true);
+				ASTParser finalizerParser = ASTParser.newParser(AST.JLS8);
+				finalizerParser.setSource(editedSource.toCharArray());
+				finalizerParser.setKind(ASTParser.K_COMPILATION_UNIT);
+				finalizerParser.setResolveBindings(true);
+				finalizerParser.setBindingsRecovery(true);
+				finalizerParser.setStatementsRecovery(true);
+				finalizerParser.setCompilerOptions(options);
+				finalizerParser.setUnitName(file.getPath());
+				finalizerParser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
-				CompilationUnit cuR = (CompilationUnit) parserR.createAST(null);
-
-				
-
+				CompilationUnit finalCu = (CompilationUnit) finalizerParser.createAST(null);
+				finalCu.recordModifications();
+								
 				typeCollectVisitor = new TypeCollectVisitor();
-				cuR.accept(typeCollectVisitor);
+				finalCu.accept(typeCollectVisitor);
 				typeChecker = typeCollectVisitor.getTypeChecker();
 				
 				symTableVisitor = new SymbolTableVisitor(typeChecker);
-				cuR.accept(symTableVisitor);
+				finalCu.accept(symTableVisitor);
 				rootScope = symTableVisitor.getRoot();
 
 				typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
-				cuR.accept(typeTableVisitor);
+				finalCu.accept(typeTableVisitor);
 				typeTable = typeTableVisitor.getTypeTable();
+				
 				//cannot use old typeTable, things has changed
 				AnalyzedFile af = new AnalyzedFile(file);
-				FinilizerVisitor fv = new FinilizerVisitor(af, typeTable, minTypeExpr, minTypeCond, minTypeParams, type);
-				cuR.accept(fv);
-				
-				ASTRewrite rewriterComm = ASTRewrite.create(cuR.getAST());
-				
-				//getting to the insert position
-				PackageDeclaration packDec = cuR.getPackage();
-				//update
+				FinalizerVisitor fv = new FinalizerVisitor(af, typeTable, minTypeExpr, minTypeCond, minTypeParams, type);
+				finalCu.accept(fv);
 				
 				
-				ListRewrite listRewrite = rewriterComm.getListRewrite(packDec, PackageDeclaration.ANNOTATIONS_PROPERTY);
-				//rewriterComm.get
-				Statement comment = (Statement) rewriterComm.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
-				listRewrite.insertFirst(comment, null);
-				
-				
-				System.out.println("Suiatable methods " + af.getSuitableMethods().size() + " in " + file);
+				System.out.println("Suitable methods " + af.getSuitableMethods().size() + " in " + file);
 				if(af.getSuitableMethods().size() > 0) {
 					
-					for(Object typeDecl : cuR.types()) {
+					for(Object typeDecl : cleanupCu.types()) {
 					MethodDeclaration[] methodDeclArr = ((TypeDeclaration)typeDecl).getMethods();
 					//if(methodDeclArr.length > af.getSuitableMethods().size()) {
 						//there are methods that are in the class, but do not meet the filtering criteria
@@ -271,16 +300,20 @@ public class Transformer {
 							//check if such method has not been found, then insert comments
 							if(found) {
 								System.out.println("Found suitable MDecl");
-								listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
-								comment = (Statement) rewriterComm.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
+								ListRewrite listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
+								Statement comment;
+								if (md.getName().getIdentifier().equals("main")) {
+									comment = (Statement) rewriterComm.createStringPlaceholder("/** This main was generated by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
+								} else {
+									comment = (Statement) rewriterComm.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
+								}
 								listRewrite.insertFirst(comment, null);
 							}
 						}
 					//}
 					}//end for all types
 //					
-					edits = rewriterComm.rewriteAST(document, null);
-					edits.apply(document);
+
 					BufferedWriter out = new BufferedWriter(new FileWriter(file));
 					out.write(document.get());
 					out.flush();
@@ -293,4 +326,100 @@ public class Transformer {
 			}
 		}
 	}
+	
+	/**
+	 * Helper method for renaming a class to Main.java
+	 * @param source the full file text to be renamed
+	 * @return the full file text with instantiations renamed to Main
+	 */
+	public static String updateClassName(String source) {
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
+        parser.setSource(source.toCharArray());
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+
+        CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+        cu.recordModifications();
+
+        cu.accept(new ASTVisitor() {
+            @Override
+            public boolean visit(TypeDeclaration node) {
+                if (!node.isInterface()) {
+                    node.setName(cu.getAST().newSimpleName("Main"));
+                }
+                return true;
+            }
+        });
+
+        Document doc = new Document(source);
+        TextEdit edits = cu.rewrite(doc, null);
+        try {
+            edits.apply(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return doc.get();
+    }
+	
+	/**
+	 * Helper method for renaming instance variables. Useful for when files get renamed during postprocessing.
+	 * For example, if TestClass.java gets renamed to Main.java, this method will rename the appropriate variable declarations.
+	 * @param source the full file's text
+	 * @return the full file's text with information renamed.
+	 */
+	public static String renameInstanceVariables(String source, String oldClassName) {
+        ASTParser parser = ASTParser.newParser(AST.JLS8); // Use appropriate Java version
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+        parser.setSource(source.toCharArray());
+        parser.setResolveBindings(true);
+
+        CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+        AST ast = cu.getAST();
+        ASTRewrite rewriter = ASTRewrite.create(ast);
+
+        cu.accept(new ASTVisitor() {
+            @Override
+            public boolean visit(ClassInstanceCreation node) {
+                Type type = node.getType();
+                if (type instanceof SimpleType) {
+                    SimpleType simpleType = (SimpleType) type;
+                    Name typeName = simpleType.getName();
+
+                    if (typeName.getFullyQualifiedName().equals(oldClassName)) {
+                        // Rename the instantiated class to "Main"
+                        SimpleName newNameNode = ast.newSimpleName("Main");
+                        SimpleType newType = ast.newSimpleType(newNameNode);
+                        rewriter.replace(simpleType, newType, null);
+                    }
+                }
+                return super.visit(node);
+            }
+
+            @Override
+            public boolean visit(VariableDeclarationStatement node) {
+                Type type = node.getType();
+                if (type instanceof SimpleType) {
+                    SimpleType simpleType = (SimpleType) type;
+                    Name typeName = simpleType.getName();
+
+                    if (typeName.getFullyQualifiedName().equals(oldClassName)) {
+                        // Rename the declared type to "Main"
+                        SimpleName newNameNode = ast.newSimpleName("Main");
+                        SimpleType newType = ast.newSimpleType(newNameNode);
+                        rewriter.replace(simpleType, newType, null);
+                    }
+                }
+                return super.visit(node);
+            }
+        });
+
+        Document document = new Document(source);
+        try {
+            TextEdit edits = rewriter.rewriteAST(document, null);
+            edits.apply(document);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return document.get();
+    }
 }

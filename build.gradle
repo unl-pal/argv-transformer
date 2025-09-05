@@ -19,7 +19,7 @@ version = '1.0.0'
     }
     // All External Dependencies from either repo
     dependencies {
-        implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726'
+        implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.12.2'
         implementation 'org.apache.commons:commons-csv:1.5'
         implementation 'commons-io:commons-io:2.16.1'
         implementation 'org.eclipse.core:contenttype:3.4.200-v20140207-1251'
@@ -61,7 +61,7 @@ sourceSets {
     }
     test {
         java {
-            srcDirs = ['test']
+            srcDirs = ['src/test']
             // Exclude integrationExpected from test sources
             exclude 'integrationExpected/**'
         }
@@ -83,7 +83,7 @@ tasks.named('run') {
 }
 
 tasks.named('compileTestJava') {
-    sourceSets.test.java.srcDirs = ['test']
+    sourceSets.test.java.srcDirs = ['src/test']
 }
 
 tasks.named('testClasses') {

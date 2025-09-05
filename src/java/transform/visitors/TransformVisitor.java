@@ -1629,10 +1629,10 @@ public class TransformVisitor extends ASTVisitor {
 
 	private void checkThrownExceptions(MethodDeclaration node) {
 		@SuppressWarnings("unchecked")
-		List<Name> exceptions = node.thrownExceptionTypes();
+		List<ASTNode> exceptions = node.thrownExceptionTypes();
 		if (!exceptions.isEmpty()) {
 			ListRewrite listRewrite = rewriter.getListRewrite(node, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY);
-			for (Name name : exceptions) {
+			for (ASTNode name : exceptions) {
 				listRewrite.remove(name, null);
 			}
 			listRewrite.insertFirst(ast.newSimpleName("Exception"), null);

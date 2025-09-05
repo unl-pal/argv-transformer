@@ -5,12 +5,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -156,7 +158,13 @@ public class Transformer {
 				parser.setUnitName(file.getPath());
 				
 				String[] classPath = {Paths.get("build", "classes", "java", "main").toString()};
-				String[] sourcePath = { Paths.get(Main.source).toString() , Paths.get("src").toString()};
+				FilenameUtils.removeExtension(Main.source);
+				String inputSource = Main.source;
+				if (inputSource.endsWith(".java")) {
+					Path path = Paths.get(inputSource);
+					inputSource = path.getParent().toString();
+				}
+				String[] sourcePath = { Paths.get(inputSource).toString() , Paths.get("src").toString()};
 				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);

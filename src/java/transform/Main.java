@@ -59,8 +59,8 @@ public class Main {
 
 //	public static String source = "suitablePrgms";
 //	public static String dest = "benchmarks";
-//	 public static String source = "src/test/transformer/integration";
-	 public static String source = "testsFromReport";
+	 public static String source = "src/test/transformer/integration/field";
+//	 public static String source = "testsFromReport/Activecheck.java";
 	 public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {
@@ -128,7 +128,11 @@ public class Main {
 		FileUtils.forceMkdir(destDir);
 
 		try {
-			FileUtils.copyDirectory(srcDir, destDir);
+		    if (srcDir.isDirectory()) {
+		          FileUtils.copyDirectory(srcDir, destDir);
+		    } else {
+		          FileUtils.copyFileToDirectory(srcDir, destDir);
+		    }
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

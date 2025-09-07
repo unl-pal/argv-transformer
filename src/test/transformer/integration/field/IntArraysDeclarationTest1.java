@@ -1,4 +1,4 @@
-package transformer.integration.arrays;
+package transformer.integration.field;
 
 import util.ArgVRandom;
 

@@ -1,6 +1,21 @@
 package util;
 
 public class ArgVRandom {
+    
+    private int number;
+	
+	public ArgVRandom(int number) {
+		this.number = number;
+	}
+	
+	public int getNumber() {
+		return number;
+	}
+	
+	public void setNumber(int number) {
+		this.number = number;
+	}
+    
 	public static double randomDouble() {
 		return Math.random();
 	}

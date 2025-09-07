@@ -26,15 +26,18 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -63,6 +66,7 @@ import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchStatement;
@@ -210,6 +214,17 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
+	@Override
+	public boolean visit(CatchClause node) {
+	    SingleVariableDeclaration exception = node.getException();
+	    SingleVariableDeclaration basicException = ast.newSingleVariableDeclaration();
+	    basicException.setName(ast.newSimpleName("e"));
+	    basicException.setType(ast.newSimpleType(ast.newSimpleName("Exception")));
+	    rewriter.replace(exception, basicException, null);
+	    return true;
+	    
+	}
+	
 	/**
 	 * On a method containing a disallowed ClassInstanceCreation (such as new DisallowedType()), removing it if it's in
 	 * an initializer or right hand side, and replacing it with a blank object if in a return statement.
@@ -249,6 +264,7 @@ public class TransformVisitor extends ASTVisitor {
 		ast = node.getAST();
 		symbolTableStack = new Stack<SymbolTable>();
 		symbolTableStack.push(root);
+		initializedVars = new ArrayList<VarSTE>();
 
 		return true;
 	}
@@ -436,7 +452,12 @@ public class TransformVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(FieldDeclaration node) {
-			rewriter.remove(node, null);
+	    if (!typeChecker.allowedType(node.getType())) {
+	           rewriter.remove(node, null);
+	    } else {
+	        SymbolTable currScope = symbolTableStack.peek();
+	        initializedVars.add(currScope.getFieldVarSTE(((VariableDeclarationFragment)(node.fragments().get(0))).getName().getIdentifier()));
+	    }
 		return false;
 	}
 	
@@ -582,7 +603,7 @@ public class TransformVisitor extends ASTVisitor {
 			}
 		}
 		
-		initializedVars = new ArrayList<VarSTE>();
+		
 				
 		String name = getMethodSTEName(node);
 		currMethod = name;
@@ -677,7 +698,7 @@ public class TransformVisitor extends ASTVisitor {
                 }
             } 
         } else {
-			rewriter.remove(node, null);
+			safeRemoveOrReplace(node, rewriter, ast);
 			typeTable.setNodeType(node.getParent(), null);
 		}
 	}
@@ -814,6 +835,7 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(SimpleName node) {
 		
+	    // skipping unapplicable nodes
 		if(node.getLocationInParent() == TypeDeclaration.NAME_PROPERTY ||
 				node.getLocationInParent() == MethodDeclaration.NAME_PROPERTY ||
 				node.getLocationInParent() == SingleVariableDeclaration.NAME_PROPERTY ||
@@ -839,9 +861,9 @@ public class TransformVisitor extends ASTVisitor {
 		}
 
 		Type type = typeTable.getNodeType(node);
-		ASTNode parent = node.getParent();
-		while (!(parent instanceof MethodDeclaration)) {
-			parent = parent.getParent();
+		ASTNode ancestor = node.getParent();
+		while (!(ancestor instanceof MethodDeclaration)) {
+		    ancestor = ancestor.getParent();
 		}
 
 		
@@ -866,7 +888,7 @@ public class TransformVisitor extends ASTVisitor {
 					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
 					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
 					
-					Block block = ((MethodDeclaration) parent).getBody();
+					Block block = ((MethodDeclaration) ancestor).getBody();
 					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
 					listRewrite.insertFirst(varDeclaration, null);
 					
@@ -890,7 +912,7 @@ public class TransformVisitor extends ASTVisitor {
 					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
 					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
 					
-					Block block = ((MethodDeclaration) parent).getBody();
+					Block block = ((MethodDeclaration) ancestor).getBody();
 					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
 					listRewrite.insertFirst(varDeclaration, null);
 					
@@ -915,7 +937,7 @@ public class TransformVisitor extends ASTVisitor {
 					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
 					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.DOUBLE));
 					
-					Block block = ((MethodDeclaration) parent).getBody();
+					Block block = ((MethodDeclaration) ancestor).getBody();
 					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
 					listRewrite.insertFirst(varDeclaration, null);
 					
@@ -939,7 +961,7 @@ public class TransformVisitor extends ASTVisitor {
 					VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
 					varDeclaration.setType(ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 					
-					Block block = ((MethodDeclaration) parent).getBody();
+					Block block = ((MethodDeclaration) ancestor).getBody();
 					ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
 					listRewrite.insertFirst(varDeclaration, null);
 					
@@ -1771,6 +1793,55 @@ public class TransformVisitor extends ASTVisitor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void safeRemoveOrReplace(MethodInvocation node, ASTRewrite rewriter, AST ast) {
+	    StructuralPropertyDescriptor location = node.getLocationInParent();
+	    ASTNode parent = node.getParent();
+
+	    // Case 1: if/while/do/for condition
+	    if (location == IfStatement.EXPRESSION_PROPERTY
+	            || location == WhileStatement.EXPRESSION_PROPERTY
+	            || location == DoStatement.EXPRESSION_PROPERTY
+	            || location == ForStatement.EXPRESSION_PROPERTY) {
+	        rewriter.replace(node, replaceWithNodeBoolean(), null);
+	        return;
+	    }
+
+	    // Case 2: variable initializer
+	    if (location == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
+	        rewriter.replace(node, createSymbolicArgument(typeTable.getNodeType((VariableDeclarationFragment) parent)), null);
+	        return;
+	    }
+
+	    // Case 3: assignment RHS
+	    if (location == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
+	        Type lhsType = typeTable.getNodeType(((Assignment)parent).getLeftHandSide());
+	        rewriter.replace(node, createSymbolicArgument(lhsType), null);
+	        return;
+	    }
+
+	    // Case 4: return statement
+	    if (location == ReturnStatement.EXPRESSION_PROPERTY) {
+	        SymbolTable currScope = symbolTableStack.peek();
+	        rewriter.replace(node, createSymbolicArgument(currScope.getMethodSTE(currMethod).getReturnType()), null);
+	        return;
+	    }
+
+	    // Case 5: argument in a method/constructor call
+	    if (location.isChildListProperty()) {
+	        rewriter.remove(node, null);
+	        return;
+	    }
+
+	    // Case 6: standalone statement
+	    if (parent instanceof ExpressionStatement) {
+	        rewriter.remove(parent, null);
+	        return;
+	    }
+
+	    // Default: fallback, delete node
+	    rewriter.remove(node, null);
 	}
 	
 	/**

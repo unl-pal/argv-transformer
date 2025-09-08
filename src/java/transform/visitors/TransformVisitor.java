@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.JavaModelException;
@@ -73,9 +75,11 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -111,6 +115,7 @@ public class TransformVisitor extends ASTVisitor {
 	private ArrayList<VarSTE> initializedVars;
 	private List<String> preImportComments = new ArrayList<String>();
 	private List<String> postImportComments = new ArrayList<String>();
+	private final Set<ASTNode> disallowed = new HashSet<>();
 	public static int varNum = 0;
 	private String target;
 	private boolean randUsedInMethod;
@@ -231,10 +236,17 @@ public class TransformVisitor extends ASTVisitor {
 	 */
 	@Override
 	public void endVisit(ClassInstanceCreation node) {
-
+	    
 		Type type = typeTable.getNodeType(node);
 
-		if (!typeChecker.allowedType(type)) {
+		boolean argsAllowed = true;
+
+		for (ASTNode arg : (List<ASTNode>) node.arguments()) {
+			if (!typeChecker.allowedType(typeTable.getNodeType(arg)) || disallowed.contains(arg)) {
+				argsAllowed = false;
+			}
+		}
+		if (!typeChecker.allowedType(type) || !argsAllowed) {
 			if (node.getLocationInParent() == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
 				Assignment parent = (Assignment) node.getParent();
 
@@ -245,13 +257,17 @@ public class TransformVisitor extends ASTVisitor {
 				VariableDeclarationFragment parent = (VariableDeclarationFragment) node.getParent();
 
 				typeTable.setNodeType(parent.getName(), null);
-				rewriter.remove(node.getParent().getParent(), null);
+				// remove VariableDeclarationExpression
+				disallowed.add(parent.getParent());
+				rewriter.remove(parent.getParent(), null);
 
 			} else if (node.getLocationInParent() == ReturnStatement.EXPRESSION_PROPERTY) {
 				ReturnStatement parent = (ReturnStatement) node.getParent();
-				ClassInstanceCreation ci = ast.newClassInstanceCreation();
-				ci.setType(ast.newSimpleType(ast.newSimpleName("Object")));
-				rewriter.replace(parent.getExpression(), ci, null);
+				disallowed.add(parent);
+				rewriter.remove(parent.getParent().getParent(), null); //TODO: propagate method invalidation
+			} else {
+			    disallowed.add(node);
+				rewriter.remove(node, null);
 			}
 		}
 	}
@@ -818,15 +834,7 @@ public class TransformVisitor extends ASTVisitor {
 		Type returnType = sym.getReturnType();
 
 		if (type == null && returnType != null) {
-			if (isIntegerTypeCode(returnType)) {
-				replaceInteger(node.getExpression());
-			} else if (isBooleanTypeCode(returnType)) {
-				replaceBoolean(node.getExpression());
-			} else if (isFloatingPointTypeCode(returnType)) {
-				replaceFloat(node.getExpression());
-			} else if (isDoubleTypeCode(returnType)) {
-				replaceDouble(node.getExpression());
-			}
+		    rewriter.replace(expr, createSymbolicArgument(returnType), null);
 		}
 		return;
 	}
@@ -1140,6 +1148,15 @@ public class TransformVisitor extends ASTVisitor {
 			rewriter.replace(node, ast.newBlock(), null);
 		}
 		return false;
+	}
+	
+	@Override
+	public void endVisit(TryStatement node) {
+	    for (VariableDeclarationExpression resource : (List<VariableDeclarationExpression>) node.resources()) {
+		    if (disallowed.contains(resource)) {
+			    rewriter.remove(node, null);
+		    }
+	    }
 	}
 
 	/**
@@ -1483,6 +1500,18 @@ public class TransformVisitor extends ASTVisitor {
 		castExpression.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
 		return castExpression;
 	}
+	
+	/**==============================================String==========================================================================*/
+
+	private MethodInvocation replaceWithNodeString() {
+        MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+        randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+        randMethodInvocation.setName(ast.newSimpleName("nondetString"));
+        
+        randUsedInMethod = false;
+        return randMethodInvocation;
+        
+    }
 
 	private boolean isStringType(Type type) {
 		if(type == null) return false;
@@ -1736,7 +1765,9 @@ public class TransformVisitor extends ASTVisitor {
 	        } else if (code == PrimitiveType.FLOAT) {
 	            return replaceWithNodeFloat();
 	        }
-	    } else if (type.isArrayType()) {
+	    } else if (type.equals(ast.newSimpleType(ast.newSimpleName("String")))) {
+            return replaceWithNodeString();
+        } else if (type.isArrayType()) {
 	        ArrayType arrType = (ArrayType) type;
 	        // Create an array creation expression with an initializer.
 	        ArrayCreation arrayCreation = ast.newArrayCreation();
@@ -1750,7 +1781,7 @@ public class TransformVisitor extends ASTVisitor {
 	        initializer.expressions().add(elementArg);
 	        arrayCreation.setInitializer(initializer);
 	        return arrayCreation;
-	    }
+	    } 
 	    // For non-primitive, non-array types, return a null literal.
 	    return ast.newNullLiteral();
 	}

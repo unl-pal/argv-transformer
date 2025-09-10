@@ -42,6 +42,14 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         // Otherwise, leave as-is
         return super.visit(node);
     }
+    
+    @Override
+    public boolean visit(MethodDeclaration node) {
+        if (node.getBody().statements().isEmpty()) {
+	        rewriter.remove(node, null);
+        }
+        return super.visit(node);
+    }
 
     @Override
     public boolean visit(Block node) {

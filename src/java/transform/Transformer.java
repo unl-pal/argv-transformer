@@ -146,26 +146,20 @@ public class Transformer {
 
 			try {
 				String source = new String(Files.readAllBytes(file.toPath()));
-				ASTParser parser = ASTParser.newParser(AST.JLS8);
-				parser.setSource(source.toCharArray());
-				parser.setKind(ASTParser.K_COMPILATION_UNIT);
-				parser.setResolveBindings(true);
-				parser.setBindingsRecovery(true);
-				parser.setStatementsRecovery(true);
-				Map<String, String> options = JavaCore.getOptions();
-				options.put(JavaCore.COMPILER_SOURCE, "1.8");
-				parser.setCompilerOptions(options);
-				parser.setUnitName(file.getPath());
-				
-				String[] classPath = {Paths.get("build", "classes", "java", "main").toString()};
-				FilenameUtils.removeExtension(Main.source);
 				String inputSource = Main.source;
-				if (inputSource.endsWith(".java")) {
-					Path path = Paths.get(inputSource);
-					inputSource = path.getParent().toString();
-				}
-				String[] sourcePath = { Paths.get(inputSource).toString() , Paths.get("src").toString()};
-				parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
+                if (inputSource.endsWith(".java")) {
+                    Path path = Paths.get(inputSource);
+                    inputSource = path.getParent().toString();
+                }
+                FilenameUtils.removeExtension(Main.source);
+
+                String[] classPath = {Paths.get("build", "classes", "java", "main").toString()};
+                String[] sourcePath = { Paths.get(inputSource).toString() , Paths.get("src").toString()};
+                
+                
+				ASTParser parser = getParser(source, sourcePath, classPath, file);
+				
+				
 
 				CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 				AST ast = cu.getAST();
@@ -223,18 +217,11 @@ public class Transformer {
 				commentPruningVisitor.getCommentsToDelete().apply(document);
 				
 				
+				
 				// cleaning up empty blocks and putting comments back in
 				String editedSource = document.get();
-				ASTParser cleanupParser = ASTParser.newParser(AST.JLS8);
-				cleanupParser.setSource(editedSource.toCharArray());
-				cleanupParser.setKind(ASTParser.K_COMPILATION_UNIT);
-				cleanupParser.setResolveBindings(true);
-				cleanupParser.setBindingsRecovery(true);
-				cleanupParser.setStatementsRecovery(true);
-				cleanupParser.setCompilerOptions(options);
-				cleanupParser.setUnitName(file.getPath());
-				cleanupParser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
-
+				ASTParser cleanupParser = getParser(editedSource, sourcePath, classPath, file);
+				
 				CompilationUnit cleanupCu = (CompilationUnit) cleanupParser.createAST(null);
 				cleanupCu.recordModifications();
 				
@@ -242,10 +229,7 @@ public class Transformer {
 				
 				RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(rewriterComm);
 				cleanupCu.accept(removeEmptyBlockVisitor);
-				
-				CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterComm, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
-				cleanupCu.accept(commentAddingVisitor);
-				
+								
 				edits = rewriterComm.rewriteAST(document, null);
 				edits.apply(document);
 				
@@ -258,15 +242,8 @@ public class Transformer {
 				//If all method in a class becomes not good, then we don't output 
 				//that class at all
 				
-				ASTParser finalizerParser = ASTParser.newParser(AST.JLS8);
-				finalizerParser.setSource(editedSource.toCharArray());
-				finalizerParser.setKind(ASTParser.K_COMPILATION_UNIT);
-				finalizerParser.setResolveBindings(true);
-				finalizerParser.setBindingsRecovery(true);
-				finalizerParser.setStatementsRecovery(true);
-				finalizerParser.setCompilerOptions(options);
-				finalizerParser.setUnitName(file.getPath());
-				finalizerParser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
+				String finalSource = document.get();
+				ASTParser finalizerParser = getParser(finalSource, sourcePath, classPath, file);
 
 				CompilationUnit finalCu = (CompilationUnit) finalizerParser.createAST(null);
 				finalCu.recordModifications();
@@ -283,6 +260,11 @@ public class Transformer {
 				finalCu.accept(typeTableVisitor);
 				typeTable = typeTableVisitor.getTypeTable();
 				
+				ASTRewrite rewriterFinal = ASTRewrite.create(finalCu.getAST());
+				
+                CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterFinal, transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
+                finalCu.accept(commentAddingVisitor);
+				
 				//cannot use old typeTable, things has changed
 				AnalyzedFile af = new AnalyzedFile(file);
 				FinalizerVisitor fv = new FinalizerVisitor(af, typeTable, minTypeExpr, minTypeCond, minTypeParams, type);
@@ -292,7 +274,7 @@ public class Transformer {
 				System.out.println("Suitable methods " + af.getSuitableMethods().size() + " in " + file);
 				if(af.getSuitableMethods().size() > 0) {
 					
-					for(Object typeDecl : cleanupCu.types()) {
+					for(Object typeDecl : finalCu.types()) {
 					MethodDeclaration[] methodDeclArr = ((TypeDeclaration)typeDecl).getMethods();
 					//if(methodDeclArr.length > af.getSuitableMethods().size()) {
 						//there are methods that are in the class, but do not meet the filtering criteria
@@ -308,18 +290,22 @@ public class Transformer {
 							//check if such method has not been found, then insert comments
 							if(found) {
 								System.out.println("Found suitable MDecl");
-								ListRewrite listRewrite = rewriterComm.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
+								ListRewrite listRewrite = rewriterFinal.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
 								Statement comment;
 								if (md.getName().getIdentifier().equals("main")) {
-									comment = (Statement) rewriterComm.createStringPlaceholder("/** This main was generated by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
+									comment = (Statement) rewriterFinal.createStringPlaceholder("/** This main was generated by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
 								} else {
-									comment = (Statement) rewriterComm.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
+									comment = (Statement) rewriterFinal.createStringPlaceholder("/** ARG-V: suitable */\n", ASTNode.EMPTY_STATEMENT);
 								}
 								listRewrite.insertFirst(comment, null);
 							}
 						}
 					//}
 					}//end for all types
+
+					//Rewrite the file
+					edits = rewriterFinal.rewriteAST(document, null);
+					edits.apply(document);
 //					
 
 					BufferedWriter out = new BufferedWriter(new FileWriter(file));
@@ -333,6 +319,22 @@ public class Transformer {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static ASTParser getParser(String source, String[] sourcePath, String[] classPath, File file) {
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+        parser.setSource(source.toCharArray());
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+        parser.setResolveBindings(true);
+        parser.setBindingsRecovery(true);
+        parser.setStatementsRecovery(true);
+        Map<String, String> options = JavaCore.getOptions();
+        options.put(JavaCore.COMPILER_SOURCE, "1.8");
+        parser.setCompilerOptions(options);
+        parser.setUnitName(file.getPath());
+        parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
+
+		return parser;
 	}
 	
 	/**

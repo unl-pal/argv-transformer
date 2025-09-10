@@ -47,6 +47,7 @@ import transform.visitors.TransformVisitor;
 import transform.visitors.TypeTableVisitor;
 import transform.visitors.CommentAddingVisitor;
 import transform.visitors.CommentPruningVisitor;
+import transform.visitors.DisallowedMethodAndFieldVisitor;
 import transform.visitors.FinalizerVisitor;
 import transform.visitors.RemoveEmptyBlockVisitor;
 import transform.visitors.SymbolTableVisitor;
@@ -112,7 +113,6 @@ public class Transformer {
 				//update	
 				
 				ListRewrite listRewrite = rewriter.getListRewrite(typeDec, TypeDeclaration.MODIFIERS2_PROPERTY);
-				//rewriterComm.get
 				Statement comment = (Statement) rewriter.createStringPlaceholder("/** filtered by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
 				listRewrite.insertFirst(comment, null);
 				
@@ -219,19 +219,25 @@ public class Transformer {
 				
 				
 				// cleaning up empty blocks and putting comments back in
-				String editedSource = document.get();
-				ASTParser cleanupParser = getParser(editedSource, sourcePath, classPath, file);
+				do {
+				    String editedSource = document.get();
+	                ASTParser cleanupParser = getParser(editedSource, sourcePath, classPath, file);
+	                
+	                CompilationUnit cleanupCu = (CompilationUnit) cleanupParser.createAST(null);
+	                cleanupCu.recordModifications();
+	                
+	                ASTRewrite cleanupRewriter = ASTRewrite.create(cleanupCu.getAST());
+	                
+	                RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(cleanupRewriter);
+	                cleanupCu.accept(removeEmptyBlockVisitor);
+	                
+	                DisallowedMethodAndFieldVisitor disallowedMethodVisitor = new DisallowedMethodAndFieldVisitor(cleanupRewriter, transformVisitor.getDisallowed(), typeChecker);
+	                cleanupCu.accept(disallowedMethodVisitor);
+	                                
+	                edits = cleanupRewriter.rewriteAST(document, null);
+	                edits.apply(document);
+				} while (edits.getLength() > 0);
 				
-				CompilationUnit cleanupCu = (CompilationUnit) cleanupParser.createAST(null);
-				cleanupCu.recordModifications();
-				
-				ASTRewrite rewriterComm = ASTRewrite.create(cleanupCu.getAST());
-				
-				RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(rewriterComm);
-				cleanupCu.accept(removeEmptyBlockVisitor);
-								
-				edits = rewriterComm.rewriteAST(document, null);
-				edits.apply(document);
 				
 				// check if the new AST meets selection criteria requirements
 				//If some method in the class now do not meet the requirement, 

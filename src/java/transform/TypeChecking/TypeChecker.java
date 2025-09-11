@@ -150,6 +150,58 @@ public class TypeChecker {
 		String qualifiedName = typeBinding != null ? typeBinding.getQualifiedName() : "unknown";
 		return (type.isPrimitiveType() || qualifiedName.startsWith("java.") || qualifiedName.startsWith("javax."));
 	}
+	
+	/**
+	 * Check whether the type binding is allowed using type bindings
+	 *
+	 * @param binding ITypeBinding to check
+	 * @return true if the type is allowed, false otherwise
+	 */
+	public boolean allowedType(ITypeBinding binding) {
+	    if (binding == null) {
+	        return false;
+	    }
+
+	    // Handle arrays recursively
+	    if (binding.isArray()) {
+	        return allowedType(binding.getElementType());
+	    }
+
+	    // Handle parameterized types: check both the raw type and argument types
+	    if (binding.isParameterizedType()) {
+	        boolean allowedArgTypes = true;
+	        for (ITypeBinding arg : binding.getTypeArguments()) {
+	            if (!allowedType(arg)) {
+	                allowedArgTypes = false;
+	            }
+	        }
+	        return allowedType(binding.getErasure()) && allowedArgTypes;
+	    }
+
+	    // Handle wildcards (e.g., ? extends Number)
+	    if (binding.isWildcardType()) {
+	        ITypeBinding bound = binding.getBound();
+	        if (bound != null) {
+	            return allowedType(bound);
+	        }
+	        return true; // unbounded wildcard is fine
+	    }
+
+	    // Handle type variables (generics like T)
+	    if (binding.isTypeVariable()) {
+	        ITypeBinding bound = binding.getBound();
+	        if (bound != null) {
+	            return allowedType(bound);
+	        }
+	        return true; // unbounded T is fine
+	    }
+
+	    // Handle primitives or JDK types
+	    String qualifiedName = binding.getQualifiedName();
+	    return (binding.isPrimitive()
+	            || qualifiedName.startsWith("java.")
+	            || qualifiedName.startsWith("javax."));
+	}
 //-------------------------------------------------------------------------------------	
 	//eas taken from TransformVisitor and made it static
 	

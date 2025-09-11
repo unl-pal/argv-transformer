@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -232,7 +233,7 @@ public class TransformVisitor extends ASTVisitor {
 	public void endVisit(ClassInstanceCreation node) {
 	    
 		Type type = typeTable.getNodeType(node);
-
+		
 		boolean argsAllowed = true;
 
 		for (ASTNode arg : (List<ASTNode>) node.arguments()) {
@@ -258,7 +259,7 @@ public class TransformVisitor extends ASTVisitor {
 			} else if (node.getLocationInParent() == ReturnStatement.EXPRESSION_PROPERTY) {
 				ReturnStatement parent = (ReturnStatement) node.getParent();
 				disallowed.add(parent);
-				rewriter.remove(parent.getParent().getParent(), null); //TODO: propagate method invalidation
+				rewriter.replace(node, ast.newNullLiteral(), null); //TODO: propagate method invalidation
 			} else {
 			    disallowed.add(node);
 				rewriter.remove(node, null);
@@ -700,7 +701,7 @@ public class TransformVisitor extends ASTVisitor {
                 }
             } 
         } else {
-			safeRemoveOrReplace(node, rewriter, ast, randUsedInMethod);
+			TypeResolutionUtils.safeRemoveOrReplace(node, rewriter, ast, randUsedInMethod);
 			typeTable.setNodeType(node.getParent(), null);
 		}
 	}
@@ -1266,9 +1267,6 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 
-/**================================================BOOLEAN==========================================================================*/	
-
-
 	
 	private String getMethodSTEName(MethodDeclaration node) {
 		String name = node.getName().getIdentifier();
@@ -1444,57 +1442,6 @@ public class TransformVisitor extends ASTVisitor {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void safeRemoveOrReplace(MethodInvocation node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
-	    StructuralPropertyDescriptor location = node.getLocationInParent();
-	    ASTNode parent = node.getParent();
-
-	    // Case 1: if/while/do/for condition
-	    if (location == IfStatement.EXPRESSION_PROPERTY
-	            || location == WhileStatement.EXPRESSION_PROPERTY
-	            || location == DoStatement.EXPRESSION_PROPERTY
-	            || location == ForStatement.EXPRESSION_PROPERTY) {
-	        rewriter.replace(node, TypeResolutionUtils.replaceWithNodeBoolean(ast, randUsedInMethod), null);
-	        return;
-	    }
-
-	    // Case 2: variable initializer
-	    if (location == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
-	        Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(typeTable.getNodeType((VariableDeclarationFragment) parent), ast, randUsedInMethod);
-	        rewriter.replace(node, symbolicArg, null);
-	        return;
-	    }
-
-	    // Case 3: assignment RHS
-	    if (location == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
-	        Type lhsType = typeTable.getNodeType(((Assignment)parent).getLeftHandSide());
-	        rewriter.replace(node, TypeResolutionUtils.createSymbolicArgument(lhsType, ast, randUsedInMethod), null);
-	        return;
-	    }
-
-	    // Case 4: return statement
-	    if (location == ReturnStatement.EXPRESSION_PROPERTY) {
-	        SymbolTable currScope = symbolTableStack.peek();
-	        Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(currScope.getMethodSTE(currMethod).getReturnType(), ast, randUsedInMethod);
-	        rewriter.replace(node, symbolicArg, null);
-	        return;
-	    }
-
-	    // Case 5: argument in a method/constructor call
-	    if (location.isChildListProperty()) {
-	        rewriter.remove(node, null);
-	        return;
-	    }
-
-	    // Case 6: standalone statement
-	    if (parent instanceof ExpressionStatement) {
-	        rewriter.remove(parent, null);
-	        return;
-	    }
-
-	    // Default: fallback, delete node
-	    rewriter.remove(node, null);
 	}
 	
 	/**

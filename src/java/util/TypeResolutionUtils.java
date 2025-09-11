@@ -5,15 +5,28 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
@@ -61,6 +74,120 @@ public class TypeResolutionUtils {
         } 
         // For non-primitive, non-array types, return a null literal.
         return ast.newNullLiteral();
+    }
+    
+    /**
+     * Helper method that creates a symbolic argument for a given parameter binding.
+     * For primitives, it uses the corresponding symbolic replacement method.
+     * For array types, it creates an array literal with one symbolic element.
+     * For other types, it returns a null literal.
+     */
+    public static Expression createSymbolicArgument(ITypeBinding binding, AST ast, Boolean randUsedInMethod) {
+        if (binding == null) {
+			return ast.newNullLiteral();
+		}
+        if (binding.isPrimitive()) {
+            String name = binding.getName();
+            switch (name) {
+                case "boolean":
+                    return replaceWithNodeBoolean(ast, randUsedInMethod);
+                case "char":
+                case "int":
+                case "long":
+                case "short":
+                case "byte":
+                    return replaceWithNodeInteger(ast, randUsedInMethod);
+                case "double":
+                    return replaceWithNodeDouble(ast, randUsedInMethod);
+                case "float":
+                    return replaceWithNodeFloat(ast, randUsedInMethod);
+            }
+        } else if ("java.lang.String".equals(binding.getQualifiedName())) {
+            return replaceWithNodeString(ast, randUsedInMethod);
+        } else if (binding.isArray()) {
+            ITypeBinding elementBinding = binding.getElementType();
+
+         // Construct ArrayType from element binding
+            Type elementType;
+            if (elementBinding.isPrimitive()) {
+                elementType = ast.newPrimitiveType(PrimitiveType.toCode(elementBinding.getName()));
+            } else {
+                elementType = ast.newSimpleType(ast.newName(elementBinding.getQualifiedName()));
+            }
+            ArrayType arrayType = ast.newArrayType(elementType, binding.getDimensions());
+
+            // Create array creation
+            ArrayCreation arrayCreation = ast.newArrayCreation();
+            arrayCreation.setType(arrayType);
+
+            // Create initializer with one symbolic element
+            ArrayInitializer initializer = ast.newArrayInitializer();
+            Expression elementArg = createSymbolicArgument(elementBinding, ast, randUsedInMethod);
+            initializer.expressions().add(elementArg);
+            arrayCreation.setInitializer(initializer);
+            return arrayCreation;
+        }
+        // For non-primitive, non-array types, return a null literal.
+        return ast.newNullLiteral();
+    }
+    
+    public static void safeRemoveOrReplace(MethodInvocation node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
+        StructuralPropertyDescriptor location = node.getLocationInParent();
+        ASTNode parent = node.getParent();
+
+        // Case 1: if/while/do/for condition
+        if (location == IfStatement.EXPRESSION_PROPERTY
+                || location == WhileStatement.EXPRESSION_PROPERTY
+                || location == DoStatement.EXPRESSION_PROPERTY
+                || location == ForStatement.EXPRESSION_PROPERTY) {
+            rewriter.replace(node, TypeResolutionUtils.replaceWithNodeBoolean(ast, randUsedInMethod), null);
+            return;
+        }
+
+        // Case 2: variable initializer
+        if (location == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
+            IVariableBinding binding = ((VariableDeclarationFragment) parent).resolveBinding();
+            if (binding != null) {
+                ITypeBinding typeBinding = binding.getType();
+                Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(typeBinding, ast, randUsedInMethod);
+                rewriter.replace(node, symbolicArg, null);
+                return;
+            }
+        }
+
+        // Case 3: assignment RHS
+        if (location == Assignment.RIGHT_HAND_SIDE_PROPERTY) {
+            Expression lhs = ((Assignment) parent).getLeftHandSide();
+            ITypeBinding lhsTypeBinding = lhs.resolveTypeBinding();
+            if (lhsTypeBinding != null) {
+                Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(lhsTypeBinding, ast, randUsedInMethod);
+                rewriter.replace(node, symbolicArg, null);
+                return;
+            }
+        }
+
+        // Case 4: return statement
+        if (location == ReturnStatement.EXPRESSION_PROPERTY) {
+            ITypeBinding returnType = node.resolveTypeBinding();
+            Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(returnType, ast, randUsedInMethod);
+            rewriter.replace(node, symbolicArg, null);
+            return;
+        }
+
+        // Case 5: argument in a method/constructor call
+        if (location.isChildListProperty()) {
+            rewriter.remove(node, null);
+            return;
+        }
+
+        // Case 6: standalone statement
+        if (parent instanceof ExpressionStatement) {
+            rewriter.remove(parent, null);
+            return;
+        }
+
+        // Default: fallback, delete node
+        rewriter.remove(node, null);
     }
     
     

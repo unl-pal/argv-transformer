@@ -947,7 +947,7 @@ public class TransformVisitorTest {
 	    String expectedSource =
 	        "public class TestClass {\n" +
 	        "    public DisallowedType method() {\n" +
-	        "        return new Object();\n"+
+	        "        return null;\n"+
 	        "    }\n" +
 	        "}";
 
@@ -978,7 +978,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    PrimitiveType mockType = mock(PrimitiveType.class);
 	    when(mockTypeTable.getNodeType(Mockito.any(VariableDeclarationFragment.class))).thenReturn(mockType);
-	    when(typeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
 
 
@@ -1032,7 +1032,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    PrimitiveType mockType = mock(PrimitiveType.class);
 	    when(mockTypeTable.getNodeType(Mockito.any(VariableDeclarationFragment.class))).thenReturn(mockType);
-	    when(typeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.DOUBLE);
 
 
@@ -1205,7 +1205,7 @@ public class TransformVisitorTest {
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockSymbolTable.getVarSTE(Mockito.any())).thenReturn(null);
 	    when(mockSymbolTable.getMethodSTE(Mockito.any())).thenReturn(mockMethodSTE);
-	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(true);
+	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(true);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
 
 	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
@@ -1262,7 +1262,7 @@ public class TransformVisitorTest {
 	    TypeChecker mockTypeChecker = mock(TypeChecker.class);
 	    Type mockType = mock(Type.class);
 	    Mockito.when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
-	    Mockito.when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(true);
+	    Mockito.when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(true);
 
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
 	    Assignment assignment =
@@ -1444,7 +1444,7 @@ public class TransformVisitorTest {
 	    // Mock the current method and return type
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
-	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 
 	    // Apply the visitor
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
@@ -1545,7 +1545,7 @@ public class TransformVisitorTest {
 	    // Mock the current method and return type
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
-	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 
 	    // Apply the visitor
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
@@ -1608,7 +1608,7 @@ public class TransformVisitorTest {
 	    when(mockVarSTE.isFieldVar()).thenReturn(true);
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
-	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(true);
+	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(true);
 
 
 	    // Apply the visitor
@@ -1668,7 +1668,7 @@ public class TransformVisitorTest {
 
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
-	    when(mockTypeChecker.allowedType(Mockito.any())).thenReturn(false);
+	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 
 	    // Apply the visitor
 	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);

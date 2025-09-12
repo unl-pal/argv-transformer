@@ -49,7 +49,7 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodInvocation node) {
 	    IMethodBinding binding = node.resolveMethodBinding();
-        if (binding != null && disallowedBindings.contains(binding.getMethodDeclaration())) {
+        if (binding == null || disallowedBindings.contains(binding.getMethodDeclaration())) {
             TypeResolutionUtils.safeRemoveOrReplace(node, rewriter, node.getAST(), false);
             return false;
         }

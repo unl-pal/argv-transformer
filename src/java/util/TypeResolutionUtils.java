@@ -44,12 +44,19 @@ public class TypeResolutionUtils {
         if (type.isPrimitiveType()) {
             PrimitiveType pt = (PrimitiveType) type;
             PrimitiveType.Code code = pt.getPrimitiveTypeCode();
+            // can't do switch statement on PrimitiveType.Code
             if (code == PrimitiveType.BOOLEAN) {
                 return replaceWithNodeBoolean(ast, randUsedInMethod);
-            } else if (code == PrimitiveType.CHAR || code == PrimitiveType.INT ||
-                       code == PrimitiveType.LONG || code == PrimitiveType.SHORT ||
-                       code == PrimitiveType.BYTE) {
+            } else if (code == PrimitiveType.INT) {
                 return replaceWithNodeInteger(ast, randUsedInMethod);
+			} else if (code == PrimitiveType.BYTE) {
+				return replaceWithNodeByte(ast, randUsedInMethod);
+			} else if (code == PrimitiveType.SHORT) {
+				return replaceWithNodeShort(ast, randUsedInMethod);
+			} else if (code == PrimitiveType.LONG) {
+				return replaceWithNodeLong(ast, randUsedInMethod);
+			} else if (code == PrimitiveType.CHAR) {
+				return replaceWithNodeChar(ast, randUsedInMethod);
             } else if (code == PrimitiveType.DOUBLE) {
                 return replaceWithNodeDouble(ast, randUsedInMethod);
             } else if (code == PrimitiveType.FLOAT) {
@@ -92,11 +99,15 @@ public class TypeResolutionUtils {
                 case "boolean":
                     return replaceWithNodeBoolean(ast, randUsedInMethod);
                 case "char":
+					return replaceWithNodeChar(ast, randUsedInMethod);
                 case "int":
-                case "long":
-                case "short":
-                case "byte":
                     return replaceWithNodeInteger(ast, randUsedInMethod);
+                case "long":
+					return replaceWithNodeLong(ast, randUsedInMethod);
+                case "short":
+					return replaceWithNodeShort(ast, randUsedInMethod);
+                case "byte":
+					return replaceWithNodeByte(ast, randUsedInMethod);
                 case "double":
                     return replaceWithNodeDouble(ast, randUsedInMethod);
                 case "float":
@@ -381,6 +392,53 @@ public class TypeResolutionUtils {
         return castExpression;
     }
     
+    /**==============================================BYTE==========================================================================*/
+
+	public static MethodInvocation replaceWithNodeByte(AST ast, Boolean randUsedInMethod) {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetByte"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+		
+	}
+	
+    /**==============================================SHORT==========================================================================*/
+
+	public static MethodInvocation replaceWithNodeShort(AST ast, Boolean randUsedInMethod) {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetShort"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+		
+	}
+	
+    /**==============================================CHAR==========================================================================*/
+
+	public static MethodInvocation replaceWithNodeChar(AST ast, Boolean randUsedInMethod) {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetChar"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+		
+	}
+	
+	/**==============================================LONG==========================================================================*/
+	
+	public static MethodInvocation replaceWithNodeLong(AST ast, Boolean randUsedInMethod) {
+		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
+		randMethodInvocation.setName(ast.newSimpleName("nondetLong"));
+		
+		randUsedInMethod = false;
+		return randMethodInvocation;
+	}
+    
     /**==============================================String==========================================================================*/
 
     public static MethodInvocation replaceWithNodeString(AST ast, Boolean randUsedInMethod) {
@@ -408,6 +466,12 @@ public class TypeResolutionUtils {
                 isDoubleTypeCode(type) ||
                 isIntegerTypeCode(type);
     }
+    
+    public static boolean isNumericTypeCode(ITypeBinding type) {
+		return isFloatingPointTypeCode(type) || 
+				isDoubleTypeCode(type) ||
+				isIntegerTypeCode(type);
+	}
 
     public static boolean isFloatingPointTypeCode(Type type) {
         if(type == null) return false;
@@ -417,12 +481,28 @@ public class TypeResolutionUtils {
         return typeCode == PrimitiveType.FLOAT;
     }
     
+	public static boolean isFloatingPointTypeCode(ITypeBinding type) {
+	    if (type != null && type.isPrimitive()) {
+		    String typeName = type.getName();
+		    return typeName.equals("float");
+	    }
+	    return false;
+	}
+    
     public static boolean isDoubleTypeCode(Type type) {
         if(type == null) return false;
         if (!type.isPrimitiveType())
             return false;
         Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
         return typeCode == PrimitiveType.DOUBLE;
+    }
+    
+    public static boolean isDoubleTypeCode(ITypeBinding type) {
+	    if (type != null && type.isPrimitive()) {
+		    String typeName = type.getName();
+		    return typeName.equals("double");
+	    }
+	    return false;
     }
 
     public static boolean isIntegerTypeCode(Type type) {
@@ -436,6 +516,15 @@ public class TypeResolutionUtils {
                 typeCode == PrimitiveType.SHORT || 
                 typeCode == PrimitiveType.BYTE);
     }
+    
+    public static boolean isIntegerTypeCode(ITypeBinding type) {
+		if (type != null && type.isPrimitive()) {
+			String typeName = type.getName();
+			return typeName.equals("char") || typeName.equals("int") || typeName.equals("long")
+					|| typeName.equals("short") || typeName.equals("byte");
+		}
+		return false;
+    }
 
     public static boolean isBooleanTypeCode(Type type) {
         if(type == null) return false;
@@ -444,6 +533,14 @@ public class TypeResolutionUtils {
         Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
         return (typeCode == PrimitiveType.BOOLEAN);
     }
+    
+	public static boolean isBooleanTypeCode(ITypeBinding type) {
+		if (type != null && type.isPrimitive()) {
+			String typeName = type.getName();
+			return typeName.equals("boolean");
+		}
+		return false;
+	}
 
     public static boolean isVoidTypeCode(Type type) {
         if (!type.isPrimitiveType())

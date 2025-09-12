@@ -469,8 +469,8 @@ public class TransformVisitor extends ASTVisitor {
 		Expression lhs = node.getLeftOperand();
 		Expression rhs = node.getRightOperand();
 
-		Type lhsType = typeTable.getNodeType(lhs);
-		Type rhsType = typeTable.getNodeType(rhs);
+		ITypeBinding lhsType = lhs.resolveTypeBinding();
+		ITypeBinding rhsType = rhs.resolveTypeBinding();
 
 		// nothing to be done
 		if ((lhsType != null && typeChecker.allowedType(lhsType))

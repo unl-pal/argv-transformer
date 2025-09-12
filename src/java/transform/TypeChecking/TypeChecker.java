@@ -142,6 +142,8 @@ public class TypeChecker {
 			return (allowedType(((ParameterizedType) type).getType()) && allowedArgTypes);
 		}
 		
+		// check if is character literal		
+		
 //		return (type.isPrimitiveType() 
 //				|| javaImportTypes.contains(type.toString())
 //				|| classTypes.contains(type.toString())

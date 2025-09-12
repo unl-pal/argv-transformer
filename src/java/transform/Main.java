@@ -60,7 +60,7 @@ public class Main {
 //	public static String source = "suitablePrgms";
 //	public static String dest = "benchmarks";
 //	 public static String source = "src/test/transformer/integration";
-	 public static String source = "testsFromReport";
+	 public static String source = "testsFromReport/Base.java";
 	 public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {

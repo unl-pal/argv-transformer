@@ -163,7 +163,7 @@ public class TypeChecker {
 	    if (binding == null) {
 	        return false;
 	    }
-
+	    
 	    // Handle arrays recursively
 	    if (binding.isArray()) {
 	        return allowedType(binding.getElementType());
@@ -200,6 +200,7 @@ public class TypeChecker {
 
 	    // Handle primitives or JDK types
 	    String qualifiedName = binding.getQualifiedName();
+	    
 	    return (binding.isPrimitive()
 	            || qualifiedName.startsWith("java.")
 	            || qualifiedName.startsWith("javax."));

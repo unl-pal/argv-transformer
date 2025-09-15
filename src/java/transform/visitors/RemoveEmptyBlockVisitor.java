@@ -36,7 +36,7 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
             rewriter.remove(elseStmt, null);
         }
         // Case 3: empty then and empty else
-        else if (thenEmpty && elseStmt != null && elseEmpty) {
+        else if (thenEmpty && (elseEmpty || elseStmt == null)) {
         	rewriter.remove(node, null);
         }
         // Otherwise, leave as-is

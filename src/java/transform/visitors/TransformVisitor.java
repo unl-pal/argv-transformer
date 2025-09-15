@@ -77,6 +77,7 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -170,10 +171,9 @@ public class TransformVisitor extends ASTVisitor {
 	public boolean visit(Assignment node) {
 		Expression lhs = node.getLeftHandSide();
 		Expression rhs = node.getRightHandSide();
-
 		Type lhsType = typeTable.getNodeType(lhs);
 	
-		if ((lhsType == null || !typeChecker.allowedType(lhsType)) || lhs instanceof FieldAccess) {
+		if ((lhsType == null || !typeChecker.allowedType(lhsType))) {
 			ASTNode parent = node.getParent(); // ExpressionStatement
 			if (parent.getParent() instanceof Block) {
 				rewriter.remove(parent, null);
@@ -185,6 +185,10 @@ public class TransformVisitor extends ASTVisitor {
 			typeTable.setNodeType(rhs, null);
 
 			return false;
+		}
+		if (rhs != null && !typeChecker.allowedType(rhs.resolveTypeBinding())) {
+		    rewriter.replace(rhs, TypeResolutionUtils.createSymbolicArgument(lhsType, ast, randUsedInMethod), null);
+		    return false;
 		}
 		return true;
 	}
@@ -260,8 +264,13 @@ public class TransformVisitor extends ASTVisitor {
 				ReturnStatement parent = (ReturnStatement) node.getParent();
 				disallowed.add(parent);
 				rewriter.replace(node, ast.newNullLiteral(), null); //TODO: propagate method invalidation
-			} else {
+			} else if (node.getLocationInParent() == ThrowStatement.EXPRESSION_PROPERTY) {
 			    disallowed.add(node);
+			    ClassInstanceCreation exceptionCreation = ast.newClassInstanceCreation();
+			    exceptionCreation.setType(ast.newSimpleType(ast.newSimpleName("RuntimeException")));
+			    rewriter.replace(node, exceptionCreation, null);
+			} else {
+				disallowed.add(node);
 				rewriter.remove(node, null);
 			}
 		}
@@ -435,9 +444,9 @@ public class TransformVisitor extends ASTVisitor {
 	public boolean visit(FieldAccess node) {
 		String name = node.getName().getIdentifier();
 
-		if (node.getExpression() instanceof ThisExpression) {
-			rewriter.replace(node, ast.newSimpleName(name), null);
-		}
+//		if (node.getExpression() instanceof ThisExpression) {
+//			rewriter.replace(node, ast.newSimpleName(name), null);
+//		}
 		
 		if(node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
 			Type type = typeTable.getNodeType(node.getParent());
@@ -461,7 +470,7 @@ public class TransformVisitor extends ASTVisitor {
 	        SymbolTable currScope = symbolTableStack.peek();
 	        initializedVars.add(currScope.getFieldVarSTE(((VariableDeclarationFragment)(node.fragments().get(0))).getName().getIdentifier()));
 	    }
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -590,11 +599,15 @@ public class TransformVisitor extends ASTVisitor {
 	}
 	
 	/**
-	 * Removes MethodDeclarations that are not part of typeChecker's allowed types. See typeChecker for a longer description.
+	 * Removes MethodDeclarations that are mains or not part of typeChecker's allowed types. See typeChecker for a longer description.
 	 * Configures global variable currMethod to this node's method and pushes this method's scope to the top of symbolTableStack
 	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
+	    
+	    if (node.getName().getIdentifier().equals("main")) {
+	        rewriter.remove(node, null);
+	    }
 		
 		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> params = node.parameters();
@@ -650,15 +663,15 @@ public class TransformVisitor extends ASTVisitor {
 //	@Override
 	public boolean visit(MethodInvocation node) {
 		// TODO: Check that the method contains unresolvable types before we remove it.
-		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
-			ASTNode parent = node.getParent(); // ExpressionStatement
-			if (parent.getParent() instanceof Block) {
-				rewriter.remove(parent, null);
-			} else {
-				rewriter.replace(parent, ast.newBlock(), null);
-			}
-		}
-		return false;
+//		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
+//			ASTNode parent = node.getParent(); // ExpressionStatement
+//			if (parent.getParent() instanceof Block) {
+//				rewriter.remove(parent, null);
+//			} else {
+//				rewriter.replace(parent, ast.newBlock(), null);
+//			}
+//		}
+		return true;
 	}
 	
 	/**
@@ -668,38 +681,35 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(MethodInvocation node) {
 		IMethodBinding methodBinding = node.resolveMethodBinding();
-        if (methodBinding != null) {
-            ITypeBinding declaringClass = methodBinding.getDeclaringClass();
-            if (declaringClass != null) {
-                String packageName = declaringClass.getPackage().getName();
-                if (rootNodePackage == null) {
-                	rootNodePackage = ((CompilationUnit) node.getRoot()).getPackage().getName().getFullyQualifiedName();
-                }
-                // Check if it's part of the JDK
-                if (packageName.startsWith("java.") || packageName.startsWith("javax.") || packageName.equals(rootNodePackage)) {
-                	// do nothing for now
-                } else {
-                	ITypeBinding typeBinding = methodBinding.getReturnType();
-    				if (typeBinding != null && typeBinding.isPrimitive()) {
-    					Type type = ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName()));
-    					if (TypeResolutionUtils.isIntegerTypeCode(type)) {
-    					    TypeResolutionUtils.replaceInteger(node, target, ast, rewriter, randUsedInMethod);
-            				return;
-            			} else if (TypeResolutionUtils.isBooleanTypeCode(type)) {
-            			    TypeResolutionUtils.replaceBoolean(node, target, ast, rewriter, randUsedInMethod);
-            				return;
-            			} else if (TypeResolutionUtils.isFloatingPointTypeCode(type)) {
-            			    TypeResolutionUtils.replaceFloat(node, target, ast, rewriter, randUsedInMethod);
-            				return;
-            			} else if (TypeResolutionUtils.isDoubleTypeCode(type)) {
-            			    TypeResolutionUtils.replaceDouble(node, target, ast, rewriter, randUsedInMethod);
-            				return;
-            			}
-    				}
-    				rewriter.remove(node, null);
-    				typeTable.setNodeType(node.getParent(), null);
-                }
-            } 
+        if (methodBinding != null && methodBinding.getDeclaringClass() != null) {
+            String packageName = methodBinding.getDeclaringClass().getPackage().getName();
+            if (rootNodePackage == null) {
+            	rootNodePackage = ((CompilationUnit) node.getRoot()).getPackage().getName().getFullyQualifiedName();
+            }
+            // Check if it's part of the JDK
+            if (packageName.startsWith("java.") || packageName.startsWith("javax.") || TypeResolutionUtils.methodIsFromSameClass(node)) {
+            	// do nothing for now
+            } else {
+            	ITypeBinding typeBinding = methodBinding.getReturnType();
+				if (typeBinding != null && typeBinding.isPrimitive()) {
+					Type type = ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName()));
+					if (TypeResolutionUtils.isIntegerTypeCode(type)) {
+					    TypeResolutionUtils.replaceInteger(node, target, ast, rewriter, randUsedInMethod);
+        				return;
+        			} else if (TypeResolutionUtils.isBooleanTypeCode(type)) {
+        			    TypeResolutionUtils.replaceBoolean(node, target, ast, rewriter, randUsedInMethod);
+        				return;
+        			} else if (TypeResolutionUtils.isFloatingPointTypeCode(type)) {
+        			    TypeResolutionUtils.replaceFloat(node, target, ast, rewriter, randUsedInMethod);
+        				return;
+        			} else if (TypeResolutionUtils.isDoubleTypeCode(type)) {
+        			    TypeResolutionUtils.replaceDouble(node, target, ast, rewriter, randUsedInMethod);
+        				return;
+        			}
+				}
+				TypeResolutionUtils.safeRemoveOrReplace(node, rewriter, ast, randUsedInMethod);
+				typeTable.setNodeType(node.getParent(), null);
+            }
         } else {
 			TypeResolutionUtils.safeRemoveOrReplace(node, rewriter, ast, randUsedInMethod);
 			typeTable.setNodeType(node.getParent(), null);
@@ -847,8 +857,12 @@ public class TransformVisitor extends ASTVisitor {
 
 		Type type = typeTable.getNodeType(node);
 		ASTNode ancestor = node.getParent();
-		while (!(ancestor instanceof MethodDeclaration)) {
+		while (ancestor != null && !(ancestor instanceof MethodDeclaration)) {
 		    ancestor = ancestor.getParent();
+		}
+		
+		if (ancestor == null) {
+			return false;
 		}
 
 		
@@ -1083,30 +1097,31 @@ public class TransformVisitor extends ASTVisitor {
 		}
 	}
 	
-	public boolean visit(IfStatement node) {
-		//System.out.println("visiting If " + node);
-		//System.out.println(node.getThenStatement().getClass());
-		
-		return true;
-		
-	}
+//	@Override
+//	public boolean visit(IfStatement node) {
+//	    // Wraps the if statement in a block
+//		
+//		return true;
+//		
+//	}
+//	
+//	@Override
+//	public void endVisit(IfStatement node) {
+////		System.out.println("done with If " + node);
+////		System.out.println(node.getThenStatement());
+//		
+//	}
 	
-	public void endVisit(IfStatement node) {
-//		System.out.println("done with If " + node);
-//		System.out.println(node.getThenStatement());
-		
-	}
 	
-	
-	public boolean visit(SwitchStatement node) {
-		// TODO
-		if (node.getParent() instanceof Block) {
-			rewriter.remove(node, null);
-		} else {
-			rewriter.replace(node, ast.newBlock(), null);
-		}
-		return false;
-	}
+//	public boolean visit(SwitchStatement node) {
+//		// TODO
+//		if (node.getParent() instanceof Block) {
+//			rewriter.remove(node, null);
+//		} else {
+//			rewriter.replace(node, ast.newBlock(), null);
+//		}
+//		return false;
+//	}
 	
 	@Override
 	public void endVisit(TryStatement node) {
@@ -1147,104 +1162,29 @@ public class TransformVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * Generates a new main method that invokes all of the suitable methods found in the AST.
-	 * Escapes from our current symbolTable scope. Does not pop on interfaces because we do not enter the scope of interfaces.
+	 * Does not pop on interfaces because we do not enter the scope of interfaces.
 	 */
 	@Override
 	public void endVisit(TypeDeclaration node) {
-		// Remove any existing main method.
-	    List<BodyDeclaration> declarationsToRemove = new ArrayList<>();
-	    for (Object memberObj : node.bodyDeclarations()) {
-	        if (memberObj instanceof MethodDeclaration) {
-	            MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
-	            if (methodDecl.getName().getIdentifier().equals("main")) {
-	                declarationsToRemove.add(methodDecl);
-	            }
-	        }
-	    }
-	    for (BodyDeclaration bd : declarationsToRemove) {
-	        rewriter.remove(bd, null);
-	    }
-	    
-		 // Create the main method declaration.
-	    if (node.getParent() instanceof CompilationUnit) {
-	        MethodDeclaration mainMethod = ast.newMethodDeclaration();
-	        mainMethod.setName(ast.newSimpleName("main"));
-	        mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
-	        mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
-	        mainMethod.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
-
-	        // Create the String[] args parameter.
-	        SingleVariableDeclaration param = ast.newSingleVariableDeclaration();
-	        ArrayType arrayType = ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String")));
-	        param.setType(arrayType);
-	        param.setName(ast.newSimpleName("args"));
-	        mainMethod.parameters().add(param);
-
-	        Block mainBlock = ast.newBlock();
-	        mainMethod.setBody(mainBlock);
-
-	        // Collect all methods to invoke (skip constructors and any existing main).
-	        boolean needsInstance = false;
-	        List<MethodDeclaration> methodDeclarations = new ArrayList<>();
-	        for (Object memberObj : node.bodyDeclarations()) {
-	            if (memberObj instanceof MethodDeclaration) {
-	                MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
-	                if (!methodDecl.isConstructor() && !methodDecl.getName().getIdentifier().equals("main")) {
-	                    methodDeclarations.add(methodDecl);
-	                    // If any method is non-static, we will need an instance.
-	                    if (!Modifier.isStatic(methodDecl.getModifiers())) {
-	                        needsInstance = true;
-	                    }
-	                }
-	            }
-	        }
-
-	        // If at least one non-static method exists, create an instance using the no-arg constructor.
-	        if (needsInstance) {
-	            // Creates: ClassName instance = new ClassName();
-	            VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-	            fragment.setName(ast.newSimpleName("instance"));
-	            ClassInstanceCreation cic = ast.newClassInstanceCreation();
-	            cic.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
-	            fragment.setInitializer(cic);
-
-	            VariableDeclarationStatement instanceDecl = ast.newVariableDeclarationStatement(fragment);
-	            instanceDecl.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
-	            mainBlock.statements().add(instanceDecl);
-	        }
-
-	        // For each method, create a method invocation statement with symbolic arguments.
-	        for (MethodDeclaration methodDecl : methodDeclarations) {
-	            MethodInvocation invocation = ast.newMethodInvocation();
-	            invocation.setName(ast.newSimpleName(methodDecl.getName().getIdentifier()));
-
-	            // If the method is non-static, invoke it on the instance.
-	            if (!Modifier.isStatic(methodDecl.getModifiers())) {
-	                invocation.setExpression(ast.newSimpleName("instance"));
-	            }
-
-	            // Process each parameter of the method.
-	            for (Object paramObj : methodDecl.parameters()) {
-	                if (paramObj instanceof SingleVariableDeclaration) {
-	                    SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
-	                    Expression arg = TypeResolutionUtils.createSymbolicArgument(svd.getType(), ast, randUsedInMethod);
-	                    invocation.arguments().add(arg);
-	                }
-	            }
-
-	            ExpressionStatement invocationStmt = ast.newExpressionStatement(invocation);
-	            mainBlock.statements().add(invocationStmt);
-	        }
-
-	        // Insert the newly created main method into the class.
-	        rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
-	                .insertLast(mainMethod, null);
-	    }
 	    
 		if (!node.isInterface()) {
 			symbolTableStack.pop();
 		}
+	}
+	
+	/**
+	 * If a VariableDeclarationFragment is missing an initializer, an initalizer is added
+	 */
+	@Override
+	public boolean visit(VariableDeclarationFragment node) {
+	    if (node.getInitializer() == null || !typeChecker.allowedType(node.getInitializer().resolveTypeBinding())) {
+	        ITypeBinding typeBinding = node.resolveBinding() != null ? node.resolveBinding().getType() : null;
+	        Expression initializer = TypeResolutionUtils.createSymbolicArgument(typeBinding, ast, randUsedInMethod);
+	        rewriter.set(node, VariableDeclarationFragment.INITIALIZER_PROPERTY, initializer, null);
+	        return false;
+	    }
+        return true;
+		
 	}
 	
 
@@ -1255,7 +1195,7 @@ public class TransformVisitor extends ASTVisitor {
 	 */
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		if (!typeChecker.allowedType(node.getType())) {
+		if (!typeChecker.allowedType(node.getType())) { // TODO: handle own class instantiation
 			if (node.getParent() instanceof Block) {
 				rewriter.remove(node, null);
 			} else {

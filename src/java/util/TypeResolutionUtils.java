@@ -1,11 +1,15 @@
 package util;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
@@ -25,6 +29,7 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
@@ -62,7 +67,7 @@ public class TypeResolutionUtils {
             } else if (code == PrimitiveType.FLOAT) {
                 return replaceWithNodeFloat(ast, randUsedInMethod);
             }
-        } else if (type.equals(ast.newSimpleType(ast.newSimpleName("String")))) {
+        } else if (type.resolveBinding() != null && type.resolveBinding().getQualifiedName().equals("java.lang.String")) {
             return replaceWithNodeString(ast, randUsedInMethod);
         } else if (type.isArrayType()) {
             ArrayType arrType = (ArrayType) type;
@@ -151,7 +156,7 @@ public class TypeResolutionUtils {
                 || location == WhileStatement.EXPRESSION_PROPERTY
                 || location == DoStatement.EXPRESSION_PROPERTY
                 || location == ForStatement.EXPRESSION_PROPERTY) {
-            rewriter.replace(node, TypeResolutionUtils.replaceWithNodeBoolean(ast, randUsedInMethod), null);
+            rewriter.replace(node, replaceWithNodeBoolean(ast, randUsedInMethod), null);
             return;
         }
 
@@ -160,7 +165,7 @@ public class TypeResolutionUtils {
             IVariableBinding binding = ((VariableDeclarationFragment) parent).resolveBinding();
             if (binding != null) {
                 ITypeBinding typeBinding = binding.getType();
-                Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(typeBinding, ast, randUsedInMethod);
+                Expression symbolicArg = createSymbolicArgument(typeBinding, ast, randUsedInMethod);
                 rewriter.replace(node, symbolicArg, null);
                 return;
             }
@@ -171,7 +176,7 @@ public class TypeResolutionUtils {
             Expression lhs = ((Assignment) parent).getLeftHandSide();
             ITypeBinding lhsTypeBinding = lhs.resolveTypeBinding();
             if (lhsTypeBinding != null) {
-                Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(lhsTypeBinding, ast, randUsedInMethod);
+                Expression symbolicArg = createSymbolicArgument(lhsTypeBinding, ast, randUsedInMethod);
                 rewriter.replace(node, symbolicArg, null);
                 return;
             }
@@ -180,10 +185,25 @@ public class TypeResolutionUtils {
         // Case 4: return statement
         if (location == ReturnStatement.EXPRESSION_PROPERTY) {
             ITypeBinding returnType = node.resolveTypeBinding();
-            Expression symbolicArg = TypeResolutionUtils.createSymbolicArgument(returnType, ast, randUsedInMethod);
+            Expression symbolicArg = createSymbolicArgument(returnType, ast, randUsedInMethod);
             rewriter.replace(node, symbolicArg, null);
             return;
         }
+        
+        if (location == MethodInvocation.ARGUMENTS_PROPERTY) {
+            MethodInvocation parentInvocation = (MethodInvocation) node.getParent();
+            List<Expression> args = parentInvocation.arguments();
+            if (args != null) {
+                int index = args.indexOf(node);
+                IMethodBinding parentBinding = parentInvocation.resolveMethodBinding();
+                if (parentBinding != null) {
+                    rewriter.replace(node, createSymbolicArgument(parentBinding.getParameterTypes()[index], ast, randUsedInMethod), null);
+                }
+                return;
+            }
+			safeRemoveOrReplace(parentInvocation, rewriter, ast, randUsedInMethod);
+			return;
+		}
 
         // Case 5: argument in a method/constructor call
         if (location.isChildListProperty()) {
@@ -196,9 +216,68 @@ public class TypeResolutionUtils {
             rewriter.remove(parent, null);
             return;
         }
+        
+        // Case 7: cast expression
+        if (parent instanceof CastExpression) {
+	        rewriter.replace(node, createSymbolicArgument(((CastExpression) parent).getType(), ast, randUsedInMethod), null);
+	        return;
+        }
 
         // Default: fallback, delete node
-        rewriter.remove(node, null);
+        ASTNode ancestor = node.getParent();
+        while (ancestor != null && !(ancestor instanceof Block) && !(ancestor instanceof MethodDeclaration)) {
+            if (ancestor.getParent() instanceof ReturnStatement) {
+                ITypeBinding returnType = getTypeBindingOfReturnStatement((ReturnStatement) ancestor.getParent());
+                Expression symbolicArg = createSymbolicArgument(returnType, ast, randUsedInMethod);
+                rewriter.replace(ancestor, symbolicArg, null);
+                return;
+            }
+	        if (ancestor == null || ancestor.getParent() instanceof Block || ancestor.getParent() instanceof MethodDeclaration) {
+		        rewriter.remove(ancestor, null);
+		        return;
+	        }
+            ancestor = ancestor.getParent();
+        };
+        
+        rewriter.remove(ancestor, null);
+    }
+    
+    public static boolean methodIsFromSameClass(MethodInvocation node) {
+		IMethodBinding binding = node.resolveMethodBinding();
+		if (binding != null) {
+			ITypeBinding declaringClassBinding = binding.getDeclaringClass();
+			if (declaringClassBinding != null) {
+			    ITypeBinding currentClassBinding = null;
+			    ASTNode parent = node.getParent();
+			    while (parent != null) {
+			        if (parent instanceof TypeDeclaration) {
+			            currentClassBinding = ((TypeDeclaration) parent).resolveBinding();
+			            break;
+			        } else if (parent instanceof AnonymousClassDeclaration) {
+			            currentClassBinding = ((AnonymousClassDeclaration) parent).resolveBinding();
+			            break;
+			        }
+			        parent = parent.getParent();
+			    }
+			    if (declaringClassBinding.isEqualTo(currentClassBinding)) {
+				    return true;
+			    }
+			}
+		}
+	    return false;
+    }
+    
+    public static ITypeBinding getTypeBindingOfReturnStatement(ReturnStatement node) {
+        ASTNode parent = node.getParent();
+        while (parent != null && !(parent instanceof MethodDeclaration)) {
+            parent = parent.getParent();
+        }
+        if (parent instanceof MethodDeclaration) {
+            MethodDeclaration method = (MethodDeclaration) parent;
+            ITypeBinding methodType = method.getReturnType2().resolveBinding();
+			return methodType;
+        }
+        return null;
     }
     
     

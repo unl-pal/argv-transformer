@@ -38,7 +38,7 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodDeclaration node) {
 	    IBinding binding = node.resolveBinding();
-		if (disallowedBindings.contains(binding) || !typeChecker.allowedType(node.getReturnType2())) {
+		if (disallowedBindings.contains(binding) || (!node.isConstructor() && !typeChecker.allowedType(node.getReturnType2()))) {
 			rewriter.remove(node, null);
 			disallowedBindings.add(binding);
 			return false;

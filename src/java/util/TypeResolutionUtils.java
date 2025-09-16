@@ -191,17 +191,7 @@ public class TypeResolutionUtils {
         }
         
         if (location == MethodInvocation.ARGUMENTS_PROPERTY) {
-            MethodInvocation parentInvocation = (MethodInvocation) node.getParent();
-            List<Expression> args = parentInvocation.arguments();
-            if (args != null) {
-                int index = args.indexOf(node);
-                IMethodBinding parentBinding = parentInvocation.resolveMethodBinding();
-                if (parentBinding != null) {
-                    rewriter.replace(node, createSymbolicArgument(parentBinding.getParameterTypes()[index], ast, randUsedInMethod), null);
-                }
-                return;
-            }
-			safeRemoveOrReplace(parentInvocation, rewriter, ast, randUsedInMethod);
+            replaceArgumentWithinMethodInvocation(node, (MethodInvocation) parent, rewriter, ast, randUsedInMethod);
 			return;
 		}
 
@@ -242,6 +232,20 @@ public class TypeResolutionUtils {
         rewriter.remove(ancestor, null);
     }
     
+    public static void replaceArgumentWithinMethodInvocation(ASTNode node, MethodInvocation parentInvocation, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
+        List<Expression> args = parentInvocation.arguments();
+        if (args != null) {
+            int index = args.indexOf(node);
+            IMethodBinding parentBinding = parentInvocation.resolveMethodBinding();
+            if (parentBinding != null) {
+                ITypeBinding[] parameters = parentBinding.getParameterTypes();
+                rewriter.replace(node, createSymbolicArgument(parameters[index], ast, randUsedInMethod), null);
+            }
+            return;
+        }
+        safeRemoveOrReplace(parentInvocation, rewriter, ast, randUsedInMethod);
+    }
+    
     public static boolean methodIsFromSameClass(MethodInvocation node) {
 		IMethodBinding binding = node.resolveMethodBinding();
 		if (binding != null) {
@@ -278,6 +282,29 @@ public class TypeResolutionUtils {
 			return methodType;
         }
         return null;
+    }
+    
+    /**
+     * Returns true if the given exception type binding represents a checked exception,
+     * false otherwise (i.e., unchecked exceptions: RuntimeException, Error, and their subclasses).
+     */
+    public static boolean isCheckedException(ITypeBinding binding) {
+        if (binding == null) {
+            return true; // cannot confirm with custom exceptions but defaulting to this
+        }
+
+        // Walk superclasses and check for RuntimeException or Error
+        ITypeBinding current = binding;
+        while (current != null) {
+            String qName = current.getQualifiedName();
+            if ("java.lang.RuntimeException".equals(qName) ||
+                "java.lang.Error".equals(qName)) {
+                return false; // unchecked
+            }
+            current = current.getSuperclass();
+        }
+
+        return true; // all others are checked exceptions
     }
     
     

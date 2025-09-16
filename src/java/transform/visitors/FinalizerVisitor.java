@@ -186,8 +186,9 @@ public class FinalizerVisitor extends ASTVisitor {
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, arg));
                             cast.setType((Type) ASTNode.copySubtree(ast, svd.getType()));
                             invocation.arguments().add(cast);
+                        } else {
+                            invocation.arguments().add(arg);
                         }
-                        invocation.arguments().add(arg);
                     }
                 }
 

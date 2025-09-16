@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -73,6 +74,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
@@ -240,8 +242,8 @@ public class TransformVisitor extends ASTVisitor {
 		
 		boolean argsAllowed = true;
 
-		for (ASTNode arg : (List<ASTNode>) node.arguments()) {
-			if (!typeChecker.allowedType(typeTable.getNodeType(arg)) || disallowed.contains(arg)) {
+		for (Expression arg : (List<Expression>) node.arguments()) {
+			if (!typeChecker.allowedType(arg.resolveTypeBinding()) || disallowed.contains(arg)) {
 				argsAllowed = false;
 			}
 		}
@@ -266,8 +268,13 @@ public class TransformVisitor extends ASTVisitor {
 				rewriter.replace(node, ast.newNullLiteral(), null); //TODO: propagate method invalidation
 			} else if (node.getLocationInParent() == ThrowStatement.EXPRESSION_PROPERTY) {
 			    disallowed.add(node);
+			    boolean checkedException = TypeResolutionUtils.isCheckedException(node.resolveTypeBinding());
 			    ClassInstanceCreation exceptionCreation = ast.newClassInstanceCreation();
-			    exceptionCreation.setType(ast.newSimpleType(ast.newSimpleName("RuntimeException")));
+			    if (checkedException) {
+			        exceptionCreation.setType(ast.newSimpleType(ast.newSimpleName("Exception")));
+			    } else {
+			        exceptionCreation.setType(ast.newSimpleType(ast.newSimpleName("RuntimeException")));
+			    }
 			    rewriter.replace(node, exceptionCreation, null);
 			} else {
 				disallowed.add(node);
@@ -464,6 +471,15 @@ public class TransformVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(FieldDeclaration node) {
+	    List<IExtendedModifier> mods = node.modifiers();
+        for (IExtendedModifier m : mods) {
+            if (m instanceof Modifier) {
+                Modifier mod = (Modifier) m;
+                if (mod.isFinal()) {
+                    rewriter.remove(mod, null);
+                }
+            }
+        }
 	    if (!typeChecker.allowedType(node.getType())) {
 	           rewriter.remove(node, null);
 	    } else {
@@ -608,16 +624,6 @@ public class TransformVisitor extends ASTVisitor {
 	    if (node.getName().getIdentifier().equals("main")) {
 	        rewriter.remove(node, null);
 	    }
-		
-		@SuppressWarnings("unchecked")
-		List<SingleVariableDeclaration> params = node.parameters();
-		for (SingleVariableDeclaration param : params) {
-			Type type = param.getType();
-			if (!typeChecker.allowedType(type)) {
-				rewriter.remove(node, null);
-				return false;
-			}
-		}
 		
 		
 				
@@ -784,6 +790,11 @@ public class TransformVisitor extends ASTVisitor {
             if (!(expr instanceof NullLiteral)) {
                 rewriter.replace(node, expr, null);
             }
+		} else if (node.getLocationInParent() == MethodInvocation.ARGUMENTS_PROPERTY) {
+		    TypeResolutionUtils.replaceArgumentWithinMethodInvocation(node, (MethodInvocation) node.getParent(), rewriter, ast, randUsedInMethod);
+		} else if (node.getLocationInParent() == SwitchCase.EXPRESSION_PROPERTY) {
+		    SwitchStatement switchStatement = (SwitchStatement) node.getParent().getParent();
+		    rewriter.remove(switchStatement, null); // when we do not know the constant, we cannot have the switch statement
 		}
 	}
 	
@@ -818,12 +829,11 @@ public class TransformVisitor extends ASTVisitor {
 		Expression expr = node.getExpression();
 
 		Type type = typeTable.getNodeType(expr);
-		Type returnType = sym.getReturnType();
 
-		if (type == null && returnType != null) {
-		    rewriter.replace(expr, TypeResolutionUtils.createSymbolicArgument(returnType, ast, randUsedInMethod), null);
+		if (!typeChecker.allowedType(type)) {
+		    ITypeBinding returnTypeBinding = TypeResolutionUtils.getTypeBindingOfReturnStatement(node);
+		    rewriter.replace(expr, TypeResolutionUtils.createSymbolicArgument(returnTypeBinding, ast, randUsedInMethod), null);
 		}
-		return;
 	}
 	
 	// Checking for field variables that need to be initialized
@@ -1279,13 +1289,21 @@ public class TransformVisitor extends ASTVisitor {
 
 	private void checkThrownExceptions(MethodDeclaration node) {
 		@SuppressWarnings("unchecked")
-		List<ASTNode> exceptions = node.thrownExceptionTypes();
+		List<Type> exceptions = node.thrownExceptionTypes();
 		if (!exceptions.isEmpty()) {
+		    boolean checkedException = false;
 			ListRewrite listRewrite = rewriter.getListRewrite(node, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY);
-			for (ASTNode name : exceptions) {
+			for (Type name : exceptions) {
 				listRewrite.remove(name, null);
+				if (TypeResolutionUtils.isCheckedException(name.resolveBinding())) {
+	                checkedException = true;
+	            }
 			}
-			listRewrite.insertFirst(ast.newSimpleName("Exception"), null);
+			if (checkedException) {
+			    listRewrite.insertFirst(ast.newSimpleName("Exception"), null);
+			} else {
+		        listRewrite.insertFirst(ast.newSimpleName("RuntimeException"), null);
+			}
 		}
 	}
 	

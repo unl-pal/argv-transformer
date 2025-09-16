@@ -177,7 +177,7 @@ public class TypeChecker {
 	                allowedArgTypes = false;
 	            }
 	        }
-	        return allowedType(binding.getErasure()) && allowedArgTypes;
+	        return allowedArgTypes && allowedType(binding.getErasure());
 	    }
 
 	    // Handle wildcards (e.g., ? extends Number)

@@ -28,8 +28,16 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
 
             // Copy else subtree into then
             Statement elseCopy = (Statement) ASTNode.copySubtree(ast, elseStmt);
-            rewriter.set(node, IfStatement.THEN_STATEMENT_PROPERTY, elseCopy, null);
+            if (!(elseStmt instanceof Block)) {
+                // Wrap in a block if not already a block
+                Block thenBlock = ast.newBlock();
+				thenBlock.statements().add(elseCopy);
+	            rewriter.set(node, IfStatement.THEN_STATEMENT_PROPERTY, thenBlock, null);
+            } else {
+                rewriter.set(node, IfStatement.THEN_STATEMENT_PROPERTY, elseCopy, null);
+            }
             rewriter.remove(elseStmt, null);
+            return false;
         }
         // Case 2: non-empty then, empty else -> remove else
         else if (!thenEmpty && elseStmt != null && elseEmpty) {
@@ -38,6 +46,7 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         // Case 3: empty then and empty else
         else if (thenEmpty && (elseEmpty || elseStmt == null)) {
         	rewriter.remove(node, null);
+        	return false;
         }
         // Otherwise, leave as-is
         return super.visit(node);
@@ -45,7 +54,7 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
     
     @Override
     public boolean visit(MethodDeclaration node) {
-        if (node.getBody().statements().isEmpty()) {
+        if (node.getBody().statements().isEmpty() && !node.isConstructor()) {
 	        rewriter.remove(node, null);
         }
         return super.visit(node);

@@ -7,7 +7,7 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 /** filtered by ARG-V */
  public class Main {
 
-	static final int MY_NUM = 5;
+	static int MY_NUM = 5;
 	static int[] c = new int[MY_NUM];
 	static int d[] = new int[MY_NUM];
 

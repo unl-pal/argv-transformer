@@ -32,6 +32,7 @@ import org.sosy_lab.sv_benchmarks.Verifier;
 	    }
 
 	    try {
+	        sort(a);
 	    } catch (Exception e) {
 	    	assert false;
 	    }

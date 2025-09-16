@@ -450,10 +450,6 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(FieldAccess node) {
 		String name = node.getName().getIdentifier();
-
-//		if (node.getExpression() instanceof ThisExpression) {
-//			rewriter.replace(node, ast.newSimpleName(name), null);
-//		}
 		
 		if(node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
 			Type type = typeTable.getNodeType(node.getParent());
@@ -663,21 +659,6 @@ public class TransformVisitor extends ASTVisitor {
 		if (pushedMethod) {
 			symbolTableStack.pop();
 		}
-	}
-	
-//	 //stmt rule
-//	@Override
-	public boolean visit(MethodInvocation node) {
-		// TODO: Check that the method contains unresolvable types before we remove it.
-//		if (node.getLocationInParent() == ExpressionStatement.EXPRESSION_PROPERTY) {
-//			ASTNode parent = node.getParent(); // ExpressionStatement
-//			if (parent.getParent() instanceof Block) {
-//				rewriter.remove(parent, null);
-//			} else {
-//				rewriter.replace(parent, ast.newBlock(), null);
-//			}
-//		}
-		return true;
 	}
 	
 	/**
@@ -1106,32 +1087,6 @@ public class TransformVisitor extends ASTVisitor {
 			}
 		}
 	}
-	
-//	@Override
-//	public boolean visit(IfStatement node) {
-//	    // Wraps the if statement in a block
-//		
-//		return true;
-//		
-//	}
-//	
-//	@Override
-//	public void endVisit(IfStatement node) {
-////		System.out.println("done with If " + node);
-////		System.out.println(node.getThenStatement());
-//		
-//	}
-	
-	
-//	public boolean visit(SwitchStatement node) {
-//		// TODO
-//		if (node.getParent() instanceof Block) {
-//			rewriter.remove(node, null);
-//		} else {
-//			rewriter.replace(node, ast.newBlock(), null);
-//		}
-//		return false;
-//	}
 	
 	@Override
 	public void endVisit(TryStatement node) {

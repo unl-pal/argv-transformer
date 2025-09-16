@@ -86,15 +86,12 @@ tasks.named('compileTestJava') {
     sourceSets.test.java.srcDirs = ['src/test']
 }
 
-tasks.named('testClasses') {
-    sourceSets.test.java.srcDirs = ['build/classes/test']
-}
 
 
 tasks.named('test') {
     testLogging {
         events 'FAILED'
-        exclude 'test/integrationExpected/**'
+        exclude 'src/test/integrationExpected/**'
     }
 }
 
@@ -112,7 +109,7 @@ task('compile', type: JavaCompile) {
 // Custom Test Compile task for use with test types other than unit tests
 task('compileTest', type: JavaCompile) {
     dependsOn 'compileJava'
-    source fileTree('src/java'), fileTree('src/test'), fileTree('test')
+    source fileTree('src/java'), fileTree('src/test')
     classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java/main')
     destinationDirectory = file('build/classes/test')
     outputs.files(fileTree(destinationDirectory))
@@ -205,7 +202,7 @@ tasks.register('regressionTransformer', ExecOperationsTask) {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'transform.Main'
-            args 'test/transformer/regression', 'testOutput'
+            args 'src/test/transformer/regression', 'testOutput'
             standardOutput = System.out
             errorOutput = System.err
         }

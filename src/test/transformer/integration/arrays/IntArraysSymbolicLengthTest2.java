@@ -27,7 +27,7 @@ public class IntArraysSymbolicLengthTest2 {
 	    }
 
 	    try {
-	    	sort(a); // TODO: figure out how to handle this getting removed
+	    	sort(a);
 	    } catch (Exception e) {
 	    	assert false;
 	    }

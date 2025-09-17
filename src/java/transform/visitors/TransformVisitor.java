@@ -668,9 +668,6 @@ public class TransformVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(MethodInvocation node) {
 		IMethodBinding methodBinding = node.resolveMethodBinding();
-		if (methodBinding != null) {
-		    System.out.println("Resolved binding for " + methodBinding.getDeclaringClass().getName());
-		}
         if (methodBinding != null && methodBinding.getDeclaringClass() != null) {
             String packageName = methodBinding.getDeclaringClass().getPackage().getName();
             if (rootNodePackage == null) {

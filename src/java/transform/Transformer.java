@@ -154,8 +154,8 @@ public class Transformer {
                 }
                 FilenameUtils.removeExtension(Main.source);
 
-                String[] classPath = {Paths.get("build", "classes", "java", "main").toString()};
-                String[] sourcePath = { Paths.get(inputSource).toString() , Paths.get("src").toString()};
+                String[] classPath = {Paths.get("build", "classes", "java", "main").toString(), Paths.get("build", "classes", "java", "test").toString()};
+                String[] sourcePath = { Paths.get(inputSource).toString() , Paths.get("src", "java").toString()};
                 
                 ASTParser preprocessingParser = getParser(source, sourcePath, classPath, file);
                 

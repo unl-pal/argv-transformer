@@ -82,17 +82,16 @@ tasks.named('run') {
     group = 'execution'
 }
 
-tasks.named('compileTestJava') {
-    sourceSets.test.java.srcDirs = ['src/test']
-}
-
-
 
 tasks.named('test') {
+	doFirst {
+        println "Main classes: ${sourceSets.main.output.classesDirs.asPath}"
+        println "Test classes: ${sourceSets.test.output.classesDirs.asPath}"
+    }
     testLogging {
         events 'FAILED'
-        exclude 'src/test/integrationExpected/**'
     }
+    exclude '**/test/integrationExpected/**'
 }
 
 tasks.named('javadoc') {
@@ -111,7 +110,7 @@ task('compileTest', type: JavaCompile) {
     dependsOn 'compileJava'
     source fileTree('src/java'), fileTree('src/test')
     classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java/main')
-    destinationDirectory = file('build/classes/test')
+    destinationDirectory = file('build/classes/java/test')
     outputs.files(fileTree(destinationDirectory))
 }
 

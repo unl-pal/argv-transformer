@@ -90,7 +90,7 @@ tasks.named('test') {
     }
     useJUnit()
     testLogging {
-        events 'FAILED', 'PASSED', 'SKIPPED', 'STANDARDERROR'
+        events 'FAILED', 'PASSED', 'SKIPPED', 'STANDARD_ERROR'
     }
     exclude '**/integrationExpected/**'
 }

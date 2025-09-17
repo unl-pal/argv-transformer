@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -350,6 +351,10 @@ public class Transformer {
         options.put(JavaCore.COMPILER_SOURCE, "1.8");
         parser.setCompilerOptions(options);
         parser.setUnitName(file.getPath());
+        String javaHome = System.getProperty("java.home");
+        Path rtJar = Paths.get(javaHome, "lib", "rt.jar");
+		classPath = Arrays.copyOf(classPath, classPath.length + 1);
+		classPath[classPath.length - 1] = rtJar.toAbsolutePath().toString();
         parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 		return parser;

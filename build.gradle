@@ -88,10 +88,11 @@ tasks.named('test') {
         println "Main classes: ${sourceSets.main.output.classesDirs.asPath}"
         println "Test classes: ${sourceSets.test.output.classesDirs.asPath}"
     }
+    useJUnit()
     testLogging {
         events 'FAILED'
     }
-    exclude '**/test/integrationExpected/**'
+    exclude '**/integrationExpected/**'
 }
 
 tasks.named('javadoc') {

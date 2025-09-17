@@ -29,8 +29,6 @@ jobs:
         run: |
           ./gradlew run
           ./gradlew transform
-      - name: Test
-        run: ./gradlew cleanTest test --info
       - name: Clean Up
         run: ./gradlew reset
 

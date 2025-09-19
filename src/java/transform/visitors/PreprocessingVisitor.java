@@ -20,6 +20,9 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import transform.TypeChecking.TypeChecker;
 
+/**
+ * Performs simple reformatting and blanket removals of disallowed constructs for simpler transformation.
+ */
 public class PreprocessingVisitor extends ASTVisitor {
     
     private ASTRewrite rewriter;
@@ -31,12 +34,27 @@ public class PreprocessingVisitor extends ASTVisitor {
 		this.ast = ast;
 	}
 	
+	/**
+	 * Removes anonymous classes without exception.
+	 */
     @Override
     public boolean visit(AnonymousClassDeclaration node) {
-        rewriter.remove(node, null); // remove anonymous class
+        rewriter.remove(node, null);
         return true;
     }
 	
+    /**
+     * Reformats one-line if statements to block statements.
+     * 
+     * i.e. if (x > 0)
+     *       System.out.println(x);
+     * 
+     * becomes:
+     *  
+	 * if (x > 0) {
+	 *    System.out.println(x);
+	 * }
+     */
 	@Override
 	public boolean visit(IfStatement node) {
 	    Statement thenStmt = node.getThenStatement();
@@ -54,6 +72,9 @@ public class PreprocessingVisitor extends ASTVisitor {
 	    return true;
 	}
 	
+	/**
+	 * Removes nested classes without exception.
+	 */
 	@Override
 	public boolean visit(TypeDeclaration node) {
 	    if (!(node.getParent() instanceof CompilationUnit)) {
@@ -63,6 +84,10 @@ public class PreprocessingVisitor extends ASTVisitor {
 	    return true;
 	}
 	
+	/**
+	 * Removes methods with a return type or parameters that are not allowed.
+	 * Disallowed types are determined by the type checker.
+	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
 	    IMethodBinding binding = node.resolveBinding();

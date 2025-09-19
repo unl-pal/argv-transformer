@@ -168,6 +168,7 @@ public class Transformer {
                 PreprocessingVisitor preprocessingVisitor = new PreprocessingVisitor(preprocessingRewriter, preprocessingCu.getAST());
                 preprocessingCu.accept(preprocessingVisitor);
                 
+                // document based off of original source. Each time a transformation is applied, a new document is created
                 Document document = new Document(source);
                 TextEdit edits = preprocessingRewriter.rewriteAST(document, null);
                 edits.apply(document);
@@ -197,18 +198,6 @@ public class Transformer {
 				TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
 				cu.accept(typeTableVisitor);
 				TypeTable typeTable = typeTableVisitor.getTypeTable();
-				//now we have each variable resolved to implied types
-//				if(file.getName().contains("HEAP")) {
-//					System.out.println("Type table ");
-//					for(Entry<ASTNode, Type> e : typeTable.getTable().entrySet()) {
-//						if(e.getKey() instanceof SimpleName) {
-//							if(((SimpleName)e.getKey()).getIdentifier().contains("currentSize")){
-//							System.out.println(e.getValue() + "\t" + e.getKey()+ "\t" + e.getKey().getParent());
-//							}
-//						}
-//						
-//					}
-//				}
 				
 				//the actual transformation
 				TransformVisitor transformVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
@@ -216,7 +205,7 @@ public class Transformer {
 				cu.accept(transformVisitor);
 				rewriter = transformVisitor.getRewriter();
 				
-				document = new Document(transformSource);
+				// rewriting document based off of transformation. Future ASTs will be based off of this document.
 				edits = rewriter.rewriteAST(document, null);
 				edits.apply(document);
 				
@@ -236,7 +225,7 @@ public class Transformer {
 				
 				
 				
-				// cleaning up empty blocks and putting comments back in
+				// cleaning up empty blocks and disallowed methods iteratively until nothing more can be removed
 				do {
 				    String editedSource = document.get();
 	                ASTParser cleanupParser = getParser(editedSource, sourcePath, classPath, file);

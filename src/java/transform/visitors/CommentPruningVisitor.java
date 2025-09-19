@@ -9,6 +9,10 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 
+/**
+ * Removes all comments from a Java file. This is used to handle discrepancies between the AST and document.
+ * It is more reliability to manually remove all comments and add them back in later.
+ */
 public class CommentPruningVisitor extends ASTVisitor{
 	
 	private MultiTextEdit commentsToDelete = new MultiTextEdit();
@@ -18,6 +22,9 @@ public class CommentPruningVisitor extends ASTVisitor{
 		this.source = source;
 	}
 	
+	/**
+	 * Visits a compilation unit and deletes all comments.
+	 */
 	@Override
 	public boolean visit(CompilationUnit node) {
 		int firstBodyStart = Integer.MAX_VALUE;
@@ -53,6 +60,12 @@ public class CommentPruningVisitor extends ASTVisitor{
 		return commentsToDelete;
 	}
 	
+	/**
+	 * Helper function if a line is purely whitespace before and after a comment (no code on that line)
+	 * @param beforeComment character index of the character before the comment relative to entire source
+	 * @param afterComment character index of the character after the comment relative to entire source
+	 * @return true if the line is purely whitespace
+	 */
 	private boolean detectIfOnlyWhitespaceOnLine(int beforeComment, int afterComment) {
 		boolean newlineFound = false;
 		while (!newlineFound && beforeComment >= 0) {

@@ -19,7 +19,10 @@ import transform.TypeChecking.TypeChecker;
 import util.TypeResolutionUtils;
 
 
-
+/**
+ * Propagate removals of disallowed methods and fields to invocations and references.
+ * This is used in conjunction with RemoveEmptyBlockVisitor to clean up the document after transformation.
+ */
 public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
     
     private final ASTRewrite rewriter;
@@ -35,6 +38,10 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
 	            .collect(Collectors.toSet());
 	}
 	
+	/**
+	 * Removes methods that have been determined to be disallowed during transformation.
+	 * New removals are added to the set of disallowed bindings
+	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
 	    IBinding binding = node.resolveBinding();
@@ -46,6 +53,9 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
 		return true;
 	}
 	
+	/**
+	 * Safely removes invocations of disallowed methods
+	 */
 	@Override
 	public boolean visit(MethodInvocation node) {
 	    IMethodBinding binding = node.resolveMethodBinding();
@@ -54,10 +64,14 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
             return false;
         }
         return true;
-	    // TODO: detect if disallowed contains invoked methods from removed methoddeclarations and if so run saferemoveorreplace
-	    // TODO: move where we put main method
 	}
 	
+	/**
+	 * Helper method to get the binding (with type handling) for a node in a stream.
+	 * @param node a node that has been determined to be disallowed. This can be a 
+	 * MethodDeclaration, VariableDeclarationFragment, or TypeDeclaration
+	 * @return the binding for the node
+	 */
 	 private IBinding getBindingForNode(ASTNode node) {
 	        if (node instanceof MethodDeclaration) {
 	            return ((MethodDeclaration) node).resolveBinding();

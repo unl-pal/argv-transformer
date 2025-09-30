@@ -311,16 +311,18 @@ public class TypeResolutionUtils {
     /**================================================BOOLEAN==========================================================================*/  
 
     public static void replaceBoolean(Expression exp, String target, AST ast, ASTRewrite rewriter, Boolean randUsedInMethod) {
-        MethodInvocation randMethodInvocation = null;
-        switch(target) {
-        case "SPF" : randMethodInvocation = replaceWithSymbolicBoolean(ast);
-            break;
-        case "SVCOMP" : randMethodInvocation = replaceWithNodeBoolean(ast, randUsedInMethod);
-            break;
-        default: randMethodInvocation = replaceWithRandomBoolean(ast, randUsedInMethod);
-        }
+        Expression randMethodInvocation = generateBooleanFromTarget(ast, randUsedInMethod, target);
         rewriter.replace(exp, randMethodInvocation, null);
     }
+    
+    public static Expression generateBooleanFromTarget(AST ast, Boolean randUsedInMethod, String target) {
+        switch(target) {
+            case "SPF" : return replaceWithSymbolicBoolean(ast);
+            case "SVCOMP" : return replaceWithNodeBoolean(ast, randUsedInMethod);
+            default: return replaceWithRandomBoolean(ast, randUsedInMethod);  
+        }
+    }
+    
     
     public static MethodInvocation replaceWithRandomBoolean(AST ast, Boolean randUsedInMethod) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
@@ -358,6 +360,19 @@ public class TypeResolutionUtils {
     }
 /**==============================================INTEGER==========================================================================*/
     
+    public static void replaceInteger(Expression exp, String target, AST ast, ASTRewrite rewriter, Boolean randUsedInMethod) {
+        Expression randMethodInvocation = generateIntegerFromTarget(ast, randUsedInMethod, target);
+        rewriter.replace(exp, randMethodInvocation, null);
+    }
+    
+    public static Expression generateIntegerFromTarget(AST ast, Boolean randUsedInMethod, String target) {
+        switch(target) {
+            case "SPF" : return replaceWithSymbolicInteger(ast);
+            case "SVCOMP" : return replaceWithNodeInteger(ast, randUsedInMethod);
+            default: return replaceWithRandomInteger(ast, randUsedInMethod);  
+        }
+    }
+    
     public static MethodInvocation replaceWithSymbolicInteger(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
@@ -390,35 +405,22 @@ public class TypeResolutionUtils {
         return randMethodInvocation;
         
     }
-    
-
-    
-    public static void replaceInteger(Expression exp, String target, AST ast, ASTRewrite rewriter, Boolean randUsedInMethod) {
-        MethodInvocation randMethodInvocation = null;
-        switch(target) {
-        case "SPF" : randMethodInvocation = replaceWithSymbolicInteger(ast);
-        break;
-        case "SVCOMP" : randMethodInvocation = replaceWithNodeInteger(ast, randUsedInMethod);
-        break;
-        default: randMethodInvocation = replaceWithRandomInteger(ast, randUsedInMethod);
-        }
-        rewriter.replace(exp, randMethodInvocation, null);
-    }
 
 
 
     /* Actually it is Double */
     public static void replaceDouble(Expression exp, String target, AST ast, ASTRewrite rewriter, Boolean randUsedInMethod) {
-        MethodInvocation randMethodInvocation = null;
-        switch(target){
-        case "SPF" : randMethodInvocation = replaceWithSymbolicDouble(ast);
-        break;
-        case "SVCOMP" : randMethodInvocation = replaceWithNodeDouble(ast, randUsedInMethod);
-        break;
-        default: randMethodInvocation = replaceWithRandomDouble(ast, randUsedInMethod);
-        }
+        Expression randMethodInvocation = generateDoubleFromTarget(ast, randUsedInMethod, target);
         
         rewriter.replace(exp, randMethodInvocation , null);
+    }
+    
+    public static Expression generateDoubleFromTarget(AST ast, Boolean randUsedInMethod, String target) {
+        switch(target) {
+            case "SPF" : return replaceWithSymbolicDouble(ast);
+            case "SVCOMP" : return replaceWithNodeDouble(ast, randUsedInMethod);
+            default: return replaceWithRandomDouble(ast, randUsedInMethod);  
+        }
     }
     
     public static MethodInvocation replaceWithRandomDouble(AST ast, Boolean randUsedInMethod) {
@@ -455,16 +457,18 @@ public class TypeResolutionUtils {
     
     public static void replaceFloat(Expression exp, String target, AST ast, ASTRewrite rewriter, Boolean randUsedInMethod) {
         
-        ASTNode expression = null;
-        switch(target) {
-        case "SPF":  expression = replaceWithSymbolicFloat(ast);
-        break;
-        case "SVCOMP" : expression = replaceWithNodeFloat(ast, randUsedInMethod);
-        break;
-        default: expression = replaceWithRandomFloat(ast, randUsedInMethod);
-        }
+        Expression expression = generateFloatFromTarget(ast, randUsedInMethod, target);
         rewriter.replace(exp, expression , null);
     }
+    
+    public static Expression generateFloatFromTarget(AST ast, Boolean randUsedInMethod, String target) {
+        switch(target) {
+            case "SPF" : return replaceWithSymbolicFloat(ast);
+			case "SVCOMP" : return replaceWithNodeFloat(ast, randUsedInMethod);
+			default: return replaceWithRandomFloat(ast, randUsedInMethod);  
+        }
+    }
+    
     public static MethodInvocation replaceWithNodeFloat(AST ast, Boolean randUsedInMethod) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
@@ -649,21 +653,22 @@ public class TypeResolutionUtils {
 	}
 
     public static boolean isVoidTypeCode(Type type) {
-        if (!type.isPrimitiveType())
+        if (type == null || !type.isPrimitiveType()) {
             return false;
+        }
         Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
         return (typeCode == PrimitiveType.VOID);
     }
     
     public static boolean isIntegerOrIntegerArrayTypeCode(Type type) {
-        if(type.isArrayType()) {
+        if(type != null && type.isArrayType()) {
             return isIntegerOrIntegerArrayTypeCode(((ArrayType) type).getElementType());
         }
         return isIntegerTypeCode(type);
     }
     
     public static boolean isBooleanOrBooleanArrayTypeCode(Type type) {
-        if(type.isArrayType()) {
+        if(type != null && type.isArrayType()) {
             return isBooleanOrBooleanArrayTypeCode(((ArrayType) type).getElementType());
         }
         return isBooleanTypeCode(type);

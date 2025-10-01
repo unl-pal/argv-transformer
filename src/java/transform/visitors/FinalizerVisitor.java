@@ -208,42 +208,6 @@ public class FinalizerVisitor extends ASTVisitor {
     }
 
 	@Override
-	public boolean visit(FieldDeclaration node) {
-		
-		return false;
-	}
-
-	@Override
-	public boolean visit(Initializer node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(NormalAnnotation node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(MarkerAnnotation node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(SingleMemberAnnotation node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(AnnotationTypeDeclaration node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(EnumDeclaration node) {
-		return false;
-	}
-
-	@Override
 	public boolean visit(MethodDeclaration node) {
 		AnalyzedMethod am = new AnalyzedMethod(node);
 		af.addMethod(am);
@@ -533,7 +497,7 @@ public class FinalizerVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(InfixExpression node) {
 		//expressionsStack.pop();
-		if(operationsInExpression > 0) {
+		if(operationsInExpression > 0 && currAnalyzedMethod != null) {
 			//why do we just add one? need to add all of them
 			//currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+1);
 			currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+

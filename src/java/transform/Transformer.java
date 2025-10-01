@@ -320,10 +320,12 @@ public class Transformer {
 					out.write(document.get());
 					out.flush();
 					out.close();
+				} else {
+				    System.out.println("No suitable methods after transformation. Discarding " + file.getPath());
 				}
 
 			} catch (Exception e) {				
-				System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
+				System.out.println("Exception " + e + " while transforming file " + file.getPath());
 				e.printStackTrace();
 			}
 		}

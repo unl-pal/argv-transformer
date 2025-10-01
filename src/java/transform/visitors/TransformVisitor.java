@@ -126,7 +126,6 @@ public class TransformVisitor extends ASTVisitor {
 	private String target;
 	private Boolean randUsedInMethod;
 	private boolean hasRandom;
-	private String rootNodePackage = null; // instantiated as needed
 	private String source;
 
 	/**
@@ -670,9 +669,6 @@ public class TransformVisitor extends ASTVisitor {
 		IMethodBinding methodBinding = node.resolveMethodBinding();
         if (methodBinding != null && methodBinding.getDeclaringClass() != null) {
             String packageName = methodBinding.getDeclaringClass().getPackage().getName();
-            if (rootNodePackage == null) {
-            	rootNodePackage = ((CompilationUnit) node.getRoot()).getPackage().getName().getFullyQualifiedName();
-            }
             // Check if it's part of the JDK
             if (packageName.startsWith("java.") || packageName.startsWith("javax.") || TypeResolutionUtils.methodIsFromSameClass(node)) {
             	// do nothing for now

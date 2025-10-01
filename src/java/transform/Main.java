@@ -337,7 +337,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, file.getParentFile().getName(), true, true);
+		CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, true, true);
 
 	}
 	

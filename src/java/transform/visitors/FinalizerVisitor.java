@@ -47,6 +47,11 @@ import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
 import util.TypeResolutionUtils;
 
+/**
+ * The last visitor to be called. Two major tasks::
+ * 1. Generates the main method that calls all of the methods that were found in the AST.
+ * 2. Obtains statistics about the number of expressions, operations in expressions, conditions, and parameters. These are used for filtering and analysis post-transformation.
+ */
 public class FinalizerVisitor extends ASTVisitor {
 	
 	private AnalyzedMethod currAnalyzedMethod;
@@ -360,132 +365,15 @@ public class FinalizerVisitor extends ASTVisitor {
 	}
 	
 	@Override
-	public void endVisit(IfStatement node) {
-		//System.out.println("done visiting");
-	}
-
-	/*
-	 * What about while statement?
-	 */
-	
-	@Override
 	public boolean visit(ForStatement node) {
 		currAnalyzedMethod.setHasLoop(true);
 		// To handle scope of local variables
-//		if (!blockStack.empty()) {
-//			HashSet<String> liveIntVariables = blockStack.peek();
-//			@SuppressWarnings("unchecked")
-//			HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
-//			blockStack.push(localVarsClone);
-//		} else {
-//			blockStack.push(new HashSet<>());
-//		}
-//
-//		@SuppressWarnings("unchecked")
-//		List<Expression> initializers = node.initializers();
-//
-//		for (Expression variable : initializers) {
-//			if (variable.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION)
-//				continue;
-//
-//			Type variableType = ((VariableDeclarationExpression) variable).getType();
-//
-//			if (!variableType.isPrimitiveType())
-//				continue;
-//
-//			if (isIntegerTypeCode(variableType)) {
-//				@SuppressWarnings("unchecked")
-//				List<VariableDeclarationFragment> fragments = ((VariableDeclarationExpression) variable)
-//						.fragments();
-//				HashSet<String> liveIntVariables = blockStack.pop();
-//
-//				for (VariableDeclarationFragment fragment : fragments) {
-//					String loopVariable = fragment.getName().getIdentifier();
-//					liveIntVariables.add(loopVariable);
-//				}
-//
-//				blockStack.push(liveIntVariables);
-//			}
-//		}
 		return true;
 	}
 
-	@Override
-	public void endVisit(ForStatement node) {
-		//blockStack.pop();
-	}
 
-	@Override
-	public boolean visit(VariableDeclarationStatement node) {
 
-//		Type variableType = node.getType();
-//		if (!variableType.isPrimitiveType()) {
-//			// right now we are just ignoring non-primitive declarations
-//			return true;
-//		}
-//
-//		@SuppressWarnings("unchecked")
-//		List<VariableDeclarationFragment> fragments = node.fragments();
-//		HashSet<String> liveIntVariables = blockStack.pop();
-//
-//		if (isIntegerTypeCode(variableType)) {
-//			for (VariableDeclarationFragment fragment : fragments) {
-//				String variableName = fragment.getName().getIdentifier();
-//				liveIntVariables.add(variableName);
-//			}
-//
-//		} else {
-//			// Check if we are redefining an instance variable to be non integer
-//			for (VariableDeclarationFragment fragment : fragments) {
-//				String variableName = fragment.getName().getIdentifier();
-//
-//				if (isLiveIntVariable(variableName)) {
-//					liveIntVariables.remove(variableName);
-//				}
-//			}
-//		}
-//
-//		blockStack.push(liveIntVariables);
 
-		return true;
-	}
-
-//	@Override
-//	public boolean visit(Assignment node) {
-//		HashSet<String> liveIntVariables = blockStack.peek();
-//		Expression lhs = node.getLeftHandSide();
-//		if (!isVariable(lhs)) {
-//			return true;
-//		}
-//		String variableName = lhs.toString();
-//		if (liveIntVariables.contains(variableName)) {
-//			if (node.getOperator() != Assignment.Operator.ASSIGN) {
-//				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
-//			}
-//		}
-//		return true;
-//	}
-
-	@Override
-	public boolean visit(CastExpression node) {
-		//expressionsStack.push(node);
-		return true;
-	}
-
-//	@Override
-//	public void endVisit(CastExpression node) {
-//		Type type = node.getType();
-//		intExpression = isIntegerTypeCode(type) ? true : false;
-//		//expressionsStack.pop();
-//		//not sure why are we counting casting as an operation
-//		//if (parentExpression()) {
-//			if (intExpression) {
-//				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
-//			}
-//			operationsInExpression = 0;
-//			intExpression = true;
-//		//}
-//	}
 
 	@Override
 	public boolean visit(InfixExpression node) {

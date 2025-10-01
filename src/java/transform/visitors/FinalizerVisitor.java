@@ -47,6 +47,11 @@ import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
 import util.TypeResolutionUtils;
 
+/**
+ * The last visitor to be called. Two major tasks:
+ * 1. Generates the main method that calls all of the methods that were found in the AST.
+ * 2. Obtains statistics about the number of expressions, operations in expressions, conditions, and parameters. These are used for filtering and analysis post-transformation.
+ */
 public class FinalizerVisitor extends ASTVisitor {
 	
 	private AnalyzedMethod currAnalyzedMethod;

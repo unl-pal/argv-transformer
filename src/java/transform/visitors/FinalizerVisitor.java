@@ -1,13 +1,21 @@
 package transform.visitors;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -15,14 +23,21 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 
 import sourceAnalysis.AnalyzedFile;
@@ -30,7 +45,13 @@ import sourceAnalysis.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
+import util.TypeResolutionUtils;
 
+/**
+ * The last visitor to be called. Two major tasks::
+ * 1. Generates the main method that calls all of the methods that were found in the AST.
+ * 2. Obtains statistics about the number of expressions, operations in expressions, conditions, and parameters. These are used for filtering and analysis post-transformation.
+ */
 public class FinalizerVisitor extends ASTVisitor {
 	
 	private AnalyzedMethod currAnalyzedMethod;
@@ -42,15 +63,21 @@ public class FinalizerVisitor extends ASTVisitor {
 	private TypeTable typeTable;
 	private CType type;
 	private int operationsInExpression;
+	private ASTRewrite rewriter;
+	private AST ast;
+	private TypeChecker typeChecker;
 
 	
-	public FinalizerVisitor(AnalyzedFile af, TypeTable typeTable, int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {
+	public FinalizerVisitor(AST ast, ASTRewrite rewriter, TypeChecker typeChecker, AnalyzedFile af, TypeTable typeTable, int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {
 		this.af = af;
 		this.typeTable = typeTable;
 		this.minTypeExpr = minTypeExpr;
 		this.minTypeCond = minTypeCond;
 		this.minTypeParams = minTypeParams;
 		this.type = type;
+		this.ast = ast;
+		this.rewriter = rewriter;
+		this.typeChecker = typeChecker;
 		operationsInExpression = 0;
 		//System.out.println("Done setting Finilizer Visitor");
 	}
@@ -60,6 +87,125 @@ public class FinalizerVisitor extends ASTVisitor {
 		//System.out.println("Type " + node.getName());
 		return true;
 	}
+	
+	/**
+     * Generates a new main method that invokes all of the suitable methods found in the AST.
+     * Escapes from our current symbolTable scope. Does not pop on interfaces because we do not enter the scope of interfaces.
+     */
+    @Override
+    public void endVisit(TypeDeclaration node) {
+        // Detect our constructor
+        MethodDeclaration constructor = null;
+        for (Object memberObj : node.bodyDeclarations()) {
+            if (memberObj instanceof MethodDeclaration) {
+                MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
+                if (methodDecl.isConstructor()) {
+                    constructor = methodDecl;
+                }
+            }
+        }
+        
+         // Create the main method declaration.
+        if (node.getParent() instanceof CompilationUnit) {
+            MethodDeclaration mainMethod = ast.newMethodDeclaration();
+            mainMethod.setName(ast.newSimpleName("main"));
+            mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+            mainMethod.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+            mainMethod.thrownExceptionTypes().add(ast.newSimpleType(ast.newSimpleName("Exception")));
+            mainMethod.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+
+            // Create the String[] args parameter.
+            SingleVariableDeclaration param = ast.newSingleVariableDeclaration();
+            ArrayType arrayType = ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String")));
+            param.setType(arrayType);
+            param.setName(ast.newSimpleName("args"));
+            mainMethod.parameters().add(param);
+
+            Block mainBlock = ast.newBlock();
+            mainMethod.setBody(mainBlock);
+            
+            // add comment above main method
+            Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder("/** This main was generated by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
+			rewriter.getListRewrite(mainMethod, MethodDeclaration.MODIFIERS2_PROPERTY).insertFirst(commentPlaceholder, null);
+
+            // Collect all methods to invoke (skip constructors and any existing main).
+            boolean needsInstance = false;
+            List<MethodDeclaration> methodDeclarations = new ArrayList<>();
+            for (Object memberObj : node.bodyDeclarations()) {
+                if (memberObj instanceof MethodDeclaration) {
+                    MethodDeclaration methodDecl = (MethodDeclaration) memberObj;
+                    if (!methodDecl.isConstructor() && !methodDecl.getName().getIdentifier().equals("main")) {
+                        methodDeclarations.add(methodDecl);
+                        // If any method is non-static, we will need an instance.
+                        if (!Modifier.isStatic(methodDecl.getModifiers())) {
+                            needsInstance = true;
+                        }
+                    }
+                }
+            }
+
+            // If at least one non-static method exists, create an instance using the no-arg constructor.
+            if (needsInstance) {
+                // Creates: ClassName instance = new ClassName();
+                VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+                fragment.setName(ast.newSimpleName("instance"));
+                ClassInstanceCreation cic = ast.newClassInstanceCreation();
+                if (constructor != null) {
+                    for (SingleVariableDeclaration paramObj : (List<SingleVariableDeclaration>) constructor.parameters()) {
+                        Expression expr = TypeResolutionUtils.createSymbolicArgument(paramObj.getType(), ast, false);
+                        if (expr instanceof NullLiteral && typeChecker.allowedType(paramObj.getType())) {
+                            CastExpression cast = ast.newCastExpression();
+                            cast.setExpression((Expression) ASTNode.copySubtree(ast, expr));
+                            cast.setType((Type) ASTNode.copySubtree(ast, paramObj.getType()));
+                            cic.arguments().add(cast);
+                        } else {
+                            cic.arguments().add(expr);
+                        }
+                    }
+                }
+                cic.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
+                fragment.setInitializer(cic);
+
+                VariableDeclarationStatement instanceDecl = ast.newVariableDeclarationStatement(fragment);
+                instanceDecl.setType(ast.newSimpleType(ast.newSimpleName(node.getName().getIdentifier())));
+                mainBlock.statements().add(instanceDecl);
+            }
+
+            // For each method, create a method invocation statement with symbolic arguments.
+            for (MethodDeclaration methodDecl : methodDeclarations) {
+                MethodInvocation invocation = ast.newMethodInvocation();
+                invocation.setName(ast.newSimpleName(methodDecl.getName().getIdentifier()));
+
+                // If the method is non-static, invoke it on the instance.
+                if (!Modifier.isStatic(methodDecl.getModifiers())) {
+                    invocation.setExpression(ast.newSimpleName("instance"));
+                }
+
+                // Process each parameter of the method.
+                for (Object paramObj : methodDecl.parameters()) {
+                    if (paramObj instanceof SingleVariableDeclaration) {
+                        SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
+                        Expression arg = TypeResolutionUtils.createSymbolicArgument(svd.getType(), ast, false);
+                        if (arg instanceof NullLiteral && typeChecker.allowedType(svd.getType())) {
+                            CastExpression cast = ast.newCastExpression();
+                            cast.setExpression((Expression) ASTNode.copySubtree(ast, arg));
+                            cast.setType((Type) ASTNode.copySubtree(ast, svd.getType()));
+                            invocation.arguments().add(cast);
+                        } else {
+                            invocation.arguments().add(arg);
+                        }
+                    }
+                }
+
+                ExpressionStatement invocationStmt = ast.newExpressionStatement(invocation);
+                mainBlock.statements().add(invocationStmt);
+            }
+
+            // Insert the newly created main method into the class.
+            rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
+                    .insertLast(mainMethod, null);
+        }
+    }
 
 	@Override
 	public boolean visit(FieldDeclaration node) {
@@ -219,132 +365,15 @@ public class FinalizerVisitor extends ASTVisitor {
 	}
 	
 	@Override
-	public void endVisit(IfStatement node) {
-		//System.out.println("done visiting");
-	}
-
-	/*
-	 * What about while statement?
-	 */
-	
-	@Override
 	public boolean visit(ForStatement node) {
 		currAnalyzedMethod.setHasLoop(true);
 		// To handle scope of local variables
-//		if (!blockStack.empty()) {
-//			HashSet<String> liveIntVariables = blockStack.peek();
-//			@SuppressWarnings("unchecked")
-//			HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
-//			blockStack.push(localVarsClone);
-//		} else {
-//			blockStack.push(new HashSet<>());
-//		}
-//
-//		@SuppressWarnings("unchecked")
-//		List<Expression> initializers = node.initializers();
-//
-//		for (Expression variable : initializers) {
-//			if (variable.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION)
-//				continue;
-//
-//			Type variableType = ((VariableDeclarationExpression) variable).getType();
-//
-//			if (!variableType.isPrimitiveType())
-//				continue;
-//
-//			if (isIntegerTypeCode(variableType)) {
-//				@SuppressWarnings("unchecked")
-//				List<VariableDeclarationFragment> fragments = ((VariableDeclarationExpression) variable)
-//						.fragments();
-//				HashSet<String> liveIntVariables = blockStack.pop();
-//
-//				for (VariableDeclarationFragment fragment : fragments) {
-//					String loopVariable = fragment.getName().getIdentifier();
-//					liveIntVariables.add(loopVariable);
-//				}
-//
-//				blockStack.push(liveIntVariables);
-//			}
-//		}
 		return true;
 	}
 
-	@Override
-	public void endVisit(ForStatement node) {
-		//blockStack.pop();
-	}
 
-	@Override
-	public boolean visit(VariableDeclarationStatement node) {
 
-//		Type variableType = node.getType();
-//		if (!variableType.isPrimitiveType()) {
-//			// right now we are just ignoring non-primitive declarations
-//			return true;
-//		}
-//
-//		@SuppressWarnings("unchecked")
-//		List<VariableDeclarationFragment> fragments = node.fragments();
-//		HashSet<String> liveIntVariables = blockStack.pop();
-//
-//		if (isIntegerTypeCode(variableType)) {
-//			for (VariableDeclarationFragment fragment : fragments) {
-//				String variableName = fragment.getName().getIdentifier();
-//				liveIntVariables.add(variableName);
-//			}
-//
-//		} else {
-//			// Check if we are redefining an instance variable to be non integer
-//			for (VariableDeclarationFragment fragment : fragments) {
-//				String variableName = fragment.getName().getIdentifier();
-//
-//				if (isLiveIntVariable(variableName)) {
-//					liveIntVariables.remove(variableName);
-//				}
-//			}
-//		}
-//
-//		blockStack.push(liveIntVariables);
 
-		return true;
-	}
-
-//	@Override
-//	public boolean visit(Assignment node) {
-//		HashSet<String> liveIntVariables = blockStack.peek();
-//		Expression lhs = node.getLeftHandSide();
-//		if (!isVariable(lhs)) {
-//			return true;
-//		}
-//		String variableName = lhs.toString();
-//		if (liveIntVariables.contains(variableName)) {
-//			if (node.getOperator() != Assignment.Operator.ASSIGN) {
-//				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
-//			}
-//		}
-//		return true;
-//	}
-
-	@Override
-	public boolean visit(CastExpression node) {
-		//expressionsStack.push(node);
-		return true;
-	}
-
-//	@Override
-//	public void endVisit(CastExpression node) {
-//		Type type = node.getType();
-//		intExpression = isIntegerTypeCode(type) ? true : false;
-//		//expressionsStack.pop();
-//		//not sure why are we counting casting as an operation
-//		//if (parentExpression()) {
-//			if (intExpression) {
-//				currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
-//			}
-//			operationsInExpression = 0;
-//			intExpression = true;
-//		//}
-//	}
 
 	@Override
 	public boolean visit(InfixExpression node) {

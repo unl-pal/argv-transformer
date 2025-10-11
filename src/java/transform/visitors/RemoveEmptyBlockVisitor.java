@@ -4,6 +4,10 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
+/**
+ * Safely removes empty blocks in a variety of contexts to clean up the document after transformation.
+ * Used in conjunction with DisallowedMethodAndFieldVisitor.
+ */
 public class RemoveEmptyBlockVisitor extends ASTVisitor {
     private final ASTRewrite rewriter;
 
@@ -11,6 +15,10 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         this.rewriter = rewriter;
     }
 
+    /**
+     * Removes empty blocks from if statements. 
+     * Additional logic is required to handle cases between then and else statements.
+     */
     @Override
     public boolean visit(IfStatement node) {
         AST ast = node.getAST();
@@ -28,21 +36,44 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
 
             // Copy else subtree into then
             Statement elseCopy = (Statement) ASTNode.copySubtree(ast, elseStmt);
-            rewriter.set(node, IfStatement.THEN_STATEMENT_PROPERTY, elseCopy, null);
+            if (!(elseStmt instanceof Block)) {
+                // Wrap in a block if not already a block
+                Block thenBlock = ast.newBlock();
+				thenBlock.statements().add(elseCopy);
+	            rewriter.set(node, IfStatement.THEN_STATEMENT_PROPERTY, thenBlock, null);
+            } else {
+                rewriter.set(node, IfStatement.THEN_STATEMENT_PROPERTY, elseCopy, null);
+            }
             rewriter.remove(elseStmt, null);
+            return false;
         }
         // Case 2: non-empty then, empty else -> remove else
         else if (!thenEmpty && elseStmt != null && elseEmpty) {
             rewriter.remove(elseStmt, null);
         }
         // Case 3: empty then and empty else
-        else if (thenEmpty && elseStmt != null && elseEmpty) {
+        else if (thenEmpty && (elseEmpty || elseStmt == null)) {
         	rewriter.remove(node, null);
+        	return false;
         }
         // Otherwise, leave as-is
         return super.visit(node);
     }
+    
+    /**
+     * Removes empty methods. Constructors are not removed.
+     */
+    @Override
+    public boolean visit(MethodDeclaration node) {
+        if (node.getBody().statements().isEmpty() && !node.isConstructor()) {
+	        rewriter.remove(node, null);
+        }
+        return super.visit(node);
+    }
 
+    /**
+     * Removes nested empty blocks.
+     */
     @Override
     public boolean visit(Block node) {
         // Only remove pure nested empty blocks
@@ -55,6 +86,9 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         return super.visit(node);
     }
 
+    /**
+     * Removes empty while statements.
+     */
     @Override
     public boolean visit(WhileStatement node) {
         Statement body = node.getBody();
@@ -64,6 +98,9 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         return super.visit(node);
     }
 
+    /**
+     * Removes empty for statements.
+     */
     @Override
     public boolean visit(ForStatement node) {
         Statement body = node.getBody();
@@ -73,6 +110,9 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         return super.visit(node);
     }
 
+	/**
+	 * Removes empty enhanced for statements.
+	 */
     @Override
     public boolean visit(EnhancedForStatement node) {
         Statement body = node.getBody();
@@ -82,6 +122,9 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         return super.visit(node);
     }
 
+	/**
+	 * Removes empty do statements.
+	 */
     @Override
     public boolean visit(DoStatement node) {
         Statement body = node.getBody();
@@ -91,6 +134,9 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
         return super.visit(node);
     }
 
+	/**
+	 * Removes empty synchronized statements.
+	 */
     @Override
     public boolean visit(SynchronizedStatement node) {
         Statement body = node.getBody();
@@ -102,6 +148,7 @@ public class RemoveEmptyBlockVisitor extends ASTVisitor {
 
     /**
      * Inverts a boolean expression: unwraps '!' or adds it.
+     * i.e. !a -> a, a -> !a
      */
     private Expression invertCondition(AST ast, Expression expr) {
         if (expr instanceof PrefixExpression) {

@@ -19,7 +19,7 @@ version = '1.1.0'
     }
     // All External Dependencies from either repo
     dependencies {
-        implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.10.0.v20140604-1726'
+        implementation 'org.eclipse.jdt:org.eclipse.jdt.core:3.12.2'
         implementation 'org.apache.commons:commons-csv:1.5'
         implementation 'commons-io:commons-io:2.16.1'
         implementation 'org.eclipse.core:contenttype:3.4.200-v20140207-1251'
@@ -61,7 +61,7 @@ sourceSets {
     }
     test {
         java {
-            srcDirs = ['test']
+            srcDirs = ['src/test']
             // Exclude integrationExpected from test sources
             exclude 'integrationExpected/**'
         }
@@ -82,20 +82,17 @@ tasks.named('run') {
     group = 'execution'
 }
 
-tasks.named('compileTestJava') {
-    sourceSets.test.java.srcDirs = ['test']
-}
-
-tasks.named('testClasses') {
-    sourceSets.test.java.srcDirs = ['build/classes/test']
-}
-
 
 tasks.named('test') {
-    testLogging {
-        events 'FAILED'
-        exclude 'test/integrationExpected/**'
+	doFirst {
+        println "Main classes: ${sourceSets.main.output.classesDirs.asPath}"
+        println "Test classes: ${sourceSets.test.output.classesDirs.asPath}"
     }
+    useJUnit()
+    testLogging {
+        events 'FAILED', 'PASSED', 'SKIPPED', 'STANDARD_ERROR'
+    }
+    exclude '**/integrationExpected/**'
 }
 
 tasks.named('javadoc') {
@@ -112,9 +109,9 @@ task('compile', type: JavaCompile) {
 // Custom Test Compile task for use with test types other than unit tests
 task('compileTest', type: JavaCompile) {
     dependsOn 'compileJava'
-    source fileTree('src/java'), fileTree('src/test'), fileTree('test')
+    source fileTree('src/java'), fileTree('src/test')
     classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java/main')
-    destinationDirectory = file('build/classes/test')
+    destinationDirectory = file('build/classes/java/test')
     outputs.files(fileTree(destinationDirectory))
 }
 
@@ -205,7 +202,7 @@ tasks.register('regressionTransformer', ExecOperationsTask) {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'transform.Main'
-            args 'test/transformer/regression', 'testOutput'
+            args 'src/test/transformer/regression', 'testOutput'
             standardOutput = System.out
             errorOutput = System.err
         }

@@ -1,6 +1,7 @@
 package util;
 
 public class ArgVRandom {
+    
 	public static double randomDouble() {
 		return Math.random();
 	}

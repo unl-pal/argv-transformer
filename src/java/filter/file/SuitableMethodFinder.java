@@ -142,11 +142,10 @@ public class SuitableMethodFinder {
 		rewriter = visitor.rewriter;
 		
 		Document document = new Document(source);
-		TextEdit edits = rewriter.rewriteAST(document, null);
 		try {
+		    TextEdit edits = rewriter.rewriteAST(document, null);
 			edits.apply(document);
-		} catch (MalformedTreeException | BadLocationException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
 		}
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));

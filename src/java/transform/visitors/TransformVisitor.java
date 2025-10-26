@@ -858,14 +858,7 @@ public class TransformVisitor extends ASTVisitor {
 			if(type.isPrimitiveType()) {
 				if(TypeResolutionUtils.isIntegerTypeCode(type)) {
 					
-					MethodInvocation randMethodInvocation = null;
-					switch(target) {
-					case "SPF": randMethodInvocation = TypeResolutionUtils.replaceWithSymbolicInteger(ast);
-					break;
-					case "SVCOMP" : randMethodInvocation = TypeResolutionUtils.replaceWithNodeInteger(ast, randUsedInMethod);
-					break;
-					default : randMethodInvocation = TypeResolutionUtils.replaceWithRandomInteger(ast, randUsedInMethod);
-					}
+					Expression randMethodInvocation = TypeResolutionUtils.generateIntegerFromTarget(ast, randUsedInMethod, target);
 							
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -882,14 +875,7 @@ public class TransformVisitor extends ASTVisitor {
 					
 				} else if(TypeResolutionUtils.isFloatingPointTypeCode(type)) {
 										
-					Expression expression = null;
-					switch(target) {
-					case "SPF": expression = TypeResolutionUtils.replaceWithSymbolicFloat(ast);
-					break;
-					case "SVCOMP" : expression = TypeResolutionUtils.replaceWithNodeFloat(ast, randUsedInMethod);
-					break;
-					default : expression = TypeResolutionUtils.replaceWithRandomFloat(ast, randUsedInMethod);
-					}
+					Expression expression = TypeResolutionUtils.generateFloatFromTarget(ast, randUsedInMethod, target);
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));
@@ -905,15 +891,7 @@ public class TransformVisitor extends ASTVisitor {
 					initializedVars.add(sym);
 				} else if(TypeResolutionUtils.isDoubleTypeCode(type)) {
 										
-					MethodInvocation randMethodInvocation = null;
-					switch(target) {
-					case "SPF": randMethodInvocation = TypeResolutionUtils.replaceWithSymbolicDouble(ast);
-					break;
-					case "SVCOMP": randMethodInvocation = TypeResolutionUtils.replaceWithNodeDouble(ast, randUsedInMethod);
-					break;
-					
-					default : randMethodInvocation = TypeResolutionUtils.replaceWithRandomDouble(ast, randUsedInMethod);
-					}
+					Expression randMethodInvocation = TypeResolutionUtils.generateDoubleFromTarget(ast, randUsedInMethod, target);
 							
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
@@ -931,14 +909,7 @@ public class TransformVisitor extends ASTVisitor {
 					
 				} else if(TypeResolutionUtils.isBooleanTypeCode(type)) {
 					
-					MethodInvocation randMethodInvocation = null;
-					switch(target) {
-					case "SPF": randMethodInvocation = TypeResolutionUtils.replaceWithSymbolicBoolean(ast);
-					break;
-					case "SVCOMP" : randMethodInvocation = TypeResolutionUtils.replaceWithNodeBoolean(ast, randUsedInMethod);
-					break;
-					default : randMethodInvocation = TypeResolutionUtils.replaceWithRandomBoolean(ast, randUsedInMethod);
-					}
+					Expression randMethodInvocation = TypeResolutionUtils.generateBooleanFromTarget(ast, randUsedInMethod, target);
 					
 					VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 					fragment.setName(ast.newSimpleName(name));

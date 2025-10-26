@@ -9,7 +9,7 @@ plugins {
 
 // rootProject.name = 'argv-transformer'
 group = 'dev.arg-v.transformer'
-version = '1.0.0'
+version = '1.1.0'
 
     repositories {
         mavenCentral() // Most commonly used repository

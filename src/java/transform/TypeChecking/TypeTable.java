@@ -29,11 +29,6 @@ public class TypeTable {
 	 * @return Type
 	 */
 	public Type getNodeType(ASTNode node) {
-	    if (typeTable.containsKey(node)) {
-	        System.out.println("Key exists for " + node.toString() + "!");
-	    } else {
-		    System.out.println("Key does not exist for " + node.toString() + "!");
-	    }
 		return typeTable.get(node);
 	}
 	

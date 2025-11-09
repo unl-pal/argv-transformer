@@ -79,6 +79,12 @@ public class TypeChecker {
 			return (allowedType(((ParameterizedType) type).getType()) && allowedArgTypes);
 		}
 		
+		if (type.isSimpleType()) {
+			Name name = ((SimpleType) type).getName();
+			if(name.isSimpleName() && ((SimpleName) name).getIdentifier().contentEquals("String")) {
+				return true;
+			}
+		}
 		// check if is character literal		
 		
 //		return (type.isPrimitiveType() 

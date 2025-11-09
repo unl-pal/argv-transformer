@@ -45,6 +45,7 @@ import sourceAnalysis.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
+import util.ASTUtils;
 import util.TypeResolutionUtils;
 
 /**
@@ -152,11 +153,12 @@ public class FinalizerVisitor extends ASTVisitor {
                 ClassInstanceCreation cic = ast.newClassInstanceCreation();
                 if (constructor != null) {
                     for (SingleVariableDeclaration paramObj : (List<SingleVariableDeclaration>) constructor.parameters()) {
-                        Expression expr = TypeResolutionUtils.createSymbolicArgument(paramObj.getType(), ast, false);
-                        if (expr instanceof NullLiteral && typeChecker.allowedType(paramObj.getType())) {
+                        Type normalizedType = ASTUtils.getNormalizedType(paramObj, paramObj.getType());
+                        Expression expr = TypeResolutionUtils.createSymbolicArgument(normalizedType, ast, false);
+                        if (expr instanceof NullLiteral && typeChecker.allowedType(normalizedType)) {
                             CastExpression cast = ast.newCastExpression();
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, expr));
-                            cast.setType((Type) ASTNode.copySubtree(ast, paramObj.getType()));
+                            cast.setType((Type) ASTNode.copySubtree(ast, normalizedType));
                             cic.arguments().add(cast);
                         } else {
                             cic.arguments().add(expr);
@@ -185,11 +187,12 @@ public class FinalizerVisitor extends ASTVisitor {
                 for (Object paramObj : methodDecl.parameters()) {
                     if (paramObj instanceof SingleVariableDeclaration) {
                         SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
-                        Expression arg = TypeResolutionUtils.createSymbolicArgument(svd.getType(), ast, false);
-                        if (arg instanceof NullLiteral && typeChecker.allowedType(svd.getType())) {
+                        Type normalizedType = ASTUtils.getNormalizedType(svd, svd.getType());
+                        Expression arg = TypeResolutionUtils.createSymbolicArgument(normalizedType, ast, false);
+                        if (arg instanceof NullLiteral && typeChecker.allowedType(normalizedType)) {
                             CastExpression cast = ast.newCastExpression();
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, arg));
-                            cast.setType((Type) ASTNode.copySubtree(ast, svd.getType()));
+                            cast.setType((Type) ASTNode.copySubtree(ast, normalizedType));
                             invocation.arguments().add(cast);
                         } else {
                             invocation.arguments().add(arg);
@@ -205,6 +208,11 @@ public class FinalizerVisitor extends ASTVisitor {
             rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
                     .insertLast(mainMethod, null);
         }
+    }
+    
+    @Override
+    public boolean visit(FieldDeclaration node) {
+	    return false; // do not analyze characteristics in field declarations
     }
 
 	@Override

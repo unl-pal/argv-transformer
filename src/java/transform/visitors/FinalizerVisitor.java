@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
@@ -153,12 +154,13 @@ public class FinalizerVisitor extends ASTVisitor {
                 ClassInstanceCreation cic = ast.newClassInstanceCreation();
                 if (constructor != null) {
                     for (SingleVariableDeclaration paramObj : (List<SingleVariableDeclaration>) constructor.parameters()) {
-                        Type normalizedType = ASTUtils.getNormalizedType(paramObj, paramObj.getType());
+                        ITypeBinding normalizedType = ASTUtils.getNormalizedBinding(paramObj);
                         Expression expr = TypeResolutionUtils.createSymbolicArgument(normalizedType, ast, false);
                         if (expr instanceof NullLiteral && typeChecker.allowedType(normalizedType)) {
+                            Type newType = ASTUtils.newTypeFromBinding(ast, normalizedType);
                             CastExpression cast = ast.newCastExpression();
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, expr));
-                            cast.setType((Type) ASTNode.copySubtree(ast, normalizedType));
+                            cast.setType(newType);
                             cic.arguments().add(cast);
                         } else {
                             cic.arguments().add(expr);
@@ -187,12 +189,13 @@ public class FinalizerVisitor extends ASTVisitor {
                 for (Object paramObj : methodDecl.parameters()) {
                     if (paramObj instanceof SingleVariableDeclaration) {
                         SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
-                        Type normalizedType = ASTUtils.getNormalizedType(svd, svd.getType());
+                        ITypeBinding normalizedType = ASTUtils.getNormalizedBinding(svd);
                         Expression arg = TypeResolutionUtils.createSymbolicArgument(normalizedType, ast, false);
                         if (arg instanceof NullLiteral && typeChecker.allowedType(normalizedType)) {
+                            Type newType = ASTUtils.newTypeFromBinding(ast, normalizedType);
                             CastExpression cast = ast.newCastExpression();
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, arg));
-                            cast.setType((Type) ASTNode.copySubtree(ast, normalizedType));
+                            cast.setType(newType);
                             invocation.arguments().add(cast);
                         } else {
                             invocation.arguments().add(arg);

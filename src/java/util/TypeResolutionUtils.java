@@ -147,7 +147,7 @@ public class TypeResolutionUtils {
         return ast.newNullLiteral();
     }
     
-    public static void safeRemoveOrReplace(MethodInvocation node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
+    public static void safeRemoveOrReplace(Expression node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
         StructuralPropertyDescriptor location = node.getLocationInParent();
         ASTNode parent = node.getParent();
 

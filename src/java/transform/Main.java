@@ -57,10 +57,10 @@ public class Main {
 	private static boolean debug = false;
 	private static boolean transformAll = false;
 
-	public static String source = "suitablePrgms/zlim/scimark2/scimark2-master/src/java/jnt/Bench/Bench.java";
+//	public static String source = "suitablePrgms/zlim/scimark2/scimark2-master/src/java/jnt/Bench/Bench.java";
 //	public static String dest = "benchmarks";
 //	 public static String source = "src/test/transformer/integration";
-//	 public static String source = "testsFromReport";
+	 public static String source = "testsFromReport";
 	 public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {

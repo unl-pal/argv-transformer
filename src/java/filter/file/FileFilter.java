@@ -86,6 +86,10 @@ public class FileFilter {
 	public ArrayList<File> getSuitableFiles() {
 		return spfSuitableFiles;
 	}
+	
+	public ArrayList<File> getJavaFiles() {
+		return javaFiles;
+	}
 
 	/**
 	 * Getter for suitable method count
@@ -117,12 +121,16 @@ public class FileFilter {
 		for (File file: javaFiles) {
 			try {
 				//SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
-				SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt, minParams);
+//				SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt, minParams);
+			    SimplifiedSuitableClassFinder finder = new SimplifiedSuitableClassFinder(file, type, minExpr, minIfStmt, minParams);
 				finder.analyze();
-				AnalyzedFile af = finder.getAnalyzedFile();
-				int suitableMethods = af.getSuitableMethods().size();
-				if(suitableMethods > 0) {
-					spfSuitableMethods += af.getSuitableMethods().size();
+//				AnalyzedFile af = finder.getAnalyzedFile();
+//				int suitableMethods = af.getSuitableMethods().size();
+//				if(suitableMethods > 0) {
+//					spfSuitableMethods += af.getSuitableMethods().size();
+//					spfSuitableFiles.add(file);
+//				}
+				if (finder.isSuitable()) {
 					spfSuitableFiles.add(file);
 				}
 				

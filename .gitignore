@@ -40,6 +40,11 @@ kls_database.db
 /suitablePrgms/
 /testOutput/
 
+# temp transfer files
+/java_only/
+/java_only_suitable/
+/java_only_output/
+
 # IDE specific folders
 # IntelliJ
 .idea/

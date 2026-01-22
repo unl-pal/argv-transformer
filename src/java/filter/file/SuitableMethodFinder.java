@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -57,643 +58,686 @@ import transform.visitors.TypeTableVisitor;
  *
  */
 public class SuitableMethodFinder {
-	
-	
-	private CType type;
 
-	private AnalyzedFile af;
-	//private MethodDeclaration currMethodDeclaration;
-	private AnalyzedMethod currAnalyzedMethod;
-	//private HashSet<String> classIntVariables;
-	//private Stack<HashSet<String>> blockStack;
-	//private Stack<Expression> expressionsStack;
-	//private ArrayList<String> unprocessedExpressions;
-	//private boolean intExpression = true;
-	//private List<AnalyzedMethod> intOperationsCount;
-	private int operationsInExpression;
-	//private AnalyzerVisitor visitor;
-	private TypeTable typeTable;
-	private int minTypeExpr;
-	private int minTypeCond;
-	private int minTypeParams;
+  private CType type;
 
-	public SuitableMethodFinder(File file) throws IOException {
-		defaultSetUp(file);
-		minTypeExpr = 0;
-		minTypeCond = 0;
-	}
-	
-	private void defaultSetUp(File file) {
-		//System.out.println("File\t" + file);
-		af = new AnalyzedFile(file);
-		//intOperationsCount = new ArrayList<AnalyzedMethod>();
-		//classIntVariables = new HashSet<String>();
-		//blockStack = new Stack<HashSet<String>>();
-		//expressionsStack = new Stack<Expression>();
-		operationsInExpression = 0;
-		//unprocessedExpressions = new ArrayList<String>();
-		//setting type to int for now
-		type = CType.INT;
-	}
-	
-	public SuitableMethodFinder(File file, CType type, int minExpr, int minCondStmt, int minParams) throws IOException {
-		defaultSetUp(file);
-		this.minTypeExpr = minExpr;
-		this.minTypeCond = minCondStmt;
-		this.type = type;
-		this.minTypeParams = minParams;
-	}
+  private AnalyzedFile af;
+  // private MethodDeclaration currMethodDeclaration;
+  private AnalyzedMethod currAnalyzedMethod;
+  // private HashSet<String> classIntVariables;
+  // private Stack<HashSet<String>> blockStack;
+  // private Stack<Expression> expressionsStack;
+  // private ArrayList<String> unprocessedExpressions;
+  // private boolean intExpression = true;
+  // private List<AnalyzedMethod> intOperationsCount;
+  private int operationsInExpression;
+  // private AnalyzerVisitor visitor;
+  private TypeTable typeTable;
+  private int minTypeExpr;
+  private int minTypeCond;
+  private int minTypeParams;
 
-	public void analyze() throws IOException {
-		File file = af.getFile();
-		String source = new String(Files.readAllBytes(file.toPath()));
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
-		parser.setSource(source.toCharArray());
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		//ASTNode node = parser.createAST(null);
-		CompilationUnit node = (CompilationUnit) parser.createAST(null);
-		AST ast = node.getAST();
-		ASTRewrite rewriter = ASTRewrite.create(ast);
-		//infer the types of nodes
-		
-		//collects import types
-		TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
-		node.accept(typeCollectVisitor);
-		TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
-		
-		
-		SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
-		node.accept(symTableVisitor);
-		SymbolTable rootScope = symTableVisitor.getRoot();
+  public SuitableMethodFinder(File file) throws IOException {
+    defaultSetUp(file);
+    minTypeExpr = 0;
+    minTypeCond = 0;
+  }
 
-		TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
-		try {
-			node.accept(typeTableVisitor);
-		} catch(Exception e){
-			System.out.println("needs more work");
-		}
-		typeTable = typeTableVisitor.getTypeTable();
-		
-		
-		
-		AnalyzerVisitor visitor = new AnalyzerVisitor(rewriter);
-		node.accept(visitor);
-		
-		rewriter = visitor.rewriter;
-		
-		Document document = new Document(source);
-		try {
-		    TextEdit edits = rewriter.rewriteAST(document, null);
-			edits.apply(document);
-		} catch (Exception e) {
-			System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
-		}
-		BufferedWriter out = new BufferedWriter(new FileWriter(file));
+  private void defaultSetUp(File file) {
+    // System.out.println("File\t" + file);
+    af = new AnalyzedFile(file);
+    // intOperationsCount = new ArrayList<AnalyzedMethod>();
+    // classIntVariables = new HashSet<String>();
+    // blockStack = new Stack<HashSet<String>>();
+    // expressionsStack = new Stack<Expression>();
+    operationsInExpression = 0;
+    // unprocessedExpressions = new ArrayList<String>();
+    // setting type to int for now
+    type = CType.INT;
+  }
 
-		out.write(document.get());
-		out.flush();
-		out.close();
-		
-		
-		//done with visiting set af
-		//how to determine whether the analyzed file is suitable?
-		//when \exists at least one suitable method
-		for(AnalyzedMethod m : af.getAnalyzedMethods()) {
-			if(m.getTypeConditionalCount() >= minTypeCond && m.getTypeOperationCount() >= minTypeExpr && m.getTypeParameterCount() >= minTypeParams) {
-				af.addSuitableMethod(m);
-			}
-		}
-		if(!af.getSuitableMethods().isEmpty()) {
-			System.out.println(af.getFile().getName());
-			for(AnalyzedMethod m : af.getSuitableMethods()) {
-				System.out.println("\t" + m.getName() + "\t" + m.getTypeConditionalCount() +"\t" 
-				+ m.getTypeOperationCount() + "\t" + m.getTypeParameterCount());
-			}
-		}
-		
-	}
+  public SuitableMethodFinder(File file, CType type, int minExpr, int minCondStmt, int minParams) throws IOException {
+    defaultSetUp(file);
+    this.minTypeExpr = minExpr;
+    this.minTypeCond = minCondStmt;
+    this.type = type;
+    this.minTypeParams = minParams;
+  }
 
-	public int getTotalIntOperations() {
-		int count = 0;
-		for (AnalyzedMethod m : af.getAnalyzedMethods()) {
-			count += m.getTypeOperationCount();
-		}
-		return count;
-	}
-	
-	public int getTotalConditionals() {
-		int count = 0;
-		for (AnalyzedMethod m : af.getAnalyzedMethods()) {
-			count += m.getTypeConditionalCount();
-		}
-		return count;
-	}
+  public void analyze() throws IOException {
+    File file = af.getFile();
+    String source = new String(Files.readAllBytes(file.toPath()));
+    ASTParser parser = ASTParser.newParser(AST.JLS8);
+    parser.setSource(source.toCharArray());
+    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+    // ASTNode node = parser.createAST(null);
+    CompilationUnit node = (CompilationUnit) parser.createAST(null);
+    AST ast = node.getAST();
+    ASTRewrite rewriter = ASTRewrite.create(ast);
+    // infer the types of nodes
 
-	public AnalyzedFile getAnalyzedFile() {
-		return af;
-	}
+    // collects import types
+    TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
+    node.accept(typeCollectVisitor);
+    TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
 
-	private class AnalyzerVisitor extends ASTVisitor {
-		private ASTRewrite rewriter;
-		private boolean edit;
+    SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
+    node.accept(symTableVisitor);
+    SymbolTable rootScope = symTableVisitor.getRoot();
 
-//		@Override
-//		public boolean visit(TypeDeclaration node) {
-//			blockStack.add(new HashSet<String>());
-//			return true;
-//		}
-		
-		public AnalyzerVisitor() {
-			edit = false;
-		}
+    TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
+    try {
+      node.accept(typeTableVisitor);
+    } catch (Exception e) {
+      System.out.println("needs more work");
+    }
+    typeTable = typeTableVisitor.getTypeTable();
 
-		public AnalyzerVisitor(ASTRewrite rewriter) {
-			this.rewriter = rewriter;
-			edit = true;
-		}
+    AnalyzerVisitor visitor = new AnalyzerVisitor(rewriter);
+    node.accept(visitor);
 
-		@Override
-		public boolean visit(FieldDeclaration node) {
-			
-			return false;
-		}
+    rewriter = visitor.rewriter;
 
-		@Override
-		public boolean visit(Initializer node) {
-			return false;
-		}
+    Document document = new Document(source);
+    try {
+      TextEdit edits = rewriter.rewriteAST(document, null);
+      edits.apply(document);
+    } catch (Exception e) {
+      System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
+    }
+    BufferedWriter out = new BufferedWriter(new FileWriter(file));
 
-		@Override
-		public boolean visit(NormalAnnotation node) {
-			return false;
-		}
+    out.write(document.get());
+    out.flush();
+    out.close();
 
-		@Override
-		public boolean visit(MarkerAnnotation node) {
-			return false;
-		}
+    // done with visiting set af
+    // how to determine whether the analyzed file is suitable?
+    // when \exists at least one suitable method
+    for (AnalyzedMethod m : af.getAnalyzedMethods()) {
+      if (m.getTypeConditionalCount() >= minTypeCond && m.getTypeOperationCount() >= minTypeExpr
+          && m.getTypeParameterCount() >= minTypeParams) {
+        af.addSuitableMethod(m);
+      }
+    }
+    if (!af.getSuitableMethods().isEmpty()) {
+      System.out.println(af.getFile().getName());
+      for (AnalyzedMethod m : af.getSuitableMethods()) {
+        System.out.println("\t" + m.getName() + "\t" + m.getTypeConditionalCount() + "\t"
+            + m.getTypeOperationCount() + "\t" + m.getTypeParameterCount());
+      }
+    }
 
-		@Override
-		public boolean visit(SingleMemberAnnotation node) {
-			return false;
-		}
+  }
 
-		@Override
-		public boolean visit(AnnotationTypeDeclaration node) {
-			return false;
-		}
+  public int getTotalIntOperations() {
+    int count = 0;
+    for (AnalyzedMethod m : af.getAnalyzedMethods()) {
+      count += m.getTypeOperationCount();
+    }
+    return count;
+  }
 
-		@Override
-		public boolean visit(EnumDeclaration node) {
-			return false;
-		}
+  public int getTotalConditionals() {
+    int count = 0;
+    for (AnalyzedMethod m : af.getAnalyzedMethods()) {
+      count += m.getTypeConditionalCount();
+    }
+    return count;
+  }
 
-		@Override
-		public boolean visit(MethodDeclaration node) {
-			AnalyzedMethod am = new AnalyzedMethod(node);
-			af.addMethod(am);
+  public AnalyzedFile getAnalyzedFile() {
+    return af;
+  }
 
-			checkParameterTypes(am, node);
-			//currMethodDeclaration = node;
-			currAnalyzedMethod = am;
-			//System.out.println("Method\t" + am.getName());
+  private class AnalyzerVisitor extends ASTVisitor {
+    private ASTRewrite rewriter;
+    private boolean edit;
 
-//			@SuppressWarnings("unchecked")
-//			HashSet<String> liveIntVariables = (HashSet<String>) classIntVariables.clone();
-			//@SuppressWarnings("unchecked")
-//			List<SingleVariableDeclaration> parameters = (List<SingleVariableDeclaration>) (node.parameters());
-//
-//			for (SingleVariableDeclaration parameter : parameters) {
-//				Type parameterType = parameter.getType();
-//				if (!parameterType.isPrimitiveType())
-//					continue;
-//
-//				if (isIntegerTypeCode(parameterType)) {
-//					String parameterName = parameter.getName().getIdentifier();
-//					liveIntVariables.add(parameterName);
-//				}
-//			}
-//
-//			blockStack.push(liveIntVariables);
+    // @Override
+    // public boolean visit(TypeDeclaration node) {
+    // blockStack.add(new HashSet<String>());
+    // return true;
+    // }
 
-			return true;
-		}
+    public AnalyzerVisitor() {
+      edit = false;
+    }
 
-		@Override
-		public void endVisit(MethodDeclaration node) {
-			//System.out.println("Visiting " + node.getName());
-			AnalyzedMethod m = currAnalyzedMethod;
-			int intOpCount = m.getTypeOperationCount();
-			if(intOpCount > 0) {
-				m.setHasTypeOperations(true);
-			}
-			
-			if(m.getTypeConditionalCount() > 0) {
-				m.setHasTypeConditional(true);
-			}
-			
-			if(m.getTypeParameterCount() > 0) {
-				m.setHasOnlyTypeParameters(true);
-			}
-			
-			if(m.getTypeConditionalCount() < minTypeCond || 
-					m.getTypeOperationCount() < minTypeExpr || 
-					m.getTypeParameterCount() < minTypeParams) {
-				//System.out.println("Removing " + node.getName());
-				rewriter.remove(node, null);
-			}
-		}
+    public AnalyzerVisitor(ASTRewrite rewriter) {
+      this.rewriter = rewriter;
+      edit = true;
+    }
 
-		@Override
-		public boolean visit(Block node) {
-//			if (!blockStack.empty()) {
-//				HashSet<String> liveIntVariables = blockStack.peek();
-//				@SuppressWarnings("unchecked")
-//				HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
-//				blockStack.push(localVarsClone);
-//			} else {
-//				blockStack.push(new HashSet<>());
-//			}
-			return true;
-		}
+    @Override
+    public boolean visit(FieldDeclaration node) {
 
-//		@Override
-//		public void endVisit(Block node) {
-//			blockStack.pop();
-//		}
-		
-		
-		@Override
-		public boolean visit(IfStatement node) {
-			//eas we need to check whether the expression is of int type
-			//do we do it here or somewhere else?
-			Expression e = node.getExpression();
-			boolean hasType = hasType(e);
-			//System.out.println(e.getClass() + " " + hasType + " " + typeTable.getNodeType(e));
-			//try to visit it and find out whether it has integer exprssions?
-			//it can be 1) Boolean expression, 2) Infix expression, 3) Conditional expression
-			// other expressions that can return boolean value
-			//let's focus on infix expressions
-			// let's not -- just check whether the expression has required type
-			// that is operands there have type for which analysis is built
-		//--	if(e instanceof InfixExpression) {
-//				InfixExpression infE = (InfixExpression) e;
-//				Expression lE = infE.getLeftOperand();
-//				Type t = typeTable.getNodeType(lE);
-//				if(TypeChecker.checkType(t) == type) {
-//					currAnalyzedMethod.setHasConditional(true);
-//				}
-				//remember the count before
-				if(hasType) {
-					currAnalyzedMethod.setConditionalCount(currAnalyzedMethod.getTypeConditionalCount()+1);
-					
-				}
-				
-			//--}
-		
-			//then the visitor will go into expression and count
-			//what it needs to count
-			return true;
-		}
-		
-		private boolean hasType(Expression e) {
-			boolean ret = false;
-			if(e instanceof InfixExpression) {
-				InfixExpression infE = (InfixExpression) e;
-				Expression lE = infE.getLeftOperand();
-				Expression rE = infE.getRightOperand();
-				Type lT = typeTable.getNodeType(lE);
-				Type rT = typeTable.getNodeType(rE);
-				if(TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type) {
-					ret = true;
-				} else if (TypeChecker.isBooleanType(rT) || TypeChecker.isBooleanType(lT)) {
-					//call again since it might be just a complex expression
-					ret = hasType(lE) || hasType(rE);
-				}
-			}  else {
-				//if it is not an infix expression then it should
-				//be some single var of a boolean type
-				Type vT = typeTable.getNodeType(e);
-				if(TypeChecker.isBooleanType(vT)) {
-					//System.out.println("Just a var");
-					ret = true;
-				}
-			}
-			return ret;
-		}
-		
-		@Override
-		public void endVisit(IfStatement node) {
-			//System.out.println("done visiting");
-		}
+      return false;
+    }
 
-		/*
-		 * What about while statement?
-		 */
-		
-		@Override
-		public boolean visit(ForStatement node) {
-			currAnalyzedMethod.setHasLoop(true);
-			// To handle scope of local variables
-//			if (!blockStack.empty()) {
-//				HashSet<String> liveIntVariables = blockStack.peek();
-//				@SuppressWarnings("unchecked")
-//				HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
-//				blockStack.push(localVarsClone);
-//			} else {
-//				blockStack.push(new HashSet<>());
-//			}
-//
-//			@SuppressWarnings("unchecked")
-//			List<Expression> initializers = node.initializers();
-//
-//			for (Expression variable : initializers) {
-//				if (variable.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION)
-//					continue;
-//
-//				Type variableType = ((VariableDeclarationExpression) variable).getType();
-//
-//				if (!variableType.isPrimitiveType())
-//					continue;
-//
-//				if (isIntegerTypeCode(variableType)) {
-//					@SuppressWarnings("unchecked")
-//					List<VariableDeclarationFragment> fragments = ((VariableDeclarationExpression) variable)
-//							.fragments();
-//					HashSet<String> liveIntVariables = blockStack.pop();
-//
-//					for (VariableDeclarationFragment fragment : fragments) {
-//						String loopVariable = fragment.getName().getIdentifier();
-//						liveIntVariables.add(loopVariable);
-//					}
-//
-//					blockStack.push(liveIntVariables);
-//				}
-//			}
-			return true;
-		}
+    @Override
+    public boolean visit(Initializer node) {
+      return false;
+    }
 
-		@Override
-		public void endVisit(ForStatement node) {
-			//blockStack.pop();
-		}
+    @Override
+    public boolean visit(NormalAnnotation node) {
+      return false;
+    }
 
-		@Override
-		public boolean visit(VariableDeclarationStatement node) {
+    @Override
+    public boolean visit(MarkerAnnotation node) {
+      return false;
+    }
 
-//			Type variableType = node.getType();
-//			if (!variableType.isPrimitiveType()) {
-//				// right now we are just ignoring non-primitive declarations
-//				return true;
-//			}
-//
-//			@SuppressWarnings("unchecked")
-//			List<VariableDeclarationFragment> fragments = node.fragments();
-//			HashSet<String> liveIntVariables = blockStack.pop();
-//
-//			if (isIntegerTypeCode(variableType)) {
-//				for (VariableDeclarationFragment fragment : fragments) {
-//					String variableName = fragment.getName().getIdentifier();
-//					liveIntVariables.add(variableName);
-//				}
-//
-//			} else {
-//				// Check if we are redefining an instance variable to be non integer
-//				for (VariableDeclarationFragment fragment : fragments) {
-//					String variableName = fragment.getName().getIdentifier();
-//
-//					if (isLiveIntVariable(variableName)) {
-//						liveIntVariables.remove(variableName);
-//					}
-//				}
-//			}
-//
-//			blockStack.push(liveIntVariables);
+    @Override
+    public boolean visit(SingleMemberAnnotation node) {
+      return false;
+    }
 
-			return true;
-		}
+    @Override
+    public boolean visit(AnnotationTypeDeclaration node) {
+      return false;
+    }
 
-//		@Override
-//		public boolean visit(Assignment node) {
-//			HashSet<String> liveIntVariables = blockStack.peek();
-//			Expression lhs = node.getLeftHandSide();
-//			if (!isVariable(lhs)) {
-//				return true;
-//			}
-//			String variableName = lhs.toString();
-//			if (liveIntVariables.contains(variableName)) {
-//				if (node.getOperator() != Assignment.Operator.ASSIGN) {
-//					currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
-//				}
-//			}
-//			return true;
-//		}
+    @Override
+    public boolean visit(EnumDeclaration node) {
+      return false;
+    }
 
-		@Override
-		public boolean visit(CastExpression node) {
-			//expressionsStack.push(node);
-			return true;
-		}
+    @Override
+    public boolean visit(MethodDeclaration node) {
+      AnalyzedMethod am = new AnalyzedMethod(node);
+      af.addMethod(am);
 
-//		@Override
-//		public void endVisit(CastExpression node) {
-//			Type type = node.getType();
-//			intExpression = isIntegerTypeCode(type) ? true : false;
-//			//expressionsStack.pop();
-//			//not sure why are we counting casting as an operation
-//			//if (parentExpression()) {
-//				if (intExpression) {
-//					currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
-//				}
-//				operationsInExpression = 0;
-//				intExpression = true;
-//			//}
-//		}
+      checkParameterTypes(am, node);
+      // currMethodDeclaration = node;
+      currAnalyzedMethod = am;
+      // System.out.println("Method\t" + am.getName());
 
-		@Override
-		public boolean visit(InfixExpression node) {
-			//expressionsStack.push(node);
+      // @SuppressWarnings("unchecked")
+      // HashSet<String> liveIntVariables = (HashSet<String>)
+      // classIntVariables.clone();
+      // @SuppressWarnings("unchecked")
+      // List<SingleVariableDeclaration> parameters =
+      // (List<SingleVariableDeclaration>) (node.parameters());
+      //
+      // for (SingleVariableDeclaration parameter : parameters) {
+      // Type parameterType = parameter.getType();
+      // if (!parameterType.isPrimitiveType())
+      // continue;
+      //
+      // if (isIntegerTypeCode(parameterType)) {
+      // String parameterName = parameter.getName().getIdentifier();
+      // liveIntVariables.add(parameterName);
+      // }
+      // }
+      //
+      // blockStack.push(liveIntVariables);
 
-			//System.out.println(" n " + node + "\t" + typeTable.getNodeType(node));
-			Expression lE = node.getLeftOperand();
-			Type lT = typeTable.getNodeType(lE);
-			Expression rE = node.getRightOperand();
-			Type rT = typeTable.getNodeType(rE);
-			//if the parent node is not a boolean type (no logical connections)
-			//and if lhs and rhs of the required type than its op should some
-			//kind of numerical operator
-			if((TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type)) {
-				
-				//does it matter what type of operand is it?
-			Operator op = node.getOperator();
-//			if (op == Operator.PLUS ||
-//					op == Operator.MINUS ||
-//					op == Operator.DIVIDE ||
-//					op == Operator.TIMES ||
-//					op == Operator.REMAINDER) {
-				// so we count that operations
-				//if the type is int
-			if(!TypeChecker.isBooleanType(typeTable.getNodeType(node))) {
-				//System.out.println("op " + op);
-					operationsInExpression++;
-			}
-				//}
-			} else if( !TypeChecker.isBooleanType(lT) && !TypeChecker.isBooleanType(rT)){
-				// no need to go further if lhs is not of int type and not boolean
-				//since a condition might use logical constructs to build complex expressions
-				return false;
-			}
-			return true;
-		}
+      return true;
+    }
 
-		@Override
-		public void endVisit(InfixExpression node) {
-			//expressionsStack.pop();
-			if(operationsInExpression > 0) {
-				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+1);
-					operationsInExpression = 0;
-			}
-		}
+    @Override
+    public void endVisit(MethodDeclaration node) {
+      // System.out.println("Visiting " + node.getName());
+      AnalyzedMethod m = currAnalyzedMethod;
+      int intOpCount = m.getTypeOperationCount();
+      if (intOpCount > 0) {
+        m.setHasTypeOperations(true);
+      }
 
-		@Override
-		public boolean visit(PrefixExpression node) {
-			//expressionsStack.push(node);
-			//System.out.println("Prefix " + node);
-			Expression operand = node.getOperand();
-			CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
-			if( tOp == type) {
-				//so it is integer
-				operationsInExpression++;
-				//System.out.println("preixCount");
-			} else {
-				//no need to go if it is not an int
-				return false;
-			}
+      if (m.getTypeConditionalCount() > 0) {
+        m.setHasTypeConditional(true);
+      }
 
-			return true;
-		}
+      if (m.getTypeParameterCount() > 0) {
+        m.setHasOnlyTypeParameters(true);
+      }
 
-		@Override
-		public void endVisit(PrefixExpression node) {
-			//expressionsStack.pop();
-			if(operationsInExpression > 0) {
-				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+operationsInExpression);
-					operationsInExpression = 0;
-				}
-				
-		}
+      if (m.getTypeConditionalCount() < minTypeCond ||
+          m.getTypeOperationCount() < minTypeExpr ||
+          m.getTypeParameterCount() < minTypeParams) {
+        // System.out.println("Removing " + node.getName());
+        rewriter.remove(node, null);
+      }
+    }
 
-		@Override
-		public boolean visit(PostfixExpression node) {
-			//expressionsStack.push(node);
-			//HashSet<String> liveIntVariables = blockStack.peek();
-			Expression operand = node.getOperand();
-			//System.out.println("postfix " + node);
-			CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
-			if(tOp == type) {
-				operationsInExpression++;
-				//System.out.println("postfix");
-			} else {
-				//no need to go in if it is not an int
-				return false;
-			}
+    @Override
+    public boolean visit(Block node) {
+      // if (!blockStack.empty()) {
+      // HashSet<String> liveIntVariables = blockStack.peek();
+      // @SuppressWarnings("unchecked")
+      // HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
+      // blockStack.push(localVarsClone);
+      // } else {
+      // blockStack.push(new HashSet<>());
+      // }
+      return true;
+    }
 
-			return true;
-		}
+    // @Override
+    // public void endVisit(Block node) {
+    // blockStack.pop();
+    // }
 
-		@Override
-		public void endVisit(PostfixExpression node) {
-			//expressionsStack.pop();
-			if(operationsInExpression > 0) {
-				currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+operationsInExpression);
-			operationsInExpression = 0;
-				}
-				
+    @Override
+    public boolean visit(IfStatement node) {
+      // eas we need to check whether the expression is of int type
+      // do we do it here or somewhere else?
+      Expression e = node.getExpression();
+      boolean hasType = hasType(e);
+      // System.out.println(e.getClass() + " " + hasType + " " +
+      // typeTable.getNodeType(e));
+      // try to visit it and find out whether it has integer exprssions?
+      // it can be 1) Boolean expression, 2) Infix expression, 3) Conditional
+      // expression
+      // other expressions that can return boolean value
+      // let's focus on infix expressions
+      // let's not -- just check whether the expression has required type
+      // that is operands there have type for which analysis is built
+      // -- if(e instanceof InfixExpression) {
+      // InfixExpression infE = (InfixExpression) e;
+      // Expression lE = infE.getLeftOperand();
+      // Type t = typeTable.getNodeType(lE);
+      // if(TypeChecker.checkType(t) == type) {
+      // currAnalyzedMethod.setHasConditional(true);
+      // }
+      // remember the count before
+      if (hasType) {
+        currAnalyzedMethod.setConditionalCount(currAnalyzedMethod.getTypeConditionalCount() + 1);
 
+      }
 
-	}
+      // --}
 
-	private void checkParameterTypes(AnalyzedMethod am, MethodDeclaration node) {
-		List<SingleVariableDeclaration> parameters = node.parameters();
-		if (!parameters.isEmpty()) {
-			am.setHasParameters(true);
-			int typeParams = 0;
-			for (SingleVariableDeclaration parameter : parameters) {
-				CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
-				if(parType == type) {
-				  typeParams++;
-				}
-			}
-			//found all parameters of a particular type
-			am.setTypeParameterCount(typeParams);
-			if(parameters.size() == typeParams) {
-				am.setHasOnlyTypeParameters(true);
-			}
-			
-//			if (hasOnlyIntegerParameters(parameters)) {
-//				am.setHasOnlyIntParameters(true);
-//				am.setIntParameterCount(parameters.size());
-//			} else {
-//				am.setHasOnlyIntParameters(false);
-//			}
-		} else {
-			am.setHasParameters(false);
-		}
-	}
+      // then the visitor will go into expression and count
+      // what it needs to count
+      return true;
+    }
 
-//	public boolean hasOnlyIntegerParameters(List<SingleVariableDeclaration> parameters) {
-//		for (SingleVariableDeclaration parameter : parameters) {
-//			CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
-//			if(parType != type && parType != CType.BOOLEAN) {
-//			//if (!isIntegerParameter(parameter)) {
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
+    private boolean hasType(Expression e) {
+      boolean ret = false;
+      if (e instanceof InfixExpression) {
+        InfixExpression infE = (InfixExpression) e;
+        Expression lE = infE.getLeftOperand();
+        Expression rE = infE.getRightOperand();
+        Type lT = typeTable.getNodeType(lE);
+        Type rT = typeTable.getNodeType(rE);
 
-//	private boolean isSingleParameter(SingleVariableDeclaration parameter) {
-//		return (parameter.getExtraDimensions() == 0 && !parameter.isVarargs());
-//	}
+        if (TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type) {
+          ret = true;
+        } else if (TypeChecker.isBooleanType(rT) || TypeChecker.isBooleanType(lT)) {
+          // call again since it might be just a complex expression
+          ret = hasType(lE) || hasType(rE);
+        }
 
-//	private boolean isIntegerParameter(SingleVariableDeclaration parameter) {
-//		if (!isSingleParameter(parameter))
-//			return false;
-//		Type type = parameter.getType();
-//		if (!type.isPrimitiveType())
-//			return false;
-//
-//		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-//		return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
-//				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
-//	}
+        // Concatenation special case
+        if (type == CType.STRING && infE.getOperator() == InfixExpression.Operator.PLUS) {
+          if (TypeChecker.isStringType(lT) || TypeChecker.isStringType(rT)) {
+            ret = true;
+          }
+        }
+      } else if (e instanceof MethodInvocation) {
+        MethodInvocation mi = (MethodInvocation) e;
+        String methodName = mi.getName().getIdentifier();
+        Type recType = typeTable.getNodeType(mi.getExpression());
+        if (type == CType.STRING && TypeChecker.isStringType(recType)) {
+          ret = isStringOperation(methodName);
+        }
+      } else {
+        // if it is not an infix expression then it should
+        // be some single var of a boolean type
+        Type vT = typeTable.getNodeType(e);
+        if (TypeChecker.isStringType(vT) && type == CType.STRING) {
+          ret = true;
+        }
+        if (TypeChecker.isBooleanType(vT)) {
+          // System.out.println("Just a var");
+          ret = true;
+        }
+      }
+      return ret;
+    }
 
-//	private boolean isIntegerTypeCode(Type type) {
-//		if (!type.isPrimitiveType())
-//			return false;
-//		Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
-//
-//		return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT || typeCode == PrimitiveType.LONG
-//				|| typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
-//	}
-//
-//	private boolean isVariable(Expression exp) {
-//		return (exp instanceof SimpleName || exp instanceof QualifiedName);
-//	}
+    // TODO: StringBuilder and StringBudder methods
+    private boolean isStringOperation(String methodName) {
+      return methodName.equals("length") || methodName.equals("substring") ||
+          methodName.equals("charAt") || methodName.equals("indexOf") ||
+          methodName.equals("concat") || methodName.equals("equals") ||
+          methodName.equals("compareTo") || methodName.equals("toUpperCase") ||
+          methodName.equals("toLowerCase") || methodName.equals("trim");
+    }
 
+    @Override
+    public void endVisit(IfStatement node) {
+      // System.out.println("done visiting");
+    }
 
+    /*
+     * What about while statement?
+     */
 
-//	private boolean isLiveIntVariable(String name) {
-//		HashSet<String> liveIntVariables = blockStack.peek();
-//		if (liveIntVariables.contains(name)) {
-//			return true;
-//		}
-//		return false;
-//	}
+    @Override
+    public boolean visit(ForStatement node) {
+      currAnalyzedMethod.setHasLoop(true);
+      // To handle scope of local variables
+      // if (!blockStack.empty()) {
+      // HashSet<String> liveIntVariables = blockStack.peek();
+      // @SuppressWarnings("unchecked")
+      // HashSet<String> localVarsClone = (HashSet<String>) liveIntVariables.clone();
+      // blockStack.push(localVarsClone);
+      // } else {
+      // blockStack.push(new HashSet<>());
+      // }
+      //
+      // @SuppressWarnings("unchecked")
+      // List<Expression> initializers = node.initializers();
+      //
+      // for (Expression variable : initializers) {
+      // if (variable.getNodeType() != ASTNode.VARIABLE_DECLARATION_EXPRESSION)
+      // continue;
+      //
+      // Type variableType = ((VariableDeclarationExpression) variable).getType();
+      //
+      // if (!variableType.isPrimitiveType())
+      // continue;
+      //
+      // if (isIntegerTypeCode(variableType)) {
+      // @SuppressWarnings("unchecked")
+      // List<VariableDeclarationFragment> fragments =
+      // ((VariableDeclarationExpression) variable)
+      // .fragments();
+      // HashSet<String> liveIntVariables = blockStack.pop();
+      //
+      // for (VariableDeclarationFragment fragment : fragments) {
+      // String loopVariable = fragment.getName().getIdentifier();
+      // liveIntVariables.add(loopVariable);
+      // }
+      //
+      // blockStack.push(liveIntVariables);
+      // }
+      // }
+      return true;
+    }
 
+    @Override
+    public void endVisit(ForStatement node) {
+      // blockStack.pop();
+    }
 
-//	private boolean parentExpression() {
-//		return expressionsStack.isEmpty();
-//	}
-	}
+    @Override
+    public boolean visit(VariableDeclarationStatement node) {
+
+      // Type variableType = node.getType();
+      // if (!variableType.isPrimitiveType()) {
+      // // right now we are just ignoring non-primitive declarations
+      // return true;
+      // }
+      //
+      // @SuppressWarnings("unchecked")
+      // List<VariableDeclarationFragment> fragments = node.fragments();
+      // HashSet<String> liveIntVariables = blockStack.pop();
+      //
+      // if (isIntegerTypeCode(variableType)) {
+      // for (VariableDeclarationFragment fragment : fragments) {
+      // String variableName = fragment.getName().getIdentifier();
+      // liveIntVariables.add(variableName);
+      // }
+      //
+      // } else {
+      // // Check if we are redefining an instance variable to be non integer
+      // for (VariableDeclarationFragment fragment : fragments) {
+      // String variableName = fragment.getName().getIdentifier();
+      //
+      // if (isLiveIntVariable(variableName)) {
+      // liveIntVariables.remove(variableName);
+      // }
+      // }
+      // }
+      //
+      // blockStack.push(liveIntVariables);
+
+      return true;
+    }
+
+    // @Override
+    // public boolean visit(Assignment node) {
+    // HashSet<String> liveIntVariables = blockStack.peek();
+    // Expression lhs = node.getLeftHandSide();
+    // if (!isVariable(lhs)) {
+    // return true;
+    // }
+    // String variableName = lhs.toString();
+    // if (liveIntVariables.contains(variableName)) {
+    // if (node.getOperator() != Assignment.Operator.ASSIGN) {
+    // currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
+    // }
+    // }
+    // return true;
+    // }
+
+    @Override
+    public boolean visit(CastExpression node) {
+      // expressionsStack.push(node);
+      return true;
+    }
+
+    // @Override
+    // public void endVisit(CastExpression node) {
+    // Type type = node.getType();
+    // intExpression = isIntegerTypeCode(type) ? true : false;
+    // //expressionsStack.pop();
+    // //not sure why are we counting casting as an operation
+    // //if (parentExpression()) {
+    // if (intExpression) {
+    // currAnalyzedMethod.setIntOperationCount(currAnalyzedMethod.getIntOperationCount()+1);
+    // }
+    // operationsInExpression = 0;
+    // intExpression = true;
+    // //}
+    // }
+
+    @Override
+    public boolean visit(InfixExpression node) {
+      // expressionsStack.push(node);
+
+      // System.out.println(" n " + node + "\t" + typeTable.getNodeType(node));
+      Expression lE = node.getLeftOperand();
+      Type lT = typeTable.getNodeType(lE);
+      Expression rE = node.getRightOperand();
+      Type rT = typeTable.getNodeType(rE);
+      Operator op = node.getOperator();
+
+      // if the parent node is not a boolean type (no logical connections)
+      // and if lhs and rhs of the required type than its op should some
+      // kind of numerical operator
+
+      if (type == CType.STRING && op == Operator.PLUS) {
+        // special case of string concatenation
+        if (TypeChecker.isStringType(lT) || TypeChecker.isStringType(rT)) {
+          operationsInExpression++;
+        }
+      } else if ((TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type)) {
+
+        // does it matter what type of operand is it?
+        // if (op == Operator.PLUS ||
+        // op == Operator.MINUS ||
+        // op == Operator.DIVIDE ||
+        // op == Operator.TIMES ||
+        // op == Operator.REMAINDER) {
+        // so we count that operations
+        // if the type is int
+        if (!TypeChecker.isBooleanType(typeTable.getNodeType(node))) {
+          // System.out.println("op " + op);
+          operationsInExpression++;
+        }
+        // }
+      }
+      // no need to go further if lhs is not of int type and not boolean
+      // since a condition might use logical constructs to build complex expressions
+      return !TypeChecker.isBooleanType(lT) && !TypeChecker.isBooleanType(rT) &&
+          !TypeChecker.isStringType(lT) && !TypeChecker.isStringType(rT);
+    }
+
+    @Override
+    public boolean visit(MethodInvocation node) {
+      if (type == CType.STRING) {
+        String methodName = node.getName().getIdentifier();
+        if (isStringOperation(methodName)) {
+          operationsInExpression++;
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public void endVisit(InfixExpression node) {
+      // expressionsStack.pop();
+      if (operationsInExpression > 0) {
+        currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount() + 1);
+        operationsInExpression = 0;
+      }
+    }
+
+    @Override
+    public boolean visit(PrefixExpression node) {
+      // expressionsStack.push(node);
+      // System.out.println("Prefix " + node);
+      Expression operand = node.getOperand();
+      CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
+      if (tOp == type) {
+        // so it is integer
+        operationsInExpression++;
+        // System.out.println("preixCount");
+      } else {
+        // no need to go if it is not an int
+        return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public void endVisit(PrefixExpression node) {
+      // expressionsStack.pop();
+      if (operationsInExpression > 0) {
+        currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount() + operationsInExpression);
+        operationsInExpression = 0;
+      }
+
+    }
+
+    @Override
+    public boolean visit(PostfixExpression node) {
+      // expressionsStack.push(node);
+      // HashSet<String> liveIntVariables = blockStack.peek();
+      Expression operand = node.getOperand();
+      // System.out.println("postfix " + node);
+      CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
+      if (tOp == type) {
+        operationsInExpression++;
+        // System.out.println("postfix");
+      } else {
+        // no need to go in if it is not an int
+        return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public void endVisit(PostfixExpression node) {
+      // expressionsStack.pop();
+      if (operationsInExpression > 0) {
+        currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount() + operationsInExpression);
+        operationsInExpression = 0;
+      }
+
+    }
+
+    private void checkParameterTypes(AnalyzedMethod am, MethodDeclaration node) {
+      List<SingleVariableDeclaration> parameters = node.parameters();
+      if (!parameters.isEmpty()) {
+        am.setHasParameters(true);
+        int typeParams = 0;
+        for (SingleVariableDeclaration parameter : parameters) {
+          CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
+          if (parType == type) {
+            typeParams++;
+          }
+        }
+        // found all parameters of a particular type
+        am.setTypeParameterCount(typeParams);
+        if (parameters.size() == typeParams) {
+          am.setHasOnlyTypeParameters(true);
+        }
+
+        // if (hasOnlyIntegerParameters(parameters)) {
+        // am.setHasOnlyIntParameters(true);
+        // am.setIntParameterCount(parameters.size());
+        // } else {
+        // am.setHasOnlyIntParameters(false);
+        // }
+      } else {
+        am.setHasParameters(false);
+      }
+    }
+
+    // public boolean hasOnlyIntegerParameters(List<SingleVariableDeclaration>
+    // parameters) {
+    // for (SingleVariableDeclaration parameter : parameters) {
+    // CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
+    // if(parType != type && parType != CType.BOOLEAN) {
+    // //if (!isIntegerParameter(parameter)) {
+    // return false;
+    // }
+    // }
+    // return true;
+    // }
+
+    // private boolean isSingleParameter(SingleVariableDeclaration parameter) {
+    // return (parameter.getExtraDimensions() == 0 && !parameter.isVarargs());
+    // }
+
+    // private boolean isIntegerParameter(SingleVariableDeclaration parameter) {
+    // if (!isSingleParameter(parameter))
+    // return false;
+    // Type type = parameter.getType();
+    // if (!type.isPrimitiveType())
+    // return false;
+    //
+    // Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+    // return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT ||
+    // typeCode == PrimitiveType.LONG
+    // || typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
+    // }
+
+    // private boolean isIntegerTypeCode(Type type) {
+    // if (!type.isPrimitiveType())
+    // return false;
+    // Code typeCode = ((PrimitiveType) type).getPrimitiveTypeCode();
+    //
+    // return (typeCode == PrimitiveType.CHAR || typeCode == PrimitiveType.INT ||
+    // typeCode == PrimitiveType.LONG
+    // || typeCode == PrimitiveType.SHORT || typeCode == PrimitiveType.BYTE);
+    // }
+    //
+    // private boolean isVariable(Expression exp) {
+    // return (exp instanceof SimpleName || exp instanceof QualifiedName);
+    // }
+
+    // private boolean isLiveIntVariable(String name) {
+    // HashSet<String> liveIntVariables = blockStack.peek();
+    // if (liveIntVariables.contains(name)) {
+    // return true;
+    // }
+    // return false;
+    // }
+
+    // private boolean parentExpression() {
+    // return expressionsStack.isEmpty();
+    // }
+  }
 }

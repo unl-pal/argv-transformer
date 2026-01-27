@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Set;
+import java.util.HashMap;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -47,6 +49,7 @@ import transform.TypeChecking.TypeTable;
 import transform.visitors.SymbolTableVisitor;
 import transform.visitors.TypeCollectVisitor;
 import transform.visitors.TypeTableVisitor;
+import logging.Logger;
 
 /**
  * The parameterized version of SymblicSuitableMethodFinder, which
@@ -59,8 +62,10 @@ import transform.visitors.TypeTableVisitor;
  */
 public class SuitableMethodFinder {
 
-  private CType type;
+  private static final Logger logger = Logger.defaultLogger;
+  private HashMap<String, Integer> currOpCounts = new HashMap<>();
 
+  private CType type;
   private AnalyzedFile af;
   // private MethodDeclaration currMethodDeclaration;
   private AnalyzedMethod currAnalyzedMethod;
@@ -70,7 +75,7 @@ public class SuitableMethodFinder {
   // private ArrayList<String> unprocessedExpressions;
   // private boolean intExpression = true;
   // private List<AnalyzedMethod> intOperationsCount;
-  private int operationsInExpression;
+  // private int operationsInExpression;
   // private AnalyzerVisitor visitor;
   private TypeTable typeTable;
   private int minTypeExpr;
@@ -90,7 +95,7 @@ public class SuitableMethodFinder {
     // classIntVariables = new HashSet<String>();
     // blockStack = new Stack<HashSet<String>>();
     // expressionsStack = new Stack<Expression>();
-    operationsInExpression = 0;
+    // operationsInExpression = 0;
     // unprocessedExpressions = new ArrayList<String>();
     // setting type to int for now
     type = CType.INT;
@@ -105,6 +110,8 @@ public class SuitableMethodFinder {
   }
 
   public void analyze() throws IOException {
+    logger.enterContext("SuitableMethodFinder.analyze");
+
     File file = af.getFile();
     String source = new String(Files.readAllBytes(file.toPath()));
     ASTParser parser = ASTParser.newParser(AST.JLS8);
@@ -129,7 +136,8 @@ public class SuitableMethodFinder {
     try {
       node.accept(typeTableVisitor);
     } catch (Exception e) {
-      System.out.println("needs more work");
+      System.err.println("needs more work");
+      System.err.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
     }
     typeTable = typeTableVisitor.getTypeTable();
 
@@ -155,35 +163,22 @@ public class SuitableMethodFinder {
     // how to determine whether the analyzed file is suitable?
     // when \exists at least one suitable method
     for (AnalyzedMethod m : af.getAnalyzedMethods()) {
-      if (m.getTypeConditionalCount() >= minTypeCond && m.getTypeOperationCount() >= minTypeExpr
-          && m.getTypeParameterCount() >= minTypeParams) {
+      // currently does not require exclusive params... (there is a isSymbolicSuitable
+      // method)
+      if (m.isSuitable(minTypeExpr, minTypeCond, minTypeParams)) {
         af.addSuitableMethod(m);
       }
     }
-    if (!af.getSuitableMethods().isEmpty()) {
-      System.out.println(af.getFile().getName());
+
+    if (!af.getSuitableMethods().isEmpty() && logger.getDebugLevel() > 1) {
+      logger.logln("Suitable file: " + af.getFile().getName(), 2);
       for (AnalyzedMethod m : af.getSuitableMethods()) {
-        System.out.println("\t" + m.getName() + "\t" + m.getTypeConditionalCount() + "\t"
-            + m.getTypeOperationCount() + "\t" + m.getTypeParameterCount());
+        logger.logln("\tmethod: " + m.getName(), 2);
+        logger.logln("\t\ttype: " + m.getTypeConditionalCount() + " ops: " + m.getTypeOperationCount()
+            + " params: " + m.getTypeParameterCount(), 2);
       }
     }
 
-  }
-
-  public int getTotalIntOperations() {
-    int count = 0;
-    for (AnalyzedMethod m : af.getAnalyzedMethods()) {
-      count += m.getTypeOperationCount();
-    }
-    return count;
-  }
-
-  public int getTotalConditionals() {
-    int count = 0;
-    for (AnalyzedMethod m : af.getAnalyzedMethods()) {
-      count += m.getTypeConditionalCount();
-    }
-    return count;
   }
 
   public AnalyzedFile getAnalyzedFile() {
@@ -301,6 +296,10 @@ public class SuitableMethodFinder {
         // System.out.println("Removing " + node.getName());
         rewriter.remove(node, null);
       }
+
+      // record operation information about method (derive class level etc. later)
+      m.setOpCounts(currOpCounts);
+      currOpCounts = new HashMap<>();
     }
 
     @Override
@@ -356,6 +355,7 @@ public class SuitableMethodFinder {
       return true;
     }
 
+    // for determining whether the expression for a conditional has relevant type
     private boolean hasType(Expression e) {
       boolean ret = false;
       if (e instanceof InfixExpression) {
@@ -389,9 +389,6 @@ public class SuitableMethodFinder {
         // if it is not an infix expression then it should
         // be some single var of a boolean type
         Type vT = typeTable.getNodeType(e);
-        if (TypeChecker.isStringType(vT) && type == CType.STRING) {
-          ret = true;
-        }
         if (TypeChecker.isBooleanType(vT)) {
           // System.out.println("Just a var");
           ret = true;
@@ -556,7 +553,8 @@ public class SuitableMethodFinder {
       if (type == CType.STRING && op == Operator.PLUS) {
         // special case of string concatenation
         if (TypeChecker.isStringType(lT) || TypeChecker.isStringType(rT)) {
-          operationsInExpression++;
+          currOpCounts.merge("concat", 1, Integer::sum);
+          currAnalyzedMethod.incrementTypeOperationCount();
         }
       } else if ((TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type)) {
 
@@ -570,7 +568,7 @@ public class SuitableMethodFinder {
         // if the type is int
         if (!TypeChecker.isBooleanType(typeTable.getNodeType(node))) {
           // System.out.println("op " + op);
-          operationsInExpression++;
+          currAnalyzedMethod.incrementTypeOperationCount();
         }
         // }
       }
@@ -585,7 +583,9 @@ public class SuitableMethodFinder {
       if (type == CType.STRING) {
         String methodName = node.getName().getIdentifier();
         if (isStringOperation(methodName)) {
-          operationsInExpression++;
+          currOpCounts.merge(methodName, 1, Integer::sum);
+          currAnalyzedMethod.incrementTypeOperationCount();
+          // operationsInExpression++;
           return false;
         }
       }
@@ -595,10 +595,11 @@ public class SuitableMethodFinder {
     @Override
     public void endVisit(InfixExpression node) {
       // expressionsStack.pop();
-      if (operationsInExpression > 0) {
-        currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount() + 1);
-        operationsInExpression = 0;
-      }
+      // if (operationsInExpression > 0) {
+      // currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()
+      // + 1);
+      // operationsInExpression = 0;
+      // }
     }
 
     @Override
@@ -609,7 +610,8 @@ public class SuitableMethodFinder {
       CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
       if (tOp == type) {
         // so it is integer
-        operationsInExpression++;
+        // operationsInExpression++;
+        currAnalyzedMethod.incrementTypeOperationCount();
         // System.out.println("preixCount");
       } else {
         // no need to go if it is not an int
@@ -622,10 +624,11 @@ public class SuitableMethodFinder {
     @Override
     public void endVisit(PrefixExpression node) {
       // expressionsStack.pop();
-      if (operationsInExpression > 0) {
-        currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount() + operationsInExpression);
-        operationsInExpression = 0;
-      }
+      // if (operationsInExpression > 0) {
+      // currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()
+      // + operationsInExpression);
+      // operationsInExpression = 0;
+      // }
 
     }
 
@@ -637,7 +640,8 @@ public class SuitableMethodFinder {
       // System.out.println("postfix " + node);
       CType tOp = TypeChecker.checkType(typeTable.getNodeType(operand));
       if (tOp == type) {
-        operationsInExpression++;
+        currAnalyzedMethod.incrementTypeOperationCount();
+        // operationsInExpression++;
         // System.out.println("postfix");
       } else {
         // no need to go in if it is not an int
@@ -650,10 +654,11 @@ public class SuitableMethodFinder {
     @Override
     public void endVisit(PostfixExpression node) {
       // expressionsStack.pop();
-      if (operationsInExpression > 0) {
-        currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount() + operationsInExpression);
-        operationsInExpression = 0;
-      }
+      // if (operationsInExpression > 0) {
+      // currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()
+      // + operationsInExpression);
+      // operationsInExpression = 0;
+      // }
 
     }
 

@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import filter.file.FileFilter;
+import logging.Logger;
 
 /**
  * Filter a directory full of repositories, one repository at a time.
@@ -19,16 +20,20 @@ import filter.file.FileFilter;
  * suitable for symbolic execution found in the database directory
  */
 public class Main {
+  private static final Logger logger = Logger.defaultLogger;
 
   private static final String DEFAULT_MIN_EXPR = "0";
   private static final String DEFAULT_MIN_IFSTMT = "0";
   private static final String DEFAULT_MIN_PARAMS = "0";
-  private static final String DEFAULT_TYPE = "I";
+  private static final String DEFAULT_TYPE = "S";
 
   public static void main(String[] args) throws IOException {
 
-    // String inputPath = "database";
-    String inputPath = "src/test/strings";
+    Logger logger = Logger.defaultLogger.enterContext("Main");
+    int totalMethods = 0;
+
+    String inputPath = "database";
+    // String inputPath = "src/test/strings";
     String outputPath = "suitableStrPrgms";
 
     if (args.length == 2) {
@@ -43,6 +48,7 @@ public class Main {
     int minIfStmt;
     int minParams;
     String type;
+    int debugLevel;
 
     try (FileReader reader = new FileReader(configFile)) {
       Properties props = new Properties();
@@ -52,13 +58,17 @@ public class Main {
       minExpr = Integer.parseInt(props.getProperty("minExpr", DEFAULT_MIN_EXPR));
       minIfStmt = Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT));
       minParams = Integer.parseInt(props.getProperty("minParams", DEFAULT_MIN_PARAMS));
+      debugLevel = Integer.parseInt(props.getProperty("debugLevel", "0"));
 
     } catch (IOException e) {
       System.err.println("Invalid configuration file.");
+      System.err.println(e.getMessage());
       return;
     }
 
-    System.out.println(type + " " + minExpr + " " + minIfStmt + " " + minParams);
+    logger.setDebugLevel(debugLevel);
+    logger.logln("Running Filter:\n\ttype: " + type + ", minExpr: " + minExpr + ", cond: " + minIfStmt
+        + ", params: " + minParams, 0);
 
     /* ---------------- Prepare directories ---------------- */
 
@@ -78,9 +88,10 @@ public class Main {
 
     /* ---------------- Process repositories sequentially ---------------- */
 
+    StringBuilder allInfo = new StringBuilder();
     for (File repo : srcRoot.listFiles(File::isDirectory)) {
 
-      System.out.println("Processing repository: " + repo.getName());
+      logger.logln("Processing repository: " + repo.getName(), 1);
 
       File tempRepo = new File(tmpRoot, repo.getName());
 
@@ -100,13 +111,18 @@ public class Main {
         filter.collectSuitableFiles();
 
         ArrayList<File> suitable = filter.getSuitableFiles();
+        if (!suitable.isEmpty()) {
+          allInfo.append(repo);
+          allInfo.append("\n");
+          allInfo.append(filter.getSummaryInfo());
+          allInfo.append("\n");
+        }
 
         // 3. Copy suitable files to destination
         for (File f : suitable) {
-          String newPath = f.getAbsolutePath()
-              .replace(tempRepo.getAbsolutePath(), destRoot.getAbsolutePath());
+          String relPath = f.getAbsolutePath().replace(tempRepo.getAbsolutePath(), "");
 
-          File destinationFile = new File(newPath);
+          File destinationFile = new File(destRoot, repo.getName() + File.separator + relPath);
           destinationFile.getParentFile().mkdirs();
 
           if (destinationFile.exists()) {
@@ -114,10 +130,20 @@ public class Main {
           }
 
           FileUtils.copyFile(f, destinationFile);
+
+          // create 'metadata' info file for each suitable file
+          String info = filter.getFileInfo(f);
+          String infoFileName = relPath.replace(File.separator, ".") + ".info";
+
+          File infoFile = new File(destRoot, repo.getName() + File.separator + infoFileName);
+          FileUtils.writeStringToFile(infoFile, info, "UTF-8");
+
         }
 
-        System.out.println(
-            "  Found " + suitable.size() + " suitable files out of " + filter.getJavaFiles().size());
+        if (!suitable.isEmpty()) {
+          logger.logln("  Copied " + suitable.size() + " suitable files to " + destRoot.getAbsolutePath(), 1);
+        }
+        totalMethods += suitable.size();
 
       } catch (Exception e) {
         System.err.println("Error processing " + repo.getName());
@@ -130,9 +156,11 @@ public class Main {
       }
     }
 
+    FileUtils.writeStringToFile(new File(destRoot, "summary.info"), allInfo.toString(), "UTF-8");
+
     // Cleanup root temp directory
     FileUtils.forceDelete(tmpRoot);
 
-    System.out.println("Filtering complete.");
+    logger.logln("Filtering Complete, total methods/files: " + totalMethods, 0);
   }
 }

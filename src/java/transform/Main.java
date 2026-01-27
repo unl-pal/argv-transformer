@@ -63,16 +63,9 @@ public class Main {
   // public static String source = "testsFromReport";
   // public static String dest = "testOutput";
   public static String source = "suitableStrPrgms";
-  public static String dest = "strBenchmarksGradle";
+  public static String dest = "strBenchmarks";
 
   public static void main(String[] args) throws IOException {
-    System.out.println("--- DEBUG INFO ---");
-    System.out.println("Running Java Version: " + System.getProperty("java.version"));
-    System.out.println("Running Java Home:    " + System.getProperty("java.home"));
-    // Check if rt.jar exists where JDT 3.12 expects it
-    java.io.File rt = new java.io.File(System.getProperty("java.home") + "/lib/rt.jar");
-    System.out.println("Does rt.jar exist?    " + rt.exists());
-    System.out.println("------------------");
     File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
     buildDir = new File(tmpDir, "bin");
 

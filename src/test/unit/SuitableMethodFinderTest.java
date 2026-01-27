@@ -17,8 +17,8 @@ public class SuitableMethodFinderTest {
 			SuitableMethodFinder finder = new SuitableMethodFinder(file);
 			finder.analyze();
 			System.out.println(finder.getAnalyzedFile().getSpfSuitableMethodCount());
-			System.out.println(finder.getTotalIntOperations());
-			System.out.println(finder.getTotalConditionals());
+			// System.out.println(finder.getTotalIntOperations());
+			// System.out.println(finder.getTotalConditionals());
 			
 			for(AnalyzedMethod m : finder.getAnalyzedFile().getSuitableMethods()) {
 				System.out.println(m.getName() + " " + m.getTypeConditionalCount() + " " + m.getTypeOperationCount());

@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import download.GitProject;
 import sourceAnalysis.AnalyzedFile;
 import sourceAnalysis.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker.CType;
+import logging.Logger;
 
 /**
  * Class to find java files suitable for symbolic execution.
@@ -18,11 +20,17 @@ import transform.TypeChecking.TypeChecker.CType;
  * @author mariapaquin
  */
 public class FileFilter {
+
+  private static final Logger logger = Logger.defaultLogger;
+  private HashMap<File, String> fileInfo = new HashMap<>();
+  private StringBuilder summaryInfo = new StringBuilder();
+
   private ArrayList<File> spfSuitableFiles;
   private ArrayList<File> javaFiles;
   private File database;
   private int spfSuitableMethods;
   private List<GitProject> gitProjects;
+
   private CType type;
   private int minExpr;
   private int minIfStmt;
@@ -128,7 +136,7 @@ public class FileFilter {
   }
 
   /**
-   * Use the SymbolicSuitableMethodFinder to search the javaFiles list for files
+   * Use the SuitableMethodFinder to search the javaFiles list for files
    * suitable for SPF. Add suitable files to the list spfSuitableFiles.
    */
   public void collectSuitableFiles() {
@@ -140,22 +148,13 @@ public class FileFilter {
         // SimplifiedSuitableClassFinder(file, type, minExpr, minIfStmt, minParams);
         finder.analyze();
         AnalyzedFile af = finder.getAnalyzedFile();
-        int suitableMethods = af.getSuitableMethods().size();
-        if (suitableMethods > 0) {
-          spfSuitableMethods += af.getSuitableMethods().size();
-          spfSuitableFiles.add(file);
-        }
-        // if (finder.isSuitable()) {
-        // spfSuitableFiles.add(file);
-        // }
-
-        try {
+        if (af.isSuitable()) {
           spfSuitableMethods += af.getSpfSuitableMethodCount();
-          if (af.isSymbolicSuitable()) {
-            spfSuitableFiles.add(file);
-          }
-        } catch (Exception e) {
-          continue;
+          spfSuitableFiles.add(file);
+          fileInfo.put(file, af.getFileInfo());
+          summaryInfo.append(af.getSummary());
+          summaryInfo.append("\n");
+
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -193,6 +192,14 @@ public class FileFilter {
       // }
       // }
     }
+  }
+
+  public String getFileInfo(File file) {
+    return fileInfo.get(file);
+  }
+
+  public String getSummaryInfo() {
+    return summaryInfo.toString();
   }
 
 }

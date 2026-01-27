@@ -2,8 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id 'java-library'
-    id 'idea'
-    id 'eclipse'
+    // id 'idea'
+    // id 'eclipse'
     id 'jvm-test-suite'
 }
 

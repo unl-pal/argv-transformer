@@ -160,6 +160,11 @@ public class Transformer {
         String[] sourcePath = { Paths.get(inputSource).toAbsolutePath().toString(),
             Paths.get("src", "java").toAbsolutePath().toString() };
 
+        // preprocessing that prunes tree
+        // - removes all anonymous classes
+        // - rewrites one-line if statements to block statements
+        // - removes nested classes
+        // - removes methods with disallowed return types or parameters based on TyperChecker.allowedType() (if note constructor)
         ASTParser preprocessingParser = getParser(source, sourcePath, classPath, file);
 
         CompilationUnit preprocessingCu = (CompilationUnit) preprocessingParser.createAST(null);
@@ -187,6 +192,7 @@ public class Transformer {
         ASTRewrite rewriter = ASTRewrite.create(ast);
 
         // those are the same as in filtering
+        // setting up bindings, symbol table, etc. for the transformation
         TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
         cu.accept(typeCollectVisitor);
         TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
@@ -354,40 +360,40 @@ public class Transformer {
     String[] encodings = new String[sourcePath.length];
     Arrays.fill(encodings, "UTF-8");
     // ... inside getParser, just before parser.setEnvironment(...)
-
-    System.out.println("=== DEBUG: ASTParser Environment ===");
-    System.out.println("Target File (Unit Name): " + file.getAbsolutePath());
-
-    // 1. Check Array Lengths (MUST MATCH for sources and encodings)
-    System.out.println(String.format("Arrays: SourcePath[%d], Encodings[%d], ClassPath[%d]",
-        sourcePath.length, encodings.length, newClassPath.length));
-
-    if (sourcePath.length != encodings.length) {
-      System.err.println("!!! ERROR: SourcePath and Encodings arrays must be the same length!");
-    }
-
-    // 2. Validate Classpath Existence
-    System.out.println("-- Classpath Entries --");
-    for (String cp : newClassPath) {
-      File f = new File(cp);
-      if (!f.exists()) {
-        System.err.println("  [MISSING] " + cp); // <--- LOOK FOR THIS
-      } else {
-        System.out.println("  [OK] " + cp);
-      }
-    }
-
-    // 3. Validate Sourcepath Existence
-    System.out.println("-- Sourcepath Entries --");
-    for (String sp : sourcePath) {
-      File f = new File(sp);
-      if (!f.exists()) {
-        System.err.println("  [MISSING] " + sp);
-      } else {
-        System.out.println("  [OK] " + sp);
-      }
-    }
-    System.out.println("====================================");
+    //
+    // System.out.println("=== DEBUG: ASTParser Environment ===");
+    // System.out.println("Target File (Unit Name): " + file.getAbsolutePath());
+    //
+    // // 1. Check Array Lengths (MUST MATCH for sources and encodings)
+    // System.out.println(String.format("Arrays: SourcePath[%d], Encodings[%d], ClassPath[%d]",
+    //     sourcePath.length, encodings.length, newClassPath.length));
+    //
+    // if (sourcePath.length != encodings.length) {
+    //   System.err.println("!!! ERROR: SourcePath and Encodings arrays must be the same length!");
+    // }
+    //
+    // // 2. Validate Classpath Existence
+    // System.out.println("-- Classpath Entries --");
+    // for (String cp : newClassPath) {
+    //   File f = new File(cp);
+    //   if (!f.exists()) {
+    //     System.err.println("  [MISSING] " + cp); // <--- LOOK FOR THIS
+    //   } else {
+    //     System.out.println("  [OK] " + cp);
+    //   }
+    // }
+    //
+    // // 3. Validate Sourcepath Existence
+    // System.out.println("-- Sourcepath Entries --");
+    // for (String sp : sourcePath) {
+    //   File f = new File(sp);
+    //   if (!f.exists()) {
+    //     System.err.println("  [MISSING] " + sp);
+    //   } else {
+    //     System.out.println("  [OK] " + sp);
+    //   }
+    // }
+    // System.out.println("====================================");
 
     // parser.setEnvironment(newClassPath, sourcePath, encodings, true);
     parser.setEnvironment(newClassPath, sourcePath, encodings, true);

@@ -108,4 +108,8 @@ public class Logger {
 	public void setDebugLevel(int level) {
 		debugLevel = level;
 	}
+
+  public int getDebugLevel() {
+    return debugLevel;
+  }
 }

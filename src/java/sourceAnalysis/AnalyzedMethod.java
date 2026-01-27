@@ -1,6 +1,7 @@
 package sourceAnalysis;
 
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import java.util.HashMap;
 
 /**
  * Represents a method in a Java class. Used to keep track of whether the 
@@ -12,6 +13,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 public class AnalyzedMethod {
 
 	private String name;
+  private HashMap<String, Integer> opCounts = new HashMap<>();
 	private MethodDeclaration node;
 	private boolean hasParameters;
 	private boolean hasOnlyTypeParameters;
@@ -35,6 +37,18 @@ public class AnalyzedMethod {
 	public MethodDeclaration getMethodDeclaration() {
 		return node;
 	}
+
+  public void setOpCounts(HashMap<String, Integer> opCounts) {
+    this.opCounts = opCounts;
+  }
+
+  public HashMap<String, Integer> getOpCounts() {
+    return opCounts;
+  }
+
+  public int getTotalOpCount() {
+    return opCounts.values().stream().mapToInt(Integer::intValue).sum();
+  }
 	
 	public boolean hasParameters() {
 		return hasParameters;
@@ -76,10 +90,18 @@ public class AnalyzedMethod {
 		this.typeParameterCount = typeParameterCount;
 	}
 	
+  // stricter
+  // maybe shuold require param exists?
 	public boolean isSymbolicSuitable() {
 //		return (hasParameters && hasOnlyIntParameters && hasConditional);
 		return (hasParameters && hasOnlyTypeParameters && hasTypeOperations);
 	}
+
+  public boolean isSuitable(int minExpr, int minCond, int minParam) {
+    return (typeOperationCount >= minExpr &&
+            typeConditionalCount >= minCond &&
+            typeParameterCount >= minParam);
+  }
 
 	public void setHasTypeConditional(boolean hasTypeConditional) {
 		this.hasTypeConditional = hasTypeConditional;
@@ -97,4 +119,8 @@ public class AnalyzedMethod {
 	public boolean isHasLoop() {
 		return hasLoop;
 	}
+
+  public void incrementTypeOperationCount() {
+    typeOperationCount++;
+  }
 }

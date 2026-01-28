@@ -97,6 +97,7 @@ public class Transformer {
 		while (itr.hasNext()) {
 			
 			File file = (File) itr.next();
+      if (!file.exists()) continue;
 
 			try {
 				String source = new String(Files.readAllBytes(file.toPath()));
@@ -322,6 +323,7 @@ public class Transformer {
 					out.close();
 				} else {
 				    System.out.println("No suitable methods after transformation. Discarding " + file.getPath());
+            file.delete();
 				}
 
 			} catch (Exception e) {				

@@ -40,10 +40,21 @@ public class DirectoryDiffTest {
 
     /**
      * Static initializer that runs once when the test class is loaded.
-     * It creates the temporary directory and runs the transformation.
+     * It creates the temporary directory and config and runs the transformation.
      */
     static {
         try {
+            // Replace the config.properties file with the one for the integration tests.
+            Path configPath = Paths.get("config.properties");
+            Path backupPath = Paths.get("config.properties.bak");
+            Path regressionConfig = Paths.get("src", "test", "integration", "integrationconfig.properties");
+            if (Files.exists(configPath)) {
+                Files.copy(configPath, backupPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            Files.copy(regressionConfig, configPath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Using integrationconfig.properties");
+            
+			// Create the temporary directory.
             tempDir = Files.createTempDirectory("tmp");
             System.out.println("Temporary directory created: " + tempDir.toAbsolutePath());
             // Run the transformation so that files are written into the temp directory.
@@ -67,6 +78,9 @@ public class DirectoryDiffTest {
      */
     @AfterClass
     public static void tearDownClass() throws IOException {
+        // Restore the config.properties file.
+        Files.copy(Paths.get("config.properties.bak"), Paths.get("config.properties"), StandardCopyOption.REPLACE_EXISTING);
+        System.out.println("Restored config.properties");
         // Recursively delete the temporary directory.
         Files.walk(tempDir)
              .sorted(Comparator.reverseOrder()) // Delete children before parents.

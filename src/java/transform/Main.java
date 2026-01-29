@@ -57,11 +57,11 @@ public class Main {
 	private static boolean debug = false;
 	private static boolean transformAll = false;
 
-//	public static String source = "suitablePrgms";
-//	public static String dest = "benchmarks";
+	public static String source = "suitablePrgms";
+	public static String dest = "benchmarks";
 //	 public static String source = "src/test/transformer/integration";
-	 public static String source = "testsFromReport";
-	 public static String dest = "testOutput";
+//	 public static String source = "testsFromReport";
+//	 public static String dest = "testOutput";
 
 	public static void main(String[] args) throws IOException {
 		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
@@ -337,7 +337,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, file.getParentFile().getName(), true, true);
+		CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, true, true);
 
 	}
 	

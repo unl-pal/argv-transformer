@@ -48,7 +48,7 @@ import transform.TypeChecking.TypeChecker.CType;
 import util.TypeResolutionUtils;
 
 /**
- * The last visitor to be called. Two major tasks::
+ * The last visitor to be called. Two major tasks:
  * 1. Generates the main method that calls all of the methods that were found in the AST.
  * 2. Obtains statistics about the number of expressions, operations in expressions, conditions, and parameters. These are used for filtering and analysis post-transformation.
  */
@@ -206,42 +206,6 @@ public class FinalizerVisitor extends ASTVisitor {
                     .insertLast(mainMethod, null);
         }
     }
-
-	@Override
-	public boolean visit(FieldDeclaration node) {
-		
-		return false;
-	}
-
-	@Override
-	public boolean visit(Initializer node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(NormalAnnotation node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(MarkerAnnotation node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(SingleMemberAnnotation node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(AnnotationTypeDeclaration node) {
-		return false;
-	}
-
-	@Override
-	public boolean visit(EnumDeclaration node) {
-		return false;
-	}
 
 	@Override
 	public boolean visit(MethodDeclaration node) {
@@ -416,7 +380,7 @@ public class FinalizerVisitor extends ASTVisitor {
 	@Override
 	public void endVisit(InfixExpression node) {
 		//expressionsStack.pop();
-		if(operationsInExpression > 0) {
+		if(operationsInExpression > 0 && currAnalyzedMethod != null) {
 			//why do we just add one? need to add all of them
 			//currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+1);
 			currAnalyzedMethod.setTypeOperationCount(currAnalyzedMethod.getTypeOperationCount()+

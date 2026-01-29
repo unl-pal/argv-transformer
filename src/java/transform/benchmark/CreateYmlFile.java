@@ -13,14 +13,14 @@ import org.yaml.snakeyaml.DumperOptions;
 
 public class CreateYmlFile {
 	
-	public static void buildFile(String filePath, String fileName, String programPath, boolean isAssertionTrue, boolean noRuntimeExceptions) {
+	public static void buildFile(String filePath, String fileName, boolean isAssertionTrue, boolean noRuntimeExceptions) {
 		Map<String, Object> yamlContent = new LinkedHashMap<>();
         yamlContent.put("format_version", "2.0");
         
 
         List<String> inputFiles = new ArrayList<>();
         inputFiles.add("../common/");
-        inputFiles.add(programPath + "/");
+        inputFiles.add(fileName + "/");
         yamlContent.put("input_files", inputFiles);
 
         List<Map<String, Object>> properties = new ArrayList<>();

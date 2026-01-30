@@ -80,6 +80,7 @@ public class DirectoryDiffTest {
     public static void tearDownClass() throws IOException {
         // Restore the config.properties file.
         Files.copy(Paths.get("config.properties.bak"), Paths.get("config.properties"), StandardCopyOption.REPLACE_EXISTING);
+        Files.deleteIfExists(Paths.get("config.properties.bak"));
         System.out.println("Restored config.properties");
         // Recursively delete the temporary directory.
         Files.walk(tempDir)

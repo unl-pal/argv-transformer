@@ -22,24 +22,18 @@ jobs:
           java-version: 8
           distribution: zulu
 
-      # intelligently finds, dls, uses, and caches correct version
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      # build and run with granularity for usability
       - name: Build
-        run:
-          ./gradlew clean build
+        run: ./gradlew clean build
 
       - name: Download
-        run:
-          ./gradlew download
+        run: ./gradlew download
       
       - name: Filter
-        run:
-          ./gradlew filter
+        run: ./gradlew filter
 
       - name: Transform
-        run:
-          ./gradlew transform
+        run: ./gradlew transform
 

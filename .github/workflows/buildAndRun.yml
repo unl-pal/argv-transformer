@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Run
 
 on:
   workflow_dispatch:
@@ -15,20 +15,25 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: 8
           distribution: zulu
-      - name: Set Up App
-        run: |
-          ./gradlew
-          ./gradlew clean
-          ./gradlew build
-      - name: Run
-        run: |
-          ./gradlew run
-          ./gradlew transform
-      - name: Clean Up
-        run: ./gradlew reset
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build
+        run: ./gradlew clean build
+
+      - name: Download
+        run: ./gradlew download
+      
+      - name: Filter
+        run: ./gradlew filter
+
+      - name: Transform
+        run: ./gradlew transform
 

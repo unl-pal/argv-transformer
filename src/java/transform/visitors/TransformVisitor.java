@@ -440,6 +440,15 @@ public class TransformVisitor extends ASTVisitor {
           TypeResolutionUtils.replaceDouble(elseExpr, target, ast, rewriter, randUsedInMethod);
           typeTable.setNodeType(elseExpr, ast.newPrimitiveType(PrimitiveType.DOUBLE));
         }
+      } else if (TypeChecker.isStringType(type)) {
+          if (!TypeChecker.isStringType(typeThenExpr)) {
+            rewriter.replace(thenExpr, ast.newStringLiteral(), null);
+            typeTable.setNodeType(thenExpr, ast.newSimpleType(ast.newSimpleName("String")));
+          }
+          if (!TypeChecker.isStringType(typeElseExpr)) {
+            rewriter.replace(elseExpr, ast.newStringLiteral(), null);
+            typeTable.setNodeType(elseExpr, ast.newSimpleType(ast.newSimpleName("String")));
+          }
       }
     }
   }
@@ -522,6 +531,9 @@ public class TransformVisitor extends ASTVisitor {
       } else if (TypeResolutionUtils.isDoubleTypeCode(rhsType)) {
         TypeResolutionUtils.replaceDouble(lhs, target, ast, rewriter, randUsedInMethod);
         typeTable.setNodeType(lhs, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+      } else if (TypeChecker.isStringType(rhsType)) { // nps: concatenation
+        TypeResolutionUtils.replaceString(lhs, target, ast, rewriter, randUsedInMethod);
+        typeTable.setNodeType(lhs, ast.newSimpleType(ast.newSimpleName("String")));
       }
 
       // if we can infer the type of rhs from lhs
@@ -539,6 +551,9 @@ public class TransformVisitor extends ASTVisitor {
       } else if (TypeResolutionUtils.isDoubleTypeCode(lhsType)) {
         TypeResolutionUtils.replaceDouble(rhs, target, ast, rewriter, randUsedInMethod);
         typeTable.setNodeType(rhs, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+      } else if (TypeChecker.isStringType(lhsType)) { // nps: concatenation
+        TypeResolutionUtils.replaceString(rhs, target, ast, rewriter, randUsedInMethod);
+        typeTable.setNodeType(rhs, ast.newSimpleType(ast.newSimpleName("String")));
       }
 
       // else replace according to the location in parent
@@ -557,6 +572,9 @@ public class TransformVisitor extends ASTVisitor {
         } else if (TypeResolutionUtils.isDoubleTypeCode(type)) {
           TypeResolutionUtils.replaceDouble(node, target, ast, rewriter, randUsedInMethod);
           typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+        } else if (TypeChecker.isStringType(type)) { // nps: concatenation
+          TypeResolutionUtils.replaceString(node, target, ast, rewriter, randUsedInMethod);
+          typeTable.setNodeType(node, ast.newSimpleType(ast.newSimpleName("String")));
         }
       }
 
@@ -576,6 +594,9 @@ public class TransformVisitor extends ASTVisitor {
         } else if (TypeResolutionUtils.isDoubleTypeCode(type)) {
           TypeResolutionUtils.replaceDouble(node, target, ast, rewriter, randUsedInMethod);
           typeTable.setNodeType(node, ast.newPrimitiveType(PrimitiveType.DOUBLE));
+        } else if (TypeChecker.isStringType(type)) { // nps: concatenation
+          TypeResolutionUtils.replaceString(node, target, ast, rewriter, randUsedInMethod);
+          typeTable.setNodeType(node, ast.newSimpleType(ast.newSimpleName("String")));
         }
       }
 
@@ -699,6 +720,9 @@ public class TransformVisitor extends ASTVisitor {
             TypeResolutionUtils.replaceDouble(node, target, ast, rewriter, randUsedInMethod);
             return;
           }
+        } else if (typeBinding != null && TypeChecker.isStringType(typeBinding)) {
+          TypeResolutionUtils.replaceString(node, target, ast, rewriter, randUsedInMethod);
+          return;
         }
         TypeResolutionUtils.safeRemoveOrReplace(node, rewriter, ast, randUsedInMethod);
         typeTable.setNodeType(node.getParent(), null);
@@ -936,7 +960,25 @@ public class TransformVisitor extends ASTVisitor {
       } else if (type.isSimpleType()) {
         String typeString = type.toString();
         String typeName = ((SimpleType)type).getName().toString();
-        System.out.println("STRING NOT BEING HANDLED in TransformVisitor.visit(SimpleName)");
+        if (typeName.contains("String")) {
+          Expression randMethodInvocation = TypeResolutionUtils.generateStringFromTarget(ast, randUsedInMethod, target);
+
+          VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+          fragment.setName(ast.newSimpleName(name));
+          fragment.setInitializer(randMethodInvocation);
+
+          VariableDeclarationStatement varDeclaration = ast.newVariableDeclarationStatement(fragment);
+          varDeclaration.setType(ast.newSimpleType(ast.newSimpleName("String")));
+
+          Block block = ((MethodDeclaration) ancestor).getBody();
+          ListRewrite listRewrite = rewriter.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+          listRewrite.insertFirst(varDeclaration, null);
+
+          initializedVars.add(sym);
+
+        } else {
+          System.out.println(typeName + " " + typeString + " NOT BEING HANDLED in TransformVisitor.visit(SimpleName)");
+        }
       }
     }
     return true;
@@ -1048,7 +1090,10 @@ public class TransformVisitor extends ASTVisitor {
       } else if (TypeResolutionUtils.isDoubleTypeCode(type)) {
         TypeResolutionUtils.replaceDouble(parent, target, ast, rewriter, randUsedInMethod);
         typeTable.setNodeType(parent.getParent(), ast.newPrimitiveType(PrimitiveType.DOUBLE));
-      }
+      } else if (TypeChecker.isStringType(type)) {
+        TypeResolutionUtils.replaceString(parent, target, ast, rewriter, randUsedInMethod);
+        typeTable.setNodeType(parent.getParent(), ast.newSimpleType(ast.newSimpleName("String")));
+      } 
 
     } else if (node.getLocationInParent() == ReturnStatement.EXPRESSION_PROPERTY) {
       ASTNode parent = node.getParent();

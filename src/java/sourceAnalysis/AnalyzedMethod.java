@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class AnalyzedMethod {
 
 	private String name;
-  private HashMap<String, Integer> opCounts = new HashMap<>();
+  private HashMap<String, Integer> opCounts = new HashMap<>(); //string method invocation counts
 	private MethodDeclaration node;
 	private boolean hasParameters;
 	private boolean hasOnlyTypeParameters;

@@ -121,8 +121,10 @@ public class Main {
         // 3. Copy suitable files to destination
         for (File f : suitable) {
           String relPath = f.getAbsolutePath().replace(tempRepo.getAbsolutePath(), "");
+          String parents = relPath.replace(f.getName(),"").replace(File.separator, ".").substring(1); // flatten directory structure
+          parents = !parents.isEmpty() ? parents.substring(0, parents.length() - 1) : parents; // remove trailing '.'
 
-          File destinationFile = new File(destRoot, repo.getName() + File.separator + relPath);
+          File destinationFile = new File(destRoot, repo.getName() + File.separator + parents + File.separator + f.getName());
           destinationFile.getParentFile().mkdirs();
 
           if (destinationFile.exists()) {

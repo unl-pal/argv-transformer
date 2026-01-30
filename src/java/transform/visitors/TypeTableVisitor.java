@@ -580,14 +580,14 @@ public class TypeTableVisitor extends ASTVisitor {
 		return name;
 	}
 
-	private boolean isStringType(Type type) {
-		if (!type.isSimpleType())
-			return false;
-		Name name = ((SimpleType) type).getName();
-		if (!name.isSimpleName())
-			return false;
-		return (((SimpleName) name).getIdentifier().equals("String"));
-	}
+	// private boolean isStringType(Type type) {
+	// 	if (!type.isSimpleType())
+	// 		return false;
+	// 	Name name = ((SimpleType) type).getName();
+	// 	if (!name.isSimpleName())
+	// 		return false;
+	// 	return (((SimpleName) name).getIdentifier().equals("String"));
+	// }
 
 	private boolean isDoubleTypeCode(Type type) {
 		if(type == null) return false;

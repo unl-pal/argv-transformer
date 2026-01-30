@@ -35,6 +35,8 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
+import transform.TypeChecking.TypeChecker;
+
 public class TypeResolutionUtils {
 
   public static int varNum = 0;
@@ -67,8 +69,8 @@ public class TypeResolutionUtils {
       } else if (code == PrimitiveType.FLOAT) {
         return replaceWithNodeFloat(ast, randUsedInMethod);
       }
-    } else if (type.resolveBinding() != null && type.resolveBinding().getQualifiedName().equals("java.lang.String")) {
-      return replaceWithNodeString(ast, randUsedInMethod);
+    } else if (type.resolveBinding() != null && type.resolveBinding().getQualifiedName().startsWith("java.lang.String")) {
+        return replaceWithNodeString(ast, randUsedInMethod);
     } else if (type.isArrayType()) {
       ArrayType arrType = (ArrayType) type;
       // Create an array creation expression with an initializer.
@@ -83,12 +85,8 @@ public class TypeResolutionUtils {
       initializer.expressions().add(elementArg);
       arrayCreation.setInitializer(initializer);
       return arrayCreation;
-    } else if (type.isSimpleType()) { // nps: support for String libraries
-      String typeName = ((SimpleType) type).getName().toString();
-      if (typeName.equals("String") || typeName.equals("StringBuilder") || typeName.equals("StringBuffer")
-          || typeName.equals("CharSequence")) {
+    } else if (TypeChecker.isStringType(type)) { // nps: SimpleType support for String libraries
         return replaceWithNodeString(ast, randUsedInMethod);
-      }
     }
     // For non-primitive, non-array types, return a null literal.
     return ast.newNullLiteral();
@@ -604,16 +602,57 @@ public class TypeResolutionUtils {
 
   }
 
-  public static boolean isStringType(Type type) {
-    if (type == null)
-      return false;
-    if (!type.isSimpleType())
-      return false;
-    Name name = ((SimpleType) type).getName();
-    if (!name.isSimpleName())
-      return false;
-    return (((SimpleName) name).getIdentifier().equals("String"));
+  public static Expression generateStringFromTarget(AST ast, Boolean randUsedInMethod, String target) {
+    switch (target) {
+      case "SPF":
+        return replaceWithSymbolicString(ast);
+      case "SVCOMP":
+        return replaceWithNodeString(ast, randUsedInMethod);
+      default:
+        return replaceWithRandomString(ast, randUsedInMethod);
+    }
   }
+
+  public static void replaceString(Expression exp, String target, AST ast, ASTRewrite rewriter,
+      Boolean randUsedInMethod) {
+    Expression randMethodInvocation = generateStringFromTarget(ast, randUsedInMethod, target);
+    rewriter.replace(exp, randMethodInvocation, null);
+  }
+
+  public static MethodInvocation replaceWithRandomString(AST ast, Boolean randUsedInMethod) {
+    MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+    randMethodInvocation.setExpression(ast.newSimpleName("rand"));
+    randMethodInvocation.setName(ast.newSimpleName("nextString"));
+
+    randUsedInMethod = true;
+    return randMethodInvocation;
+
+  }
+
+  public static MethodInvocation replaceWithSymbolicString(AST ast) {
+    MethodInvocation randMethodInvocation = ast.newMethodInvocation();
+    randMethodInvocation.setExpression(ast.newSimpleName("Debug"));
+    randMethodInvocation.setName(ast.newSimpleName("makeSymbolicString"));
+    StringLiteral str = ast.newStringLiteral();
+    str.setLiteralValue("x" + varNum);
+    randMethodInvocation.arguments().add(str);
+    varNum++;
+    return randMethodInvocation;
+
+  }
+
+  // public static boolean isStringType(Type type) {
+  //   if (type == null)
+  //     return false;
+  //   if (!type.isSimpleType())
+  //     return false;
+  //   Name name = ((SimpleType) type).getName();
+  //   if (!name.isSimpleName())
+  //     return false;
+  //   String typeName = ((SimpleName) name).getIdentifier();
+  //   return (typeName.equals("String") || typeName.equals("StringBuilder") || typeName.equals("StringBuffer")
+  //       || typeName.equals("CharSequence"));
+  // }
 
   public static boolean isNumericTypeCode(Type type) {
     return isFloatingPointTypeCode(type) ||

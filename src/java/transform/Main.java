@@ -112,7 +112,9 @@ public class Main {
       debug = Boolean.parseBoolean(props.getProperty("debug"));
       verifier = props.getProperty("verifier");
     } catch (IOException e) {
+      System.out.println("Working dir: " + System.getProperty("user.dir"));
       System.out.println("Invalid configuration file.");
+      e.printStackTrace();
       System.exit(1);
     }
 
@@ -171,7 +173,7 @@ public class Main {
         }
 
         // ==== ANNOTATE successful initial compiles ====
-        if (compilesInitially) {
+        if (compilesInitially && destFile.exists()) {
           try {
             Transformer annotator = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
             annotator.annotateFiles();
@@ -181,7 +183,7 @@ public class Main {
         }
 
         // ==== RECOMPILE AFTER TRANSFORMS ====
-        boolean compilesAfter = compile(destFile);
+        boolean compilesAfter = compile(destFile); // won't compile if file deleted during transform
 
         if (!compilesAfter && !debug) {
           Files.deleteIfExists(destFile.toPath());
@@ -192,8 +194,10 @@ public class Main {
           successful.add(destFile);
           failed.remove(destFile);
 
+          getInfoFile(srcFile, destFile);
           if ("SVCOMP".equals(target)) {
             createSVCompYmlFile(destFile);
+            // rename class etc. and move
             restructureForSVCompFormat(destFile.toPath());
           }
         }
@@ -252,6 +256,17 @@ public class Main {
       System.exit(-1);
   }
 
+  private static void getInfoFile(File srcFile, File destFile) {
+    File parent = srcFile.getParentFile();
+    String repo = parent.getParent();
+    File infoFile = new File(repo, "." + parent.getName() + "." + destFile.getName() + ".info");
+    try {
+      FileUtils.copyFileToDirectory(infoFile, destFile.getParentFile());
+    } catch (IOException e) {
+      System.err.println("Info file copy error: " + destFile + " -> " + e.getMessage());
+    }
+  }
+
   /**
    * Takes a file and attemps to compile using the file and verifier
    * 
@@ -259,6 +274,9 @@ public class Main {
    * @return completion status of the attempted compilation
    */
   private static boolean compile(File file) {
+    if (!file.exists())
+      return false; // discarded unsuitables program
+
     final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     if (compiler == null)
       throw new RuntimeException("Could not get javac - are you running with a JDK or a JRE?");
@@ -304,20 +322,8 @@ public class Main {
 
     File newFilePath = new File(parentDirectory.getPath() + "/" + fileNameWithoutExtension);
     if (newFilePath.exists()) {
-      try {
-        FileUtils.forceDelete(newFilePath);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, true, true);
     }
-
-    try {
-      FileUtils.forceMkdir(newFilePath);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, true, true);
 
   }
 

@@ -60,8 +60,6 @@ public class AnalyzedFile {
 		suitableMethods.add(suitableMethod);
 	}
 	
-	
-	
 	public String getPath() {
 		return path;
 	}
@@ -109,7 +107,6 @@ public class AnalyzedFile {
     }
     return fileOpCounts;
   }
-
 
   public int getTotalOperations() {
     int count = 0;

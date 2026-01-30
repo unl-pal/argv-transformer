@@ -40,8 +40,9 @@ version = '1.1.0'
         testImplementation 'org.testng:testng:7.5.1' 
     }
 
-// set run to run the entire program via driver
+// set run to run the program via driver
 // Currently the full.Main does not handle transform, only download and filter
+// Driver does just call Main though...
 application {
     mainClass = 'full.Driver'
 }
@@ -51,9 +52,6 @@ application {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
-      }
 }
 
 sourceSets {
@@ -81,6 +79,7 @@ tasks.named('compileJava') {
     options.compilerArgs.addAll(System.getProperty("java.compiler.args")?.split() ?: [])
 }
 
+// uses full package to run download, filter, transform.
 tasks.named('run') {
     group = 'execution'
 }
@@ -154,8 +153,7 @@ tasks.register('download', ExecOperationsTask) {
     }
 }
 
-// This is currently the same as 'run'
-// Does not actually run the full application despite the name, only what is in Driver
+// runs entiner application by invoking all 3 tasks
 tasks.register('full', ExecOperationsTask) {
     group = 'execution'
     description = 'Runs the compiled application'

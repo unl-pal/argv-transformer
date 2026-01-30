@@ -19,13 +19,13 @@ public class CreateYmlFile {
         
 
         List<String> inputFiles = new ArrayList<>();
-        inputFiles.add("../common/");
+        inputFiles.add("../../../common/");
         inputFiles.add(fileName + "/");
         yamlContent.put("input_files", inputFiles);
 
         List<Map<String, Object>> properties = new ArrayList<>();
         Map<String, Object> assertProperty = new LinkedHashMap<>();
-        assertProperty.put("property_file", "../properties/assert_java.prp");
+        assertProperty.put("property_file", "../../../properties/assert_java.prp");
         
         if (isAssertionTrue) {
         	assertProperty.put("expected_verdict", true);
@@ -36,7 +36,7 @@ public class CreateYmlFile {
         properties.add(assertProperty);
         
         Map<String, Object> exceptionProperty = new LinkedHashMap<>();
-        exceptionProperty.put("property_file", "../properties/runtime-exception.prp");
+        exceptionProperty.put("property_file", "../../../properties/runtime-exception.prp");
         
         if (noRuntimeExceptions) {
         	exceptionProperty.put("expected_verdict", true);

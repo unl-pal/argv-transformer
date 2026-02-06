@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -30,7 +31,7 @@ import transform.TypeChecking.TypeChecker;
  * @author mariapaquin
  *
  */
-public class SymbolTableVisitor extends ASTVisitor {
+public class SymbolTableVisitor extends ASTVisitorUtil {
 	private SymbolTable root;
 	private Stack<SymbolTable> symbolTableStack;
 	private TypeChecker typeChecker;
@@ -218,55 +219,5 @@ public class SymbolTableVisitor extends ASTVisitor {
 		return true;
 	}
 
-	/**
-	 * Use the method name and its parameters to uniquely name 
-	 * it's symbol table element.
-	 * 
-	 * @param node MethodDeclaration node
-	 * @return the method's name in the symbol table
-	 */
-	private String getMethodSTEName(MethodDeclaration node) {
-		String name = node.getName().getIdentifier();
-
-		@SuppressWarnings("unchecked")
-		List<SingleVariableDeclaration> parameters = node.parameters();
-		for (SingleVariableDeclaration param : parameters) {
-			Type type = param.getType();
-
-			if (type instanceof PrimitiveType) {
-
-				switch (((PrimitiveType) type).toString()) {
-				case ("int"):
-					name += "i";
-					break;
-				case ("double"):
-					name += "d";
-					break;
-				case ("byte"):
-					name += "b";
-					break;
-				case ("short"):
-					name += "s";
-					break;
-				case ("char"):
-					name += "c";
-					break;
-				case ("long"):
-					name += "l";
-					break;
-				case ("float"):
-					name += "f";
-					break;
-				case ("boolean"):
-					name += "a";
-					break;
-				case ("void"):
-					name += "v";
-					break;
-				}
-			}
-		}
-		return name;
-	}
 
 }

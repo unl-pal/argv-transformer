@@ -1,0 +1,39 @@
+!!sourceAnalysis.AnalyzedFile
+analyzedMethods:
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: stringReturn
+  opCounts: {trim: 1, toUpperCase: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 2
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: voidStringMethod
+  opCounts: {length: 1, replace: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 3
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: nonStringReturn
+  opCounts: {length: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: mixedReturn
+  opCounts: {length: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: builderReturn
+  opCounts: {}
+  typeConditionalCount: 0
+  typeOperationCount: 0
+  typeParameterCount: 1
+fileName: StringReturnTest.java
+suitableMethodCount: 4

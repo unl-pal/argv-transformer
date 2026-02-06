@@ -2,36 +2,7 @@ package util;
 
 import java.util.List;
 
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.ArrayCreation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CastExpression;
-import org.eclipse.jdt.core.dom.DoStatement;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.ReturnStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
@@ -149,13 +120,25 @@ public class TypeResolutionUtils {
 
       arrayCreation.setInitializer((ArrayInitializer) current);
       return arrayCreation;
-    }
-    String typeName = binding.getQualifiedName();
-    if (typeName.startsWith("java.lang.String")) {
-      return replaceWithNodeString(ast, randUsedInMethod);
+    } else if (binding.getQualifiedName().startsWith("java.lang.String")) {
+       // have to wrap String+ methods as SVCOMP uses only nondetString
+      if(!binding.getQualifiedName().equals("java.lang.String")) {
+        return wrapStringSubClass(ast, randUsedInMethod, binding.getQualifiedName());
+      } else {
+        return replaceWithNodeString(ast, randUsedInMethod);
+      }
     }
     // For non-primitive, non-array types, return a null literal.
     return ast.newNullLiteral();
+  }
+
+  private static Expression wrapStringSubClass(AST ast, Boolean randUsedInMethod, String qualifiedName) {
+    String simpleClassName = qualifiedName.substring(qualifiedName.lastIndexOf(".") + 1);
+    ClassInstanceCreation cic = ast.newClassInstanceCreation();
+    cic.setType(ast.newSimpleType(ast.newSimpleName(simpleClassName)));
+    cic.arguments().add(replaceWithNodeString(ast, randUsedInMethod));
+
+    return cic;
   }
 
   public static void safeRemoveOrReplace(Expression node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
@@ -759,6 +742,13 @@ public class TypeResolutionUtils {
       return isBooleanOrBooleanArrayTypeCode(((ArrayType) type).getElementType());
     }
     return isBooleanTypeCode(type);
+  }
+
+  // only String (for infix concatenation with plus operator)
+  public static boolean isStringTypeCode(Type type) {
+    if (type == null)
+      return false;
+    return type.toString().equals("String"); 
   }
 
 }

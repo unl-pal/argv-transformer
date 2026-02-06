@@ -92,6 +92,7 @@ public class PreprocessingVisitor extends ASTVisitor {
 	public boolean visit(MethodDeclaration node) {
 	    IMethodBinding binding = node.resolveBinding();
         if (!typeChecker.allowedType(binding != null ? binding.getReturnType() : null) && !node.isConstructor()) {
+            System.out.println("Removing method " + node.getName().getIdentifier() + " due to disallowed return type.");
             rewriter.remove(node, null);
             return false;
         }

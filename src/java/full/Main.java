@@ -15,8 +15,8 @@ import org.apache.commons.io.FileUtils;
 import download.Downloader;
 import download.GitProject;
 import filter.file.GeneralFileInfo;
+import filter.file.SuitableMethodFinder;
 import filter.file.FileFilter;
-import filter.file.SymbolicSuitableMethodFinder;
 import logging.Logger;
 import sourceAnalysis.AnalyzedFile;
 
@@ -194,10 +194,11 @@ public class Main {
 	private static int countSpfSuitableMethods(File file) {
 		int spfSuitableMethods = 0;
 		try {
-			SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
+			// SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
+      SuitableMethodFinder finder = new SuitableMethodFinder(file);
 			finder.analyze();
 			AnalyzedFile af = finder.getAnalyzedFile();
-			spfSuitableMethods = af.getSpfSuitableMethodCount();
+			spfSuitableMethods = af.getSuitableMethodCount();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

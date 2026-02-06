@@ -1,0 +1,34 @@
+!!sourceAnalysis.AnalyzedFile
+analyzedMethods:
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: stringOperations
+  opCounts: {lastIndexOf: 1, split: 1, replace: 1, length: 3, compareTo: 1, indexOf: 1,
+    substring: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 9
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: variousConcatenations
+  opCounts: {trim: 1, concat: 6}
+  typeConditionalCount: 0
+  typeOperationCount: 7
+  typeParameterCount: 3
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: stringComparisons
+  opCounts: {contains: 1, equals: 1, endsWith: 1, length: 1, equalsIgnoreCase: 1,
+    startsWith: 1}
+  typeConditionalCount: 3
+  typeOperationCount: 6
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: noStringOps
+  opCounts: {}
+  typeConditionalCount: 0
+  typeOperationCount: 0
+  typeParameterCount: 1
+fileName: StringOperationTest.java
+suitableMethodCount: 3

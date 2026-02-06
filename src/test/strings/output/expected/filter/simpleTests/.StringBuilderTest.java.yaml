@@ -1,0 +1,39 @@
+!!sourceAnalysis.AnalyzedFile
+analyzedMethods:
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: processBuilder
+  opCounts: {length: 1, append: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 2
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: processBuffer
+  opCounts: {trim: 1, length: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 2
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: createBuilder
+  opCounts: {}
+  typeConditionalCount: 0
+  typeOperationCount: 0
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: mixedBuilder
+  opCounts: {append: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: builderOperations
+  opCounts: {insert: 1, reverse: 1, append: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 3
+  typeParameterCount: 1
+fileName: StringBuilderTest.java
+suitableMethodCount: 4

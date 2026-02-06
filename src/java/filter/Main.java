@@ -2,15 +2,18 @@ package filter;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.yaml.snakeyaml.Yaml;
 
 import filter.file.FileFilter;
 import logging.Logger;
+import sourceAnalysis.AnalyzedFile;
 
 /**
  * Filter a directory full of repositories, one repository at a time.
@@ -20,21 +23,18 @@ import logging.Logger;
  * suitable for symbolic execution found in the database directory
  */
 public class Main {
-  private static final Logger logger = Logger.defaultLogger;
+  private static final Logger logger = Logger.defaultLogger.enterContext("filter.Main");
 
   private static final String DEFAULT_MIN_EXPR = "0";
   private static final String DEFAULT_MIN_IFSTMT = "0";
   private static final String DEFAULT_MIN_PARAMS = "0";
   private static final String DEFAULT_TYPE = "S";
+  private static String inputPath = "database";
+  private static String outputPath = "suitableStrPrgms";
 
   public static void main(String[] args) throws IOException {
 
-    Logger logger = Logger.defaultLogger.enterContext("Main");
     int totalMethods = 0;
-
-    String inputPath = "database";
-    // String inputPath = "src/test/strings";
-    String outputPath = "suitableStrPrgms";
 
     if (args.length == 2) {
       inputPath = args[0];
@@ -89,6 +89,8 @@ public class Main {
     /* ---------------- Process repositories sequentially ---------------- */
 
     StringBuilder allInfo = new StringBuilder();
+    allInfo.append("repo,file,suitable_methods,type_ops\n");
+
     for (File repo : srcRoot.listFiles(File::isDirectory)) {
 
       logger.logln("Processing repository: " + repo.getName(), 1);
@@ -112,19 +114,19 @@ public class Main {
 
         ArrayList<File> suitable = filter.getSuitableFiles();
         if (!suitable.isEmpty()) {
-          allInfo.append(repo);
-          allInfo.append("\n");
-          allInfo.append(filter.getSummaryInfo());
-          allInfo.append("\n");
+          allInfo.append(filter.getSummaryInfo(repo.getName()));
         }
 
         // 3. Copy suitable files to destination
         for (File f : suitable) {
           String relPath = f.getAbsolutePath().replace(tempRepo.getAbsolutePath(), "");
-          String parents = relPath.replace(f.getName(),"").replace(File.separator, ".").substring(1); // flatten directory structure
+          String parents = relPath.replace(f.getName(), "").replace(File.separator, ".").substring(1); // flatten
+                                                                                                       // directory
+                                                                                                       // structure
           parents = !parents.isEmpty() ? parents.substring(0, parents.length() - 1) : parents; // remove trailing '.'
 
-          File destinationFile = new File(destRoot, repo.getName() + File.separator + parents + File.separator + f.getName());
+          File destinationFile = new File(destRoot,
+              repo.getName() + File.separator + parents + File.separator + f.getName());
           destinationFile.getParentFile().mkdirs();
 
           if (destinationFile.exists()) {
@@ -134,11 +136,16 @@ public class Main {
           FileUtils.copyFile(f, destinationFile);
 
           // create 'metadata' info file for each suitable file
-          String info = filter.getFileInfo(f);
-          String infoFileName = relPath.replace(File.separator, ".") + ".info";
+          // String info = filter.getFileInfo(f);
+          String infoFileName = relPath.replace(File.separator, ".") + ".yaml";
 
+          AnalyzedFile af = filter.getAnalyzedFile(f);
           File infoFile = new File(destRoot, repo.getName() + File.separator + infoFileName);
-          FileUtils.writeStringToFile(infoFile, info, "UTF-8");
+          try (FileWriter writer = new FileWriter(infoFile)) {
+            Yaml yaml = new Yaml();
+            yaml.dump(af, writer);
+          }
+          // FileUtils.writeStringToFile(infoFile, info, "UTF-8");
 
         }
 

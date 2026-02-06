@@ -15,12 +15,12 @@ public class AnalyzedMethod {
 	private String name;
   private HashMap<String, Integer> opCounts = new HashMap<>(); //string method invocation counts
 	private MethodDeclaration node;
-	private boolean hasParameters;
+	// private boolean hasParameters;
 	private boolean hasOnlyTypeParameters;
 	private int typeParameterCount;
-	private boolean hasTypeOperations;
+	// private boolean hasTypeOperations;
 	private int typeOperationCount;
-	private boolean hasTypeConditional;
+	// private boolean hasTypeConditional;
 	private int typeConditionalCount;
 	private boolean hasLoop;
 
@@ -33,6 +33,10 @@ public class AnalyzedMethod {
 	public String getName() {
 		return name;
 	}
+
+  public void setName(String name) {
+    this.name = name;
+  }
 	
 	public MethodDeclaration getMethodDeclaration() {
 		return node;
@@ -50,21 +54,25 @@ public class AnalyzedMethod {
     return opCounts.values().stream().mapToInt(Integer::intValue).sum();
   }
 	
-	public boolean hasParameters() {
-		return hasParameters;
-	}
-
-	public void setHasParameters(boolean hasParameters) {
-		this.hasParameters = hasParameters;
-	}
+	// public boolean hasParameters() {
+	// 	return hasParameters;
+	// }
+	//
+	// public void setHasParameters(boolean hasParameters) {
+	// 	this.hasParameters = hasParameters;
+	// }
 	
 	public void setHasOnlyTypeParameters(boolean hasOnlyTypeParameters) {
 		this.hasOnlyTypeParameters = hasOnlyTypeParameters;
 	}
-	
-	public void setHasTypeOperations(boolean hasTypeOperations) {
-		this.hasTypeOperations = hasTypeOperations;
-	}
+
+  public boolean getHasOnlyTypeParameters() {
+    return hasOnlyTypeParameters;
+  }
+
+	// public void setHasTypeOperations(boolean hasTypeOperations) {
+	// 	this.hasTypeOperations = hasTypeOperations;
+	// }
 	
 	public int getTypeOperationCount() {
 		return typeOperationCount;
@@ -78,7 +86,7 @@ public class AnalyzedMethod {
 		return typeConditionalCount;
 	}
 	
-	public void setConditionalCount(int typeConditionalCount) {
+	public void setTypeConditionalCount(int typeConditionalCount) {
 		this.typeConditionalCount = typeConditionalCount;
 	}
 	
@@ -92,10 +100,10 @@ public class AnalyzedMethod {
 	
   // stricter
   // maybe shuold require param exists?
-	public boolean isSymbolicSuitable() {
+	// public boolean isSymbolicSuitable() {
 //		return (hasParameters && hasOnlyIntParameters && hasConditional);
-		return (hasParameters && hasOnlyTypeParameters && hasTypeOperations);
-	}
+		// return (hasParameters && hasOnlyTypeParameters && hasTypeOperations);
+	// }
 
   public boolean isSuitable(int minExpr, int minCond, int minParam) {
     return (typeOperationCount >= minExpr &&
@@ -103,14 +111,14 @@ public class AnalyzedMethod {
             typeParameterCount >= minParam);
   }
 
-	public void setHasTypeConditional(boolean hasTypeConditional) {
-		this.hasTypeConditional = hasTypeConditional;
-		
-	}
-	
-	public boolean isHasTypeConditional() {
-		return hasTypeConditional;
-	}
+	// public void setHasTypeConditional(boolean hasTypeConditional) {
+	// 	this.hasTypeConditional = hasTypeConditional;
+	//
+	// }
+	//
+	// public boolean isHasTypeConditional() {
+	// 	return hasTypeConditional;
+	// }
 	
 	public void setHasLoop(boolean hasLoop) {
 		this.hasLoop = hasLoop;
@@ -122,5 +130,9 @@ public class AnalyzedMethod {
 
   public void incrementTypeOperationCount() {
     typeOperationCount++;
+  }
+
+  public void incrementTypeConditionalCount() {
+    typeConditionalCount++;
   }
 }

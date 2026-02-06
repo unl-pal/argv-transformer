@@ -1,5 +1,7 @@
 package transform.TypeChecking;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,8 +26,23 @@ import org.eclipse.jdt.core.dom.Type;
 public class TypeChecker {
   private static Set<String> javaImportTypes;
   private static Set<String> classTypes;
+private static final Set<String> stringOps = new HashSet<>(Arrays.asList(
+        // String methods
+        "concat", "length", "substring", "charAt", "indexOf", "lastIndexOf",
+        "firstIndexOf", "equals", "compareTo", "toUpperCase", "toLowerCase",
+        "trim", "startsWith", "endsWith", "equalsIgnoreCase", "split",
+        "replace", "replaceFirst", "replaceAll", "contains", "isEmpty",
+        // StringBuilder methods
+        "insert", "delete", "append", "reverse"
+    ));
 
-  // those are collective types we area dealing with
+  private static final Set<String> stringTypes = new HashSet<>(Arrays.asList(
+          "String", "StringBuilder", "StringBuffer", "CharSequence",
+          // sometimes simpleName are qualified?
+          "java.lang.String","java.lang.StringBuilder","java.lang.StringBuffer","java.lang.CharSequence"
+  ));
+
+// those are collective types we area dealing with
   // any means that the type is unknown
   public enum CType {
     INT, REAL, STRING, BOOLEAN, ANY
@@ -87,14 +104,10 @@ public class TypeChecker {
     // nps: with ITypeBinding the qualified name fallback works but wihtout we need
     // to also allow all String libraries
     if (type.isSimpleType()) {
-      Name name = ((SimpleType) type).getName();
-      if (name.isSimpleName()) {
-        String typeName = ((SimpleName) name).getIdentifier();
-        if (typeName.equals("String") || typeName.equals("CharSequence") ||
-            typeName.equals("StringBuffer") || typeName.equals("StringBuilder")) {
+      String typeName = ((SimpleType) type).getName().toString();
+        if (stringTypes.contains(typeName)) {
           return true;
         }
-      }
     }
     // check if is character literal
 
@@ -114,7 +127,7 @@ public class TypeChecker {
    * @return true if the type is allowed, false otherwise
    */
   public boolean allowedType(ITypeBinding binding) {
-    if (binding == null) {
+   if (binding == null) {
       return false;
     }
 
@@ -182,23 +195,18 @@ public class TypeChecker {
       return false;
 
     if (type.isSimpleType()) {
-      Name name = ((SimpleType) type).getName();
-      if (name.isSimpleName()) {
-        String identifier = ((SimpleName) name).getIdentifier();
-        return identifier.equals("String") ||
-            identifier.equals("CharSequence") ||
-            identifier.equals("StringBuffer") ||
-            identifier.equals("StringBuilder");
-      }
+      String name = ((SimpleType) type).getName().toString();
+        return name.equals("String") ||
+            name.equals("CharSequence") ||
+            name.equals("StringBuffer") ||
+            name.equals("StringBuilder");
     }
-
-    ITypeBinding binding = type.resolveBinding();
-    if (binding != null) {
-      return isStringType(binding);
-    }
-
+    // ITypeBinding binding = type.resolveBinding();
+    // if (binding != null) {
+    //   return isStringType(binding);
+    // }
     if (type.isPrimitiveType()) {
-      // checking for chars since it should be treated as string type
+      // checking for chars since it should be treated as string type (for symbolic purposes, some cases need ot treat char is an int)
       return ((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.CHAR;
     }
     return false;
@@ -212,6 +220,15 @@ public class TypeChecker {
         qualifiedName.equals("java.lang.CharSequence") ||
         qualifiedName.equals("java.lang.StringBuffer") ||
         qualifiedName.equals("java.lang.StringBuilder");
+  }
+
+  public static boolean isStringTypeSpecifically(Type type) {
+    if (type == null)
+      return false;
+    if (type.isSimpleType()) {
+        return ((SimpleType)type).getName().toString().equals("String");
+    }
+    return false;
   }
 
   public static boolean isIntegerType(Type type) {
@@ -290,6 +307,10 @@ public class TypeChecker {
   public static boolean isRealArrayType(Type type, int dim) {
     type = arrayType(type, dim);
     return isRealType(type);
+  }
+
+  public static boolean isStringOp(String opName) {
+    return stringOps.contains(opName);
   }
 
 }

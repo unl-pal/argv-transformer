@@ -1,0 +1,67 @@
+!!sourceAnalysis.AnalyzedFile
+analyzedMethods:
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: concatAll
+  opCounts: {length: 2, concat: 2}
+  typeConditionalCount: 1
+  typeOperationCount: 4
+  typeParameterCount: 3
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: processString
+  opCounts: {trim: 1, toUpperCase: 1, length: 1, substring: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 4
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: compareStrings
+  opCounts: {equals: 1, length: 1, equalsIgnoreCase: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 3
+  typeParameterCount: 2
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: conditionalString
+  opCounts: {contains: 1, indexOf: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 3
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: processMixed
+  opCounts: {substring: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: false
+  name: noParams
+  opCounts: {}
+  typeConditionalCount: 0
+  typeOperationCount: 0
+  typeParameterCount: 0
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: mixedTypes
+  opCounts: {}
+  typeConditionalCount: 0
+  typeOperationCount: 0
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: stringConcatenation
+  opCounts: {length: 1, concat: 1, substring: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 3
+  typeParameterCount: 2
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: stringMethodCalls
+  opCounts: {contains: 1, replace: 1, endsWith: 1, startsWith: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 4
+  typeParameterCount: 1
+fileName: StringParameterTest.java
+suitableMethodCount: 7

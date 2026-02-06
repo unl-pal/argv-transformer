@@ -1,0 +1,46 @@
+!!sourceAnalysis.AnalyzedFile
+analyzedMethods:
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: emptyString
+  opCounts: {length: 2, concat: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 3
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: false
+  name: processStringArray
+  opCounts: {endsWith: 1, length: 2, concat: 1, substring: 1}
+  typeConditionalCount: 1
+  typeOperationCount: 5
+  typeParameterCount: 0
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: returnNull
+  opCounts: {}
+  typeConditionalCount: 1
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: voidStringOp
+  opCounts: {length: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: true
+  name: stringCharMethod
+  opCounts: {toUpperCase: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 1
+- hasLoop: false
+  hasOnlyTypeParameters: false
+  name: processObject
+  opCounts: {length: 1}
+  typeConditionalCount: 0
+  typeOperationCount: 1
+  typeParameterCount: 0
+fileName: StringEdgeCaseTest.java
+suitableMethodCount: 6

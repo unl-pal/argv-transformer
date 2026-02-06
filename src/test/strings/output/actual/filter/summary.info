@@ -1,0 +1,6 @@
+repo,file,suitable_methods,type_ops
+simpleTests,StringEdgeCaseTest.java,6,12
+simpleTests,StringParameterTest.java,7,22
+simpleTests,StringReturnTest.java,4,7
+simpleTests,StringOperationTest.java,3,22
+simpleTests,StringBuilderTest.java,4,8

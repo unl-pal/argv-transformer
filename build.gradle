@@ -65,6 +65,7 @@ sourceSets {
             srcDirs = ['src/test']
             // Exclude integrationExpected from test sources
             exclude 'integrationExpected/**'
+            exclude 'strings/output/**'
         }
     }
 }

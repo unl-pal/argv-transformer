@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
+import logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -57,13 +58,17 @@ public class Main {
   private static boolean debug = false;
   private static boolean transformAll = false;
 
+  public static final Logger logger = Logger.defaultLogger.enterContext("transform.Main");
+
   // public static String source = "database";
   // public static String dest = "benchmarks";
   // public static String source = "src/test/transformer/integration";
   // public static String source = "testsFromReport";
   // public static String dest = "testOutput";
-  public static String source = "suitableStrPrgms";
-  public static String dest = "strBenchmarks";
+//   public static String source = "suitableStrPrgms";
+//   public static String dest = "strBenchmarks";
+  public static String source = "src/test/strings/output/expected/filter";
+  public static String dest = "src/test/strings/output/expected/transform";
 
   public static void main(String[] args) throws IOException {
     File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
@@ -194,7 +199,7 @@ public class Main {
           successful.add(destFile);
           failed.remove(destFile);
 
-          getInfoFile(srcFile, destFile);
+          // getInfoFile(srcFile, destFile);
           if ("SVCOMP".equals(target)) {
             createSVCompYmlFile(destFile);
             // rename class etc. and move
@@ -253,13 +258,13 @@ public class Main {
     removeEmptyDirs(destDir);
 
     if (successful.isEmpty())
-      System.exit(-1);
+      System.out.println("No programs transformed successfully.");
   }
 
   private static void getInfoFile(File srcFile, File destFile) {
     File parent = srcFile.getParentFile();
     String repo = parent.getParent();
-    File infoFile = new File(repo, "." + parent.getName() + "." + destFile.getName() + ".info");
+    File infoFile = new File(repo, "." + parent.getName() + "." + destFile.getName() + ".yaml");
     try {
       FileUtils.copyFileToDirectory(infoFile, destFile.getParentFile());
     } catch (IOException e) {
@@ -315,15 +320,17 @@ public class Main {
   private static void createSVCompYmlFile(File file) {
     // Path to Save YML file
     File parentDirectory = new File(file.getParent());
+    String repo = parentDirectory.getName();
 
     // Name of YML file
     String fileNameWithExtension = file.getName();
     String fileNameWithoutExtension = fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf('.'));
 
-    File newFilePath = new File(parentDirectory.getPath() + "/" + fileNameWithoutExtension);
-    if (newFilePath.exists()) {
+    // TODO: add exception handling
+    File newFilePath = new File(parentDirectory.getPath().replace("/" + repo,"." + repo) + "/" + fileNameWithoutExtension);
+//    if (newFilePath.exists()) {
       CreateYmlFile.buildFile(file.getParent(), fileNameWithoutExtension, true, true);
-    }
+//    }
 
   }
 

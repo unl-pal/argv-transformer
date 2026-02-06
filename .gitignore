@@ -58,3 +58,8 @@ kls_database.db
 .classpath
 # Gradle made template file
 my.classpath
+LOTS-str-benches/strBenchmarks
+strBenchmarks
+suitableStrPrgms
+testStrPrgms
+mise.toml

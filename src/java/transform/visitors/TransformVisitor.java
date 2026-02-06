@@ -108,7 +108,7 @@ import util.TypeResolutionUtils;
  * @author mariapaquin
  *
  */
-public class TransformVisitor extends ASTVisitor {
+public class TransformVisitor extends ASTVisitorUtil {
 
   private ASTRewrite rewriter;
   private AST ast;
@@ -703,6 +703,11 @@ public class TransformVisitor extends ASTVisitor {
       if (packageName.startsWith("java.") || packageName.startsWith("javax.")
           || TypeResolutionUtils.methodIsFromSameClass(node)) {
         // do nothing for now
+        ITypeBinding typeBinding = methodBinding.getReturnType();
+//        if (typeBinding != null && TypeChecker.isStringType(typeBinding)) {
+//          TypeResolutionUtils.replaceString(node, target, ast, rewriter, randUsedInMethod);
+//          return;
+//        }
       } else {
         ITypeBinding typeBinding = methodBinding.getReturnType();
         if (typeBinding != null && typeBinding.isPrimitive()) {
@@ -1197,50 +1202,6 @@ public class TransformVisitor extends ASTVisitor {
       return false;
     }
     return true;
-  }
-
-  private String getMethodSTEName(MethodDeclaration node) {
-    String name = node.getName().getIdentifier();
-
-    @SuppressWarnings("unchecked")
-    List<SingleVariableDeclaration> parameters = node.parameters();
-    for (SingleVariableDeclaration param : parameters) {
-      Type type = param.getType();
-
-      if (type instanceof PrimitiveType) {
-
-        switch (((PrimitiveType) type).toString()) {
-          case ("int"):
-            name += "i";
-            break;
-          case ("double"):
-            name += "d";
-            break;
-          case ("byte"):
-            name += "b";
-            break;
-          case ("short"):
-            name += "s";
-            break;
-          case ("char"):
-            name += "c";
-            break;
-          case ("long"):
-            name += "l";
-            break;
-          case ("float"):
-            name += "f";
-            break;
-          case ("boolean"):
-            name += "a";
-            break;
-          case ("void"):
-            name += "v";
-            break;
-        }
-      }
-    }
-    return name;
   }
 
   private void addRandomVariableDeclaration(MethodDeclaration node) {

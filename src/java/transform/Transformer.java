@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -22,6 +23,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -53,7 +55,7 @@ import transform.visitors.PreprocessingVisitor;
 import transform.visitors.RemoveEmptyBlockVisitor;
 import transform.visitors.SymbolTableVisitor;
 import transform.visitors.TypeCollectVisitor;
-
+import static transform.Main.logger;
 /**
  * Class to transform Java files into compilable, SPF suitable benchmarks.
  * 
@@ -170,6 +172,25 @@ public class Transformer {
         CompilationUnit preprocessingCu = (CompilationUnit) preprocessingParser.createAST(null);
         preprocessingCu.recordModifications();
 
+// Debug: Check if bindings are resolved
+            IProblem[] problems = preprocessingCu.getProblems();
+            if (problems.length > 0) {
+                logger.logln("=== Compilation Problems ===",4);
+                for (IProblem problem : problems) {
+                    logger.logln("  " + problem.getMessage() + " (line " + problem.getSourceLineNumber() + ")", 4);
+                }
+                logger.logln("============================",4);
+            }
+
+// Debug: Check a simple type binding
+            preprocessingCu.accept(new ASTVisitor() {
+                @Override
+                public boolean visit(SimpleType node) {
+                    ITypeBinding binding = node.resolveBinding();
+                    logger.logln("DEBUG: Type " + node + " -> binding=" + (binding == null ? "NULL" : binding.getQualifiedName()), 4);
+                    return true;
+                }
+            });
         ASTRewrite preprocessingRewriter = ASTRewrite.create(preprocessingCu.getAST());
 
         PreprocessingVisitor preprocessingVisitor = new PreprocessingVisitor(preprocessingRewriter,
@@ -342,7 +363,7 @@ public class Transformer {
     }
   }
 
-  public static ASTParser getParser(String source, String[] sourcePath, String[] classPath, File file) {
+public static ASTParser getParser(String source, String[] sourcePath, String[] classPath, File file) {
     ASTParser parser = ASTParser.newParser(AST.JLS8);
     parser.setSource(source.toCharArray());
     parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -353,55 +374,138 @@ public class Transformer {
     options.put(JavaCore.COMPILER_SOURCE, "1.8");
     parser.setCompilerOptions(options);
     parser.setUnitName(file.getAbsolutePath());
-    String javaHome = System.getProperty("java.home");
-    Path rtJar = Paths.get(javaHome, "lib", "rt.jar");
+
+    // Get JDK home from system property (set by Gradle) or fall back to java.home
+    String jdkHome = System.getProperty("jdkHome", System.getProperty("java.home"));
+
+    // Find rt.jar - check multiple locations for cross-platform compatibility
+    Path rtJar = findRtJar(jdkHome);
+    if (rtJar == null) {
+        throw new RuntimeException("rt.jar not found. Ensure you're using JDK 8. Searched in: " + jdkHome);
+    }
+
     String[] newClassPath = Arrays.copyOf(classPath, classPath.length + 1);
     newClassPath[newClassPath.length - 1] = rtJar.toAbsolutePath().toString();
-    // nps: jdt require encoding array mathces sorucepath length
+
     String[] encodings = new String[sourcePath.length];
     Arrays.fill(encodings, "UTF-8");
-    // ... inside getParser, just before parser.setEnvironment(...)
-    //
-    // System.out.println("=== DEBUG: ASTParser Environment ===");
-    // System.out.println("Target File (Unit Name): " + file.getAbsolutePath());
-    //
-    // // 1. Check Array Lengths (MUST MATCH for sources and encodings)
-    // System.out.println(String.format("Arrays: SourcePath[%d], Encodings[%d], ClassPath[%d]",
-    //     sourcePath.length, encodings.length, newClassPath.length));
-    //
-    // if (sourcePath.length != encodings.length) {
-    //   System.err.println("!!! ERROR: SourcePath and Encodings arrays must be the same length!");
-    // }
-    //
-    // // 2. Validate Classpath Existence
-    // System.out.println("-- Classpath Entries --");
-    // for (String cp : newClassPath) {
-    //   File f = new File(cp);
-    //   if (!f.exists()) {
-    //     System.err.println("  [MISSING] " + cp); // <--- LOOK FOR THIS
-    //   } else {
-    //     System.out.println("  [OK] " + cp);
-    //   }
-    // }
-    //
-    // // 3. Validate Sourcepath Existence
-    // System.out.println("-- Sourcepath Entries --");
-    // for (String sp : sourcePath) {
-    //   File f = new File(sp);
-    //   if (!f.exists()) {
-    //     System.err.println("  [MISSING] " + sp);
-    //   } else {
-    //     System.out.println("  [OK] " + sp);
-    //   }
-    // }
-    // System.out.println("====================================");
+    logger.logln("=== ASTParser Environment Debug ===", 4);
+    logger.logln("jdkHome: " + jdkHome, 4);
+    logger.logln("rt.jar: " + rtJar.toAbsolutePath(), 4);
+    logger.logln("rt.jar exists: " + Files.exists(rtJar), 4);
+    logger.logln("unitName: " + file.getAbsolutePath(), 4);
+    logger.logln("sourcePath (" + sourcePath.length + "):", 4);
+    for (String sp : sourcePath) {
+        logger.logln("  " + sp + " [exists=" + new File(sp).exists() + "]", 4);
+    }
+    logger.logln("classpath (" + newClassPath.length + "):", 4);
+    for (String cp : newClassPath) {
+        logger.logln("  " + cp + " [exists=" + new File(cp).exists() + "]", 4);
+    }
+    logger.logln("encodings length: " + encodings.length, 4);
+    logger.logln("===================================", 4);
 
-    // parser.setEnvironment(newClassPath, sourcePath, encodings, true);
     parser.setEnvironment(newClassPath, sourcePath, encodings, true);
 
     return parser;
-  }
+}
 
+/**
+ * Find rt.jar in various possible locations within a JDK/JRE installation.
+ * Handles differences between JDK vendors and OS layouts.
+ *
+ * @param javaHome The JDK or JRE home directory
+ * @return Path to rt.jar, or null if not found
+ */
+private static Path findRtJar(String javaHome) {
+    // Possible rt.jar locations across different JDK vendors and OS
+    String[] possiblePaths = {
+        "lib/rt.jar",           // Standard JDK 8 layout
+        "jre/lib/rt.jar",       // Some JDK 8 distributions (Temurin, etc.)
+        "../lib/rt.jar",        // If java.home points to jre subdirectory
+        "../jre/lib/rt.jar"     // Alternative layout
+    };
+
+    Path baseDir = Paths.get(javaHome);
+    for (String relativePath : possiblePaths) {
+        Path candidate = baseDir.resolve(relativePath).normalize();
+        if (Files.exists(candidate)) {
+            return candidate;
+        }
+    }
+
+    // For JDK 9+, rt.jar doesn't exist - check for jrt-fs.jar as indicator
+    Path jrtFs = baseDir.resolve("lib/jrt-fs.jar");
+    if (Files.exists(jrtFs)) {
+        throw new RuntimeException("JDK 9+ detected. This tool requires JDK 8 with rt.jar.");
+    }
+
+    return null;
+}
+  //
+  // public static ASTParser getParser(String source, String[] sourcePath, String[] classPath, File file) {
+  //   ASTParser parser = ASTParser.newParser(AST.JLS8);
+  //   parser.setSource(source.toCharArray());
+  //   parser.setKind(ASTParser.K_COMPILATION_UNIT);
+  //   parser.setResolveBindings(true);
+  //   parser.setBindingsRecovery(true);
+  //   parser.setStatementsRecovery(true);
+  //   Map<String, String> options = JavaCore.getOptions();
+  //   options.put(JavaCore.COMPILER_SOURCE, "1.8");
+  //   parser.setCompilerOptions(options);
+  //   parser.setUnitName(file.getAbsolutePath());
+  //   String javaHome = System.getProperty("java.home");
+  //   Path rtJar = Paths.get(javaHome, "lib", "rt.jar");
+  //   if (!rtJar.toFile().exists()) {
+  //     rtJar = 
+  //   }
+  //   String[] newClassPath = Arrays.copyOf(classPath, classPath.length + 1);
+  //   newClassPath[newClassPath.length - 1] = rtJar.toAbsolutePath().toString();
+  //   // nps: jdt require encoding array mathces sorucepath length
+  //   String[] encodings = new String[sourcePath.length];
+  //   Arrays.fill(encodings, "UTF-8");
+  //   // ... inside getParser, just before parser.setEnvironment(...)
+  //   //
+  //   // System.out.println("=== DEBUG: ASTParser Environment ===");
+  //   // System.out.println("Target File (Unit Name): " + file.getAbsolutePath());
+  //   //
+  //   // // 1. Check Array Lengths (MUST MATCH for sources and encodings)
+  //   // System.out.println(String.format("Arrays: SourcePath[%d], Encodings[%d], ClassPath[%d]",
+  //   //     sourcePath.length, encodings.length, newClassPath.length));
+  //   //
+  //   // if (sourcePath.length != encodings.length) {
+  //   //   System.err.println("!!! ERROR: SourcePath and Encodings arrays must be the same length!");
+  //   // }
+  //   //
+  //   // // 2. Validate Classpath Existence
+  //   // System.out.println("-- Classpath Entries --");
+  //   // for (String cp : newClassPath) {
+  //   //   File f = new File(cp);
+  //   //   if (!f.exists()) {
+  //   //     System.err.println("  [MISSING] " + cp); // <--- LOOK FOR THIS
+  //   //   } else {
+  //   //     System.out.println("  [OK] " + cp);
+  //   //   }
+  //   // }
+  //   //
+  //   // // 3. Validate Sourcepath Existence
+  //   // System.out.println("-- Sourcepath Entries --");
+  //   // for (String sp : sourcePath) {
+  //   //   File f = new File(sp);
+  //   //   if (!f.exists()) {
+  //   //     System.err.println("  [MISSING] " + sp);
+  //   //   } else {
+  //   //     System.out.println("  [OK] " + sp);
+  //   //   }
+  //   // }
+  //   // System.out.println("====================================");
+  //
+  //   // parser.setEnvironment(newClassPath, sourcePath, encodings, true);
+  //   parser.setEnvironment(newClassPath, sourcePath, encodings, true);
+  //
+  //   return parser;
+  // }
+  //
   /**
    * Helper method for renaming a class to Main.java
    * 

@@ -16,8 +16,10 @@ import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -28,8 +30,11 @@ import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
@@ -147,12 +152,14 @@ public class SuitableMethodFinder {
     rewriter = visitor.rewriter;
 
     Document document = new Document(source);
-    try {
-      TextEdit edits = rewriter.rewriteAST(document, null);
-      edits.apply(document);
-    } catch (Exception e) {
-      System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
-    }
+    // nps: currently we are not modifiying the source code
+    // try {
+    // TextEdit edits = rewriter.rewriteAST(document, null);
+    // edits.apply(document);
+    // } catch (Exception e) {
+    // System.err.println("Exception " + e + " while transforming file " +
+    // file.getAbsolutePath());
+    // }
     BufferedWriter out = new BufferedWriter(new FileWriter(file));
 
     out.write(document.get());
@@ -278,13 +285,13 @@ public class SuitableMethodFinder {
       // System.out.println("Visiting " + node.getName());
       AnalyzedMethod m = currAnalyzedMethod;
       int intOpCount = m.getTypeOperationCount();
-      if (intOpCount > 0) {
-        m.setHasTypeOperations(true);
-      }
+      // if (intOpCount > 0) {
+      //   m.setHasTypeOperations(true);
+      // }
 
-      if (m.getTypeConditionalCount() > 0) {
-        m.setHasTypeConditional(true);
-      }
+      // if (m.getTypeConditionalCount() > 0) {
+      //   m.setHasTypeConditional(true);
+      // }
 
       if (m.getTypeParameterCount() > 0) {
         m.setHasOnlyTypeParameters(true);
@@ -344,8 +351,7 @@ public class SuitableMethodFinder {
       // }
       // remember the count before
       if (hasType) {
-        currAnalyzedMethod.setConditionalCount(currAnalyzedMethod.getTypeConditionalCount() + 1);
-
+        currAnalyzedMethod.incrementTypeConditionalCount();
       }
 
       // --}
@@ -355,56 +361,89 @@ public class SuitableMethodFinder {
       return true;
     }
 
-    // for determining whether the expression for a conditional has relevant type
+    // does any part of the expression have the specified type?
     private boolean hasType(Expression e) {
-      boolean ret = false;
       if (e instanceof InfixExpression) {
         InfixExpression infE = (InfixExpression) e;
-        Expression lE = infE.getLeftOperand();
-        Expression rE = infE.getRightOperand();
-        Type lT = typeTable.getNodeType(lE);
-        Type rT = typeTable.getNodeType(rE);
-
-        if (TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type) {
-          ret = true;
-        } else if (TypeChecker.isBooleanType(rT) || TypeChecker.isBooleanType(lT)) {
-          // call again since it might be just a complex expression
-          ret = hasType(lE) || hasType(rE);
-        }
-
-        // Concatenation special case
-        if (type == CType.STRING && infE.getOperator() == InfixExpression.Operator.PLUS) {
-          if (TypeChecker.isStringType(lT) || TypeChecker.isStringType(rT)) {
-            ret = true;
-          }
-        }
+        return hasType(infE.getLeftOperand()) || hasType(infE.getRightOperand());
+      } else if (e instanceof ConditionalExpression) {
+        ConditionalExpression condE = (ConditionalExpression) e;
+        return hasType(condE.getThenExpression()) || hasType(condE.getElseExpression());
       } else if (e instanceof MethodInvocation) {
         MethodInvocation mi = (MethodInvocation) e;
-        String methodName = mi.getName().getIdentifier();
         Type recType = typeTable.getNodeType(mi.getExpression());
         if (type == CType.STRING && TypeChecker.isStringType(recType)) {
-          ret = isStringOperation(methodName);
+          return TypeChecker.isStringOp(mi.getName().getIdentifier());
+        } else {
+          return type.equals(TypeChecker.checkType(recType));
         }
+      } else if (e instanceof ParenthesizedExpression) {
+        return hasType(((ParenthesizedExpression) e).getExpression());
+      } else if (e instanceof PrefixExpression) {
+        return hasType(((PrefixExpression) e).getOperand());
+      } else if (e instanceof PostfixExpression) {
+        return hasType(((PostfixExpression) e).getOperand());
+      } else if (e instanceof FieldAccess) {
+        return type.equals(TypeChecker.checkType(typeTable.getNodeType(e)));
+      } else if (e instanceof QualifiedName) {
+        return type.equals(TypeChecker.checkType(typeTable.getNodeType(e)));
+      } else if (e instanceof SimpleName) {
+        return type.equals(TypeChecker.checkType(typeTable.getNodeType(e)));
       } else {
-        // if it is not an infix expression then it should
-        // be some single var of a boolean type
-        Type vT = typeTable.getNodeType(e);
-        if (TypeChecker.isBooleanType(vT)) {
-          // System.out.println("Just a var");
-          ret = true;
-        }
+        // fallback: check the type of the expression
+        return type.equals(TypeChecker.checkType(typeTable.getNodeType(e)));
       }
-      return ret;
     }
 
-    // TODO: StringBuilder and StringBudder methods
-    private boolean isStringOperation(String methodName) {
-      return methodName.equals("length") || methodName.equals("substring") ||
-          methodName.equals("charAt") || methodName.equals("indexOf") ||
-          methodName.equals("concat") || methodName.equals("equals") ||
-          methodName.equals("compareTo") || methodName.equals("toUpperCase") ||
-          methodName.equals("toLowerCase") || methodName.equals("trim");
-    }
+    // for determining whether the expression for an if statement has relevant type
+    // private boolean hasType(Expression e) {
+    // boolean ret = false;
+    // if (e instanceof InfixExpression) {
+    // InfixExpression infE = (InfixExpression) e;
+    // Expression lE = infE.getLeftOperand();
+    // Expression rE = infE.getRightOperand();
+    // return hasType(lE) || hasType(rE);
+    // // Type lT = typeTable.getNodeType(lE);
+    // // Type rT = typeTable.getNodeType(rE);
+    // //
+    // // if (TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) ==
+    // type) {
+    // // ret = true;
+    // // } else if (TypeChecker.isBooleanType(rT) || TypeChecker.isBooleanType(lT))
+    // {
+    // // // call again since it might be just a complex expression
+    // // ret = hasType(lE) || hasType(rE);
+    // // }
+    // //
+    // // // Concatenation special case
+    // // if (type == CType.STRING && infE.getOperator() ==
+    // // InfixExpression.Operator.PLUS) {
+    // // // either has to be (specifically) String for result to be String
+    // // if (TypeChecker.isStringTypeSpecifically(lT) ||
+    // // TypeChecker.isStringTypeSpecifically(rT)) {
+    // // ret = true;
+    // // }
+    // // }
+    // } else if (e instanceof MethodInvocation) {
+    // MethodInvocation mi = (MethodInvocation) e;
+    // String methodName = mi.getName().getIdentifier();
+    // Type recType = typeTable.getNodeType(mi.getExpression());
+    // if (type == CType.STRING && TypeChecker.isStringType(recType)) {
+    // return TypeChecker.isStringOp(methodName);
+    // } else {
+    // return type.equals(TypeChecker.checkType(recType));
+    // }
+    // } else {
+    // // if it is not an infix expression then it should
+    // // be some single var of a boolean type
+    // Type vT = typeTable.getNodeType(e);
+    // // if (TypeChecker.isBooleanType(vT)) {
+    // // System.out.println("Just a var");
+    // // ret = true;
+    // // }
+    // return type.equals(TypeChecker.checkType(vT));
+    // }
+    // }
 
     @Override
     public void endVisit(IfStatement node) {
@@ -552,10 +591,21 @@ public class SuitableMethodFinder {
 
       if (type == CType.STRING && op == Operator.PLUS) {
         // special case of string concatenation
-        if (TypeChecker.isStringType(lT) || TypeChecker.isStringType(rT)) {
+        if (TypeChecker.isStringTypeSpecifically(lT) || TypeChecker.isStringTypeSpecifically(rT)) {
           currOpCounts.merge("concat", 1, Integer::sum);
           currAnalyzedMethod.incrementTypeOperationCount();
         }
+        //check for additional concats
+        List<Expression> extendedOperands = node.extendedOperands();
+        if (extendedOperands != null && !extendedOperands.isEmpty()) {
+          // we can just assume
+          int numOps = extendedOperands.size();
+          currOpCounts.merge("concat", numOps, Integer::sum);
+          for (int i = 0; i < numOps; i++){
+            currAnalyzedMethod.incrementTypeOperationCount();
+          }
+        }
+        // causes String == null to incrementTypeOperationCount
       } else if ((TypeChecker.checkType(lT) == type || TypeChecker.checkType(rT) == type)) {
 
         // does it matter what type of operand is it?
@@ -566,27 +616,25 @@ public class SuitableMethodFinder {
         // op == Operator.REMAINDER) {
         // so we count that operations
         // if the type is int
-        if (!TypeChecker.isBooleanType(typeTable.getNodeType(node))) {
+        // if (!TypeChecker.isBooleanType(typeTable.getNodeType(node))) {
           // System.out.println("op " + op);
           currAnalyzedMethod.incrementTypeOperationCount();
-        }
+        // }
         // }
       }
       // no need to go further if lhs is not of int type and not boolean
       // since a condition might use logical constructs to build complex expressions
-      return !TypeChecker.isBooleanType(lT) && !TypeChecker.isBooleanType(rT) &&
-          !TypeChecker.isStringType(lT) && !TypeChecker.isStringType(rT);
+      return !TypeChecker.isBooleanType(lT) && !TypeChecker.isBooleanType(rT);
     }
 
     @Override
     public boolean visit(MethodInvocation node) {
       if (type == CType.STRING) {
         String methodName = node.getName().getIdentifier();
-        if (isStringOperation(methodName)) {
+        if (TypeChecker.isStringOp(methodName)) {
           currOpCounts.merge(methodName, 1, Integer::sum);
           currAnalyzedMethod.incrementTypeOperationCount();
           // operationsInExpression++;
-          return false;
         }
       }
       return true;
@@ -665,7 +713,7 @@ public class SuitableMethodFinder {
     private void checkParameterTypes(AnalyzedMethod am, MethodDeclaration node) {
       List<SingleVariableDeclaration> parameters = node.parameters();
       if (!parameters.isEmpty()) {
-        am.setHasParameters(true);
+        // am.setHasParameters(true);
         int typeParams = 0;
         for (SingleVariableDeclaration parameter : parameters) {
           CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
@@ -686,7 +734,7 @@ public class SuitableMethodFinder {
         // am.setHasOnlyIntParameters(false);
         // }
       } else {
-        am.setHasParameters(false);
+        // am.setHasParameters(false);
       }
     }
 

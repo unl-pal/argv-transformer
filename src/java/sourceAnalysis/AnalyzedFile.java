@@ -1,8 +1,8 @@
 package sourceAnalysis;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -14,43 +14,54 @@ import java.util.Set;
  */
 public class AnalyzedFile {
 
+  // fields with public gettters and setters are serialized to YAML
 	private File file;
 	private String path;
-	private Set<AnalyzedMethod> analyzedMethods;
+	private ArrayList<AnalyzedMethod> analyzedMethods;//for serialization
 	private Set<AnalyzedMethod> suitableMethods;
+  private int suitableMethodCount;
+  private String fileName;
 	
 	public AnalyzedFile(File file) {
+		analyzedMethods = new ArrayList<AnalyzedMethod>();
+		suitableMethods = new HashSet<AnalyzedMethod>();
+    suitableMethodCount = 0;
 		this.file = file;
 		path = file.getAbsolutePath();
-		analyzedMethods = new HashSet<AnalyzedMethod>();
-		suitableMethods = new HashSet<AnalyzedMethod>();
+    fileName = file.getName();
 	}
 
 	public void addMethod(AnalyzedMethod am) {
 		analyzedMethods.add(am);
 	}
 	
-	public Set<AnalyzedMethod> getAnalyzedMethods() {
+	public ArrayList<AnalyzedMethod> getAnalyzedMethods() {
 		return analyzedMethods;
 	}
 	
-	public void setAnalyzedMethods(Set<AnalyzedMethod> analyzedMethods) {
+	public void setAnalyzedMethods(ArrayList<AnalyzedMethod> analyzedMethods) {
 		this.analyzedMethods = analyzedMethods;
 	}
 	
 	public Set<AnalyzedMethod> getSuitableMethods(){
 		return suitableMethods;
 	}
-	
-	public int getSpfSuitableMethodCount() {
-		int count = 0;
-		for(AnalyzedMethod am : analyzedMethods) {
-			if(am.isSymbolicSuitable()) {
-				count++;
-			}
-		}
-		return count;
-	}
+
+  public void setSuitableMethodCount(int count) {
+    suitableMethodCount = count;
+  }
+
+	 public int getSuitableMethodCount() {
+     return suitableMethodCount;
+	 }
+
+  public String getFileName() {
+    return fileName;
+  }
+
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 	
 	public boolean isSuitable() {
 		return suitableMethods.size() > 0;
@@ -58,6 +69,7 @@ public class AnalyzedFile {
 	
 	public void addSuitableMethod(AnalyzedMethod suitableMethod) {
 		suitableMethods.add(suitableMethod);
+    suitableMethodCount++;
 	}
 	
 	public String getPath() {
@@ -67,47 +79,47 @@ public class AnalyzedFile {
 	public File getFile() {
 		return file;
 	}
-	
-	public boolean isSymbolicSuitable() {
-		return (getSpfSuitableMethodCount() > 0);
-	}
+	//
+	// public boolean isSuitable() {
+	// 	return (getSuitableMethodCount() > 0);
+	// }
 
-  public String getFileInfo() {
-    StringBuilder sb = new StringBuilder();
+  // public String getFileInfo() {
+  //   StringBuilder sb = new StringBuilder();
+  //
+  //   sb.append("File: " + file.getName() + "\n");
+  //   sb.append("Suitable Methods: " + suitableMethodCount + "/" + analyzedMethods.size() + "\n");
+  //   sb.append("Total Type Conditionals: " + getTotalConditionals() + "\n");
+  //   sb.append("Total Type Operations: " + getTotalOperations() + "\n");
+  //   for (HashMap.Entry<String, Integer> entry : getFileOpCounts().entrySet()) {
+  //     sb.append("\t" + entry.getKey() + ": " + entry.getValue() + "\n");
+  //   }
+  //   sb.append("Methods:\n");
+  //   for (AnalyzedMethod m : suitableMethods) {
+  //     sb.append("\tMethod Name: " + m.getName() + "\n");
+  //     sb.append("\tType Parameters: " + m.getTypeParameterCount() + "\n");
+  //     sb.append("\tType Conditionals: " + m.getTypeConditionalCount() + "\n");
+  //     sb.append("\tType Operations: " + m.getTypeOperationCount() + "\n");
+  //     for (HashMap.Entry<String, Integer> entry : m.getOpCounts().entrySet()) {
+  //       sb.append("\t\t" + entry.getKey() + ": " + entry.getValue() + "\n");
+  //     }
+  //     sb.append("\n");
+  //   }
+  //
+  //   return sb.toString();
+  // }
 
-    sb.append("File: " + file.getName() + "\n");
-    sb.append("Suitable Methods: " + suitableMethods.size() + "/" + analyzedMethods.size() + "\n");
-    sb.append("Total Type Conditionals: " + getTotalConditionals() + "\n");
-    sb.append("Total Type Operations: " + getTotalOperations() + "\n");
-    for (HashMap.Entry<String, Integer> entry : getFileOpCounts().entrySet()) {
-      sb.append("\t" + entry.getKey() + ": " + entry.getValue() + "\n");
-    }
-    sb.append("Methods:\n");
-    for (AnalyzedMethod m : suitableMethods) {
-      sb.append("\tMethod Name: " + m.getName() + "\n");
-      sb.append("\tType Parameters: " + m.getTypeParameterCount() + "\n");
-      sb.append("\tType Conditionals: " + m.getTypeConditionalCount() + "\n");
-      sb.append("\tType Operations: " + m.getTypeOperationCount() + "\n");
-      for (HashMap.Entry<String, Integer> entry : m.getOpCounts().entrySet()) {
-        sb.append("\t\t" + entry.getKey() + ": " + entry.getValue() + "\n");
-      }
-      sb.append("\n");
-    }
-
-    return sb.toString();
-  }
-
-  public HashMap<String, Integer> getFileOpCounts() {
-    HashMap<String, Integer> fileOpCounts = new HashMap<>();
-    for (AnalyzedMethod m : suitableMethods) {
-      HashMap<String, Integer> methodOpCounts = m.getOpCounts();
-      for (HashMap.Entry<String, Integer> entry : methodOpCounts.entrySet()) {
-        fileOpCounts.merge(entry.getKey(), entry.getValue(), Integer::sum);
-      }
-    }
-    return fileOpCounts;
-  }
-
+  // public HashMap<String, Integer> getFileOpCounts() {
+  //   HashMap<String, Integer> fileOpCounts = new HashMap<>();
+  //   for (AnalyzedMethod m : suitableMethods) {
+  //     HashMap<String, Integer> methodOpCounts = m.getOpCounts();
+  //     for (HashMap.Entry<String, Integer> entry : methodOpCounts.entrySet()) {
+  //       fileOpCounts.merge(entry.getKey(), entry.getValue(), Integer::sum);
+  //     }
+  //   }
+  //   return fileOpCounts;
+  // }
+  //
   public int getTotalOperations() {
     int count = 0;
     for (AnalyzedMethod m : suitableMethods) {
@@ -115,14 +127,14 @@ public class AnalyzedFile {
     }
     return count;
   }
-
-  public int getTotalConditionals() {
-    int count = 0;
-    for (AnalyzedMethod m : suitableMethods) {
-      count += m.getTypeConditionalCount();
-    }
-    return count;
-  }
+  //
+  // public int getTotalConditionals() {
+  //   int count = 0;
+  //   for (AnalyzedMethod m : suitableMethods) {
+  //     count += m.getTypeConditionalCount();
+  //   }
+  //   return count;
+  // }
 
   public String getSummary() {
     return file.getName() + "," + suitableMethods.size() + "," + getTotalOperations();

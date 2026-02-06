@@ -23,12 +23,13 @@ public class FileFilter {
 
   private static final Logger logger = Logger.defaultLogger;
   private HashMap<File, String> fileInfo = new HashMap<>();
-  private StringBuilder summaryInfo = new StringBuilder();
+  private ArrayList<String> summaryInfo = new ArrayList<>();
 
-  private ArrayList<File> spfSuitableFiles;
+  private ArrayList<File> suitableFiles;
   private ArrayList<File> javaFiles;
+  private ArrayList<AnalyzedFile> analyzedFiles;
   private File database;
-  private int spfSuitableMethods;
+  private int suitableMethods;
   private List<GitProject> gitProjects;
 
   private CType type;
@@ -43,8 +44,8 @@ public class FileFilter {
    */
   public FileFilter(List<GitProject> gitProjects) {
     this.gitProjects = gitProjects;
-    spfSuitableFiles = new ArrayList<File>();
-    spfSuitableMethods = 0;
+    suitableFiles = new ArrayList<File>();
+    suitableMethods = 0;
   }
 
   /**
@@ -54,16 +55,17 @@ public class FileFilter {
    */
   public FileFilter(File database) {
     this.database = database;
-    spfSuitableFiles = new ArrayList<File>();
+    suitableFiles = new ArrayList<File>();
     javaFiles = new ArrayList<File>();
-    spfSuitableMethods = 0;
+    suitableMethods = 0;
   }
 
   public FileFilter(File database, String type, int minExpr, int minIfStmt, int minParams) {
     this.database = database;
-    spfSuitableFiles = new ArrayList<File>();
+    suitableFiles = new ArrayList<File>();
     javaFiles = new ArrayList<File>();
-    spfSuitableMethods = 0;
+    analyzedFiles = new ArrayList<AnalyzedFile>();
+    suitableMethods = 0;
     setUp(type, minExpr, minIfStmt, minParams);
   }
 
@@ -92,8 +94,8 @@ public class FileFilter {
 
   public FileFilter(List<GitProject> gitProjects, String type, int minExpr, int minIfStmt, int minParams) {
     this.gitProjects = gitProjects;
-    spfSuitableFiles = new ArrayList<File>();
-    spfSuitableMethods = 0;
+    suitableFiles = new ArrayList<File>();
+    suitableMethods = 0;
 
     setUp(type, minExpr, minIfStmt, minParams);
 
@@ -105,7 +107,7 @@ public class FileFilter {
    * @return the number of SPF suitable files
    */
   public ArrayList<File> getSuitableFiles() {
-    return spfSuitableFiles;
+    return suitableFiles;
   }
 
   public ArrayList<File> getJavaFiles() {
@@ -118,7 +120,7 @@ public class FileFilter {
    * @return the number of SPF suitable methods
    */
   public int getSuitableMethodCount() {
-    return spfSuitableMethods;
+    return suitableMethods;
   }
 
   /**
@@ -137,7 +139,7 @@ public class FileFilter {
 
   /**
    * Use the SuitableMethodFinder to search the javaFiles list for files
-   * suitable for SPF. Add suitable files to the list spfSuitableFiles.
+   * suitable for SPF. Add suitable files to the list suitableFiles.
    */
   public void collectSuitableFiles() {
     for (File file : javaFiles) {
@@ -149,12 +151,11 @@ public class FileFilter {
         finder.analyze();
         AnalyzedFile af = finder.getAnalyzedFile();
         if (af.isSuitable()) {
-          spfSuitableMethods += af.getSpfSuitableMethodCount();
-          spfSuitableFiles.add(file);
-          fileInfo.put(file, af.getFileInfo());
-          summaryInfo.append(af.getSummary());
-          summaryInfo.append("\n");
-
+          suitableMethods += af.getSuitableMethodCount();
+          suitableFiles.add(file);
+          analyzedFiles.add(af);
+          // fileInfo.put(file, af.getFileInfo());
+          summaryInfo.add(af.getSummary());
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -163,8 +164,22 @@ public class FileFilter {
   }
 
   /**
+   * return the respective AnalyzedFile for a given File
+   */
+  public AnalyzedFile getAnalyzedFile(File f) {
+    AnalyzedFile ret = null;
+    for (AnalyzedFile af : analyzedFiles) {
+      if (af.getFile().equals(f)) {
+        ret = af;
+        break;
+      }
+    }
+    return ret;
+  }
+
+  /**
    * Use the SymbolicSuitableMethodFinder to search the gitProjects list for files
-   * suitable for SPF. Add suitable files to the list spfSuitableFiles.
+   * suitable for SPF. Add suitable files to the list suitableFiles.
    */
   public void collectSuitableFilesInProjectList() {
     for (GitProject project : gitProjects) {
@@ -180,9 +195,9 @@ public class FileFilter {
       // finder.analyze();
       // AnalyzedFile af = finder.getAnalyzedFile();
       // try {
-      // spfSuitableMethods += af.getSpfSuitableMethodCount();
+      // suitableMethods += af.getSpfSuitableMethodCount();
       // if (af.isSymbolicSuitable()) {
-      // spfSuitableFiles.add(file);
+      // suitableFiles.add(file);
       // }
       // } catch (Exception e) {
       // continue;
@@ -194,12 +209,17 @@ public class FileFilter {
     }
   }
 
-  public String getFileInfo(File file) {
-    return fileInfo.get(file);
-  }
+  // public String getFileInfo(File file) {
+  //   return fileInfo.get(file);
+  // }
 
-  public String getSummaryInfo() {
-    return summaryInfo.toString();
+  // returns csv format with leading repo name
+  public String getSummaryInfo(String repo) {
+    StringBuilder info = new StringBuilder();
+    for (String fileInfo : summaryInfo) {
+      info.append(repo).append(",").append(fileInfo).append("\n");
+    }
+    return info.toString();
   }
 
 }

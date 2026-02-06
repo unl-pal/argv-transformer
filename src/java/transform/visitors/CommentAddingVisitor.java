@@ -34,7 +34,10 @@ public class CommentAddingVisitor extends ASTVisitor {
             Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(comment, ASTNode.EMPTY_STATEMENT);                 
             aboveImportsRewrite.insertFirst(commentPlaceholder, null);
         }
-		Statement disclaimer = (Statement) rewriter.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
+		Statement disclaimer = (Statement) rewriter.createStringPlaceholder(
+				"/** [ARG-V](https://arg-v.dev) was used to collect, filter, and transform these benchmarks automatically */",
+				ASTNode.EMPTY_STATEMENT);
+
 		aboveImportsRewrite.insertFirst(disclaimer, null);
         for (String comment : postImportComments) {
        	 // Extract the text from the original source.

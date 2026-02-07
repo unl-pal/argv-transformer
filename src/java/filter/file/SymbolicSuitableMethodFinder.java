@@ -60,15 +60,15 @@ import sourceAnalysis.AnalyzedMethod;
  */
 public class SymbolicSuitableMethodFinder {
 
-	private AnalyzedFile af;
+	private final AnalyzedFile af;
 	private MethodDeclaration currMethodDeclaration;
 	private AnalyzedMethod currAnalyzedMethod;
-	private HashSet<String> classIntVariables;
-	private Stack<HashSet<String>> blockStack;
-	private Stack<Expression> expressionsStack;
-	private ArrayList<String> unprocessedExpressions;
+	private final HashSet<String> classIntVariables;
+	private final Stack<HashSet<String>> blockStack;
+	private final Stack<Expression> expressionsStack;
+	private final ArrayList<String> unprocessedExpressions;
 	private boolean intExpression = true;
-	private HashMap<MethodDeclaration, Integer> intOperationsCount;
+	private final HashMap<MethodDeclaration, Integer> intOperationsCount;
 	private int operationsInExpression;
 
 	public SymbolicSuitableMethodFinder(File file) throws IOException {

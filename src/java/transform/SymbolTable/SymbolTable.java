@@ -9,9 +9,9 @@ import java.util.HashMap;
  *
  */
 public class SymbolTable {
-	protected SymbolTable parent;
+	protected final SymbolTable parent;
 	protected String id;
-	protected HashMap<String, SymbolSTE> table;
+	protected final HashMap<String, SymbolSTE> table;
 	
 	/**
 	 * Create a new SymbolTable.

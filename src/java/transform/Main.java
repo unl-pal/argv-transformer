@@ -21,13 +21,6 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.TextEdit;
 
 import transform.TypeChecking.TypeChecker.CType;
 import transform.benchmark.CreateYmlFile;
@@ -43,7 +36,6 @@ import transform.benchmark.CreateYmlFile;
  * @author mariapaquin
  */
 public class Main {
-	private static PrintWriter printWriter;
 	private static File buildDir;
 	private static String target = "DEF";
 
@@ -55,7 +47,6 @@ public class Main {
 	
 	private static String verifier = "";
 	private static boolean debug = false;
-	private static boolean transformAll = false;
 
 	public static String source = "suitablePrgms";
 	public static String dest = "benchmarks";
@@ -79,7 +70,7 @@ public class Main {
 		int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
 		int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
 		int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
-		transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
+		boolean transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
 		CType type = DEFAULT_TYPE;
 		try {
 			FileReader reader = new FileReader(configFile);
@@ -120,7 +111,7 @@ public class Main {
 		File srcDir = new File(source);
 		File destDir = new File(dest);
 
-		printWriter = new PrintWriter(System.out, true);
+		PrintWriter printWriter = new PrintWriter(System.out, true);
 
 		if (destDir.exists()) {
 			FileUtils.forceDelete(destDir);

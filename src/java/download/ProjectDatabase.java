@@ -19,7 +19,7 @@ import filter.project.ProjectFilter;
  *
  */
 public class ProjectDatabase {
-	private List<GitProject> projects;
+	private final List<GitProject> projects;
 
 	/**
 	 * Create a new ProjectDatabase.

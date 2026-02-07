@@ -13,10 +13,10 @@ import java.util.Set;
  */
 public class AnalyzedFile {
 
-	private File file;
-	private String path;
+	private final File file;
+	private final String path;
 	private Set<AnalyzedMethod> analyzedMethods;
-	private Set<AnalyzedMethod> suitableMethods;
+	private final Set<AnalyzedMethod> suitableMethods;
 	
 	public AnalyzedFile(File file) {
 		this.file = file;

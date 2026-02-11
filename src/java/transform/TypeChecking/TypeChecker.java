@@ -120,7 +120,11 @@ public class TypeChecker {
 	                allowedArgTypes = false;
 	            }
 	        }
-	        return allowedArgTypes && allowedType(binding.getErasure());
+	        ITypeBinding erasure = binding.getErasure();
+	        if (erasure == binding) {
+	            return false;
+	        }
+	        return allowedArgTypes && allowedType(erasure);
 	    }
 
 	    // Handle wildcards (e.g., ? extends Number)

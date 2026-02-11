@@ -117,7 +117,14 @@ public class Main {
 
 	     System.out.println(type + " " + minTypeExpr + " " + minTypeCond + " " + minTypeParams);
 
-	     File srcDir = new File(source);
+	     File sourceFile = new File(source);
+	     if (!sourceFile.isDirectory()) {
+		     // If source is a file, make a temp directory to hold it
+		     File tempDir = Files.createTempDirectory("paclab-transform").toFile();
+		     FileUtils.copyFileToDirectory(sourceFile, tempDir);
+		     sourceFile = tempDir;
+	     }
+	     File srcDir = sourceFile;
 	     File destDir = new File(dest);
 	     printWriter = new PrintWriter(System.out, true);
 
@@ -178,7 +185,7 @@ public class Main {
 	             }
 
 	             // ==== RECOMPILE AFTER TRANSFORMS ====
-	             boolean compilesAfter = compile(destFile);
+	             boolean compilesAfter = destFile.exists() && compile(destFile);
 
 	             if (!compilesAfter && !debug) {
 	                 Files.deleteIfExists(destFile.toPath());

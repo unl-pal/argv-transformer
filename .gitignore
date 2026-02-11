@@ -37,6 +37,9 @@ kls_database.db
 # code populated files
 /database/
 /benchmarks/
+/benchmarks2/
+/benchmarks3/
+/benchmarks4/
 /suitablePrgms/
 /testOutput/
 
@@ -44,6 +47,8 @@ kls_database.db
 /java_only/
 /java_only_suitable/
 /java_only_output/
+/java_only_output/
+/java_final_filtered/
 
 # IDE specific folders
 # IntelliJ

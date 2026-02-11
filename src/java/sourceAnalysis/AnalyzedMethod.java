@@ -11,8 +11,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
  */
 public class AnalyzedMethod {
 
-	private String name;
-	private MethodDeclaration node;
+	private final String name;
+	private final MethodDeclaration node;
 	private boolean hasParameters;
 	private boolean hasOnlyTypeParameters;
 	private int typeParameterCount;

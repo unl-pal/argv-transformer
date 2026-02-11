@@ -18,9 +18,9 @@ import logging.Logger;
  */
 public class Downloader {
 
-	private String filename;
+	private final String filename;
 	private List<GitProject> suitableGitProjects;
-	private List<GitProject> gitProjects;
+	private final List<GitProject> gitProjects;
 	private ProjectDatabase database;
 
 	/**

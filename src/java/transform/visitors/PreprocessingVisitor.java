@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
@@ -25,9 +24,9 @@ import transform.TypeChecking.TypeChecker;
  */
 public class PreprocessingVisitor extends ASTVisitor {
     
-    private ASTRewrite rewriter;
-    private AST ast;
-    private TypeChecker typeChecker = new TypeChecker();
+    private final ASTRewrite rewriter;
+    private final AST ast;
+    private final TypeChecker typeChecker = new TypeChecker();
     
 	public PreprocessingVisitor(ASTRewrite rewriter, AST ast) {
 		this.rewriter = rewriter;

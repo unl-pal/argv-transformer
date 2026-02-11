@@ -33,15 +33,8 @@ import sourceAnalysis.AnalyzedFile;
 
 public class Main {
 
-	private static boolean secondCompile = false;
-	private static FileWriter fileWriter;
 	private static PrintWriter printWriter;
-	private static int totalNumFiles;
-	private static int totalNumMethods;
-	private static int totalSuitableMethods;
-	private static int compilableSpfSuitableMethodCount;
-	private static int compilableAfterTransformSpfSuitableMethodCount;
-	
+
 	private final static String SPF_COMPILE = "javac -g -d bin/ -cp .:/Users/elenasherman/git/jpf-symbc/build/classes/ ";
 	private final static String DEFAULT_COMPILE = "javac -g -d bin/ ";
 	private static String COMPILE = "";
@@ -64,14 +57,14 @@ public class Main {
 	public static void start(String filename, int projectCount, int minLoc, int maxLoc, int debugLevel,
 			String downloadDir, String benchmarkDir, String type, int minExpr, int minIfStmt, int minParams, String target) throws IOException {
 
-		fileWriter = new FileWriter("./CompilationIssues.txt");
+		FileWriter fileWriter = new FileWriter("./CompilationIssues.txt");
 		printWriter = new PrintWriter(fileWriter);
-		
-		totalNumFiles = 0;
-		totalNumMethods = 0;
-		totalSuitableMethods = 0;
-		compilableSpfSuitableMethodCount = 0;
-		compilableAfterTransformSpfSuitableMethodCount = 0;
+
+		int totalNumFiles = 0;
+		int totalNumMethods = 0;
+		int totalSuitableMethods = 0;
+		int compilableSpfSuitableMethodCount = 0;
+		int compilableAfterTransformSpfSuitableMethodCount = 0;
 		
 		switch(target) {
 		case "SPF" : COMPILE = SPF_COMPILE;
@@ -251,6 +244,7 @@ public class Main {
 
 			// - during development -
 			// keeping track of why files still would not compile after transformation
+			boolean secondCompile = false;
 			if (secondCompile) {
 				printCompileExitStatus(command + " stdout:", pro.getInputStream());
 				printCompileExitStatus(command + " stderr:", pro.getErrorStream());

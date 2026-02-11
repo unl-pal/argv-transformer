@@ -32,9 +32,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 import sourceAnalysis.AnalyzedFile;
@@ -73,8 +71,8 @@ public class SuitableMethodFinder {
 	private int operationsInExpression;
 	//private AnalyzerVisitor visitor;
 	private TypeTable typeTable;
-	private int minTypeExpr;
-	private int minTypeCond;
+	private final int minTypeExpr;
+	private final int minTypeCond;
 	private int minTypeParams;
 
 	public SuitableMethodFinder(File file) throws IOException {
@@ -195,7 +193,7 @@ public class SuitableMethodFinder {
 
 	private class AnalyzerVisitor extends ASTVisitor {
 		private ASTRewrite rewriter;
-		private boolean edit;
+		private final boolean edit;
 
 //		@Override
 //		public boolean visit(TypeDeclaration node) {

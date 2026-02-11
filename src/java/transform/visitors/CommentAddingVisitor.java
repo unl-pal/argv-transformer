@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -13,9 +12,9 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class CommentAddingVisitor extends ASTVisitor {
 	
-	private ASTRewrite rewriter;
-	private List<String> preImportComments;
-	private List<String> postImportComments;
+	private final ASTRewrite rewriter;
+	private final List<String> preImportComments;
+	private final List<String> postImportComments;
 
 	public CommentAddingVisitor(ASTRewrite rewriter, List<String> preImportComments, List<String> postImportComments) {
 		this.rewriter = rewriter;
@@ -34,7 +33,10 @@ public class CommentAddingVisitor extends ASTVisitor {
             Statement commentPlaceholder = (Statement) rewriter.createStringPlaceholder(comment, ASTNode.EMPTY_STATEMENT);                 
             aboveImportsRewrite.insertFirst(commentPlaceholder, null);
         }
-		Statement disclaimer = (Statement) rewriter.createStringPlaceholder("/** filtered and transformed by ARG-V */\n", ASTNode.EMPTY_STATEMENT);
+		Statement disclaimer = (Statement) rewriter.createStringPlaceholder(
+				"/** [ARG-V](https://arg-v.dev) was used to collect, filter, and transform these benchmarks automatically */",
+				ASTNode.EMPTY_STATEMENT);
+
 		aboveImportsRewrite.insertFirst(disclaimer, null);
         for (String comment : postImportComments) {
        	 // Extract the text from the original source.

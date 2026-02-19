@@ -21,12 +21,13 @@ public class ASTVisitorUtil extends ASTVisitor {
 	 * @return the method's name in the symbol table
 	 */
 	protected String getMethodSTEName(MethodDeclaration node) {
-		String name = node.getName().getIdentifier();
-
+		String name = "." + node.getName().getIdentifier();
+		Type returnType = node.getReturnType2();
 		@SuppressWarnings("unchecked")
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		for (SingleVariableDeclaration param : parameters) {
 			Type type = param.getType();
+			if (param.isVarargs()) name+="[...]";
 
 			if (type instanceof PrimitiveType) {
 
@@ -83,10 +84,13 @@ public class ASTVisitorUtil extends ASTVisitor {
 						name += "O";
 						break;
 					default:
-						logger.logln("Warning: encountered unhandled type " + typeName + " in naming method " + name, 5);
+						name += "[" + typeName + "]";
+//						logger.logln("Warning: encountered unhandled type " + typeName + " in naming method " + name, 5);
 				}
+			} else {
+				name += "[" + type + "]";
 			}
 		}
-		return name;
+		return name + ":" + returnType;
 	}
 }

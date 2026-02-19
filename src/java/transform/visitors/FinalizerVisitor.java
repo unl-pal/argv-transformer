@@ -191,7 +191,7 @@ public class FinalizerVisitor extends ASTVisitor {
           .insertLast(mainMethod, null);
     }
   }
-  // Analysis logic from SuitableMethodFinder#AnalyzerVisitor
+  // Analysis logic from SuitableMethodFinder#AnalyzerVisitor ==========================================================
 
   @Override
   public boolean visit(FieldDeclaration node) {
@@ -226,6 +226,7 @@ public class FinalizerVisitor extends ASTVisitor {
 
   @Override
   public boolean visit(EnumDeclaration node) {
+    // TODO: should probably handle these
     return false;
   }
 
@@ -279,12 +280,9 @@ public class FinalizerVisitor extends ASTVisitor {
       m.setHasOnlyTypeParameters(true);
     }
 
-    if (m.getTypeConditionalCount() < minTypeCond ||
-            m.getTypeOperationCount() < minTypeExpr ||
-            m.getTypeParameterCount() < minTypeParams) {
-      // System.out.println("Removing " + node.getName());
-//      rewriter.remove(node, null);
-    } else {
+    if (m.getTypeConditionalCount() >= minTypeCond &&
+        m.getTypeOperationCount() >= minTypeExpr &&
+        m.getTypeParameterCount() >= minTypeParams) {
       af.addSuitableMethod(m);
     }
 

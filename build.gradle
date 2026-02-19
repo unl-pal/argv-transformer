@@ -52,7 +52,21 @@ application {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+//    toolchain {
+//        languageVersion = JavaLanguageVersion.of(8)
+//    }
 }
+
+//// ensure we use the java toolchain for JDT environment setup
+//tasks.withType(JavaExec).configureEach {
+//    def launcher = javaToolchains.launcherFor(java.toolchain)
+//    jvmArgs += ["-DjdkHome=${launcher.get().metadata.installationPath.asFile.absolutePath}"]
+//}
+//
+//tasks.withType(Test).configureEach {
+//    def launcher = javaToolchains.launcherFor(java.toolchain)
+//    systemProperty 'jdkHome', launcher.get().metadata.installationPath.asFile.absolutePath
+//}
 
 sourceSets {
     main {
@@ -148,6 +162,9 @@ tasks.register('download', ExecOperationsTask) {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'download.Main'
+            if (project.hasProperty('args')) {
+                args project.args.split()
+            }
             standardOutput = System.out
             errorOutput = System.err
         }
@@ -171,6 +188,9 @@ tasks.register('filter', ExecOperationsTask) {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'filter.Main'
+            if (project.hasProperty('args')) {
+                args project.args.split()
+            }
             standardOutput = System.out
             errorOutput = System.err
         }
@@ -187,6 +207,9 @@ tasks.register('transform', ExecOperationsTask) {
         execOperations.javaexec {
             classpath = configurations.runtimeClasspath + files('build/classes/java/main')
             mainClass = 'transform.Main'
+            if (project.hasProperty('args')) {
+                args project.args.split()
+            }
             standardOutput = System.out
             errorOutput = System.err
         }

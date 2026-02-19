@@ -3,46 +3,12 @@ package transform.visitors;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.ArrayAccess;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.BooleanLiteral;
-import org.eclipse.jdt.core.dom.CastExpression;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ConditionalExpression;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.InfixExpression;
+import fj.P;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.NullLiteral;
-import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.ThisExpression;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
+import transform.SymbolTable.BlockSTE;
 import transform.SymbolTable.ClassSTE;
 import transform.SymbolTable.MethodSTE;
 import transform.SymbolTable.SymbolTable;
@@ -187,26 +153,15 @@ public class TypeTableVisitor extends ASTVisitorUtil {
     return true;
   }
 
-  /*
-   * @Override public boolean visit(ForStatement node) {
-   * 
-   * return true; }
-   * 
-   * 
-   * @Override public void endVisit(ForStatement node) {
-   * 
-   * }
-   */
-
-  @Override
-  public boolean visit(IfStatement node) {
-    Expression e = node.getExpression();
-    // it will always be of a boolean type
-    table.setNodeType(e, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
-    // System.out.println("Setting " + e + " to boolean");
-    // System.out.println(table.getNodeType(e));
-    return true;
-  }
+  // @Override
+  // public boolean visit(IfStatement node) {
+  //   Expression e = node.getExpression();
+  //   // it will always be of a boolean type
+  //   table.setNodeType(e, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+  //   // System.out.println("Setting " + e + " to boolean");
+  //   // System.out.println(table.getNodeType(e));
+  //   return true;
+  // }
 
   @Override
   public void endVisit(InfixExpression node) {
@@ -303,17 +258,27 @@ public class TypeTableVisitor extends ASTVisitorUtil {
     List<SingleVariableDeclaration> params = node.parameters();
     for (SingleVariableDeclaration param : params) {
       Type type = param.getType();
-      if (!typeChecker.allowedType(type)) {
-        return false;
-      }
+//      if (!typeChecker.allowedType(type)) {
+//        logger.logln("Removing method " + node.getName() + " from TYPE table because of parameter '" + param + "' of type " + type, 5);
+//        return false;
+//      }
     }
+            // as in symbol table, populate and prune etc. downstream
 
+    if (symbolTableStack.isEmpty()) {
+      System.err.println("Symbol table stack is empty during method " + node.getName() + " visit");
+    }
     SymbolTable currScope = symbolTableStack.peek();
     String name = getMethodSTEName(node);
     MethodSTE sym = currScope.getMethodSTE(name);
     // System.out.println("MD " + node.getName());
-    SymbolTable newScope = sym.getSymbolTable();
-    symbolTableStack.push(newScope);
+    if (sym == null) {
+      System.err.println("MethodSTE not found for " + name);
+      System.err.println("Potentially duplicate naming");
+    } else {
+      SymbolTable newScope = sym.getSymbolTable();
+      symbolTableStack.push(newScope);
+    }
 
     Type type = node.getReturnType2();
     table.setNodeType(node, type);
@@ -334,6 +299,237 @@ public class TypeTableVisitor extends ASTVisitorUtil {
     if (pushedMethod) {
       symbolTableStack.pop();
     }
+  }
+
+  @Override
+  public boolean visit(Block node) {
+    // boolean needsScope = false;
+    String name = "Block@" + node.getStartPosition();
+    // if (node.getParent() instanceof IfStatement) {
+    //   name = "IfBlock@" + name;
+    //   needsScope = true;
+    // } else if (node.getParent() instanceof TryStatement) {
+    //   if (((TryStatement)node.getParent()).getFinally() == node) {
+    //     name = "TryBlock@" + name;
+    //     needsScope = true;
+    //   }
+    // } else if (node.getParent() instanceof SwitchStatement) {
+    //   name = "SwitchBlock@" + name;
+    //   needsScope = true;
+    // }
+    // if (needsScope) {
+      SymbolTable currScope = symbolTableStack.peek();
+      BlockSTE sym = currScope.getBlockSTE(name);
+      SymbolTable newScope = sym.getSymbolTable();
+      symbolTableStack.push(newScope);
+
+    // }
+    return true;
+  }
+
+  @Override
+  public void endVisit(Block node) {
+    // if (node.getParent() instanceof IfStatement) {
+    //   symbolTableStack.pop();
+    // } else if (node.getParent() instanceof TryStatement) {
+    //   if (((TryStatement)node.getParent()).getFinally() == node) {
+    //     symbolTableStack.pop();
+    //   }
+    // } else if (node.getParent() instanceof SwitchStatement) {
+      symbolTableStack.pop();
+    // }
+  }
+
+  @Override
+  public boolean visit(IfStatement node) {
+    //
+    // String name = "IfStatement@" + node.getStartPosition();
+    // SymbolTable currScope = symbolTableStack.peek();
+    // BlockSTE sym = currScope.getBlockSTE(name);
+    // if (sym != null) {
+    //   SymbolTable newScope = sym.getSymbolTable();
+    //   symbolTableStack.push(newScope);
+    // } else {
+    //   System.err.println("ERROR: null BlockSTE " + name);
+    // }
+    
+    Expression e = node.getExpression();
+    table.setNodeType(e, ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+    return true;
+  }
+
+  // public void endVisit(IfStatement node) {
+  //     symbolTableStack.pop();
+  // }
+
+//   @Override
+//   public boolean visit(WhileStatement node) {
+//     String name = "WhileStatement@" + node.getStartPosition();
+//     SymbolTable currScope = symbolTableStack.peek();
+//     BlockSTE sym = currScope.getBlockSTE(name);
+//     if (sym != null) {
+//       SymbolTable newScope = sym.getSymbolTable();
+//       symbolTableStack.push(newScope);
+//     } else {
+//         System.err.println("ERROR: null BlockSTE " + name);
+//     }
+//     return true;
+//   }
+//
+//   @Override
+//   public void endVisit(WhileStatement node) {
+//       symbolTableStack.pop();
+//   }
+
+   @Override
+   public boolean visit(ForStatement node) {
+     String name = "ForStatement@" + node.getStartPosition();
+     SymbolTable currScope = symbolTableStack.peek();
+     BlockSTE sym = currScope.getBlockSTE(name);
+     if (sym != null) {
+       SymbolTable newScope = sym.getSymbolTable();
+       symbolTableStack.push(newScope);
+     } else {
+       System.err.println("ERROR: null BlockSTE " + name);
+     }
+     return true;
+   }
+
+   @Override
+   public void endVisit(ForStatement node) {
+       symbolTableStack.pop();
+   }
+
+   @Override
+   public boolean visit(EnhancedForStatement node) {
+     String name = "EnhancedForStatement@" + node.getStartPosition();
+     SymbolTable currScope = symbolTableStack.peek();
+     BlockSTE sym = currScope.getBlockSTE(name);
+     if (sym != null) {
+       SymbolTable newScope = sym.getSymbolTable();
+       symbolTableStack.push(newScope);
+     } else {
+       System.err.println("ERROR: null BlockSTE " + name);
+     }
+     return true;
+   }
+
+   @Override
+   public void endVisit(EnhancedForStatement node) {
+       symbolTableStack.pop();
+   }
+
+  @Override
+  public boolean visit(EnumDeclaration node) {
+    String name = node.getName().getIdentifier();
+    SymbolTable currScope = symbolTableStack.peek();
+    ClassSTE sym = currScope.getClassSTE(name);
+    SymbolTable newScope = sym.getSymbolTable();
+    symbolTableStack.push(newScope);
+
+    table.setNodeType(node, ast.newSimpleType(ast.newName(name)));
+    return true;
+  }
+
+  @Override
+  public void endVisit(EnumDeclaration node) {
+    symbolTableStack.pop();
+  }
+
+@Override
+public boolean visit(TryStatement node) {
+  String name = "TryStatement@" + node.getStartPosition();
+  SymbolTable currScope = symbolTableStack.peek();
+  BlockSTE sym = currScope.getBlockSTE(name);
+  SymbolTable newScope = sym.getSymbolTable();
+  symbolTableStack.push(newScope);
+  table.setNodeType(node, null);
+  return true;
+}
+
+@Override
+public void endVisit(TryStatement node) {
+  symbolTableStack.pop();
+}
+
+   @Override
+   public boolean visit(CatchClause node) {
+     String name = "CatchClause@" + node.getStartPosition();
+     SymbolTable currScope = symbolTableStack.peek();
+     BlockSTE sym = currScope.getBlockSTE(name);
+     SymbolTable newScope = sym.getSymbolTable();
+     symbolTableStack.push(newScope);
+     table.setNodeType(node, null);
+     return true;
+   }
+
+   @Override
+   public void endVisit(CatchClause node) {
+     symbolTableStack.pop();
+   }
+
+//   @Override
+//   public boolean visit(DoStatement node) {
+//     String name = "DoStatement@" + node.getStartPosition();
+//     SymbolTable currScope = symbolTableStack.peek();
+//     BlockSTE sym = currScope.getBlockSTE(name);
+//     SymbolTable newScope = sym.getSymbolTable();
+//     symbolTableStack.push(newScope);
+//     table.setNodeType(node, null);
+//     return true;
+//   }
+//
+//   @Override
+//   public void endVisit(DoStatement node) {
+//     symbolTableStack.pop();
+//   }
+
+  // @Override
+  // public boolean visit(SwitchCase node) {
+  //   String name = "SwitchCase@" + node.getStartPosition();
+  //   SymbolTable currScope = symbolTableStack.peek();
+  //   BlockSTE sym = currScope.getBlockSTE(name);
+  //   SymbolTable newScope = sym.getSymbolTable();
+  //   symbolTableStack.push(newScope);
+  //   table.setNodeType(node, null);
+  //   return true;
+  // }
+  //
+  // @Override
+  // public void endVisit(SwitchCase node) {
+  //   symbolTableStack.pop();
+  // }
+
+  @Override
+  public boolean visit(AnonymousClassDeclaration node) {
+    String name = "AnonymousClassDeclaration@" + node.getStartPosition();
+    SymbolTable currScope = symbolTableStack.peek();
+    ClassSTE sym = currScope.getClassSTE(name);
+    SymbolTable newScope = sym.getSymbolTable();
+    symbolTableStack.push(newScope);
+    table.setNodeType(node, null);
+    return true;
+  }
+
+  @Override
+  public void endVisit(AnonymousClassDeclaration node) {
+    symbolTableStack.pop();
+  }
+
+  @Override
+  public boolean visit(LambdaExpression node) {
+    String name = "LambdaExpression@" + node.getStartPosition();
+    SymbolTable currScope = symbolTableStack.peek();
+    BlockSTE sym = currScope.getBlockSTE(name);
+    SymbolTable newScope = sym.getSymbolTable();
+    symbolTableStack.push(newScope);
+    table.setNodeType(node, null);
+    return true;
+  }
+
+  @Override
+  public void endVisit(LambdaExpression node) {
+    symbolTableStack.pop();
   }
 
   @Override
@@ -385,12 +581,19 @@ public class TypeTableVisitor extends ASTVisitorUtil {
               PrimitiveType primType = ast.newPrimitiveType(PrimitiveType.toCode(elementType.getName()));
               table.setNodeType(node, ast.newArrayType(primType));
             } else{
+              if (elementType.isParameterizedType()) {
+                elementType = elementType.getErasure();
+                // ignore parameterization for now
+              }
               SimpleType simpleType = ast.newSimpleType(ast.newName(elementType.getQualifiedName()));
               table.setNodeType(node, ast.newArrayType(simpleType));
             }
-          }else {
-            System.err.println("Unhandled type in TypeTableVisitor.endVisit(MethodInvocation): " + typeBinding.getQualifiedName());
           }
+//          else {
+//            Type someType = table.getNodeType(node);
+//            table.setNodeType(node, someType);
+//            System.err.println("Unhandled type in TypeTableVisitor.endVisit(MethodInvocation): " + typeBinding.getQualifiedName());
+//          }
         }
       }
     }
@@ -469,10 +672,21 @@ public class TypeTableVisitor extends ASTVisitorUtil {
     ITypeBinding typeBinding = node.resolveTypeBinding();
     if (typeBinding != null && typeBinding.isPrimitive()) {
       table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+    } else if (typeBinding != null && typeBinding.isArray()) {
+      ITypeBinding elementType = typeBinding.getElementType();
+      if (elementType.isPrimitive()) {
+        PrimitiveType primType = ast.newPrimitiveType(PrimitiveType.toCode(elementType.getName()));
+        table.setNodeType(node, ast.newArrayType(primType));
+      } else if (typeChecker.allowedType(elementType)) {
+        SimpleType simpleType = ast.newSimpleType(ast.newName(elementType.getErasure().getQualifiedName()));
+        table.setNodeType(node, ast.newArrayType(simpleType));
+      } else {
+        table.setNodeType(node, null);
+      }
     } else if (typeChecker.allowedType(typeBinding)) {
       table.setNodeType(node, ast.newSimpleType(ast.newName(typeBinding.getErasure().getQualifiedName())));
     } else {
-      table.setNodeType(node, null); // nps: unsure if this is necessary
+      table.setNodeType(node, null); // unsure if necessary
     }
 
     return true;
@@ -526,7 +740,8 @@ public class TypeTableVisitor extends ASTVisitorUtil {
       return false;
     }
     SymbolTable currScope = symbolTableStack.peek();
-    ClassSTE sym = currScope.getClassSTE(node.getName().getIdentifier());
+    String name = "#" + node.getName().getIdentifier();
+    ClassSTE sym = currScope.getClassSTE(name);
     // System.out.println("Sym " + sym + "\t" + node.getName().getIdentifier() +
     // "\t" + node.isLocalTypeDeclaration() + "\t" +
     // node.isMemberTypeDeclaration());

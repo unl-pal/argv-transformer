@@ -30,6 +30,10 @@ public class SymbolTable {
 	 * @param sym Symbol table element.
 	 */
 	public void put(String name, SymbolSTE sym) {
+		if (table.containsKey(name)) {
+			// this can happen when, e.g., var and method have same name
+			System.err.println("WARNING: key '" + name + "' already exists in symbol table. Overwriting.");
+		}
 		table.put(name, sym);
 	}
 	
@@ -130,6 +134,21 @@ public class SymbolTable {
 		}
 		return found;
 	}
+
+  public BlockSTE getBlockSTE(String name) {
+    BlockSTE found = null;
+    SymbolTable currScope = this;
+
+    while (currScope != null && found == null) {
+      HashMap<String, SymbolSTE> currTable = currScope.getTable();
+      SymbolSTE sym = currTable.get(name);
+      if (sym instanceof BlockSTE) {
+        found = (BlockSTE) currTable.get(name);
+      }
+      currScope = currScope.getParent();
+    }
+    return found;
+  }
 	
 	/**
 	 * Get the symbol table.

@@ -138,13 +138,18 @@ private static final Set<String> stringOps = new HashSet<>(Arrays.asList(
 
     // Handle parameterized types: check both the raw type and argument types
     if (binding.isParameterizedType()) {
+      //have to be careful about recursing erasures
+      String typeName = binding.getErasure().getQualifiedName();
+      if (!(typeName.startsWith("java.") || typeName.startsWith("javax."))) {
+        return false;
+      }
       boolean allowedArgTypes = true;
       for (ITypeBinding arg : binding.getTypeArguments()) {
         if (!allowedType(arg)) {
           allowedArgTypes = false;
         }
       }
-      return allowedArgTypes && allowedType(binding.getErasure());
+      return allowedArgTypes;
     }
 
     // Handle wildcards (e.g., ? extends Number)

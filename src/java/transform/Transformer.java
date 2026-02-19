@@ -76,15 +76,7 @@ public class Transformer {
   public Transformer(ArrayList<File> files, String target) {
     this.files = files;
     this.target = target;
-  }
-
-  /**
-   * Create a new Transformer.
-   * 
-   * @param directory A directory containing files to transform.
-   */
-  public Transformer(File directory) {
-    this.directory = directory;
+    logger.enterContext("Transformer");
   }
 
   /**
@@ -130,7 +122,7 @@ public class Transformer {
         out.close();
 
       } catch (Exception e) {
-        System.out.println("Exception " + e + " while transforming file " + file.getAbsolutePath());
+        logger.logln("Exception " + e + " while transforming file " + file.getAbsolutePath(), 1);
       }
     }
   }
@@ -146,7 +138,7 @@ public class Transformer {
     while (itr.hasNext()) {
 
       File file = (File) itr.next();
-      System.out.println("Current file name: " + file.getName());
+      logger.logln("Current file name: " + file.getName(), 6);
 
       try {
         String source = new String(Files.readAllBytes(file.toPath()));
@@ -175,11 +167,11 @@ public class Transformer {
 // Debug: Check if bindings are resolved
             IProblem[] problems = preprocessingCu.getProblems();
             if (problems.length > 0) {
-                logger.logln("=== Compilation Problems ===",4);
+                logger.logln("=== Compilation Problems ===",6);
                 for (IProblem problem : problems) {
-                    logger.logln("  " + problem.getMessage() + " (line " + problem.getSourceLineNumber() + ")", 4);
+                    logger.logln("  " + problem.getMessage() + " (line " + problem.getSourceLineNumber() + ")", 6);
                 }
-                logger.logln("============================",4);
+                logger.logln("============================",6);
             }
 
 // Debug: Check a simple type binding
@@ -187,12 +179,13 @@ public class Transformer {
                 @Override
                 public boolean visit(SimpleType node) {
                     ITypeBinding binding = node.resolveBinding();
-                    logger.logln("DEBUG: Type " + node + " -> binding=" + (binding == null ? "NULL" : binding.getQualifiedName()), 4);
+//                    logger.logln("DEBUG: Type " + node + " -> binding=" + (binding == null ? "NULL" : binding.getQualifiedName()), 6);
                     return true;
                 }
             });
         ASTRewrite preprocessingRewriter = ASTRewrite.create(preprocessingCu.getAST());
 
+        logger.enterContext("PreprocessingVisitor");
         PreprocessingVisitor preprocessingVisitor = new PreprocessingVisitor(preprocessingRewriter,
             preprocessingCu.getAST());
         preprocessingCu.accept(preprocessingVisitor);
@@ -212,20 +205,24 @@ public class Transformer {
         cu.recordModifications();
         ASTRewrite rewriter = ASTRewrite.create(ast);
 
+        logger.enterContext("TypeCollectVisitor");
         // those are the same as in filtering
         // setting up bindings, symbol table, etc. for the transformation
         TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
         cu.accept(typeCollectVisitor);
         TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
 
+        logger.enterContext("SymbolTableVisitor");
         SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
         cu.accept(symTableVisitor);
         SymbolTable rootScope = symTableVisitor.getRoot();
 
+        logger.enterContext("TypeTableVisitor");
         TypeTableVisitor typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
         cu.accept(typeTableVisitor);
         TypeTable typeTable = typeTableVisitor.getTypeTable();
 
+        logger.enterContext("TransformVisitor");
         // the actual transformation
         TransformVisitor transformVisitor = new TransformVisitor(rootScope, rewriter, typeTable,
             typeChecker, target, transformSource);
@@ -247,6 +244,7 @@ public class Transformer {
         CompilationUnit commentCu = (CompilationUnit) commentParser.createAST(null);
         commentCu.recordModifications();
 
+        logger.enterContext("CommentPruningVisitor");
         CommentPruningVisitor commentPruningVisitor = new CommentPruningVisitor(commentSource);
         commentCu.accept(commentPruningVisitor);
 
@@ -263,9 +261,11 @@ public class Transformer {
 
           ASTRewrite cleanupRewriter = ASTRewrite.create(cleanupCu.getAST());
 
+          logger.enterContext("RemoveEmptyBlockVisitor");
           RemoveEmptyBlockVisitor removeEmptyBlockVisitor = new RemoveEmptyBlockVisitor(cleanupRewriter);
           cleanupCu.accept(removeEmptyBlockVisitor);
 
+          logger.enterContext("DisallowedMethodAndFieldVisitor");
           DisallowedMethodAndFieldVisitor disallowedMethodVisitor = new DisallowedMethodAndFieldVisitor(cleanupRewriter,
               transformVisitor.getDisallowed(), typeChecker);
           cleanupCu.accept(disallowedMethodVisitor);
@@ -289,31 +289,39 @@ public class Transformer {
         CompilationUnit finalCu = (CompilationUnit) finalizerParser.createAST(null);
         finalCu.recordModifications();
 
+        logger.enterContext("TypeCollectVisitor");
         typeCollectVisitor = new TypeCollectVisitor();
         finalCu.accept(typeCollectVisitor);
         typeChecker = typeCollectVisitor.getTypeChecker();
 
+        logger.enterContext("SymbolTableVisitor");
         symTableVisitor = new SymbolTableVisitor(typeChecker);
         finalCu.accept(symTableVisitor);
         rootScope = symTableVisitor.getRoot();
 
+        logger.enterContext("TypeTableVisitor");
         typeTableVisitor = new TypeTableVisitor(rootScope, typeChecker);
         finalCu.accept(typeTableVisitor);
         typeTable = typeTableVisitor.getTypeTable();
 
         ASTRewrite rewriterFinal = ASTRewrite.create(finalCu.getAST());
 
+        logger.enterContext("CommentAddingVisitor");
         CommentAddingVisitor commentAddingVisitor = new CommentAddingVisitor(rewriterFinal,
             transformVisitor.getPreImportComments(), transformVisitor.getPostImportComments());
         finalCu.accept(commentAddingVisitor);
 
+        logger.enterContext("FinalizerVisitor");
         // cannot use old typeTable, things has changed
         AnalyzedFile af = new AnalyzedFile(file);
         FinalizerVisitor fv = new FinalizerVisitor(finalCu.getAST(), rewriterFinal, typeChecker, af, typeTable,
             minTypeExpr, minTypeCond, minTypeParams, type);
         finalCu.accept(fv);
 
-        System.out.println("Suitable methods " + af.getSuitableMethods().size() + " in " + file);
+        logger.enterContext("Transformer");
+        // transformation for usable methods finished. now checking how these compare to config
+        // AnalyzedFile has gone through to look for valid methods
+        logger.logln("Suitable methods " + af.getSuitableMethods().size() + " in " + file, 1);
         if (af.getSuitableMethods().size() > 0) {
 
           for (Object typeDecl : finalCu.types()) {
@@ -332,7 +340,7 @@ public class Transformer {
               }
               // check if such method has not been found, then insert comments
               if (found) {
-                System.out.println("Found suitable MDecl");
+                logger.logln("Found suitable MDecl: " + md.getName(), 2);
                 ListRewrite listRewrite = rewriterFinal.getListRewrite(md, MethodDeclaration.MODIFIERS2_PROPERTY);
                 Statement comment = (Statement) rewriterFinal.createStringPlaceholder("/** ARG-V: suitable */\n",
                     ASTNode.EMPTY_STATEMENT);
@@ -348,22 +356,24 @@ public class Transformer {
           //
 
           BufferedWriter out = new BufferedWriter(new FileWriter(file));
+          String finalFinal = document.get();
           out.write(document.get());
           out.flush();
           out.close();
         } else {
-          System.out.println("No suitable methods after transformation. Discarding " + file.getPath());
+          logger.logln("No suitable methods after transformation. Discarding " + file.getPath(), 2);
           file.delete();
         }
 
       } catch (Exception e) {
-        System.out.println("Exception " + e + " while transforming file " + file.getPath());
+        logger.logln("Exception " + e + " while transforming file " + file.getPath(), 1);
         e.printStackTrace();
       }
     }
   }
 
 public static ASTParser getParser(String source, String[] sourcePath, String[] classPath, File file) {
+      logger.enterContext("Transformer.getParser");
     ASTParser parser = ASTParser.newParser(AST.JLS8);
     parser.setSource(source.toCharArray());
     parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -389,24 +399,24 @@ public static ASTParser getParser(String source, String[] sourcePath, String[] c
 
     String[] encodings = new String[sourcePath.length];
     Arrays.fill(encodings, "UTF-8");
-    logger.logln("=== ASTParser Environment Debug ===", 4);
-    logger.logln("jdkHome: " + jdkHome, 4);
-    logger.logln("rt.jar: " + rtJar.toAbsolutePath(), 4);
-    logger.logln("rt.jar exists: " + Files.exists(rtJar), 4);
-    logger.logln("unitName: " + file.getAbsolutePath(), 4);
-    logger.logln("sourcePath (" + sourcePath.length + "):", 4);
-    for (String sp : sourcePath) {
-        logger.logln("  " + sp + " [exists=" + new File(sp).exists() + "]", 4);
-    }
-    logger.logln("classpath (" + newClassPath.length + "):", 4);
-    for (String cp : newClassPath) {
-        logger.logln("  " + cp + " [exists=" + new File(cp).exists() + "]", 4);
-    }
-    logger.logln("encodings length: " + encodings.length, 4);
-    logger.logln("===================================", 4);
+//    logger.logln("=== ASTParser Environment Debug ===", 6);
+//    logger.logln("jdkHome: " + jdkHome, 6);
+//    logger.logln("rt.jar: " + rtJar.toAbsolutePath(), 6);
+//    logger.logln("rt.jar exists: " + Files.exists(rtJar), 6);
+//    logger.logln("unitName: " + file.getAbsolutePath(), 6);
+//    logger.logln("sourcePath (" + sourcePath.length + "):", 6);
+//    for (String sp : sourcePath) {
+//        logger.logln("  " + sp + " [exists=" + new File(sp).exists() + "]", 6);
+//    }
+//    logger.logln("classpath (" + newClassPath.length + "):", 6);
+//    for (String cp : newClassPath) {
+//        logger.logln("  " + cp + " [exists=" + new File(cp).exists() + "]", 6);
+//    }
+//    logger.logln("encodings length: " + encodings.length, 6);
+//    logger.logln("===================================", 6);
 
     parser.setEnvironment(newClassPath, sourcePath, encodings, true);
-
+    logger.exitContext("Transformer.getParser");
     return parser;
 }
 
@@ -466,39 +476,39 @@ private static Path findRtJar(String javaHome) {
   //   Arrays.fill(encodings, "UTF-8");
   //   // ... inside getParser, just before parser.setEnvironment(...)
   //   //
-  //   // System.out.println("=== DEBUG: ASTParser Environment ===");
-  //   // System.out.println("Target File (Unit Name): " + file.getAbsolutePath());
+  //   // logger.logln("=== DEBUG: ASTParser Environment ===");
+  //   // logger.logln("Target File (Unit Name): " + file.getAbsolutePath());
   //   //
   //   // // 1. Check Array Lengths (MUST MATCH for sources and encodings)
-  //   // System.out.println(String.format("Arrays: SourcePath[%d], Encodings[%d], ClassPath[%d]",
+  //   // logger.logln(String.format("Arrays: SourcePath[%d], Encodings[%d], ClassPath[%d]",
   //   //     sourcePath.length, encodings.length, newClassPath.length));
   //   //
   //   // if (sourcePath.length != encodings.length) {
-  //   //   System.err.println("!!! ERROR: SourcePath and Encodings arrays must be the same length!");
+  //   //   logger.logln("!!! ERROR: SourcePath and Encodings arrays must be the same length!");
   //   // }
   //   //
   //   // // 2. Validate Classpath Existence
-  //   // System.out.println("-- Classpath Entries --");
+  //   // logger.logln("-- Classpath Entries --");
   //   // for (String cp : newClassPath) {
   //   //   File f = new File(cp);
   //   //   if (!f.exists()) {
-  //   //     System.err.println("  [MISSING] " + cp); // <--- LOOK FOR THIS
+  //   //     logger.logln("  [MISSING] " + cp); // <--- LOOK FOR THIS
   //   //   } else {
-  //   //     System.out.println("  [OK] " + cp);
+  //   //     logger.logln("  [OK] " + cp);
   //   //   }
   //   // }
   //   //
   //   // // 3. Validate Sourcepath Existence
-  //   // System.out.println("-- Sourcepath Entries --");
+  //   // logger.logln("-- Sourcepath Entries --");
   //   // for (String sp : sourcePath) {
   //   //   File f = new File(sp);
   //   //   if (!f.exists()) {
-  //   //     System.err.println("  [MISSING] " + sp);
+  //   //     logger.logln("  [MISSING] " + sp);
   //   //   } else {
-  //   //     System.out.println("  [OK] " + sp);
+  //   //     logger.logln("  [OK] " + sp);
   //   //   }
   //   // }
-  //   // System.out.println("====================================");
+  //   // logger.logln("====================================");
   //
   //   // parser.setEnvironment(newClassPath, sourcePath, encodings, true);
   //   parser.setEnvironment(newClassPath, sourcePath, encodings, true);
@@ -592,6 +602,14 @@ private static Path findRtJar(String javaHome) {
           }
         }
         return super.visit(node);
+      }
+
+      @Override
+        public boolean visit(MethodDeclaration node) {
+          if (node.getName().getIdentifier().equals(oldClassName)) {
+              rewriter.set(node, MethodDeclaration.NAME_PROPERTY, ast.newSimpleName("Main"), null);
+          }
+          return super.visit(node);
       }
     });
 

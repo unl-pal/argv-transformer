@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.yaml.snakeyaml.Yaml;
 
 import filter.file.FileFilter;
@@ -29,8 +31,18 @@ public class Main {
   private static final String DEFAULT_MIN_IFSTMT = "0";
   private static final String DEFAULT_MIN_PARAMS = "0";
   private static final String DEFAULT_TYPE = "S";
-  private static String inputPath = "database";
-  private static String outputPath = "suitableStrPrgms";
+
+  // private static String inputPath = "database";
+  // private static String outputPath = "suitableStrPrgms";
+  public static String resourcesPath = "/home/nat/Repos/resources-argv/";
+  public static String programPath = resourcesPath + "java-programs/";
+  public static String filteredPath = resourcesPath + "filtered-programs/";
+  public static String inputPath = programPath + "java-repos";
+  public static String outputPath = filteredPath + "suitableJavaRepos";
+  // private static String inputPath = "java-repos";
+  // private static String outputPath = "suitableJavaRepos";
+  // private static String inputPath = "old-java-programs";
+  // private static String outputPath = "suitableOldJava";
 
   public static void main(String[] args) throws IOException {
 
@@ -99,7 +111,11 @@ public class Main {
 
       try {
         // 1. Copy a single repository
-        FileUtils.copyDirectory(repo, tempRepo);
+        IOFileFilter javaFileFilter = FileFilterUtils.suffixFileFilter(".java");
+        IOFileFilter directoryFilter = FileFilterUtils.directoryFileFilter();
+       java.io.FileFilter copyFilter = FileFilterUtils.or(javaFileFilter, directoryFilter);
+
+        FileUtils.copyDirectory(repo, tempRepo, copyFilter);
 
         // 2. Filter this repository only
         FileFilter filter = new FileFilter(

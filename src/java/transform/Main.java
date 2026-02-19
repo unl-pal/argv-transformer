@@ -10,11 +10,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.tools.JavaCompiler;
@@ -55,20 +51,31 @@ public class Main {
   private final static CType DEFAULT_TYPE = CType.INT;
 
   private static String verifier = "";
-  private static boolean debug = false;
+  private static int debug = 0;
   private static boolean transformAll = false;
 
   public static final Logger logger = Logger.defaultLogger.enterContext("transform.Main");
+  public static final Logger errorLogger = Logger.defaultLogger.enterContext("transform.Main");
 
   // public static String source = "database";
   // public static String dest = "benchmarks";
   // public static String source = "src/test/transformer/integration";
   // public static String source = "testsFromReport";
   // public static String dest = "testOutput";
-//   public static String source = "suitableStrPrgms";
-//   public static String dest = "strBenchmarks";
-  public static String source = "src/test/strings/output/expected/filter";
-  public static String dest = "src/test/strings/output/expected/transform";
+//  public static String source = "src/test/strings/output/expected/filter";
+//  public static String dest = "src/test/strings/output/expected/transform";
+//   public static String source = "naughtyStringPrograms";
+//   public static String dest = "naughtyStringBenchmarks";
+  // public static String source = "suitableStrPrgms";
+  // public static String dest = "strBenchmarks";
+  public static String resourcesPath = "/home/nat/Repos/resources-argv/";
+  public static String filteredPath = resourcesPath + "filtered-programs/";
+  public static String benchmarkPath = resourcesPath + "transformed-programs/";
+  public static String source = filteredPath + "suitableJavaRepos";
+  public static String dest = benchmarkPath + "javaStringBenches";
+  // public static String source = "suitableOldJava";
+  // public static String dest = "oldJavaBenches";
+  public static Set<String> successfulNames = new HashSet<>();
 
   public static void main(String[] args) throws IOException {
     File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
@@ -114,16 +121,17 @@ public class Main {
       minTypeCond = Integer.parseInt(props.getProperty("minTypeCond", DEFAULT_MIN_TYPE_COND));
       minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
       transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
-      debug = Boolean.parseBoolean(props.getProperty("debug"));
+      debug = Integer.parseInt(props.getProperty("debugLevel"));
+      logger.setDebugLevel(debug);
+      errorLogger.setDebugLevel(debug);
       verifier = props.getProperty("verifier");
     } catch (IOException e) {
-      System.out.println("Working dir: " + System.getProperty("user.dir"));
-      System.out.println("Invalid configuration file.");
+      errorLogger.logln("Working dir: " + System.getProperty("user.dir"), 1);
+      errorLogger.logln("Invalid configuration file.", 1);
       e.printStackTrace();
       System.exit(1);
     }
-
-    System.out.println(type + " " + minTypeExpr + " " + minTypeCond + " " + minTypeParams);
+    logger.logln("Targeting " + type + " methods with at least " + minTypeExpr + " expressions, " + minTypeCond + " conditionals, and " + minTypeParams + " parameters", 1);
 
     File srcDir = new File(source);
     File destDir = new File(dest);
@@ -142,15 +150,19 @@ public class Main {
     List<File> failed = new ArrayList<>();
     List<File> nowFails = new ArrayList<>();
 
-    // iterate source files and process one by one
-    Iterator<File> srcFiles = FileUtils.iterateFiles(srcDir, new String[] { "java" }, true);
-
     final int fMinTypeExpr = minTypeExpr;
     final int fMinTypeCond = minTypeCond;
     final int fMinTypeParams = minTypeParams;
     final CType fType = type;
 
-    srcFiles.forEachRemaining(srcFile -> {
+    // iterate source files and process one by one
+    Iterator<File> srcFiles = FileUtils.iterateFiles(srcDir, new String[] { "java" }, true);
+    // make order deterministic
+    List<File> files = new ArrayList<>();
+    srcFiles.forEachRemaining(files::add);
+    files.sort(Comparator.comparing(f -> srcDir.toPath().relativize(f.toPath()).toString()));
+
+    for (File srcFile : files) {
       try {
         // create matching destination path
         Path relative = srcDir.toPath().relativize(srcFile.toPath());
@@ -160,6 +172,7 @@ public class Main {
         // ==== COPY ====
         Files.copy(srcFile.toPath(), destFile.toPath());
 
+        logger.logln("Processing: " + srcFile, 2);
         // ==== INITIAL COMPILE ====
         boolean compilesInitially = compile(destFile);
 
@@ -173,7 +186,7 @@ public class Main {
             Transformer transformer = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
             transformer.transformFiles(fMinTypeExpr, fMinTypeCond, fMinTypeParams, fType);
           } catch (Exception ex) {
-            System.err.println("Transform error: " + destFile + " -> " + ex.getMessage());
+            errorLogger.logln("Transform error: " + destFile + " -> " + ex.getMessage(),1);
           }
         }
 
@@ -183,14 +196,14 @@ public class Main {
             Transformer annotator = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
             annotator.annotateFiles();
           } catch (Exception ex) {
-            System.err.println("Annotation error: " + destFile + " -> " + ex.getMessage());
+            errorLogger.logln("Annotation error: " + destFile + " -> " + ex.getMessage(), 1);
           }
         }
 
         // ==== RECOMPILE AFTER TRANSFORMS ====
         boolean compilesAfter = compile(destFile); // won't compile if file deleted during transform
 
-        if (!compilesAfter && !debug) {
+        if (!compilesAfter) {
           Files.deleteIfExists(destFile.toPath());
           failed.add(destFile);
           if (compilesInitially)
@@ -203,46 +216,47 @@ public class Main {
           if ("SVCOMP".equals(target)) {
             createSVCompYmlFile(destFile);
             // rename class etc. and move
+            logger.logln("Restructuring for SVCOMP format: " + destFile, 1);
             restructureForSVCompFormat(destFile.toPath());
           }
         }
 
       } catch (Exception e) {
-        System.err.println("Exception processing " + srcFile + ": " + e.getMessage());
+        errorLogger.logln("Exception processing " + srcFile + ": " + e.getMessage(), 1);
         e.printStackTrace();
       }
-    });
+    }
 
     // ===== OUTPUT RESULTS =====
-    System.out.println("================================================");
-    System.out.println("Before Transformation:");
-    System.out.println("Initial failures: (transformAll allows rescue)");
+    logger.logln("================================================", 2);
+    logger.logln("Before Transformation:", 1);
+    logger.logln("Initial failures: (transformAll allows rescue)", 2);
 
     if (failed.isEmpty()) {
-      System.out.println("NO FAILURES");
+      logger.logln("NO FAILURES", 2);
     } else {
-      System.out.println(failed.size() + " failures");
+      logger.logln(failed.size() + " failures", 2);
     }
     for (File f : failed)
-      System.out.println(f);
+      logger.logln(f.getName() + " at " + f.getPath(), 2);
 
-    System.out.println("================ SUCCESS AFTER FULL PIPELINE ================");
+    logger.logln("================ SUCCESS AFTER FULL PIPELINE ================", 2);
     if (successful.isEmpty()) {
-      System.out.println("NO SUCCESS");
+      logger.logln("NO SUCCESS", 2);
     } else {
-      System.out.println(successful.size() + " successful");
+      logger.logln(successful.size() + " successful", 2);
     }
     for (File f : successful)
-      System.out.println(f);
+      logger.logln(f.getName() + " at " + f.getPath(), 2);
 
-    System.out.println("================ NOW FAIL AFTER TRANSFORM ===================");
+    logger.logln("================ NOW FAIL AFTER TRANSFORM ===================", 2);
     if (nowFails.isEmpty()) {
-      System.out.println("NO FAILS POST TRANSFORM");
+      logger.logln("NO FAILS POST TRANSFORM", 2);
     } else {
-      System.out.println(nowFails.size() + " now fails");
+      logger.logln(nowFails.size() + " now fails", 2);
     }
     for (File f : nowFails)
-      System.out.println(f);
+      logger.logln(f.getName() + " at " + f.getPath(), 2);
 
     // cleanup temp build
     FileUtils.forceDelete(tmpDir);
@@ -258,7 +272,7 @@ public class Main {
     removeEmptyDirs(destDir);
 
     if (successful.isEmpty())
-      System.out.println("No programs transformed successfully.");
+      logger.logln("No programs transformed successfully.", 1);
   }
 
   private static void getInfoFile(File srcFile, File destFile) {
@@ -268,7 +282,7 @@ public class Main {
     try {
       FileUtils.copyFileToDirectory(infoFile, destFile.getParentFile());
     } catch (IOException e) {
-      System.err.println("Info file copy error: " + destFile + " -> " + e.getMessage());
+      errorLogger.logln("Info file copy error: " + destFile + " -> " + e.getMessage(), 1);
     }
   }
 
@@ -290,7 +304,7 @@ public class Main {
     ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
     int runErrors = compiler.run(null, outputStream, errorStream, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
         System.getProperty("java.class.path"), file.toString(), verifier);
-    // System.out.println("Num compilation erros in " + file.getParent() + " are " +
+    // logger.logln("Num compilation erros in " + file.getParent() + " are " +
     // runErrors);
     return runErrors == 0;
   }
@@ -337,11 +351,16 @@ public class Main {
   private static void restructureForSVCompFormat(Path javaFilePath) {
     try {
       String fileNameWithoutExt = javaFilePath.getFileName().toString().replace(".java", "");
+
       String content = readFile(javaFilePath);
       String newContent = Transformer.updateClassName(content);
       newContent = Transformer.renameInstanceVariables(newContent, fileNameWithoutExt);
 
       Path parentDir = javaFilePath.getParent();
+      // while (!successfulNames.add(fileNameWithoutExt)){
+        // conflicts will arise during SV-COMP runs
+
+      // }
       Path newDir = parentDir.resolve(fileNameWithoutExt);
       Files.createDirectories(newDir);
 
@@ -349,7 +368,7 @@ public class Main {
       writeFile(newFilePath, newContent);
 
       Files.delete(javaFilePath);
-      System.out.println("Moved and renamed: " + javaFilePath + " -> " + newFilePath);
+      logger.logln("Moved and renamed: " + javaFilePath + " -> " + newFilePath, 1);
 
     } catch (IOException e) {
       e.printStackTrace();

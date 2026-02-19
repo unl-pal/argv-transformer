@@ -495,8 +495,8 @@ public class TransformVisitor extends ASTVisitorUtil {
       rewriter.remove(node, null);
     } else {
       SymbolTable currScope = symbolTableStack.peek();
-      initializedVars.add(currScope
-          .getFieldVarSTE(((VariableDeclarationFragment) (node.fragments().get(0))).getName().getIdentifier()));
+      String name = "@" + ((VariableDeclarationFragment) node.fragments().get(0)).getName().getIdentifier();
+      initializedVars.add(currScope.getFieldVarSTE(name));
     }
     return true;
   }
@@ -646,18 +646,40 @@ public class TransformVisitor extends ASTVisitorUtil {
    */
   @Override
   public boolean visit(MethodDeclaration node) {
+    String name = getMethodSTEName(node);
 
-    if (node.getName().getIdentifier().equals("main")) {
-      rewriter.remove(node, null);
+    currMethod = name;
+    SymbolTable currScope = null;
+    if (!symbolTableStack.isEmpty()) {
+      currScope = symbolTableStack.peek();
+    } else {
+      System.err.println("TransformVisitor.visit(MethodDeclaration): symbolTableStack is empty");
+      System.err.println("Method name " + name);
     }
 
-    String name = getMethodSTEName(node);
-    currMethod = name;
-    SymbolTable currScope = symbolTableStack.peek();
     MethodSTE sym = currScope.getMethodSTE(name);
-
-    SymbolTable newScope = sym.getSymbolTable();
-    symbolTableStack.push(newScope);
+    if (name.equals("main")) {
+//      SimpleName newName = ast.newSimpleName("original_main");
+      // nps: i guess this could get weird since we also have a main that just calls all methods
+//      rewriter.replace(node.getName(), newName, null);
+//      return true;
+      rewriter.remove(node,  null);
+      return false;
+    }
+    if (sym != null) {
+      // sym is null when method has disallowed return type
+      SymbolTable newScope = sym.getSymbolTable();
+//      if (newScope == null) {
+//        System.err.println("visit(MethodDeclaration): MethodSTE exists but has null SymbolTable for '" + name + "'");
+//      } else {
+        symbolTableStack.push(newScope);
+//      }
+    }
+    else {
+      rewriter.remove(node, null);
+      logger.logln("TransformVisitor.visit(MethodDeclaration): MethodSTE does not exist", 5);
+      logger.logln("Removing method '" + name + "'", 5);
+    }
 
     checkThrownExceptions(node);
     if (!node.isConstructor()) {
@@ -674,7 +696,8 @@ public class TransformVisitor extends ASTVisitorUtil {
     List<SingleVariableDeclaration> params = node.parameters();
     for (SingleVariableDeclaration param : params) {
       Type type = param.getType();
-      if (!typeChecker.allowedType(type)) {
+      if (!typeChecker.allowedType(type) || node.getName().getIdentifier().equals("main")) {
+        logger.logln("Removing method " + node.getName() + " due to disallowed parameter type " + type, 2);
         pushedMethod = false;
       }
     }
@@ -791,7 +814,14 @@ public class TransformVisitor extends ASTVisitorUtil {
       return;
     }
     if (node.getLocationInParent() == VariableDeclarationFragment.INITIALIZER_PROPERTY) {
-      Type parentType = typeTable.getNodeType(node.getParent());
+      ASTNode parent = node.getParent();
+      Type parentType = typeTable.getNodeType(parent);
+      // things like VariableDeclarationFragments have null type
+      // and their parents too, i.e., VariableDeclarationExpression
+      while (parent != null && parentType == null) {
+        parent = parent.getParent();
+        parentType = typeTable.getNodeType(parent);
+      }
       Expression expr = TypeResolutionUtils.createSymbolicArgument(parentType, ast, randUsedInMethod);
       if (!(expr instanceof NullLiteral)) {
         rewriter.replace(node, expr, null);
@@ -875,7 +905,7 @@ public class TransformVisitor extends ASTVisitorUtil {
     VarSTE sym = null;
 
     if (node.getLocationInParent() == FieldAccess.NAME_PROPERTY) {
-      sym = currScope.getFieldVarSTE(name);
+      sym = currScope.getFieldVarSTE("@" + name);
     } else {
       sym = currScope.getVarSTE(name);
     }
@@ -891,6 +921,9 @@ public class TransformVisitor extends ASTVisitorUtil {
     }
 
     if (sym != null && sym.isFieldVar() && !initializedVars.contains(sym)) {
+      if (type == null) {
+        return false; // shuold we be doing a rewrite removal here?
+      }
       if (type.isPrimitiveType()) {
         if (TypeResolutionUtils.isIntegerTypeCode(type)) {
 
@@ -981,9 +1014,10 @@ public class TransformVisitor extends ASTVisitorUtil {
 
           initializedVars.add(sym);
 
-        } else {
-          System.out.println(typeName + " " + typeString + " NOT BEING HANDLED in TransformVisitor.visit(SimpleName)");
         }
+//        else {
+//          logger.logln(typeName + " " + typeString + " NOT BEING HANDLED in TransformVisitor.visit(SimpleName)",4);
+//        }
       }
     }
     return true;
@@ -1149,7 +1183,8 @@ public class TransformVisitor extends ASTVisitorUtil {
     }
 
     SymbolTable currScope = symbolTableStack.peek();
-    ClassSTE sym = currScope.getClassSTE(node.getName().getIdentifier());
+    String name = "#" + node.getName().getIdentifier();
+    ClassSTE sym = currScope.getClassSTE(name);
 
     SymbolTable newScope = sym.getSymbolTable();
     symbolTableStack.push(newScope);

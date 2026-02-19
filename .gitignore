@@ -63,3 +63,10 @@ strBenchmarks
 suitableStrPrgms
 testStrPrgms
 mise.toml
+debugBenchmarks/
+debugPrograms/
+debugFiltered/
+javaStringBenches/
+oldDebugPrograms/
+repos.txt
+handle-dupes.sh

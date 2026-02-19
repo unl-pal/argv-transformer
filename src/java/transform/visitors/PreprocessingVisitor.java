@@ -3,6 +3,7 @@ package transform.visitors;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
@@ -20,82 +21,91 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import transform.TypeChecking.TypeChecker;
 
+import static transform.Main.logger;
+
 /**
- * Performs simple reformatting and blanket removals of disallowed constructs for simpler transformation.
+ * Performs simple reformatting and blanket removals of disallowed constructs
+ * for simpler transformation.
  */
 public class PreprocessingVisitor extends ASTVisitor {
-    
-    private ASTRewrite rewriter;
-    private AST ast;
-    private TypeChecker typeChecker = new TypeChecker();
-    
-	public PreprocessingVisitor(ASTRewrite rewriter, AST ast) {
-		this.rewriter = rewriter;
-		this.ast = ast;
-	}
-	
-	/**
-	 * Removes anonymous classes without exception.
-	 */
-    @Override
-    public boolean visit(AnonymousClassDeclaration node) {
-        rewriter.remove(node, null);
-        return true;
+
+  private ASTRewrite rewriter;
+  private AST ast;
+  private TypeChecker typeChecker = new TypeChecker();
+
+  public PreprocessingVisitor(ASTRewrite rewriter, AST ast) {
+    this.rewriter = rewriter;
+    this.ast = ast;
+  }
+
+  /**
+   * Removes anonymous classes without exception.
+   */
+  @Override
+  public boolean visit(AnonymousClassDeclaration node) {
+    rewriter.remove(node, null);
+    return true;
+  }
+
+  /**
+   * Reformats one-line if statements to block statements.
+   * 
+   * i.e. if (x > 0)
+   * System.out.println(x);
+   * 
+   * becomes:
+   * 
+   * if (x > 0) {
+   * System.out.println(x);
+   * }
+   */
+  @Override
+  public boolean visit(IfStatement node) {
+    Statement thenStmt = node.getThenStatement();
+
+    if (thenStmt instanceof ExpressionStatement) {
+
+      Block block = ast.newBlock();
+
+      Statement copiedStmt = (Statement) rewriter.createCopyTarget(thenStmt);
+      block.statements().add(copiedStmt);
+
+      rewriter.replace(thenStmt, block, null);
     }
-	
-    /**
-     * Reformats one-line if statements to block statements.
-     * 
-     * i.e. if (x > 0)
-     *       System.out.println(x);
-     * 
-     * becomes:
-     *  
-	 * if (x > 0) {
-	 *    System.out.println(x);
-	 * }
-     */
-	@Override
-	public boolean visit(IfStatement node) {
-	    Statement thenStmt = node.getThenStatement();
 
-	    if (thenStmt instanceof ExpressionStatement) {
+    return true;
+  }
 
-	        Block block = ast.newBlock();
+  /**
+   * Removes nested classes without exception.
+   */
+  @Override
+  public boolean visit(TypeDeclaration node) {
+    if (!(node.getParent() instanceof CompilationUnit)) {
+      rewriter.remove(node, null);
+      return false;
+    }
+    return true;
+  }
 
-	        Statement copiedStmt = (Statement) rewriter.createCopyTarget(thenStmt);
-	        block.statements().add(copiedStmt);
-
-	        rewriter.replace(thenStmt, block, null);
-	    }
-
-	    return true;
-	}
-	
-	/**
-	 * Removes nested classes without exception.
-	 */
-	@Override
-	public boolean visit(TypeDeclaration node) {
-	    if (!(node.getParent() instanceof CompilationUnit)) {
-	        rewriter.remove(node, null);
-	        return false;
-	    }
-	    return true;
-	}
-	
-	/**
+  /**
 	 * Removes methods with a return type or parameters that are not allowed.
 	 * Disallowed types are determined by the type checker.
 	 */
 	@Override
 	public boolean visit(MethodDeclaration node) {
 	    IMethodBinding binding = node.resolveBinding();
-        if (!typeChecker.allowedType(binding != null ? binding.getReturnType() : null) && !node.isConstructor()) {
-            System.out.println("Removing method " + node.getName().getIdentifier() + " due to disallowed return type.");
-            rewriter.remove(node, null);
-            return false;
+      if (!typeChecker.allowedType(binding != null ? binding.getReturnType() : null) && !node.isConstructor()) {
+			// nps: check its not a type of this class
+        ASTNode parent = node.getParent();
+        if (parent instanceof TypeDeclaration) {
+          if (((TypeDeclaration) parent).getName().toString().equals(binding.getDeclaringClass().getName())) {
+				    logger.logln("Removing method '" + node.getName().getIdentifier() + "' due to disallowed return type: " + binding.getReturnType().getQualifiedName(), 3);
+				    rewriter.remove(node, null);
+				    return false;
+          }
         }
+      }
 	    @SuppressWarnings("unchecked")
         List<SingleVariableDeclaration> params = node.parameters();
         for (SingleVariableDeclaration param : params) {

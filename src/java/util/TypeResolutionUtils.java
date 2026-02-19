@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
+import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import transform.TypeChecking.TypeChecker;
 
 public class TypeResolutionUtils {
@@ -101,7 +102,12 @@ public class TypeResolutionUtils {
       if (elementBinding.isPrimitive()) {
         elementType = ast.newPrimitiveType(PrimitiveType.toCode(elementBinding.getName()));
       } else {
-        elementType = ast.newSimpleType(ast.newName(elementBinding.getQualifiedName()));
+        if (elementBinding.isParameterizedType()) {
+          // TODO: handle arguments of parameterized types
+          elementType = ast.newSimpleType(ast.newName(elementBinding.getErasure().getQualifiedName()));
+        } else {
+          elementType = ast.newSimpleType(ast.newName(elementBinding.getQualifiedName()));
+        }
       }
       ArrayType arrayType = ast.newArrayType(elementType, binding.getDimensions());
 
@@ -236,7 +242,14 @@ public class TypeResolutionUtils {
       IMethodBinding parentBinding = parentInvocation.resolveMethodBinding();
       if (parentBinding != null) {
         ITypeBinding[] parameters = parentBinding.getParameterTypes();
-        rewriter.replace(node, createSymbolicArgument(parameters[index], ast, randUsedInMethod), null);
+        // Handle varargs methods (like System.out.format)
+        if (parentBinding.isVarargs() && index >= parameters.length && index > 0) {
+          // Use the component type of the last parameter (the varargs array)
+          ITypeBinding varargsType = parameters[parameters.length - 1].getComponentType();
+          rewriter.replace(node, createSymbolicArgument(varargsType, ast, randUsedInMethod), null);
+        } else {
+          rewriter.replace(node, createSymbolicArgument(parameters[index], ast, randUsedInMethod), null);
+        }
       }
       return;
     }
@@ -290,6 +303,10 @@ public class TypeResolutionUtils {
   public static boolean isCheckedException(ITypeBinding binding) {
     if (binding == null) {
       return true; // cannot confirm with custom exceptions but defaulting to this
+    }
+
+    if (binding.toString().contains("MISSING")) {
+      return false; // assume RuntimeException
     }
 
     // Walk superclasses and check for RuntimeException or Error

@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import transform.TypeChecking.TypeChecker;
 import util.TypeResolutionUtils;
 
+import static transform.Main.logger;
+
 
 /**
  * Propagate removals of disallowed methods and fields to invocations and references.
@@ -46,6 +48,7 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
 	public boolean visit(MethodDeclaration node) {
 	    IBinding binding = node.resolveBinding();
 		if (disallowedBindings.contains(binding) || (!node.isConstructor() && !typeChecker.allowedType(node.getReturnType2()))) {
+			logger.logln("Removing method " + node.getName() + " due to disallowed return type " + node.getReturnType2(), 2);
 			rewriter.remove(node, null);
 			disallowedBindings.add(binding);
 			return false;

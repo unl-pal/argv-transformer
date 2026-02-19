@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 
+import filter.Main;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -48,6 +50,7 @@ import org.eclipse.text.edits.TextEdit;
 import sourceAnalysis.AnalyzedFile;
 import sourceAnalysis.AnalyzedMethod;
 import transform.SymbolTable.SymbolTable;
+import transform.Transformer;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeChecker.CType;
 import transform.TypeChecking.TypeTable;
@@ -119,9 +122,17 @@ public class SuitableMethodFinder {
 
     File file = af.getFile();
     String source = new String(Files.readAllBytes(file.toPath()));
-    ASTParser parser = ASTParser.newParser(AST.JLS8);
-    parser.setSource(source.toCharArray());
-    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+    String inputSource = Main.inputPath;
+
+    String[] classPath = { Paths.get("build", "classes", "java", "main").toAbsolutePath().toString(),
+            Paths.get("build", "classes", "java", "test").toAbsolutePath().toString() };
+    String[] sourcePath = { Paths.get(inputSource).toAbsolutePath().toString(),
+            Paths.get("src", "java").toAbsolutePath().toString() };
+
+    ASTParser parser = Transformer.getParser(source, sourcePath, classPath, file);
+//    ASTParser parser = ASTParser.newParser(AST.JLS8);
+//    parser.setSource(source.toCharArray());
+//    parser.setKind(ASTParser.K_COMPILATION_UNIT);
     // ASTNode node = parser.createAST(null);
     CompilationUnit node = (CompilationUnit) parser.createAST(null);
     AST ast = node.getAST();
@@ -180,9 +191,9 @@ public class SuitableMethodFinder {
     if (!af.getSuitableMethods().isEmpty() && logger.getDebugLevel() > 1) {
       logger.logln("Suitable file: " + af.getFile().getName(), 2);
       for (AnalyzedMethod m : af.getSuitableMethods()) {
-        logger.logln("\tmethod: " + m.getName(), 2);
+        logger.logln("\tmethod: " + m.getName(), 4);
         logger.logln("\t\ttype: " + m.getTypeConditionalCount() + " ops: " + m.getTypeOperationCount()
-            + " params: " + m.getTypeParameterCount(), 2);
+            + " params: " + m.getTypeParameterCount(), 4);
       }
     }
 
@@ -596,6 +607,7 @@ public class SuitableMethodFinder {
           currAnalyzedMethod.incrementTypeOperationCount();
         }
         //check for additional concats
+        @SuppressWarnings("unchecked")
         List<Expression> extendedOperands = node.extendedOperands();
         if (extendedOperands != null && !extendedOperands.isEmpty()) {
           // we can just assume
@@ -711,6 +723,7 @@ public class SuitableMethodFinder {
     }
 
     private void checkParameterTypes(AnalyzedMethod am, MethodDeclaration node) {
+      @SuppressWarnings("unchecked")
       List<SingleVariableDeclaration> parameters = node.parameters();
       if (!parameters.isEmpty()) {
         // am.setHasParameters(true);

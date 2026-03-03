@@ -104,7 +104,7 @@ public class Main {
                 // 3. Copy suitable files to destination
                 for (File f : suitable) {
                     String newPath = f.getAbsolutePath()
-                            .replace(tempRepo.getAbsolutePath(), destRoot.getAbsolutePath());
+                            .replace(tempRepo.getParentFile().getAbsolutePath(), destRoot.getAbsolutePath());
 
                     File destinationFile = new File(newPath);
                     destinationFile.getParentFile().mkdirs();

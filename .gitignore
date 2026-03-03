@@ -42,6 +42,7 @@ kls_database.db
 /benchmarks4/
 /suitablePrgms/
 /testOutput/
+/testsFromReport/
 
 # temp transfer files
 /java_only/

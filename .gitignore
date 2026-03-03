@@ -50,6 +50,7 @@ kls_database.db
 /java_only_output/
 /java_only_output/
 /java_final_filtered/
+config.properties.bak
 
 # IDE specific folders
 # IntelliJ

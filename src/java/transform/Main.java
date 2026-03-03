@@ -37,6 +37,7 @@ import transform.benchmark.CreateYmlFile;
  * @author mariapaquin
  */
 public class Main {
+    private static PrintWriter printWriter;
 	private static File buildDir;
 	private static String target = "DEF";
 
@@ -48,6 +49,7 @@ public class Main {
 	
 	private static String verifier = "";
 	private static boolean debug = false;
+	private static boolean transformAll = false;
 
 	public static String source = "suitablePrgms";
 	public static String dest = "benchmarks";

@@ -23,6 +23,7 @@ public class Main {
     private static final String DEFAULT_MIN_EXPR = "0";
     private static final String DEFAULT_MIN_IFSTMT = "0";
     private static final String DEFAULT_MIN_PARAMS = "0";
+    private static final String DEFAULT_SIMPLIFY_FILTER = "false";
     private static final String DEFAULT_TYPE = "I";
 
     public static void main(String[] args) throws IOException {
@@ -41,6 +42,7 @@ public class Main {
         int minExpr;
         int minIfStmt;
         int minParams;
+        boolean simplifyFilter;
         String type;
 
         try (FileReader reader = new FileReader(configFile)) {
@@ -51,6 +53,7 @@ public class Main {
             minExpr = Integer.parseInt(props.getProperty("minExpr", DEFAULT_MIN_EXPR));
             minIfStmt = Integer.parseInt(props.getProperty("minIfStmt", DEFAULT_MIN_IFSTMT));
             minParams = Integer.parseInt(props.getProperty("minParams", DEFAULT_MIN_PARAMS));
+			simplifyFilter = Boolean.parseBoolean(props.getProperty("simplifyFilter", DEFAULT_SIMPLIFY_FILTER));
 
         } catch (IOException e) {
             System.err.println("Invalid configuration file.");
@@ -93,7 +96,8 @@ public class Main {
                         type,
                         minExpr,
                         minIfStmt,
-                        minParams
+                        minParams,
+						simplifyFilter
                 );
 
                 filter.collectJavaFiles();

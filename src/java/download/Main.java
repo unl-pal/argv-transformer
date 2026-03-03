@@ -20,13 +20,12 @@ public class Main {
 	private final static String DEFAULT_PROJECT_COUNT = "s";
 	private final static String DEFAULT_DEBUG_LEVEL = "-1";
 
-	private static String outputPath;
 	private static int debugLevel;
 
 	public static String dest = "database";
 
 	public static void main(String[] args) throws IOException {
-		outputPath = "";
+		String outputPath = "";
 
 		if (args.length == 1) {
 			outputPath = args[0];

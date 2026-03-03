@@ -57,10 +57,10 @@ import transform.TypeChecking.TypeTable;
  *
  */
 public class TypeTableVisitor extends ASTVisitor {
-	private TypeTable table;
-	private SymbolTable root;
-	private Stack<SymbolTable> symbolTableStack;
-	private TypeChecker typeChecker;
+	private final TypeTable table;
+	private final SymbolTable root;
+	private final Stack<SymbolTable> symbolTableStack;
+	private final TypeChecker typeChecker;
 	private AST ast;
 
 	/**

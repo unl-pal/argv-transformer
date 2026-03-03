@@ -10,8 +10,8 @@ import java.util.Stack;
  *
  */
 public class Logger {
-	private Stack<String> contextStack;
-	private PrintStream out;
+	private final Stack<String> contextStack;
+	private final PrintStream out;
 	private int debugLevel = 0;
 	
 	public static final Logger defaultLogger = new Logger(System.out);

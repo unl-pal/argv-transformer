@@ -41,7 +41,7 @@ public class GitProject {
 	private final boolean scoreBasedUtl;
 	private final boolean randomForestUtl;
 	
-	private ArrayList<File> files;
+	private final ArrayList<File> files;
 	private File projectDir;
 	
 	/**

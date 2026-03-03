@@ -15,8 +15,8 @@ import org.eclipse.text.edits.MultiTextEdit;
  */
 public class CommentPruningVisitor extends ASTVisitor{
 	
-	private MultiTextEdit commentsToDelete = new MultiTextEdit();
-	private String source;
+	private final MultiTextEdit commentsToDelete = new MultiTextEdit();
+	private final String source;
 	
 	public CommentPruningVisitor(String source) {
 		this.source = source;

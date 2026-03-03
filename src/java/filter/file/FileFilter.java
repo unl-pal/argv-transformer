@@ -9,7 +9,6 @@ import java.util.List;
 
 import download.GitProject;
 import sourceAnalysis.AnalyzedFile;
-import sourceAnalysis.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker.CType;
 
 /**
@@ -18,7 +17,7 @@ import transform.TypeChecking.TypeChecker.CType;
  * @author mariapaquin
  */
 public class FileFilter {
-	private ArrayList<File> spfSuitableFiles;
+	private final ArrayList<File> spfSuitableFiles;
 	private ArrayList<File> javaFiles;
 	private File database;
 	private int spfSuitableMethods;

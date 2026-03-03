@@ -31,9 +31,9 @@ import transform.TypeChecking.TypeChecker;
  *
  */
 public class SymbolTableVisitor extends ASTVisitor {
-	private SymbolTable root;
-	private Stack<SymbolTable> symbolTableStack;
-	private TypeChecker typeChecker;
+	private final SymbolTable root;
+	private final Stack<SymbolTable> symbolTableStack;
+	private final TypeChecker typeChecker;
 
 	/**
 	 * Create a new SymbolTableVisitor.

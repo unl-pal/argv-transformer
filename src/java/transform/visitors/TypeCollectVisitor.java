@@ -14,7 +14,7 @@ import transform.TypeChecking.TypeChecker;
  *
  */
 public class TypeCollectVisitor  extends ASTVisitor {
-	private TypeChecker typeChecker;
+	private final TypeChecker typeChecker;
 
 	/**
 	 * Create a new TypeCollectVisitor. 

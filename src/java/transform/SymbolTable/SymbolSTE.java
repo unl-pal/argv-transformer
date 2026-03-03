@@ -7,8 +7,8 @@ package transform.SymbolTable;
  */
 public abstract class SymbolSTE {
 
-	protected String name;
-	protected SymbolType type;
+	protected final String name;
+	protected final SymbolType type;
 	protected SymbolTable symbolTable;
 
 	/**

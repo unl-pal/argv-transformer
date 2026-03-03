@@ -51,6 +51,10 @@ kls_database.db
 /java_only_output/
 /java_final_filtered/
 config.properties.bak
+testStrPrgms/
+suitableStrPrgms/
+strBenchmarks/
+LOTS-str-benches/
 
 # IDE specific folders
 # IntelliJ
@@ -65,3 +69,5 @@ config.properties.bak
 .classpath
 # Gradle made template file
 my.classpath
+
+mise.toml

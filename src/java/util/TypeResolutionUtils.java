@@ -51,24 +51,24 @@ public class TypeResolutionUtils {
             PrimitiveType.Code code = pt.getPrimitiveTypeCode();
             // can't do switch statement on PrimitiveType.Code
             if (code == PrimitiveType.BOOLEAN) {
-                return replaceWithNodeBoolean(ast, randUsedInMethod);
+                return replaceWithNodeBoolean(ast);
             } else if (code == PrimitiveType.INT) {
-                return replaceWithNodeInteger(ast, randUsedInMethod);
+                return replaceWithNodeInteger(ast);
 			} else if (code == PrimitiveType.BYTE) {
-				return replaceWithNodeByte(ast, randUsedInMethod);
+				return replaceWithNodeByte(ast);
 			} else if (code == PrimitiveType.SHORT) {
-				return replaceWithNodeShort(ast, randUsedInMethod);
+				return replaceWithNodeShort(ast);
 			} else if (code == PrimitiveType.LONG) {
-				return replaceWithNodeLong(ast, randUsedInMethod);
+				return replaceWithNodeLong(ast);
 			} else if (code == PrimitiveType.CHAR) {
-				return replaceWithNodeChar(ast, randUsedInMethod);
+				return replaceWithNodeChar(ast);
             } else if (code == PrimitiveType.DOUBLE) {
-                return replaceWithNodeDouble(ast, randUsedInMethod);
+                return replaceWithNodeDouble(ast);
             } else if (code == PrimitiveType.FLOAT) {
-                return replaceWithNodeFloat(ast, randUsedInMethod);
+                return replaceWithNodeFloat(ast);
             }
         } else if (type.resolveBinding() != null && type.resolveBinding().getQualifiedName().equals("java.lang.String")) {
-            return replaceWithNodeString(ast, randUsedInMethod);
+            return replaceWithNodeString(ast);
         } else if (type.isArrayType()) {
             ArrayType arrType = (ArrayType) type;
             // Create an array creation expression with an initializer.
@@ -102,24 +102,24 @@ public class TypeResolutionUtils {
             String name = binding.getName();
             switch (name) {
                 case "boolean":
-                    return replaceWithNodeBoolean(ast, randUsedInMethod);
+                    return replaceWithNodeBoolean(ast);
                 case "char":
-					return replaceWithNodeChar(ast, randUsedInMethod);
+					return replaceWithNodeChar(ast);
                 case "int":
-                    return replaceWithNodeInteger(ast, randUsedInMethod);
+                    return replaceWithNodeInteger(ast);
                 case "long":
-					return replaceWithNodeLong(ast, randUsedInMethod);
+					return replaceWithNodeLong(ast);
                 case "short":
-					return replaceWithNodeShort(ast, randUsedInMethod);
+					return replaceWithNodeShort(ast);
                 case "byte":
-					return replaceWithNodeByte(ast, randUsedInMethod);
+					return replaceWithNodeByte(ast);
                 case "double":
-                    return replaceWithNodeDouble(ast, randUsedInMethod);
+                    return replaceWithNodeDouble(ast);
                 case "float":
-                    return replaceWithNodeFloat(ast, randUsedInMethod);
+                    return replaceWithNodeFloat(ast);
             }
         } else if ("java.lang.String".equals(binding.getQualifiedName())) {
-            return replaceWithNodeString(ast, randUsedInMethod);
+            return replaceWithNodeString(ast);
         } else if (binding.isArray()) {
             ITypeBinding elementBinding = binding.getElementType();
 
@@ -161,7 +161,7 @@ public class TypeResolutionUtils {
                 || location == WhileStatement.EXPRESSION_PROPERTY
                 || location == DoStatement.EXPRESSION_PROPERTY
                 || location == ForStatement.EXPRESSION_PROPERTY) {
-            rewriter.replace(node, replaceWithNodeBoolean(ast, randUsedInMethod), null);
+            rewriter.replace(node, replaceWithNodeBoolean(ast), null);
             return;
         }
 
@@ -323,29 +323,29 @@ public class TypeResolutionUtils {
     public static Expression generateBooleanFromTarget(AST ast, Boolean randUsedInMethod, String target) {
         switch(target) {
             case "SPF" : return replaceWithSymbolicBoolean(ast);
-            case "SVCOMP" : return replaceWithNodeBoolean(ast, randUsedInMethod);
-            default: return replaceWithRandomBoolean(ast, randUsedInMethod);  
+            case "SVCOMP" : return replaceWithNodeBoolean(ast);
+            default: return replaceWithRandomBoolean(ast);
         }
     }
     
     
-    public static MethodInvocation replaceWithRandomBoolean(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithRandomBoolean(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("rand"));
         randMethodInvocation.setName(ast.newSimpleName("nextBoolean"));
-        
-        randUsedInMethod = true;
+
+		Boolean randUsedInMethod = true;
         //randUsedInProgram = true;
         return randMethodInvocation;
         
     }
     
-    public static MethodInvocation replaceWithNodeBoolean(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithNodeBoolean(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
         randMethodInvocation.setName(ast.newSimpleName("nondetBoolean"));
-        
-        randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
         return randMethodInvocation;
         
     }
@@ -373,8 +373,8 @@ public class TypeResolutionUtils {
     public static Expression generateIntegerFromTarget(AST ast, Boolean randUsedInMethod, String target) {
         switch(target) {
             case "SPF" : return replaceWithSymbolicInteger(ast);
-            case "SVCOMP" : return replaceWithNodeInteger(ast, randUsedInMethod);
-            default: return replaceWithRandomInteger(ast, randUsedInMethod);  
+            case "SVCOMP" : return replaceWithNodeInteger(ast);
+            default: return replaceWithRandomInteger(ast);
         }
     }
     
@@ -391,22 +391,22 @@ public class TypeResolutionUtils {
 
     }
     
-    public static MethodInvocation replaceWithRandomInteger(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithRandomInteger(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("rand"));
         randMethodInvocation.setName(ast.newSimpleName("nextInt"));
-        
-        randUsedInMethod = true;
+
+		Boolean randUsedInMethod = true;
         return randMethodInvocation;
         
     }
     
-    public static MethodInvocation replaceWithNodeInteger(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithNodeInteger(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
         randMethodInvocation.setName(ast.newSimpleName("nondetInt"));
-        
-        randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
         return randMethodInvocation;
         
     }
@@ -423,16 +423,16 @@ public class TypeResolutionUtils {
     public static Expression generateDoubleFromTarget(AST ast, Boolean randUsedInMethod, String target) {
         switch(target) {
             case "SPF" : return replaceWithSymbolicDouble(ast);
-            case "SVCOMP" : return replaceWithNodeDouble(ast, randUsedInMethod);
-            default: return replaceWithRandomDouble(ast, randUsedInMethod);  
+            case "SVCOMP" : return replaceWithNodeDouble(ast);
+            default: return replaceWithRandomDouble(ast);
         }
     }
     
-    public static MethodInvocation replaceWithRandomDouble(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithRandomDouble(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("rand"));
         randMethodInvocation.setName(ast.newSimpleName("nextDouble"));
-        randUsedInMethod = true;
+		Boolean randUsedInMethod = true;
         return randMethodInvocation;
     }
 
@@ -448,12 +448,12 @@ public class TypeResolutionUtils {
     }
     
     
-    public static MethodInvocation replaceWithNodeDouble(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithNodeDouble(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
         randMethodInvocation.setName(ast.newSimpleName("nondetDouble"));
-        
-        randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
         return randMethodInvocation;
         
     }
@@ -469,26 +469,26 @@ public class TypeResolutionUtils {
     public static Expression generateFloatFromTarget(AST ast, Boolean randUsedInMethod, String target) {
         switch(target) {
             case "SPF" : return replaceWithSymbolicFloat(ast);
-			case "SVCOMP" : return replaceWithNodeFloat(ast, randUsedInMethod);
-			default: return replaceWithRandomFloat(ast, randUsedInMethod);  
+			case "SVCOMP" : return replaceWithNodeFloat(ast);
+			default: return replaceWithRandomFloat(ast);
         }
     }
     
-    public static MethodInvocation replaceWithNodeFloat(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithNodeFloat(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
         randMethodInvocation.setName(ast.newSimpleName("nondetFloat"));
-        
-        randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
         return randMethodInvocation;
         
     }
     
-    public static MethodInvocation replaceWithRandomFloat(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithRandomFloat(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("rand"));
         randMethodInvocation.setName(ast.newSimpleName("nextFloat"));
-        randUsedInMethod = true;
+		Boolean randUsedInMethod = true;
         return randMethodInvocation;
     }
 
@@ -509,59 +509,59 @@ public class TypeResolutionUtils {
     
     /**==============================================BYTE==========================================================================*/
 
-	public static MethodInvocation replaceWithNodeByte(AST ast, Boolean randUsedInMethod) {
+	public static MethodInvocation replaceWithNodeByte(AST ast) {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
 		randMethodInvocation.setName(ast.newSimpleName("nondetByte"));
-		
-		randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
 		return randMethodInvocation;
 		
 	}
 	
     /**==============================================SHORT==========================================================================*/
 
-	public static MethodInvocation replaceWithNodeShort(AST ast, Boolean randUsedInMethod) {
+	public static MethodInvocation replaceWithNodeShort(AST ast) {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
 		randMethodInvocation.setName(ast.newSimpleName("nondetShort"));
-		
-		randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
 		return randMethodInvocation;
 		
 	}
 	
     /**==============================================CHAR==========================================================================*/
 
-	public static MethodInvocation replaceWithNodeChar(AST ast, Boolean randUsedInMethod) {
+	public static MethodInvocation replaceWithNodeChar(AST ast) {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
 		randMethodInvocation.setName(ast.newSimpleName("nondetChar"));
-		
-		randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
 		return randMethodInvocation;
 		
 	}
 	
 	/**==============================================LONG==========================================================================*/
 	
-	public static MethodInvocation replaceWithNodeLong(AST ast, Boolean randUsedInMethod) {
+	public static MethodInvocation replaceWithNodeLong(AST ast) {
 		MethodInvocation randMethodInvocation = ast.newMethodInvocation();
 		randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
 		randMethodInvocation.setName(ast.newSimpleName("nondetLong"));
-		
-		randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
 		return randMethodInvocation;
 	}
     
     /**==============================================String==========================================================================*/
 
-    public static MethodInvocation replaceWithNodeString(AST ast, Boolean randUsedInMethod) {
+    public static MethodInvocation replaceWithNodeString(AST ast) {
         MethodInvocation randMethodInvocation = ast.newMethodInvocation();
         randMethodInvocation.setExpression(ast.newSimpleName("Verifier"));
         randMethodInvocation.setName(ast.newSimpleName("nondetString"));
-        
-        randUsedInMethod = false;
+
+		Boolean randUsedInMethod = false;
         return randMethodInvocation;
         
     }

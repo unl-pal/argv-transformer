@@ -13,7 +13,7 @@ import org.eclipse.jdt.core.dom.Type;
  *
  */
 public class TypeTable {
-	private HashMap<ASTNode, Type> typeTable;
+	private final HashMap<ASTNode, Type> typeTable;
 	
 	/**
 	 * Create a new TypeTable.

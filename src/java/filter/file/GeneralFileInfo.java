@@ -21,8 +21,8 @@ import download.GitProject;
  *
  */
 public class GeneralFileInfo {
-	private ArrayList<File> totalFiles;
-	private List<GitProject> gitProjects;
+	private final ArrayList<File> totalFiles;
+	private final List<GitProject> gitProjects;
 	private int methodCount;
 
 	/**

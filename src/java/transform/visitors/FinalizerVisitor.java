@@ -6,32 +6,24 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.Initializer;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
@@ -57,17 +49,17 @@ import util.TypeResolutionUtils;
 public class FinalizerVisitor extends ASTVisitor {
 	
 	private AnalyzedMethod currAnalyzedMethod;
-	private AnalyzedFile af;
+	private final AnalyzedFile af;
 	
-	private int minTypeExpr;
-	private int minTypeCond;
-	private int minTypeParams;
-	private TypeTable typeTable;
-	private CType type;
+	private final int minTypeExpr;
+	private final int minTypeCond;
+	private final int minTypeParams;
+	private final TypeTable typeTable;
+	private final CType type;
 	private int operationsInExpression;
-	private ASTRewrite rewriter;
-	private AST ast;
-	private TypeChecker typeChecker;
+	private final ASTRewrite rewriter;
+	private final AST ast;
+	private final TypeChecker typeChecker;
 
 	
 	public FinalizerVisitor(AST ast, ASTRewrite rewriter, TypeChecker typeChecker, AnalyzedFile af, TypeTable typeTable, int minTypeExpr, int minTypeCond, int minTypeParams, CType type) {

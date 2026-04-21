@@ -165,24 +165,24 @@ public class Transformer {
         preprocessingCu.recordModifications();
 
 // Debug: Check if bindings are resolved
-            IProblem[] problems = preprocessingCu.getProblems();
-            if (problems.length > 0) {
-                logger.logln("=== Compilation Problems ===",6);
-                for (IProblem problem : problems) {
-                    logger.logln("  " + problem.getMessage() + " (line " + problem.getSourceLineNumber() + ")", 6);
-                }
-                logger.logln("============================",6);
-            }
+//            IProblem[] problems = preprocessingCu.getProblems();
+//            if (problems.length > 0) {
+//                logger.logln("=== Compilation Problems ===",6);
+//                for (IProblem problem : problems) {
+//                    logger.logln("  " + problem.getMessage() + " (line " + problem.getSourceLineNumber() + ")", 6);
+//                }
+//                logger.logln("============================",6);
+//            }
 
-// Debug: Check a simple type binding
-            preprocessingCu.accept(new ASTVisitor() {
-                @Override
-                public boolean visit(SimpleType node) {
-                    ITypeBinding binding = node.resolveBinding();
-//                    logger.logln("DEBUG: Type " + node + " -> binding=" + (binding == null ? "NULL" : binding.getQualifiedName()), 6);
-                    return true;
-                }
-            });
+//// Debug: Check a simple type binding
+//            preprocessingCu.accept(new ASTVisitor() {
+//                @Override
+//                public boolean visit(SimpleType node) {
+//                    ITypeBinding binding = node.resolveBinding();
+////                    logger.logln("DEBUG: Type " + node + " -> binding=" + (binding == null ? "NULL" : binding.getQualifiedName()), 6);
+//                    return true;
+//                }
+//            });
         ASTRewrite preprocessingRewriter = ASTRewrite.create(preprocessingCu.getAST());
 
         logger.enterContext("PreprocessingVisitor");
@@ -252,8 +252,9 @@ public class Transformer {
 
         // cleaning up empty blocks and disallowed methods iteratively until nothing
         // more can be removed
+        String editedSource;
         do {
-          String editedSource = document.get();
+          editedSource = document.get();
           ASTParser cleanupParser = getParser(editedSource, sourcePath, classPath, file);
 
           CompilationUnit cleanupCu = (CompilationUnit) cleanupParser.createAST(null);
@@ -272,7 +273,8 @@ public class Transformer {
 
           edits = cleanupRewriter.rewriteAST(document, null);
           edits.apply(document);
-        } while (edits.getLength() > 0);
+        } while (!editedSource.equals(document.get()));
+        // for some reason edits are sometimes ont being applied
 
         // check if the new AST meets selection criteria requirements
         // If some method in the class now do not meet the requirement,

@@ -136,11 +136,15 @@ public class TypeResolutionUtils {
             ArrayCreation arrayCreation = ast.newArrayCreation();
             arrayCreation.setType(arrayType);
 
-            Expression current = createSymbolicArgument(elementBinding, ast, randUsedInMethod);
-
-            // Nest array initializers based on dimensions
-            for (int i = 0; i < binding.getDimensions(); i++) {
-                ArrayInitializer init = ast.newArrayInitializer();
+            while (elementBinding.isArray()) {
+                elementBinding = elementBinding.getElementType();
+            }
+            Expression current = createSymbolicArgument(elementBinding, ast, randUsedInMethod);
+
+            // Nest array initializers based on dimensions
+            for (int i = 0; i < binding.getDimensions(); i++) {
+                ArrayInitializer init = ast.newArrayInitializer();
+
                 init.expressions().add(current);
                 current = init;
             }

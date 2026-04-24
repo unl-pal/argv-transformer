@@ -59,6 +59,7 @@ public class FileFilter {
     }
 	
 	private void setUp(String type, int minExpr, int minIfStmt, int minParams, boolean simplifyFilter) {
+	        this.simplifyFilter = simplifyFilter;
 		switch(type) {
 		case "I": this.type = CType.INT; break;
 		case "R" : this.type = CType.REAL; break;

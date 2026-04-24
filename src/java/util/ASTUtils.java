@@ -9,7 +9,6 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WildcardType;
 
 public class ASTUtils {        
@@ -18,7 +17,7 @@ public class ASTUtils {
      * Returns the normalized binding for a variable declaration. This is necessary during finalization
      * because double[] x and double x[] are not equivalent Type objects. Type bindings preserve this information correctly.
      * @param vd The variable declaration to be normalized for syntax
-     * @returnTthe normalized ITypeBinding. May need to be later re-converted to an AST type.
+     * @return the normalized ITypeBinding, which may need to be later re-converted to an AST type.
      */
     public static ITypeBinding getNormalizedBinding(VariableDeclaration vd) {
         IVariableBinding binding = vd.resolveBinding();

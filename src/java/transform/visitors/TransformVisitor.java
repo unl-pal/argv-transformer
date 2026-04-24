@@ -256,7 +256,7 @@ public class TransformVisitor extends ASTVisitor {
 			    rewriter.replace(node, exceptionCreation, null);
 			} else {
 				disallowed.add(node);
-				rewriter.remove(node, null);
+				TypeResolutionUtils.safeRemoveOrReplace(node, rewriter, ast, randUsedInMethod);
 			}
 		}
 	}

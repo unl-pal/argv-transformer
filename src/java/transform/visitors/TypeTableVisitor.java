@@ -176,7 +176,12 @@ public class TypeTableVisitor extends ASTVisitor {
 	public boolean visit(FieldDeclaration node) {
 		Type type = node.getType();
 		table.setNodeType(node, type);
-		return true;
+		@SuppressWarnings("unchecked")
+        List<VariableDeclarationFragment> fragments = node.fragments();
+        for (VariableDeclarationFragment fragment : fragments) {
+            table.setNodeType(fragment, type);
+        }
+        return true;
 	}
 
 	/*
@@ -446,8 +451,12 @@ public class TypeTableVisitor extends ASTVisitor {
 		 */
         ITypeBinding typeBinding = node.resolveTypeBinding();
         if (typeBinding != null && typeBinding.isPrimitive()) {
-			table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
-		}
+            table.setNodeType(node, ast.newPrimitiveType(PrimitiveType.toCode(typeBinding.getName())));
+        }
+        else if (typeChecker.allowedType(typeBinding)) {
+	        table.setNodeType(node, ast.newSimpleType(ast.newName(typeBinding.getErasure().getQualifiedName()))); // TODO: find a way to set the type here
+        }
+
 
 		return true;
 	}

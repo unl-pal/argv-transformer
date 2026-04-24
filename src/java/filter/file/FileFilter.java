@@ -26,6 +26,7 @@ public class FileFilter {
 	private int minExpr;
 	private int minIfStmt;
 	private int minParams;
+	private boolean simplifyFilter;
 
 	/**
 	 * Create a new FileFilter
@@ -48,15 +49,17 @@ public class FileFilter {
 		spfSuitableMethods = 0;
 	}
 	
-	public FileFilter(File database, String type, int minExpr, int minIfStmt, int minParams) {
-		this.database = database;
-		spfSuitableFiles = new ArrayList<File>();
-		javaFiles = new ArrayList<File>();
-		spfSuitableMethods = 0;
-		setUp(type, minExpr, minIfStmt, minParams);
-	}
 	
-	private void setUp(String type, int minExpr, int minIfStmt, int minParams) {
+    public FileFilter(File database, String type, int minExpr, int minIfStmt, int minParams, boolean simplifyFilter) {
+        this.database = database;
+        spfSuitableFiles = new ArrayList<File>();
+        javaFiles = new ArrayList<File>();
+        spfSuitableMethods = 0;
+        setUp(type, minExpr, minIfStmt, minParams, simplifyFilter);
+    }
+	
+	private void setUp(String type, int minExpr, int minIfStmt, int minParams, boolean simplifyFilter) {
+	        this.simplifyFilter = simplifyFilter;
 		switch(type) {
 		case "I": this.type = CType.INT; break;
 		case "R" : this.type = CType.REAL; break;
@@ -74,7 +77,7 @@ public class FileFilter {
 		spfSuitableFiles = new ArrayList<File>();
 		spfSuitableMethods = 0;
 		
-		setUp(type, minExpr, minIfStmt, minParams);
+		setUp(type, minExpr, minIfStmt, minParams, false);
 		
 	}
 
@@ -84,6 +87,10 @@ public class FileFilter {
 	 */
 	public ArrayList<File> getSuitableFiles() {
 		return spfSuitableFiles;
+	}
+	
+	public ArrayList<File> getJavaFiles() {
+		return javaFiles;
 	}
 
 	/**
@@ -115,24 +122,22 @@ public class FileFilter {
 	public void collectSuitableFiles() {
 		for (File file: javaFiles) {
 			try {
-				//SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
-				SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt, minParams);
-				finder.analyze();
-				AnalyzedFile af = finder.getAnalyzedFile();
-				int suitableMethods = af.getSuitableMethods().size();
-				if(suitableMethods > 0) {
-					spfSuitableMethods += af.getSuitableMethods().size();
-					spfSuitableFiles.add(file);
-				}
-				
-//				try {
-//					spfSuitableMethods += af.getSpfSuitableMethodCount();
-//					if (af.isSymbolicSuitable()) {
-//						spfSuitableFiles.add(file);
-//					}
-//				} catch (Exception e) {
-//					continue;
-//				}
+			    if (simplifyFilter) {
+	                SimplifiedSuitableClassFinder finder = new SimplifiedSuitableClassFinder(file, type, minExpr, minIfStmt, minParams);
+	                finder.analyze();
+	                if (finder.isSuitable()) {
+	                    spfSuitableFiles.add(file);
+	                }
+			    } else {
+	                SuitableMethodFinder finder = new SuitableMethodFinder(file, type, minExpr, minIfStmt, minParams);
+	                finder.analyze();
+	                AnalyzedFile af = finder.getAnalyzedFile();
+	                int suitableMethods = af.getSuitableMethods().size();
+	                if(suitableMethods > 0) {
+	                    spfSuitableMethods += af.getSuitableMethods().size();
+	                    spfSuitableFiles.add(file);
+	                }
+			    }
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

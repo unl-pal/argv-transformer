@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -47,6 +49,7 @@ public class Main {
 	
 	private static String verifier = "";
 	private static boolean debug = false;
+	private static boolean transformAll = false;
 
 	public static String source = "suitablePrgms";
 	public static String dest = "benchmarks";
@@ -54,214 +57,200 @@ public class Main {
 //	 public static String source = "testsFromReport";
 //	 public static String dest = "testOutput";
 
-	public static void main(String[] args) throws IOException {
-		File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
-		buildDir = new File(tmpDir, "bin");
+	 public static void main(String[] args) throws IOException {
+	     File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
+	     buildDir = new File(tmpDir, "bin");
 
+	     if (args.length == 2) {
+	         source = args[0];
+	         dest = args[1];
+	     }
 
+	     // Load config
+	     File configFile = new File("config.properties");
+	     int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
+	     int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
+	     int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
+	     transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
+	     CType type = DEFAULT_TYPE;
 
-		if (args.length == 2) {
-			source = args[0];
-			dest = args[1];
-		}
+	     try (FileReader reader = new FileReader(configFile)) {
+	         Properties props = new Properties();
+	         props.load(reader);
 
-		// read the rest of config properties
-		File configFile = new File("config.properties");
-		int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
-		int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
-		int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
-		boolean transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
-		CType type = DEFAULT_TYPE;
-		try {
-			FileReader reader = new FileReader(configFile);
-			Properties props = new Properties();
-			props.load(reader);
-			target = props.getProperty("target");
-			String typeStr = props.getProperty("type", DEFAULT_TYPE.toString());
-			switch (typeStr) {
-				case "I":
-					type = CType.INT;
-					break;
-				case "R":
-					type = CType.REAL;
-					break;
-				case "B":
-					type = CType.BOOLEAN;
-					break;
-				case "S":
-					type = CType.STRING;
-					break;
-				default:
-					type = CType.ANY;
-					break;
-			}
-			minTypeExpr = Integer.parseInt(props.getProperty("minTypeExpr", DEFAULT_MIN_TYPE_EXPR));
-			minTypeCond = Integer.parseInt(props.getProperty("minTypeCond", DEFAULT_MIN_TYPE_COND));
-			minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
-			transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
-			debug = Boolean.parseBoolean(props.getProperty("debug"));
-			verifier = props.getProperty("verifier");
-		} catch (IOException exp) {
-			System.out.println("Invalid configuration file.");
-			System.exit(1);
-		}
+	         target = props.getProperty("target");
+	         String typeStr = props.getProperty("type", DEFAULT_TYPE.toString());
+	         switch (typeStr) {
+	             case "I":
+	                 type = CType.INT;
+	                 break;
+	             case "R":
+	                 type = CType.REAL;
+	                 break;
+	             case "B":
+	                 type = CType.BOOLEAN;
+	                 break;
+	             case "S":
+	                 type = CType.STRING;
+	                 break;
+	             default:
+	                 type = CType.ANY;
+	                 break;
+	         }
+	         minTypeExpr = Integer.parseInt(props.getProperty("minTypeExpr", DEFAULT_MIN_TYPE_EXPR));
+	         minTypeCond = Integer.parseInt(props.getProperty("minTypeCond", DEFAULT_MIN_TYPE_COND));
+	         minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
+	         transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
+	         debug = Boolean.parseBoolean(props.getProperty("debug"));
+	         verifier = props.getProperty("verifier");
+	     } catch (IOException e) {
+	         System.out.println("Invalid configuration file.");
+	         System.exit(1);
+	     }
 
-		System.out.println(type + " " + minTypeExpr + " " + minTypeCond + " " + minTypeParams);
+	     System.out.println(type + " " + minTypeExpr + " " + minTypeCond + " " + minTypeParams);
 
-		File srcDir = new File(source);
-		File destDir = new File(dest);
-
-		PrintWriter printWriter = new PrintWriter(System.out, true);
-
-		if (destDir.exists()) {
-			FileUtils.forceDelete(destDir);
-		}
-		FileUtils.forceMkdir(destDir);
-
-		try {
-		    if (srcDir.isDirectory()) {
-		          FileUtils.copyDirectory(srcDir, destDir);
-		    } else {
-		          FileUtils.copyFileToDirectory(srcDir, destDir);
-		    }
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		if (buildDir.exists()) {
-			try {
-				FileUtils.forceDelete(buildDir);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		FileUtils.forceMkdir(buildDir);
-
-		ArrayList<File> successfulCompiles = new ArrayList<File>();
-		ArrayList<File> unsuccessfulCompiles = new ArrayList<File>();
-		Iterator<File> file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
-
-		file_itr.forEachRemaining (file -> {
-			if (compile(file)) {
-				successfulCompiles.add(file);
-			} 
-			else {
-				unsuccessfulCompiles.add(file);
-			}
-		});
-
-		// TODO should all the different outputs alsways be printed or a part of debug or other?
-		System.out.println("================================================");
-		System.out.println("Before Transformation:");
-		System.out.println("================================================");
-
-		System.out.println("================ FAILURES ================");
-		System.out.println("Number of unsuccessful intial compilation " + unsuccessfulCompiles.size());
-		for (File file : unsuccessfulCompiles) {
-			System.out.println(file.toString());
-		}
-
-		System.out.println("================ SUCCESS =================");
-		System.out.println("Number of successful intial compilation " + successfulCompiles.size());
-		for (File file : successfulCompiles) {
-			System.out.println(file.toString());
-			}
-    
-		//System.out.println(unsuccessfulCompiles + " ------- " + successfulCompiles);
-
-		if (transformAll) {
-			unsuccessfulCompiles.addAll(successfulCompiles);
-		}
-
-		Transformer transformer = new Transformer(unsuccessfulCompiles, target);
-		transformer.transformFiles(minTypeExpr, minTypeCond, minTypeParams, type);
-
-		Transformer annotate = new Transformer(successfulCompiles, target);
-		annotate.annotateFiles();
-
-		// Those that are successfully compiles on the first try just add filtered
-
-		file_itr = FileUtils.iterateFiles(destDir, new String[] { "java" }, true);
-
-    
-		// also delete those files where all methods after transformations
-		// were not be able to meet the selection criteria.
-		// do not remove uncompiled files if target is SVCOMP as for SVCOMP one
-		// dependency will not be compileable
-
-		file_itr.forEachRemaining(file -> {
-			boolean success = compile(file);
-			// Do Not delete failed to compile benchmarks if debugging
-			// With changes to compile() SVCOMP Benchmarks can be compiled
-			if (!success && !debug) {
-				try {
-					Files.delete(file.toPath());
-				} catch (IOException e) {
-					e.printStackTrace();
+	     File sourceFile = new File(source);
+	     if (!sourceFile.isDirectory()) {
+		     // If source is a file, make a temp directory to hold it
+		     File tempDir = Files.createTempDirectory("paclab-transform").toFile();
+		     FileUtils.copyFileToDirectory(sourceFile, tempDir);
+		     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+		    	 try {
+                    FileUtils.forceDelete(tempDir);
+                } catch (FileNotFoundException e) {
+                    // do nothing; temp dir has already been deleted
+                } catch (IOException e) {
+					System.err.println("Failed to delete temp directory");
 				}
-			} else if (success) {
-				if (!successfulCompiles.contains(file))
-					successfulCompiles.add(file);
-				unsuccessfulCompiles.remove(file);
-			}
+		     }));
+		     sourceFile = tempDir;
+	     }
+	     File srcDir = sourceFile;
+	     File destDir = new File(dest);
 
-			// Create the YAML if targeting SVCOMP
-			if(target.equals("SVCOMP") && success) {
-				createSVCompYmlFile(file);
-			}
-		});
+	     if (destDir.exists()) FileUtils.forceDelete(destDir);
+	     FileUtils.forceMkdir(destDir);
 
-		// Catch any benchmarks that can no longer be compiled after transformation
-		ArrayList<File> newFails = new ArrayList<File>();
-		for (File file : successfulCompiles) {
-			if (unsuccessfulCompiles.contains(file)) {
-				newFails.add(file);
-			}
-		}
+	     if (buildDir.exists()) FileUtils.forceDelete(buildDir);
+	     FileUtils.forceMkdir(buildDir);
 
-		// Fix later so these ^V can be combined, unsafe as is
-		for (File file : newFails) {
-			successfulCompiles.remove(file);
-		}
-    
-		System.out.println("================================================");
-		System.out.println("After Transformation:");
-		System.out.println("================ FAILURES ================");
-		System.out.println("Number of unsuccessful compilations " + unsuccessfulCompiles.size());
-		for (File file : unsuccessfulCompiles) {
-			System.out.println(file.toString());
-			}
+	     // For reporting only
+	     List<File> successful = new ArrayList<>();
+	     List<File> failed = new ArrayList<>();
+	     List<File> nowFails = new ArrayList<>();
 
-		System.out.println("================ SUCCESS =================");
-		System.out.println("Number of successful compilations " + successfulCompiles.size());
-		for (File file : successfulCompiles) {
-			System.out.println(file.toString());
-			}
-		System.out.println("================ No More =======================");
-		System.out.println("No longer compiles after Transform " + newFails.size());
-		for (File file : newFails) {
-			System.out.println(file.toString());
-		}
+	     // iterate source files and process one by one
+	     Iterator<File> srcFiles = FileUtils.iterateFiles(srcDir, new String[]{"java"}, true);
+	     
+	     final int fMinTypeExpr = minTypeExpr;
+	     final int fMinTypeCond = minTypeCond;
+	     final int fMinTypeParams = minTypeParams;
+	     final CType fType = type;
 
-		try {
-			FileUtils.forceDelete(tmpDir);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		if (target.equals("SVCOMP")) {
-			List<Path> javaFiles = Files.walk(Paths.get(dest))
-                    .filter(path -> path.toString().endsWith(".java"))
-                    .collect(Collectors.toList());
-			javaFiles.forEach(Main::restructureForSVCompFormat);
-		}
+	     srcFiles.forEachRemaining(srcFile -> {
+	         try {
+	             // create matching destination path
+	             Path relative = srcDir.toPath().relativize(srcFile.toPath());
+	             File destFile = new File(destDir, relative.toString());
+	             destFile.getParentFile().mkdirs();
 
-		removeEmptyDirs(destDir);
+	             // ==== COPY ====
+	             Files.copy(srcFile.toPath(), destFile.toPath());
 
-		if (successfulCompiles.size() == 0)
-			System.exit(-1);
-	}
+	             // ==== INITIAL COMPILE ====
+	             boolean compilesInitially = compile(destFile);
+
+	             if (!compilesInitially && !transformAll) {
+	                 failed.add(destFile);
+	             }
+
+	             // ==== TRANSFORM (if failed initially OR transformAll) ====
+	             if (!compilesInitially || transformAll) {
+	                 try {
+	                     Transformer transformer = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
+	                     transformer.transformFiles(fMinTypeExpr, fMinTypeCond, fMinTypeParams, fType);
+	                 } catch (Exception ex) {
+	                     System.err.println("Transform error: " + destFile + " -> " + ex.getMessage());
+	                 }
+	             }
+
+	             // ==== ANNOTATE successful initial compiles ====
+	             if (compilesInitially) {
+	                 try {
+	                     Transformer annotator = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
+	                     annotator.annotateFiles();
+	                 } catch (Exception ex) {
+	                     System.err.println("Annotation error: " + destFile + " -> " + ex.getMessage());
+	                 }
+	             }
+
+	             // ==== RECOMPILE AFTER TRANSFORMS ====
+	             boolean compilesAfter = destFile.exists() && compile(destFile);
+
+	             if (!compilesAfter && !debug) {
+	                 Files.deleteIfExists(destFile.toPath());
+	                 failed.add(destFile);
+	                 if (compilesInitially) nowFails.add(destFile);
+	             } else if (compilesAfter) {
+	                 successful.add(destFile);
+	                 failed.remove(destFile);
+
+	                 if ("SVCOMP".equals(target)) {
+	                     createSVCompYmlFile(destFile);
+	                     restructureForSVCompFormat(destFile.toPath());
+	                 }
+	             }
+
+	         } catch (Exception e) {
+	             System.err.println("Exception processing " + srcFile + ": " + e.getMessage());
+	             e.printStackTrace();
+	         }
+	     });
+
+	     // ===== OUTPUT RESULTS =====
+	     System.out.println("================================================");
+	     System.out.println("Before Transformation:");
+	     System.out.println("Initial failures: (transformAll allows rescue)");
+
+	     if (failed.isEmpty()) {
+		     System.out.println("NO FAILURES");
+	     } else {
+		     System.out.println(failed.size() + " failures");
+	     }
+	     for (File f : failed) System.out.println(f);
+
+	     System.out.println("================ SUCCESS AFTER FULL PIPELINE ================");
+	     if (successful.isEmpty()) {
+		     System.out.println("NO SUCCESS");
+	     } else {
+		     System.out.println(successful.size() + " successful");
+	     }
+	     for (File f : successful) System.out.println(f);
+
+	     System.out.println("================ NOW FAIL AFTER TRANSFORM ===================");
+	     if (nowFails.isEmpty()) {
+		     System.out.println("NO FAILS POST TRANSFORM");
+	     } else {
+		     System.out.println(nowFails.size() + " now fails");
+	     }
+	     for (File f : nowFails) System.out.println(f);
+
+	     // cleanup temp build
+	     FileUtils.forceDelete(tmpDir);
+
+//	     // SVCOMP restructure
+//	     if ("SVCOMP".equals(target)) {
+//	         List<Path> javaFiles = Files.walk(Paths.get(dest))
+//	                 .filter(path -> path.toString().endsWith(".java"))
+//	                 .collect(Collectors.toList());
+//	         javaFiles.forEach(Main::restructureForSVCompFormat);
+//	     }
+
+	     removeEmptyDirs(destDir);
+
+	     if (successful.isEmpty()) System.exit(-1);
+	 }
 
 	/**
 	 * Takes a file and attemps to compile using the file and verifier

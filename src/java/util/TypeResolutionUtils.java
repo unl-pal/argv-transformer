@@ -136,18 +136,27 @@ public class TypeResolutionUtils {
             ArrayCreation arrayCreation = ast.newArrayCreation();
             arrayCreation.setType(arrayType);
 
-            // Create initializer with one symbolic element
-            ArrayInitializer initializer = ast.newArrayInitializer();
-            Expression elementArg = createSymbolicArgument(elementBinding, ast, randUsedInMethod);
-            initializer.expressions().add(elementArg);
-            arrayCreation.setInitializer(initializer);
+            while (elementBinding.isArray()) {
+                elementBinding = elementBinding.getElementType();
+            }
+            Expression current = createSymbolicArgument(elementBinding, ast, randUsedInMethod);
+
+            // Nest array initializers based on dimensions
+            for (int i = 0; i < binding.getDimensions(); i++) {
+                ArrayInitializer init = ast.newArrayInitializer();
+
+                init.expressions().add(current);
+                current = init;
+            }
+
+            arrayCreation.setInitializer((ArrayInitializer) current);
             return arrayCreation;
         }
         // For non-primitive, non-array types, return a null literal.
         return ast.newNullLiteral();
     }
     
-    public static void safeRemoveOrReplace(MethodInvocation node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
+    public static void safeRemoveOrReplace(Expression node, ASTRewrite rewriter, AST ast, Boolean randUsedInMethod) {
         StructuralPropertyDescriptor location = node.getLocationInParent();
         ASTNode parent = node.getParent();
 

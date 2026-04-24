@@ -13,7 +13,9 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -37,6 +39,7 @@ import sourceAnalysis.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
+import util.ASTUtils;
 import util.TypeResolutionUtils;
 
 /**
@@ -144,11 +147,13 @@ public class FinalizerVisitor extends ASTVisitor {
                 ClassInstanceCreation cic = ast.newClassInstanceCreation();
                 if (constructor != null) {
                     for (SingleVariableDeclaration paramObj : (List<SingleVariableDeclaration>) constructor.parameters()) {
-                        Expression expr = TypeResolutionUtils.createSymbolicArgument(paramObj.getType(), ast, false);
-                        if (expr instanceof NullLiteral && typeChecker.allowedType(paramObj.getType())) {
+                        ITypeBinding normalizedType = ASTUtils.getNormalizedBinding(paramObj);
+                        Expression expr = TypeResolutionUtils.createSymbolicArgument(normalizedType, ast, false);
+                        if (expr instanceof NullLiteral && typeChecker.allowedType(normalizedType)) {
+                            Type newType = ASTUtils.newTypeFromBinding(ast, normalizedType);
                             CastExpression cast = ast.newCastExpression();
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, expr));
-                            cast.setType((Type) ASTNode.copySubtree(ast, paramObj.getType()));
+                            cast.setType(newType);
                             cic.arguments().add(cast);
                         } else {
                             cic.arguments().add(expr);
@@ -177,11 +182,13 @@ public class FinalizerVisitor extends ASTVisitor {
                 for (Object paramObj : methodDecl.parameters()) {
                     if (paramObj instanceof SingleVariableDeclaration) {
                         SingleVariableDeclaration svd = (SingleVariableDeclaration) paramObj;
-                        Expression arg = TypeResolutionUtils.createSymbolicArgument(svd.getType(), ast, false);
-                        if (arg instanceof NullLiteral && typeChecker.allowedType(svd.getType())) {
+                        ITypeBinding normalizedType = ASTUtils.getNormalizedBinding(svd);
+                        Expression arg = TypeResolutionUtils.createSymbolicArgument(normalizedType, ast, false);
+                        if (arg instanceof NullLiteral && typeChecker.allowedType(normalizedType)) {
+                            Type newType = ASTUtils.newTypeFromBinding(ast, normalizedType);
                             CastExpression cast = ast.newCastExpression();
                             cast.setExpression((Expression) ASTNode.copySubtree(ast, arg));
-                            cast.setType((Type) ASTNode.copySubtree(ast, svd.getType()));
+                            cast.setType(newType);
                             invocation.arguments().add(cast);
                         } else {
                             invocation.arguments().add(arg);
@@ -197,6 +204,11 @@ public class FinalizerVisitor extends ASTVisitor {
             rewriter.getListRewrite(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY)
                     .insertLast(mainMethod, null);
         }
+    }
+    
+    @Override
+    public boolean visit(FieldDeclaration node) {
+	    return false; // do not analyze characteristics in field declarations
     }
 
 	@Override

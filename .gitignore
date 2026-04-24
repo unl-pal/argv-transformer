@@ -37,8 +37,20 @@ kls_database.db
 # code populated files
 /database/
 /benchmarks/
+/benchmarks2/
+/benchmarks3/
+/benchmarks4/
 /suitablePrgms/
 /testOutput/
+/testsFromReport/
+
+# temp transfer files
+/java_only/
+/java_only_suitable/
+/java_only_output/
+/java_only_output/
+/java_final_filtered/
+config.properties.bak
 testStrPrgms/
 suitableStrPrgms/
 strBenchmarks/

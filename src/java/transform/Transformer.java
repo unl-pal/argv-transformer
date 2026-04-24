@@ -324,6 +324,7 @@ public class Transformer {
 			} catch (Exception e) {				
 				System.out.println("Exception " + e + " while transforming file " + file.getPath());
 				e.printStackTrace();
+				file.delete();
 			}
 		}
 	}

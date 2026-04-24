@@ -105,7 +105,7 @@ public class SuitableMethodFinder {
 	public void analyze() throws IOException {
 		File file = af.getFile();
 		String source = new String(Files.readAllBytes(file.toPath()));
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(source.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		//ASTNode node = parser.createAST(null);

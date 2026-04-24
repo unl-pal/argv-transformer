@@ -79,6 +79,12 @@ public class TypeChecker {
 			return (allowedType(((ParameterizedType) type).getType()) && allowedArgTypes);
 		}
 		
+		if (type.isSimpleType()) {
+			Name name = ((SimpleType) type).getName();
+			if(name.isSimpleName() && ((SimpleName) name).getIdentifier().contentEquals("String")) {
+				return true;
+			}
+		}
 		// check if is character literal		
 		
 //		return (type.isPrimitiveType() 
@@ -114,7 +120,11 @@ public class TypeChecker {
 	                allowedArgTypes = false;
 	            }
 	        }
-	        return allowedArgTypes && allowedType(binding.getErasure());
+	        ITypeBinding erasure = binding.getErasure();
+	        if (erasure == binding) {
+	            return false;
+	        }
+	        return allowedArgTypes && allowedType(erasure);
 	    }
 
 	    // Handle wildcards (e.g., ? extends Number)

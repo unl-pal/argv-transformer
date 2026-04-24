@@ -118,7 +118,6 @@ public class Main {
 	     }
 	     File srcDir = sourceFile;
 	     File destDir = new File(dest);
-	     printWriter = new PrintWriter(System.out, true);
 
 	     if (destDir.exists()) FileUtils.forceDelete(destDir);
 	     FileUtils.forceMkdir(destDir);

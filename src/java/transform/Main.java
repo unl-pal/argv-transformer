@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -114,6 +115,15 @@ public class Main {
 		     // If source is a file, make a temp directory to hold it
 		     File tempDir = Files.createTempDirectory("paclab-transform").toFile();
 		     FileUtils.copyFileToDirectory(sourceFile, tempDir);
+		     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+		    	 try {
+                    FileUtils.forceDelete(tempDir);
+                } catch (FileNotFoundException e) {
+                    // do nothing; temp dir has already been deleted
+                } catch (IOException e) {
+					System.err.println("Failed to delete temp directory");
+				}
+		     }));
 		     sourceFile = tempDir;
 	     }
 	     File srcDir = sourceFile;

@@ -37,7 +37,6 @@ import transform.benchmark.CreateYmlFile;
  * @author mariapaquin
  */
 public class Main {
-    private static PrintWriter printWriter;
 	private static File buildDir;
 	private static String target = "DEF";
 

@@ -48,7 +48,6 @@ import transform.visitors.FinalizerVisitor;
 import transform.visitors.PreprocessingVisitor;
 import transform.visitors.RemoveEmptyBlockVisitor;
 import transform.visitors.SymbolTableVisitor;
-import transform.visitors.TypeCollectVisitor;
 /**
  * Class to transform Java files into compilable, SPF suitable benchmarks.
  * 
@@ -183,10 +182,8 @@ public class Transformer {
 
 
 				//those are the same as in filtering
-				TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
-				cu.accept(typeCollectVisitor);
-				TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
-				
+				TypeChecker typeChecker = new TypeChecker();
+
 				SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
 				cu.accept(symTableVisitor);
 				SymbolTable rootScope = symTableVisitor.getRoot();
@@ -257,10 +254,8 @@ public class Transformer {
 				CompilationUnit finalCu = (CompilationUnit) finalizerParser.createAST(null);
 				finalCu.recordModifications();
 								
-				typeCollectVisitor = new TypeCollectVisitor();
-				finalCu.accept(typeCollectVisitor);
-				typeChecker = typeCollectVisitor.getTypeChecker();
-				
+				typeChecker = new TypeChecker();
+
 				symTableVisitor = new SymbolTableVisitor(typeChecker);
 				finalCu.accept(symTableVisitor);
 				rootScope = symTableVisitor.getRoot();

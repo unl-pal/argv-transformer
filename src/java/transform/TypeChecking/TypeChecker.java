@@ -1,8 +1,6 @@
 package transform.TypeChecking;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -20,39 +18,10 @@ import org.eclipse.jdt.core.dom.Type;
  * 
  */
 public class TypeChecker {
-	private static Set<String> javaImportTypes;
-	private static Set<String> classTypes;
-	
 	//those are collective types we area dealing with
 	//any means that the type is unknown
 	public enum CType {INT, REAL, STRING, BOOLEAN, ANY}
 
-	/**
-	 * Create a new TypeChecker.
-	 */
-	public TypeChecker() {
-		javaImportTypes = new HashSet<String>();
-		classTypes = new HashSet<String>();
-	}
-	
-	/**
-	 * Add a type to the list of Java class Libraries imported. 
-	 * 
-	 * @param name Name of the Java class. 
-	 */
-	public void addJavaImportType(String name) {
-		javaImportTypes.add(name);
-	}
-	
-	/**
-	 * Add a class type to the list of resolvable class types. 
-	 * 
-	 * @param name Name of the class. 
-	 */
-	public void addClassType(String name) {
-		classTypes.add(name);
-	}
-	
 	/**
 	 * Check whether the type is allowed (according to specifications defined 
 	 * in this method).
@@ -85,12 +54,6 @@ public class TypeChecker {
 				return true;
 			}
 		}
-		// check if is character literal		
-		
-//		return (type.isPrimitiveType() 
-//				|| javaImportTypes.contains(type.toString())
-//				|| classTypes.contains(type.toString())
-//				|| inJavaLangLibrary(type));
 		ITypeBinding typeBinding = type.resolveBinding();
 		String qualifiedName = typeBinding != null ? typeBinding.getQualifiedName() : "unknown";
 		return (type.isPrimitiveType() || qualifiedName.startsWith("java.") || qualifiedName.startsWith("javax."));

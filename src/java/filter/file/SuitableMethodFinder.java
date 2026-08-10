@@ -42,7 +42,6 @@ import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeChecker.CType;
 import transform.TypeChecking.TypeTable;
 import transform.visitors.SymbolTableVisitor;
-import transform.visitors.TypeCollectVisitor;
 import transform.visitors.TypeTableVisitor;
 
 /**
@@ -113,13 +112,8 @@ public class SuitableMethodFinder {
 		AST ast = node.getAST();
 		ASTRewrite rewriter = ASTRewrite.create(ast);
 		//infer the types of nodes
-		
-		//collects import types
-		TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
-		node.accept(typeCollectVisitor);
-		TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
-		
-		
+		TypeChecker typeChecker = new TypeChecker();
+
 		SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
 		node.accept(symTableVisitor);
 		SymbolTable rootScope = symTableVisitor.getRoot();

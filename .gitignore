@@ -71,3 +71,14 @@ LOTS-str-benches/
 my.classpath
 
 mise.toml
+
+# Local, untracked notes/config
+/.local/
+
+# Local dev scratch/experiment directories, not part of the build
+/debugFiltered/
+/debugPrograms/
+/oldDebugPrograms/
+/javaStringBenches/
+/handle-dupes.sh
+/repos.txt

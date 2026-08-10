@@ -195,36 +195,27 @@ public class TypeChecker {
 	}
 	
 	/**
-	 * Integer array type of desired dimension
-	 * @param type
-	 * @param dim - desired dimensions, >= 1
-	 * @return
+	 * Whether the array's element type is an integer type, regardless of the
+	 * array's depth. There is no dimension parameter: JDT's
+	 * {@link ArrayType#getElementType()} always resolves straight to the
+	 * innermost non-array element type in one step (e.g. int[][] -> int), so
+	 * depth can't be distinguished this way and isn't checked.
 	 */
-	public static boolean isIntegerArrayType(Type type, int dim) {
-		type = arrayType(type,dim);
-		return isIntegerType(type);
+	public static boolean isIntegerArrayType(Type type) {
+		return isIntegerType(arrayElementType(type));
 	}
-	
-	private static Type arrayType(Type type, int dim) {
-		Type ret = null;
-		if(type.isArrayType()) {
-			dim--;
-			type = ((ArrayType) type).getElementType();
-			while(dim > 0 && type.isArrayType()) {
-				type = ((ArrayType) type).getElementType();
-				dim--;
-			}
-			//went through all dimensions
-			if(dim == 0) {
-				ret = type;
-			}
-		}
-		return ret;
+
+	private static Type arrayElementType(Type type) {
+		return type.isArrayType() ? ((ArrayType) type).getElementType() : null;
 	}
-	
-	public static boolean isRealArrayType(Type type, int dim) {
-		type = arrayType(type,dim);
-		return isRealType(type);
+
+	/**
+	 * Whether the array's element type is a real (floating-point) type,
+	 * regardless of the array's depth. See {@link #isIntegerArrayType(Type)}
+	 * for why there is no dimension parameter.
+	 */
+	public static boolean isRealArrayType(Type type) {
+		return isRealType(arrayElementType(type));
 	}
-	
+
 }

@@ -36,8 +36,8 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
-import sourceAnalysis.AnalyzedFile;
-import sourceAnalysis.AnalyzedMethod;
+import util.AnalyzedFile;
+import util.AnalyzedMethod;
 import transform.SymbolTable.SymbolTable;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeChecker.CType;

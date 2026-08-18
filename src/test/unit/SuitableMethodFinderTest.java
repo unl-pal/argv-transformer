@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import filter.file.SuitableMethodFinder;
-import sourceAnalysis.AnalyzedMethod;
+import util.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker.CType;
 
 /**

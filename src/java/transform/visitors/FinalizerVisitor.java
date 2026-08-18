@@ -34,8 +34,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 
-import sourceAnalysis.AnalyzedFile;
-import sourceAnalysis.AnalyzedMethod;
+import util.AnalyzedFile;
+import util.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;

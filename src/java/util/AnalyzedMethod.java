@@ -1,4 +1,4 @@
-package sourceAnalysis;
+package util;
 
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 

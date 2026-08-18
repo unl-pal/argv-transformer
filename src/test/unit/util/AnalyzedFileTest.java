@@ -1,4 +1,4 @@
-package unit.sourceAnalysis;
+package unit.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -13,8 +13,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.junit.Test;
 
-import sourceAnalysis.AnalyzedFile;
-import sourceAnalysis.AnalyzedMethod;
+import util.AnalyzedFile;
+import util.AnalyzedMethod;
 
 public class AnalyzedFileTest {
 

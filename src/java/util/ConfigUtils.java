@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * Resolves command-line arguments for a pipeline stage's Main: pulls out an optional
- * --config=<path> flag (defaulting to config.properties in the directory the JVM was
- * invoked from), and fills in default values for whatever positional args remain.
+ * --config=<path> flag (otherwise defaulting to config.properties),
+ * and fills in default directory values for whatever args remain.
  */
 public class ConfigUtils {
 
@@ -24,9 +24,8 @@ public class ConfigUtils {
 	}
 
 	/**
-	 * Strips --config=<path> out of args wherever it appears, then matches whatever
-	 * positional args remain against defaults: if the counts line up exactly, the
-	 * remaining args are used as-is (positionally), otherwise defaults are used.
+	 * Strips --config=<path>. If the arg counts line up exactly, the
+	 * remaining args are used as-is (positionally), otherwise provided  defaults are used.
 	 */
 	public static Result resolve(String[] args, String... defaults) {
 		String configPath = "config.properties";

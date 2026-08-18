@@ -44,17 +44,17 @@ public class AnalyzedFile {
 	public boolean isSuitable() {
 		return suitableMethods.size() > 0;
 	}
-	
+
 	public void addSuitableMethod(AnalyzedMethod suitableMethod) {
 		suitableMethods.add(suitableMethod);
 	}
-	
-	
-	
+
+
+
 	public String getPath() {
 		return path;
 	}
-	
+
 	public File getFile() {
 		return file;
 	}

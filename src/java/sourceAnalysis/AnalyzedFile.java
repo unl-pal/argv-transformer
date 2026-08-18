@@ -40,36 +40,22 @@ public class AnalyzedFile {
 	public Set<AnalyzedMethod> getSuitableMethods(){
 		return suitableMethods;
 	}
-	
-	public int getSpfSuitableMethodCount() {
-		int count = 0;
-		for(AnalyzedMethod am : analyzedMethods) {
-			if(am.isSymbolicSuitable()) {
-				count++;
-			}
-		}
-		return count;
-	}
-	
+
 	public boolean isSuitable() {
 		return suitableMethods.size() > 0;
 	}
-	
+
 	public void addSuitableMethod(AnalyzedMethod suitableMethod) {
 		suitableMethods.add(suitableMethod);
 	}
-	
-	
-	
+
+
+
 	public String getPath() {
 		return path;
 	}
-	
+
 	public File getFile() {
 		return file;
-	}
-	
-	public boolean isSymbolicSuitable() {
-		return (getSpfSuitableMethodCount() > 0);
 	}
 }

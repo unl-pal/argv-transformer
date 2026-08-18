@@ -32,8 +32,6 @@ public class AnalyzedFileTest {
 		assertTrue(af.getAnalyzedMethods().isEmpty());
 		assertTrue(af.getSuitableMethods().isEmpty());
 		assertFalse(af.isSuitable());
-		assertFalse(af.isSymbolicSuitable());
-		assertEquals(0, af.getSpfSuitableMethodCount());
 	}
 
 	@Test
@@ -49,28 +47,6 @@ public class AnalyzedFileTest {
 
 		af.addSuitableMethod(method);
 		assertTrue(af.isSuitable());
-	}
-
-	@Test
-	public void spfSuitableMethodCountDelegatesToAnalyzedMethodSuitability() {
-		AnalyzedFile af = new AnalyzedFile(new File("Sample.java"));
-
-		MethodDeclaration suitableDecl = parseFirstMethod(
-				"public class Sample { public void suitable(int a) {} }");
-		AnalyzedMethod suitable = new AnalyzedMethod(suitableDecl);
-		suitable.setHasParameters(true);
-		suitable.setHasOnlyTypeParameters(true);
-		suitable.setHasTypeOperations(true);
-
-		MethodDeclaration unsuitableDecl = parseFirstMethod(
-				"public class Sample { public void unsuitable() {} }");
-		AnalyzedMethod unsuitable = new AnalyzedMethod(unsuitableDecl);
-
-		af.addMethod(suitable);
-		af.addMethod(unsuitable);
-
-		assertEquals(1, af.getSpfSuitableMethodCount());
-		assertTrue(af.isSymbolicSuitable());
 	}
 
 	@Test

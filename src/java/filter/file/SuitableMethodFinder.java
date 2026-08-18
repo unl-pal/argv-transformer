@@ -276,20 +276,8 @@ public class SuitableMethodFinder {
 		public void endVisit(MethodDeclaration node) {
 			//System.out.println("Visiting " + node.getName());
 			AnalyzedMethod m = currAnalyzedMethod;
-			int intOpCount = m.getTypeOperationCount();
-			if(intOpCount > 0) {
-				m.setHasTypeOperations(true);
-			}
-			
-			if(m.getTypeConditionalCount() > 0) {
-				m.setHasTypeConditional(true);
-			}
-			
-			if(m.getTypeParameterCount() > 0) {
-				m.setHasOnlyTypeParameters(true);
-			}
-			
-			if(m.getTypeConditionalCount() < minTypeCond || 
+
+			if(m.getTypeConditionalCount() < minTypeCond ||
 					m.getTypeOperationCount() < minTypeExpr || 
 					m.getTypeParameterCount() < minTypeParams) {
 				//System.out.println("Removing " + node.getName());
@@ -391,7 +379,6 @@ public class SuitableMethodFinder {
 		
 		@Override
 		public boolean visit(ForStatement node) {
-			currAnalyzedMethod.setHasLoop(true);
 			// To handle scope of local variables
 //			if (!blockStack.empty()) {
 //				HashSet<String> liveIntVariables = blockStack.peek();
@@ -613,30 +600,15 @@ public class SuitableMethodFinder {
 
 	private void checkParameterTypes(AnalyzedMethod am, MethodDeclaration node) {
 		List<SingleVariableDeclaration> parameters = node.parameters();
-		if (!parameters.isEmpty()) {
-			am.setHasParameters(true);
-			int typeParams = 0;
-			for (SingleVariableDeclaration parameter : parameters) {
-				CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
-				if(parType == type) {
-				  typeParams++;
-				}
+		int typeParams = 0;
+		for (SingleVariableDeclaration parameter : parameters) {
+			CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
+			if(parType == type) {
+			  typeParams++;
 			}
-			//found all parameters of a particular type
-			am.setTypeParameterCount(typeParams);
-			if(parameters.size() == typeParams) {
-				am.setHasOnlyTypeParameters(true);
-			}
-			
-//			if (hasOnlyIntegerParameters(parameters)) {
-//				am.setHasOnlyIntParameters(true);
-//				am.setIntParameterCount(parameters.size());
-//			} else {
-//				am.setHasOnlyIntParameters(false);
-//			}
-		} else {
-			am.setHasParameters(false);
 		}
+		//found all parameters of a particular type
+		am.setTypeParameterCount(typeParams);
 	}
 
 //	public boolean hasOnlyIntegerParameters(List<SingleVariableDeclaration> parameters) {

@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -362,12 +363,17 @@ public class SuitableMethodFinder {
 					//call again since it might be just a complex expression
 					ret = hasType(lE) || hasType(rE);
 				}
-			}  else {
-				//if it is not an infix expression then it should
-				//be some single var of a boolean type
+			} else if (e instanceof MethodInvocation) {
+				for (Object argObj : ((MethodInvocation) e).arguments()) {
+					Expression arg = (Expression) argObj;
+					if (TypeChecker.checkType(typeTable.getNodeType(arg)) == type) {
+						ret = true;
+						break;
+					}
+				}
+			} else {
 				Type vT = typeTable.getNodeType(e);
-				if(TypeChecker.isBooleanType(vT)) {
-					//System.out.println("Just a var");
+				if(type == CType.BOOLEAN && TypeChecker.isBooleanType(vT)) {
 					ret = true;
 				}
 			}

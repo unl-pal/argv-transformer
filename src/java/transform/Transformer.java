@@ -335,10 +335,10 @@ public class Transformer {
         options.put(JavaCore.COMPILER_SOURCE, "1.8");
         parser.setCompilerOptions(options);
         parser.setUnitName(file.getPath());
-        String javaHome = System.getProperty("java.home");
-        Path rtJar = Paths.get(javaHome, "lib", "rt.jar");
+        util.JavaRuntimeCheck.requireTransformEnvironment();
+        File rtJar = util.JavaRuntimeCheck.findRtJar();
 		classPath = Arrays.copyOf(classPath, classPath.length + 1);
-		classPath[classPath.length - 1] = rtJar.toAbsolutePath().toString();
+		classPath[classPath.length - 1] = rtJar.getAbsolutePath();
         parser.setEnvironment(classPath, sourcePath, new String[] { "UTF-8", "UTF-8" }, true);
 
 		return parser;

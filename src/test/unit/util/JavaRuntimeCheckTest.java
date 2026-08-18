@@ -4,11 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import org.junit.After;
 import org.junit.Test;
 
 import util.JavaRuntimeCheck;
@@ -18,15 +16,10 @@ import util.JavaRuntimeCheck;
  *
  * <p>
  * The suite itself can only run on a Java 8 JDK (that is the point of the class under test), so
- * the "unsupported runtime" branches are exercised by pointing the {@code argv.rtJar} override
- * at a path that does not exist, which is the same code path a Java 9+ JVM takes.
+ * only the "supported runtime" branches can be exercised here — there is no longer a property
+ * override to force the "unsupported runtime" branches without actually running on one.
  */
 public class JavaRuntimeCheckTest {
-
-	@After
-	public void clearOverride() {
-		System.clearProperty(JavaRuntimeCheck.RT_JAR_PROPERTY);
-	}
 
 	@Test
 	public void findsRtJarOnTheRunningJvm() {
@@ -40,39 +33,6 @@ public class JavaRuntimeCheckTest {
 	public void acceptsTheRunningJvm() {
 		assertNull(JavaRuntimeCheck.checkTransformEnvironment());
 		JavaRuntimeCheck.requireTransformEnvironment();
-	}
-
-	@Test
-	public void honoursAnExplicitRtJarOverride() {
-		File actual = JavaRuntimeCheck.findRtJar();
-		System.setProperty(JavaRuntimeCheck.RT_JAR_PROPERTY, actual.getAbsolutePath());
-
-		assertEquals(actual.getAbsolutePath(), JavaRuntimeCheck.findRtJar().getAbsolutePath());
-		assertNull(JavaRuntimeCheck.checkTransformEnvironment());
-	}
-
-	@Test
-	public void reportsAMissingRtJar() {
-		System.setProperty(JavaRuntimeCheck.RT_JAR_PROPERTY, "/no/such/rt.jar");
-
-		assertNull(JavaRuntimeCheck.findRtJar());
-
-		String problem = JavaRuntimeCheck.checkTransformEnvironment();
-		assertNotNull("a missing rt.jar must be reported, not ignored", problem);
-		assertTrue("the message should name rt.jar", problem.contains("rt.jar"));
-		assertTrue("the message should tell the user how to fix it", problem.contains("JAVA_HOME"));
-	}
-
-	@Test
-	public void requireThrowsWhenRtJarIsMissing() {
-		System.setProperty(JavaRuntimeCheck.RT_JAR_PROPERTY, "/no/such/rt.jar");
-
-		try {
-			JavaRuntimeCheck.requireTransformEnvironment();
-			fail("expected an IllegalStateException for a JVM without rt.jar");
-		} catch (IllegalStateException expected) {
-			assertTrue(expected.getMessage().contains("Unsupported Java runtime"));
-		}
 	}
 
 	@Test

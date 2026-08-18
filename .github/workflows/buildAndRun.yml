@@ -1,7 +1,11 @@
-name: Build and Run
+name: Build and Test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - master
+      - develop
   pull_request:
     branches:
       - master
@@ -10,6 +14,7 @@ on:
 jobs:
   build-and-test-on-all-OS:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -26,13 +31,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
 
-      - name: Download
-        run: ./gradlew download
-
-      - name: Filter
-        run: ./gradlew filter
-
-      - name: Transform
-        run: ./gradlew transform
+      - name: Test
+        run: ./gradlew test

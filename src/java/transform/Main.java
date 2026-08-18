@@ -39,7 +39,6 @@ import transform.benchmark.CreateYmlFile;
  */
 public class Main {
 	private static File buildDir;
-	private static String target = "DEF";
 
 	private final static String DEFAULT_MIN_TYPE_EXPR = "3";
 	private final static String DEFAULT_MIN_TYPE_COND = "1";
@@ -57,16 +56,15 @@ public class Main {
 	 public static void main(String[] args) throws IOException {
 	     util.JavaRuntimeCheck.requireTransformEnvironmentOrExit();
 
+	     util.ConfigUtils.Result configResult = util.ConfigUtils.resolve(args, source, dest);
+	     source = configResult.positional[0];
+	     dest = configResult.positional[1];
+
 	     File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
 	     buildDir = new File(tmpDir, "bin");
 
-	     if (args.length == 2) {
-	         source = args[0];
-	         dest = args[1];
-	     }
-
 	     // Load config
-	     File configFile = new File("config.properties");
+	     File configFile = configResult.configFile;
 	     int minTypeExpr = Integer.parseInt(DEFAULT_MIN_TYPE_EXPR);
 	     int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
 	     int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
@@ -77,7 +75,6 @@ public class Main {
 	         Properties props = new Properties();
 	         props.load(reader);
 
-	         target = props.getProperty("target");
 	         String typeStr = props.getProperty("type", DEFAULT_TYPE);
 	         switch (typeStr) {
 	             case "I":
@@ -166,7 +163,7 @@ public class Main {
 	             // ==== TRANSFORM (if failed initially OR transformAll) ====
 	             if (!compilesInitially || transformAll) {
 	                 try {
-	                     Transformer transformer = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
+	                     Transformer transformer = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)));
 	                     transformer.transformFiles(fMinTypeExpr, fMinTypeCond, fMinTypeParams, fType);
 	                 } catch (Exception ex) {
 	                     System.err.println("Transform error: " + destFile + " -> " + ex.getMessage());
@@ -176,7 +173,7 @@ public class Main {
 	             // ==== ANNOTATE successful initial compiles ====
 	             if (compilesInitially) {
 	                 try {
-	                     Transformer annotator = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)), target);
+	                     Transformer annotator = new Transformer(new ArrayList<File>(Collections.singletonList(destFile)));
 	                     annotator.annotateFiles();
 	                 } catch (Exception ex) {
 	                     System.err.println("Annotation error: " + destFile + " -> " + ex.getMessage());
@@ -194,10 +191,8 @@ public class Main {
 	                 successful.add(destFile);
 	                 failed.remove(destFile);
 
-	                 if ("SVCOMP".equals(target)) {
-	                     createSVCompYmlFile(destFile);
-	                     restructureForSVCompFormat(destFile.toPath());
-	                 }
+	                 createSVCompYmlFile(destFile);
+	                 restructureForSVCompFormat(destFile.toPath());
 	             }
 
 	         } catch (Exception e) {
@@ -236,14 +231,6 @@ public class Main {
 
 	     // cleanup temp build
 	     FileUtils.forceDelete(tmpDir);
-
-//	     // SVCOMP restructure
-//	     if ("SVCOMP".equals(target)) {
-//	         List<Path> javaFiles = Files.walk(Paths.get(dest))
-//	                 .filter(path -> path.toString().endsWith(".java"))
-//	                 .collect(Collectors.toList());
-//	         javaFiles.forEach(Main::restructureForSVCompFormat);
-//	     }
 
 	     removeEmptyDirs(destDir);
 

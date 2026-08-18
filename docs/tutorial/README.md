@@ -1,10 +1,7 @@
 # Tutorial: a toy run through filter and transform
 
-This walks a two-file "repository" through the pipeline and ends with a real
-SV-COMP benchmark. It takes about a minute and needs no network access, because
-it skips `download` and hand-places the repo where `download` would have put it.
-
-Every command and every piece of output below was captured from an actual run.
+This walks a two-file "repository" through the pipeline, skipping the `download` step,
+and ends with a real SV-COMP benchmark.
 
 ## What you start with
 
@@ -21,26 +18,16 @@ the directory layout of a normal Maven-ish Java repo and two classes:
 
 ## Step 0: point the config at integers
 
-The pipeline reads `config.properties` from the repo root on every run, and it
-is the only way to set thresholds — none of the stage entry points take these as
-flags. The checked-in config filters for *real* (`double`/`float`) expressions;
-this tutorial is about `int`s, so swap in the tutorial config and keep a backup:
-
-```bash
-cp config.properties config.properties.mybak
-cp docs/tutorial/tutorial.properties config.properties
-```
+Every stage reads `config.properties` from its invocation directory by default, but
+each also accepts `--config=<path>` to point at a different file instead. The
+checked-in config filters for *real* (`double`/`float`) expressions; this tutorial is
+about `int`s, so we'll point at `docs/tutorial/tutorial.properties` in the `filter`
+and `transform` commands below rather than editing the checked-in one.
 
 The settings that matter here are `type=I` (integer expressions), `minExpr`,
 `minIfStmt` and `minParams` (what the filter demands), and `minTypeExpr`,
 `minTypeCond` and `minTypeParams` (transform's own, independent thresholds,
 applied afterwards — not the same bounds reapplied).
-
-Restore your own config when you are done:
-
-```bash
-mv config.properties.mybak config.properties
-```
 
 ## Step 1: stage the repo where `download` would leave it
 
@@ -55,7 +42,7 @@ cp -r docs/tutorial/toy-repo database/toy-repo
 ## Step 2: filter
 
 ```bash
-./gradlew filter
+./gradlew filter -Pargs="--config=docs/tutorial/tutorial.properties"
 ```
 
 ```
@@ -81,7 +68,7 @@ files rather than flattening them.
 ## Step 3: transform
 
 ```bash
-./gradlew transform
+./gradlew transform -Pargs="--config=docs/tutorial/tutorial.properties"
 ```
 
 ```
@@ -152,7 +139,8 @@ Six distinct things happened, and each maps to a phase in `transform.Transformer
 | class renamed to `Main`, `main()` synthesized, file moved into `Grading/` | SV-COMP expects an entry point that drives the method with symbolic arguments |
 
 `Grading.yml` is the SV-COMP task definition naming the property files and the
-expected verdict. It is written only when `target=SVCOMP`.
+expected verdict. It is always written — SV-COMP is the only supported output
+format.
 
 Clean up with `./gradlew reset`, which deletes `build`, `database`,
 `suitablePrgms` and `benchmarks`.

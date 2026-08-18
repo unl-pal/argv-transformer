@@ -81,6 +81,12 @@ type=I
 minExpr=2
 ```
 
+By default, `filter`'s thresholds (`minExpr`/`minIfStmt`/`minParams`) are checked per method: a
+file is kept if any single method clears the bar on its own. Setting `simplifyFilter=true`
+switches to a file-wide mode instead, summing those counts across every method in the class
+and, currently, ignoring the `type` dial entirely while doing so (it counts expressions/
+conditionals/parameters of any type, not just `type`'s).
+
 By default each stage looks for `config.properties` in the directory it's invoked from. Point
 it at a different file with `--config=<path>`:
 

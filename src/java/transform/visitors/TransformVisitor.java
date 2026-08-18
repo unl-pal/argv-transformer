@@ -102,24 +102,24 @@ public class TransformVisitor extends ASTVisitor {
 	private final List<String> postImportComments = new ArrayList<String>();
 	private final Set<ASTNode> disallowed = new HashSet<>();
 	public static int varNum = 0;
-	private final String target;
+	// Other targets (SPF, random) are defunct; SVCOMP is the only supported output format.
+	private final String target = "SVCOMP";
 	private Boolean randUsedInMethod;
 	private boolean hasRandom;
 	private final String source;
 
 	/**
-	 * 
+	 *
 	 * @param root
 	 * @param rewriter
 	 * @param typeTable
 	 * @param typeChecker
 	 */
-	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String target, String source) {
+	public TransformVisitor(SymbolTable root, ASTRewrite rewriter, TypeTable typeTable, TypeChecker typeChecker, String source) {
 		this.root = root;
 		this.rewriter = rewriter;
 		this.typeTable = typeTable;
 		this.typeChecker = typeChecker;
-		this.target = target;
 		randUsedInMethod = false;
 		hasRandom = false;
 		this.source = source;

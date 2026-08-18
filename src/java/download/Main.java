@@ -22,16 +22,9 @@ public class Main {
 
 	private static int debugLevel;
 
-	public static String dest = "database";
-
 	public static void main(String[] args) throws IOException {
-		String outputPath = "";
-
-		if (args.length == 1) {
-			outputPath = args[0];
-		}
-
-		File configFile = new File("config.properties");
+		util.ConfigUtils.Result configResult = util.ConfigUtils.resolve(args);
+		File configFile = configResult.configFile;
 
 		int minLoc = 1;
 		int maxLoc = 1;

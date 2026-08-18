@@ -58,7 +58,7 @@ sourceSets {
 }
 
 tasks.named('compileJava') {
-    group = "compile"
+    group = "ARG-V"
     description = """Compiles project
         Use -Djava.compiler.args='<args>' to set additional compiler args
             ex: '-Xlint:all'
@@ -68,6 +68,7 @@ tasks.named('compileJava') {
 }
 
 tasks.named('test') {
+    group = "ARG-V"
     description = 'Runs the test suite; report at build/reports/tests/test/index.html'
 	doFirst {
         println "Main classes: ${sourceSets.main.output.classesDirs.asPath}"
@@ -81,9 +82,9 @@ tasks.named('test') {
 }
 
 tasks.register('download', JavaExec) {
-    group = 'execution'
-    description = 'Clones repos from config.properties\' csv into downloadDir (default: database). ' +
-        'Pass -Pargs="<outputDir>" to override.'
+    group = 'ARG-V'
+    description = """Clones repos from config.properties' csv into downloadDir (default: database).
+        Pass -Pargs="--config=<path>" to use a different config file."""
     dependsOn 'compileJava'
     classpath = configurations.runtimeClasspath + files('build/classes/java/main')
     mainClass = 'download.Main'
@@ -97,7 +98,7 @@ tasks.register('download', JavaExec) {
 // The one real pipeline entry point: chains download -> filter -> transform. Each stage
 // re-reads config.properties itself, so this is just a dependency chain, not extra logic.
 tasks.register('full') {
-    group = 'execution'
+    group = 'ARG-V'
     description = 'Runs the full pipeline: download, filter, transform'
     dependsOn 'download', 'filter', 'transform'
 }
@@ -105,9 +106,9 @@ tasks.register('full') {
 // Runs only the filter task
 // Assumes that necesary folders already exist eg database
 tasks.register('filter', JavaExec) {
-    group = 'execution'
-    description = 'Keeps only Java files/methods suitable for symbolic execution: database -> suitablePrgms (defaults). ' +
-        'Pass -Pargs="<inputDir> <outputDir>" to override.'
+    group = 'ARG-V'
+    description = """Keeps only Java files/methods suitable for symbolic execution: database -> suitablePrgms (defaults).
+        Pass -Pargs="<inputDir> <outputDir>" to override."""
     dependsOn 'compileJava'
     classpath = configurations.runtimeClasspath + files('build/classes/java/main')
     mainClass = 'filter.Main'
@@ -121,9 +122,9 @@ tasks.register('filter', JavaExec) {
 // Runs only the transform task
 // Assumes that necessary folders already exist eg suitablePrgms
 tasks.register('transform', JavaExec) {
-    group = 'execution'
-    description = 'Rewrites suitable Java files into compilable benchmarks: suitablePrgms -> benchmarks (defaults). ' +
-        'Pass -Pargs="<inputDir> <outputDir>" to override.'
+    group = 'ARG-V'
+    description = """Rewrites suitable Java files into compilable benchmarks: suitablePrgms -> benchmarks (defaults).
+        Pass -Pargs="<inputDir> <outputDir>" to override."""
     dependsOn 'compileJava'
     classpath = configurations.runtimeClasspath + files('build/classes/java/main')
     mainClass = 'transform.Main'
@@ -137,7 +138,7 @@ tasks.register('transform', JavaExec) {
 // Wipes all folders created by the code as well as the build folder
 // Use for fresh run of code
 tasks.register('reset', Delete) {
-    group = 'clean'
+    group = 'ARG-V'
     description = 'Resets the program - deletes build, database, suitablePrgms and benchmarks'
     delete files('benchmarks', 'suitablePrgms', 'build', 'database')
     doLast {

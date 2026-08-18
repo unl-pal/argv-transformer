@@ -28,17 +28,13 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String inputPath = "database";
-        String outputPath = "suitablePrgms";
-
-        if (args.length == 2) {
-            inputPath = args[0];
-            outputPath = args[1];
-        }
+        util.ConfigUtils.Result configResult = util.ConfigUtils.resolve(args, "database", "suitablePrgms");
+        String inputPath = configResult.positional[0];
+        String outputPath = configResult.positional[1];
 
         /* ---------------- Load configuration ---------------- */
 
-        File configFile = new File("config.properties");
+        File configFile = configResult.configFile;
         int minExpr;
         int minIfStmt;
         int minParams;

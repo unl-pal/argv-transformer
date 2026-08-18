@@ -1,13 +1,7 @@
 plugins {
     id 'java'
-    id 'application'
-    id 'java-library'
-    id 'idea'
-    id 'eclipse'
-    id 'jvm-test-suite'
 }
 
-// rootProject.name = 'argv-transformer'
 group = 'dev.arg-v.transformer'
 version = '1.1.0'
 
@@ -40,17 +34,12 @@ version = '1.1.0'
         testImplementation 'org.testng:testng:7.5.1' 
     }
 
-// set run to run the entire program via driver
-// Currently the full.Main does not handle transform, only download and filter
-application {
-    mainClass = 'full.Driver'
-}
-
-// This enforces java 8 compiance with the code
-// also allows for the use of later compilers as long as the code conforms
+// Gradle auto-detects a JDK 8 (on PATH, via SDKMAN/jenv/Homebrew/IntelliJ's registry,
+// org.gradle.java.installations.paths in gradle.properties)
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
 }
 
 sourceSets {
@@ -78,12 +67,8 @@ tasks.named('compileJava') {
     options.compilerArgs.addAll(System.getProperty("java.compiler.args")?.split() ?: [])
 }
 
-tasks.named('run') {
-    group = 'execution'
-}
-
-
 tasks.named('test') {
+    description = 'Runs the test suite; report at build/reports/tests/test/index.html'
 	doFirst {
         println "Main classes: ${sourceSets.main.output.classesDirs.asPath}"
         println "Test classes: ${sourceSets.test.output.classesDirs.asPath}"
@@ -95,118 +80,58 @@ tasks.named('test') {
     exclude '**/integrationExpected/**'
 }
 
-tasks.named('javadoc') {
-}
-
-// Custom Compile task used to run the individual parts from root
-task('compile', type: JavaCompile) {
-    source fileTree('src/java')
-    classpath = configurations.runtimeClasspath
-    destinationDirectory = file('build/classes/java')
-    outputs.files(fileTree(destinationDirectory))
-}
-
-// Custom Test Compile task for use with test types other than unit tests
-task('compileTest', type: JavaCompile) {
-    dependsOn 'compileJava'
-    source fileTree('src/java'), fileTree('src/test')
-    classpath = configurations.runtimeClasspath + configurations.testRuntimeClasspath + files('build/classes/java/main')
-    destinationDirectory = file('build/classes/java/test')
-    outputs.files(fileTree(destinationDirectory))
-}
-
-// Custom task class used for creating tasks for individual parts of the code
-class ExecOperationsTask extends DefaultTask {
-    final org.gradle.process.ExecOperations execOperations
-
-    @javax.inject.Inject
-    ExecOperationsTask(org.gradle.process.ExecOperations execOperations) {
-        this.execOperations = execOperations
-    }
-    //ExecOperations execOperations
-
-    @TaskAction
-    def execute() {
-        println "ExecOp in task action: ${execOperations}"
-    }
-
-    @Internal
-    ExecOperations getExecOperations() {
-        return execOperations
-    }
-}
-
-tasks.register('download', ExecOperationsTask) {
+tasks.register('download', JavaExec) {
     group = 'execution'
-    description = 'downloads the repos for database'
+    description = 'Clones repos from config.properties\' csv into downloadDir (default: database). ' +
+        'Pass -Pargs="<outputDir>" to override.'
     dependsOn 'compileJava'
-    doLast {
-        println "Value of Exec: ${execOperations}"
-        execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
-            mainClass = 'download.Main'
-            standardOutput = System.out
-            errorOutput = System.err
-        }
+    classpath = configurations.runtimeClasspath + files('build/classes/java/main')
+    mainClass = 'download.Main'
+    if (project.hasProperty('args')) {
+        args project.args.split()
     }
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
-// This is currently the same as 'run'
-// Does not actually run the full application despite the name, only what is in Driver
-tasks.register('full', ExecOperationsTask) {
+// The one real pipeline entry point: chains download -> filter -> transform. Each stage
+// re-reads config.properties itself, so this is just a dependency chain, not extra logic.
+tasks.register('full') {
     group = 'execution'
-    description = 'Runs the compiled application'
+    description = 'Runs the full pipeline: download, filter, transform'
     dependsOn 'download', 'filter', 'transform'
 }
 
 // Runs only the filter task
 // Assumes that necesary folders already exist eg database
-tasks.register('filter', ExecOperationsTask) {
+tasks.register('filter', JavaExec) {
     group = 'execution'
-    description = 'Runs the filter'
+    description = 'Keeps only Java files/methods suitable for symbolic execution: database -> suitablePrgms (defaults). ' +
+        'Pass -Pargs="<inputDir> <outputDir>" to override.'
     dependsOn 'compileJava'
-    doLast {
-        execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
-            mainClass = 'filter.Main'
-            standardOutput = System.out
-            errorOutput = System.err
-        }
+    classpath = configurations.runtimeClasspath + files('build/classes/java/main')
+    mainClass = 'filter.Main'
+    if (project.hasProperty('args')) {
+        args project.args.split()
     }
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 // Runs only the transform task
 // Assumes that necessary folders already exist eg suitablePrgms
-tasks.register('transform', ExecOperationsTask) {
+tasks.register('transform', JavaExec) {
     group = 'execution'
-    description = 'Runs the transformer'
+    description = 'Rewrites suitable Java files into compilable benchmarks: suitablePrgms -> benchmarks (defaults). ' +
+        'Pass -Pargs="<inputDir> <outputDir>" to override.'
     dependsOn 'compileJava'
-    doLast {
-        execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
-            mainClass = 'transform.Main'
-            standardOutput = System.out
-            errorOutput = System.err
-        }
+    classpath = configurations.runtimeClasspath + files('build/classes/java/main')
+    mainClass = 'transform.Main'
+    if (project.hasProperty('args')) {
+        args project.args.split()
     }
-}
-
-// runs the transformer on the regression test cases in
-// test/transformer/regression and generates fake benchmarks to the testOutput
-// directory
-tasks.register('regressionTransformer', ExecOperationsTask) {
-    group = 'testing'
-    description = 'Runs regression test for transformer'
-    dependsOn 'compileJava'
-    doLast {
-        execOperations.javaexec {
-            classpath = configurations.runtimeClasspath + files('build/classes/java/main')
-            mainClass = 'transform.Main'
-            args 'src/test/transformer/regression', 'testOutput'
-            standardOutput = System.out
-            errorOutput = System.err
-        }
-    }
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 // Wipes all folders created by the code as well as the build folder
@@ -215,5 +140,7 @@ tasks.register('reset', Delete) {
     group = 'clean'
     description = 'Resets the program - deletes build, database, suitablePrgms and benchmarks'
     delete files('benchmarks', 'suitablePrgms', 'build', 'database')
-    println 'Deleted Files'
+    doLast {
+        println 'Deleted Files'
+    }
 }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import logging.Logger;
+import util.Logger;
 
 /**
  * Class representing a Git project with its metadata as gathered by RepoReapers.

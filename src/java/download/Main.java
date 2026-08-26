@@ -1,6 +1,6 @@
 package download;
 
-import logging.Logger;
+import util.Logger;
 
 import java.io.File;
 import java.io.FileReader;

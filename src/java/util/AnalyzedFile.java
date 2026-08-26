@@ -1,4 +1,4 @@
-package sourceAnalysis;
+package util;
 
 import java.io.File;
 import java.util.HashSet;
@@ -41,16 +41,6 @@ public class AnalyzedFile {
 		return suitableMethods;
 	}
 	
-	public int getSpfSuitableMethodCount() {
-		int count = 0;
-		for(AnalyzedMethod am : analyzedMethods) {
-			if(am.isSymbolicSuitable()) {
-				count++;
-			}
-		}
-		return count;
-	}
-	
 	public boolean isSuitable() {
 		return suitableMethods.size() > 0;
 	}
@@ -67,9 +57,5 @@ public class AnalyzedFile {
 	
 	public File getFile() {
 		return file;
-	}
-	
-	public boolean isSymbolicSuitable() {
-		return (getSpfSuitableMethodCount() > 0);
 	}
 }

@@ -1,8 +1,6 @@
 package transform.TypeChecking;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -20,39 +18,10 @@ import org.eclipse.jdt.core.dom.Type;
  * 
  */
 public class TypeChecker {
-	private static Set<String> javaImportTypes;
-	private static Set<String> classTypes;
-	
 	//those are collective types we area dealing with
 	//any means that the type is unknown
 	public enum CType {INT, REAL, STRING, BOOLEAN, ANY}
 
-	/**
-	 * Create a new TypeChecker.
-	 */
-	public TypeChecker() {
-		javaImportTypes = new HashSet<String>();
-		classTypes = new HashSet<String>();
-	}
-	
-	/**
-	 * Add a type to the list of Java class Libraries imported. 
-	 * 
-	 * @param name Name of the Java class. 
-	 */
-	public void addJavaImportType(String name) {
-		javaImportTypes.add(name);
-	}
-	
-	/**
-	 * Add a class type to the list of resolvable class types. 
-	 * 
-	 * @param name Name of the class. 
-	 */
-	public void addClassType(String name) {
-		classTypes.add(name);
-	}
-	
 	/**
 	 * Check whether the type is allowed (according to specifications defined 
 	 * in this method).
@@ -85,12 +54,6 @@ public class TypeChecker {
 				return true;
 			}
 		}
-		// check if is character literal		
-		
-//		return (type.isPrimitiveType() 
-//				|| javaImportTypes.contains(type.toString())
-//				|| classTypes.contains(type.toString())
-//				|| inJavaLangLibrary(type));
 		ITypeBinding typeBinding = type.resolveBinding();
 		String qualifiedName = typeBinding != null ? typeBinding.getQualifiedName() : "unknown";
 		return (type.isPrimitiveType() || qualifiedName.startsWith("java.") || qualifiedName.startsWith("javax."));
@@ -232,36 +195,27 @@ public class TypeChecker {
 	}
 	
 	/**
-	 * Integer array type of desired dimension
-	 * @param type
-	 * @param dim - desired dimensions, >= 1
-	 * @return
+	 * Whether the array's element type is an integer type, regardless of the
+	 * array's depth. There is no dimension parameter: JDT's
+	 * {@link ArrayType#getElementType()} always resolves straight to the
+	 * innermost non-array element type in one step (e.g. int[][] -> int), so
+	 * depth can't be distinguished this way and isn't checked.
 	 */
-	public static boolean isIntegerArrayType(Type type, int dim) {
-		type = arrayType(type,dim);
-		return isIntegerType(type);
+	public static boolean isIntegerArrayType(Type type) {
+		return isIntegerType(arrayElementType(type));
 	}
-	
-	private static Type arrayType(Type type, int dim) {
-		Type ret = null;
-		if(type.isArrayType()) {
-			dim--;
-			type = ((ArrayType) type).getElementType();
-			while(dim > 0 && type.isArrayType()) {
-				type = ((ArrayType) type).getElementType();
-				dim--;
-			}
-			//went through all dimensions
-			if(dim == 0) {
-				ret = type;
-			}
-		}
-		return ret;
+
+	private static Type arrayElementType(Type type) {
+		return type.isArrayType() ? ((ArrayType) type).getElementType() : null;
 	}
-	
-	public static boolean isRealArrayType(Type type, int dim) {
-		type = arrayType(type,dim);
-		return isRealType(type);
+
+	/**
+	 * Whether the array's element type is a real (floating-point) type,
+	 * regardless of the array's depth. See {@link #isIntegerArrayType(Type)}
+	 * for why there is no dimension parameter.
+	 */
+	public static boolean isRealArrayType(Type type) {
+		return isRealType(arrayElementType(type));
 	}
-	
+
 }

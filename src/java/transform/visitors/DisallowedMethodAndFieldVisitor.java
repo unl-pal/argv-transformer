@@ -44,9 +44,15 @@ public class DisallowedMethodAndFieldVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(MethodDeclaration node) {
 	    IBinding binding = node.resolveBinding();
-		if (disallowedBindings.contains(binding) || (!node.isConstructor() && !typeChecker.allowedType(node.getReturnType2()))) {
+		// binding can be null when it fails to resolve (e.g. incomplete
+		// environment); disallowedBindings must never contain null, or every
+		// subsequent method with an unresolved binding would spuriously match.
+		if ((binding != null && disallowedBindings.contains(binding))
+				|| (!node.isConstructor() && !typeChecker.allowedType(node.getReturnType2()))) {
 			rewriter.remove(node, null);
-			disallowedBindings.add(binding);
+			if (binding != null) {
+				disallowedBindings.add(binding);
+			}
 			return false;
 		}
 		return true;

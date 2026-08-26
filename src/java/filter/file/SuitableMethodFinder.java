@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -42,7 +43,6 @@ import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeChecker.CType;
 import transform.TypeChecking.TypeTable;
 import transform.visitors.SymbolTableVisitor;
-import transform.visitors.TypeCollectVisitor;
 import transform.visitors.TypeTableVisitor;
 
 /**
@@ -113,13 +113,8 @@ public class SuitableMethodFinder {
 		AST ast = node.getAST();
 		ASTRewrite rewriter = ASTRewrite.create(ast);
 		//infer the types of nodes
-		
-		//collects import types
-		TypeCollectVisitor typeCollectVisitor = new TypeCollectVisitor();
-		node.accept(typeCollectVisitor);
-		TypeChecker typeChecker = typeCollectVisitor.getTypeChecker();
-		
-		
+		TypeChecker typeChecker = new TypeChecker();
+
 		SymbolTableVisitor symTableVisitor = new SymbolTableVisitor(typeChecker);
 		node.accept(symTableVisitor);
 		SymbolTable rootScope = symTableVisitor.getRoot();
@@ -356,18 +351,23 @@ public class SuitableMethodFinder {
 					//call again since it might be just a complex expression
 					ret = hasType(lE) || hasType(rE);
 				}
-			}  else {
-				//if it is not an infix expression then it should
-				//be some single var of a boolean type
+			} else if (e instanceof MethodInvocation) {
+				for (Object argObj : ((MethodInvocation) e).arguments()) {
+					Expression arg = (Expression) argObj;
+					if (TypeChecker.checkType(typeTable.getNodeType(arg)) == type) {
+						ret = true;
+						break;
+					}
+				}
+			} else {
 				Type vT = typeTable.getNodeType(e);
-				if(TypeChecker.isBooleanType(vT)) {
-					//System.out.println("Just a var");
+				if(type == CType.BOOLEAN && TypeChecker.isBooleanType(vT)) {
 					ret = true;
 				}
 			}
 			return ret;
 		}
-		
+
 		@Override
 		public void endVisit(IfStatement node) {
 			//System.out.println("done visiting");

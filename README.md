@@ -1,201 +1,98 @@
 # ARG-V Automated Program Transformations
 
+[![Build and Test](https://img.shields.io/github/actions/workflow/status/unl-pal/argv-transformer/buildAndRun.yml?branch=develop&label=build)](https://github.com/unl-pal/argv-transformer/actions/workflows/buildAndRun.yml)
+[![Latest release](https://img.shields.io/github/v/release/unl-pal/argv-transformer?include_prereleases)](https://github.com/unl-pal/argv-transformer/releases)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+[![Java 8](https://img.shields.io/badge/runtime-Java%208%20JDK-orange)](#requirements)
+
 ## About
+
 Welcome to ARG-V Automated Program Transformations.
 This application automatically downloads, filters and transforms open source repositories into benchmarks for static analysis tools.
 
-## Setting Up the Project
-### Download
-Clone the repository:
-```bash
-git clone git@github.com:unl-pal/argv-transformer.git
+## Requirements
+
+**A Java 8 JDK is required to _run_ ARG-V, not just to build it**
+
+`build.gradle` declares a Java 8 toolchain, so Gradle will automatically find and use a JDK 8
+already on your machine. Install a Java 8 JDK yourself, if necessary, and
+Gradle should pick it up automatically. If auto-detection doesn't find it (e.g. it's installed
+somewhere non-standard), create a `gradle.properties` file in the repo root (there isn't one by
+default) and point at it explicitly:
+
+```properties
+org.gradle.java.installations.paths=/path/to/jdk8
 ```
 
-### Setting Up the Project
-This project uses [gradle](https://gradle.org) to build, compile and run the program.
-After cloning the repository run the gradle wrapper with no arguments `./gradlew` to set up the project.
-This will fetch the appropriate version of Gradle, if needed, as well as all dependencies, and set to build Java 8 compatible code.
+## Setting Up the Project
+
+Clone the repository, and run the gradle wrapper with no arguments:
+
+```bash
+git clone git@github.com:unl-pal/argv-transformer.git
+./gradlew
+```
 
 ## Running the Project
-Run `./gradlew` followed by any of the following tasks to get desired effect.
 
-### Clean Tasks
-- `reset` - Resets the program - deletes `build`, `database`, `suitablePrgms` and `benchmarks` directories
+Run `./gradlew <task>` with any of the four pipeline tasks below. `filter` and `transform`
+accept optional input/output arguments to point them somewhere other than their hard-coded
+defaults; pass them through Gradle with `-Pargs"`:
 
-### Documentation Tasks
-- `javadoc` - Generates Javadocs in the `build/docs/javadoc` directory with
-  `index.html` as the entry point. These docs can be viewed and navigated from
-  the browser.
+```bash
+./gradlew transform -Pargs="input/path output/path"
+```
 
-### Execution Tasks
-- `download` - Compiles and Runs the download program
-- `filter` - Compiles and Runs the filter program
-- `full` - Compiles Runs the full application
-- `transform` - Compiles and Runs the transformer program
+- `download` - clones repos using the `csv` defined in `config.properties`'s into `downloadDir` (default `database`). Takes no input/output args (`downloadDir` in `config.properties` is the only way to redirect its output).
+- `filter` - filters Java files/methods based on `config.properties`: `database` → `suitablePrgms`
+- `transform` - rewrites suitable Java files into compilable benchmarks: `suitablePrgms` → `benchmarks`
+- `full` - runs `download`, then `filter`, then `transform`, chained through their hard-coded
+  defaults (`database` → `suitablePrgms` → `benchmarks`). `full` itself is just a Gradle
+  `dependsOn` chain, and will not handle input/output args.
 
-### Testing Tasks
-- `regressionTransformer` - Runs regression test for transformer
-- `test` - Runs the test suite and creates a report that can be viewed in a
-  browser. The report is located in the `build/reports/tests/test` directory
-  with the `index.html` file as the main entry point.
-  
-  Note: Be sure to exclude integrationExpected from the classpath.
+`./gradlew tasks`, lists every available task with a description.
 
-Other tasks are available and can be seen by running `./gradlew tasks` from
-the command line. This will display all tasks available and a brief description
-of what they do.
-<!--## Using the Tool-->
-<!--The tool uses the file **config.properties** to set the options and properties of the tool before each run.-->
-<!--This file can be edited manually to suit the users needs and will be covered in greater detail later.-->
-<!--This tool uses a csv file of github repository urls as input to begin the program.-->
-<!--This list of urls can be obtained using the **BOA** tool, RepoReaper or other available programs.-->
-<!--<!--TODO --COORECT ME WHEN WRONG-->
-<!--At this point the program will then download the repos into the **database**.-->
-<!--From there the programs are filtered using the requirements set in the **config.properties** file and stored in **suiatablePrgms**.-->
-<!--Finally these **suitablePrgrms** are transformed by the tool and the new benchmarks stored in **benchmarks**-->
+## Pipeline Stages
 
-<!--All newly created benchmarks are tested for compilability and can be set to follow SVCOMP standards.-->
+The tool takes a CSV of GitHub repository URLs as input (obtainable from RepoReaper, the BOA
+tool, or similar) and turns matching repos into compilable benchmarks in three stages:
 
-## Config Properties
-The tool uses the file **config.properties** to set the options and properties of the tool before each run.
-This file can be edited manually to suit the users needs by changing the values of the file.
+1. **`download`** clones repos from the CSV that meet `projectCount`/`minLoc`/`maxLoc` into `database`.
+2. **`filter`** walks `database` and keeps only the `.java` files with at least one method
+   meeting the configured suitability thresholds (parameter/expression counts, types, etc.),
+   copying them into `suitablePrgms`.
+3. **`transform`** rewrites each suitable file into a compilable benchmark in `benchmarks`,
+   and applies its own, independent suitability checks. Each surviving file is renamed to `Main.java`,
+   moved into a directory named after its original class, and paired with a `.yml` SV-COMP task definition.
 
-The available options to set are as follows:
-- `csv` - relative file path to file with OSS GitHub URLs
-- `projectCount` - how many projects to grab that meet the requirements
-- `maxLoc` - upper limit to number of lines of code
-- `minLoc` - lower limit to number of lines of code
-- `downloadDir` - where to download the repos to
-- `benchmarkDir` - where to write the benchmarks to
-- `debug` - run code with debugging logs and features on
-- `debugLevel` - what level of debug errors are reported
-- `type` - type of expression
-- `minExpr` - a minimum number of infix, prefix or postfix expression of the defined type encountered in a method
-- `minIfStmt` - int minimum number of if statements required
-- `minParams` - int minimum number of parameters required
-- `minTypeExpr` - int minimum number of type expressions required
-- `minTypeCond` - int minimum number of type conditions required
-- `minTypeParams` - int minimum number of type parameters required
-- `transformAll` - boolean to transform all code regardless of if it already compiles
-- `target` - string for compatibility i.e. SVCOMP 
-- `verifier` - location of the verifier code needed to compile benchmarks using x compatibility
+For a worked example of `filter` → `transform`, see
+[`docs/tutorial/README.md`](docs/tutorial/README.md).
 
-### Supported Properties
-expression Types Available for value:type:
- * `X` - don't care what type of expression is
- * `I` - integer type (int, short, byte, long)
- * `R` - real type (double, float)
- * `S` - string type (String, char)
- Currently code also ensures that the arguments to a method of that type too (plus boolean).
+### Configuring a run
 
-### In Development
-ifStmt:
- * `X` - don't care if there is an ifStmt in a method
- * `Y` - a conditional statement should be present in a method
- * `N` - a method should have no ifStmt
- 
- ifStmtType -- what expression type should be present in a conditional statement:
- * `X` - don't care what type of expression is
- * `I` - integer type (int, short, byte, long)
- * `R` - real type (double, float)
- * `S` - string type (String, char)
- 
-## Tools
-### download
-Given a csv file with names and meta data of repositories this program
-downloads repositories and stores them in a database.
+Every dial above: which expression types count, how many are required, LOC bounds,
+and so on, is a property in **`config.properties`**.
 
-Input:
-* `csv` - csv file with meta data and names of repositories such as created by RepoReaper
+For example:
 
-Config Settings:
-- `csv` - relative file path to file with OSS github URLs
-- `projectCount` - how many projects to grab that meet the requirements
-- `maxLoc` - upper limit to number of lines of code
-- `minLoc` - lower limit to number of lines of code
-- `downloadDir` - where to download the repos to
+```properties
+# Only count integer-typed expressions/parameters, and require at least 2 per method.
+type=I
+minExpr=2
+```
 
-Output:
-* creates database directory of downloaded repositories for next steps
+By default, `filter`'s thresholds (`minExpr`/`minIfStmt`/`minParams`) are checked per method: a
+file is kept if any single method clears the bar on its own. Setting `simplifyFilter=true`
+switches to a file-wide mode instead, summing those counts across every method in the class
+and, currently, ignoring the `type` dial entirely while doing so (it counts expressions/
+conditionals/parameters of any type, not just `type`'s).
 
-### filter
-This program filters a directory of repositories for java files suitable for symbolic execution using the values set by the user.
+By default each stage looks for `config.properties` in the directory it's invoked from. Point
+it at a different file with `--config=<path>`:
 
-(Suitability is defined in `sourceAnalysis.AnalyzedMethod.java` by the `isSymbolicSuitable()` method. A Java file 
-is suitable if at least one of its methods is suitable.)
+```bash
+./gradlew transform -Pargs="--config=/path/to/config.properties"
+```
 
-Input:
- * `database` - Directory of repositories. 
-
-Config Settings:
-- `maxLoc` - upper limit to number of lines of code
-- `minLoc` - lower limit to number of lines of code
-- `downloadDir` - where to download the repos to
-- `benchmarkDir` - where to write the benchmarks to
-- `type` - type of expression
-- `minExpr` - int minimum number of expressions required
-- `minIfStmt` - int minimum number of if statements required
-- `minParams` - int minimum number of parameters required
-- `minTypeExpr` - int minimum number of type expressions required
-- `minTypeCond` - int minimum number of type conditions required
-- `minTypeParams` - int minimum number of type parameters required
-
-Output:
- * `suitablePrgms` - Directory of repositories containing only java files suitable for analysis (in original directory structure). 
- 
-### transform
-Given a directory of suitable Java files, this program attempts to transform each into a compilable benchmark.
- 
-A directory of benchmarks is created, containing the programs that would successfully compile in their original directory structure. 
-
-Input:
- * `suitablePrgms` - Directory of repositories containing only Java files suitable for symbolic execution. 
-
-Config Settings:
-- `debug` - run code with debugging logs and features on
-- `debugLevel` - what level of debug errors are reported
-- `transformAll` - boolean to transform all code regardless of if it already compiles
-- `target` - string for compatibility i.e. SVCOMP 
-- `verifier` - location of the verifier code needed to compile benchmarks using x compatibility
-
-- `csv` - relative file path to file with OSS GitHub URLs
- 
-Output:
- * `benchmarks` - Directory of compilable, suitable programs (in original directory structure). 
-
-### full
-Given a CSV of GitHub repositories (as gathered by RepoReaper), this program will select suitable repositories, download them, search for classes containing SPF-suitable methods, and transform suitable classes into compilable, benchmark programs.
-
-Input:
- * CSV of GitHub repositories as gathered by RepoReaper.
-
-Config Settings:
- * All settings
-
-Output:
- * `database` - Directory of GitHub repos that meet project filter specification.
- * `suitablePrgms` - Directory containing suitable files extracted from GitHub repos. (This is where the transformation of the source code takes place.)
- * `benchmarks` - Directory of compilable, suitable programs, in their original directory structure. 
-
-## ADDITIONAL FILES
-
- * `dataset.csv` - First 5,000 entries (each entry is a GitHub project url with metadata) from RepoReaper dataset.
- * `filtered-dataset.csv` - 250 Java projects with min and max loc of 100 and 10,000
- * `config.properties` - Properties for running the full framework (i.e. downloading, filtering, transforming). 
-
-## TROUBLESHOOTING
-
-The `javac` version (used in `main.MainTransform.java` and `mainFullFramework.MainAnalysis.java` to compile benchmarks) needs to be the same version as JDK for `rt.jar` set in Soot classpath (in `jpf.ProgramUnderTest.java`, used for loop detection). 
-
-## Development
-### Contributing to the Project
-
-## PACKAGES
-
- * `download` - Downloading GitHub projects
- * `filter` - Filtering for relevant projects and files
- * `logging` - For simple logging
- * `full` - Contains main for running with full framework, i.e. download, filter, transform, output
- * `sourceAnalysis` - Used to track files and methods suitable for symbolic execution
- * `tests`
- * `transform` - Transforming files into compilable benchmarks
+Input/output args are for `filter`/`transform` only and must both be provided.
+They can be provided in anyway along with the `--config` argument as long as input precedes output.

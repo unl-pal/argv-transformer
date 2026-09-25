@@ -34,8 +34,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 
-import sourceAnalysis.AnalyzedFile;
-import sourceAnalysis.AnalyzedMethod;
+import util.AnalyzedFile;
+import util.AnalyzedMethod;
 import transform.TypeChecking.TypeChecker;
 import transform.TypeChecking.TypeTable;
 import transform.TypeChecking.TypeChecker.CType;
@@ -226,18 +226,6 @@ public class FinalizerVisitor extends ASTVisitor {
 	public void endVisit(MethodDeclaration node) {
 		//System.out.println("Visiting " + node.getName());
 		AnalyzedMethod m = currAnalyzedMethod;
-		int intOpCount = m.getTypeOperationCount();
-		if(intOpCount > 0) {
-			m.setHasTypeOperations(true);
-		}
-		
-		if(m.getTypeConditionalCount() > 0) {
-			m.setHasTypeConditional(true);
-		}
-		
-		if(m.getTypeParameterCount() > 0) {
-			m.setHasOnlyTypeParameters(true);
-		}
 		System.out.println("Oper " + m.getTypeOperationCount());
 		System.out.println("Cond " + m.getTypeConditionalCount());
 		System.out.println("Par " + m.getTypeParameterCount());
@@ -334,7 +322,6 @@ public class FinalizerVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(ForStatement node) {
-		currAnalyzedMethod.setHasLoop(true);
 		// To handle scope of local variables
 		return true;
 	}
@@ -453,30 +440,15 @@ public class FinalizerVisitor extends ASTVisitor {
 
 private void checkParameterTypes(AnalyzedMethod am, MethodDeclaration node) {
 	List<SingleVariableDeclaration> parameters = node.parameters();
-	if (!parameters.isEmpty()) {
-		am.setHasParameters(true);
-		int typeParams = 0;
-		for (SingleVariableDeclaration parameter : parameters) {
-			CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
-			if(parType == type) {
-			  typeParams++;
-			}
+	int typeParams = 0;
+	for (SingleVariableDeclaration parameter : parameters) {
+		CType parType = TypeChecker.checkType(typeTable.getNodeType(parameter));
+		if(parType == type) {
+		  typeParams++;
 		}
-		//found all parameters of a particular type
-		am.setTypeParameterCount(typeParams);
-		if(parameters.size() == typeParams) {
-			am.setHasOnlyTypeParameters(true);
-		}
-		
-//		if (hasOnlyIntegerParameters(parameters)) {
-//			am.setHasOnlyIntParameters(true);
-//			am.setIntParameterCount(parameters.size());
-//		} else {
-//			am.setHasOnlyIntParameters(false);
-//		}
-	} else {
-		am.setHasParameters(false);
 	}
+	//found all parameters of a particular type
+	am.setTypeParameterCount(typeParams);
 }
 
 }

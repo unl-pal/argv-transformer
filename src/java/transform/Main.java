@@ -45,19 +45,18 @@ public class Main {
 	private final static String DEFAULT_MIN_TYPE_COND = "1";
 	private final static String DEFAULT_MIN_TYPE_PARAMS = "0";
 	private final static String DEFAULT_TRANSFORM_ALL = "False";
-	private final static CType DEFAULT_TYPE = CType.INT;
-	
-	private static String verifier = "";
+	private final static String DEFAULT_TYPE = "I";
+	private final static String VERIFIER = "src/java/org/sosy_lab/sv_benchmarks/Verifier.java";
+
 	private static boolean debug = false;
 	private static boolean transformAll = false;
 
 	public static String source = "suitablePrgms";
 	public static String dest = "benchmarks";
-//	 public static String source = "src/test/transformer/integration";
-//	 public static String source = "testsFromReport";
-//	 public static String dest = "testOutput";
 
 	 public static void main(String[] args) throws IOException {
+	     util.JavaRuntimeCheck.requireTransformEnvironmentOrExit();
+
 	     File tmpDir = Files.createTempDirectory("paclab-transform").toFile();
 	     buildDir = new File(tmpDir, "bin");
 
@@ -72,14 +71,14 @@ public class Main {
 	     int minTypeCond = Integer.parseInt(DEFAULT_MIN_TYPE_COND);
 	     int minTypeParams = Integer.parseInt(DEFAULT_MIN_TYPE_PARAMS);
 	     transformAll = Boolean.parseBoolean(DEFAULT_TRANSFORM_ALL);
-	     CType type = DEFAULT_TYPE;
+	     CType type = CType.INT;
 
 	     try (FileReader reader = new FileReader(configFile)) {
 	         Properties props = new Properties();
 	         props.load(reader);
 
 	         target = props.getProperty("target");
-	         String typeStr = props.getProperty("type", DEFAULT_TYPE.toString());
+	         String typeStr = props.getProperty("type", DEFAULT_TYPE);
 	         switch (typeStr) {
 	             case "I":
 	                 type = CType.INT;
@@ -102,7 +101,6 @@ public class Main {
 	         minTypeParams = Integer.parseInt(props.getProperty("minTypeParams", DEFAULT_MIN_TYPE_PARAMS));
 	         transformAll = Boolean.parseBoolean(props.getProperty("transformAll", DEFAULT_TRANSFORM_ALL));
 	         debug = Boolean.parseBoolean(props.getProperty("debug"));
-	         verifier = props.getProperty("verifier");
 	     } catch (IOException e) {
 	         System.out.println("Invalid configuration file.");
 	         System.exit(1);
@@ -266,7 +264,7 @@ public class Main {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 		int runErrors = compiler.run(null, outputStream, errorStream, "-g", "-d", buildDir.getAbsolutePath(), "-cp",
-				System.getProperty("java.class.path"), file.toString(), verifier);
+				System.getProperty("java.class.path"), file.toString(), VERIFIER);
 		// System.out.println("Num compilation erros in " + file.getParent() + " are " +
 		// runErrors);
 		return runErrors == 0;

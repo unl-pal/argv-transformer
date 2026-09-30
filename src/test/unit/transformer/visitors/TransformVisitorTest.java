@@ -74,7 +74,7 @@ public class TransformVisitorTest {
 	public void setup() {
 		parser = ASTParser.newParser(AST.JLS8); // Use appropriate JLS version
         ast = AST.newAST(AST.JLS8);
-		visitor = new TransformVisitor(null, null, null, null, null, null);
+		visitor = new TransformVisitor(null, null, null, null, null);
 	}
 	
 	@Test
@@ -96,7 +96,7 @@ public class TransformVisitorTest {
         ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
 
         // Instantiate the visitor and set the rewriter
-        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+        visitor = new TransformVisitor(null, rewriter, null, null, source);
         visitor.visit(compilationUnit);
         visitor.endVisit(compilationUnit);
 
@@ -128,7 +128,7 @@ public class TransformVisitorTest {
         ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
 
         // Instantiate the visitor and set the rewriter/target
-        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+        visitor = new TransformVisitor(null, rewriter, null, null, source);
         visitor.visit(compilationUnit); // sets ast
         visitor.endVisit(compilationUnit);
 
@@ -185,7 +185,7 @@ public class TransformVisitorTest {
         when(mockDeclaringClass.getPackage()).thenReturn(mockPackage);
         when(mockPackage.getName()).thenReturn("external.pkg");
 
-        visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+        visitor = new TransformVisitor(null, rewriter, null, null, source);
         visitor.visit(compilationUnit);
         visitor.endVisit(methodInvocation);
 	    TransformVisitor.varNum = 0;
@@ -225,7 +225,7 @@ public class TransformVisitorTest {
 
 	    NormalAnnotation normalAnnotation = (NormalAnnotation)((TypeDeclaration)compilationUnit.types().get(0)).modifiers().get(0);
 
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+	    visitor = new TransformVisitor(null, rewriter, null, null, source);
 	    visitor.visit(normalAnnotation);
 	    // Apply the changes made by the rewriter
 	    TextEdit edits = rewriter.rewriteAST(document, null);
@@ -271,7 +271,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(simpleName);
 	    TransformVisitor.varNum = 0;
@@ -323,7 +323,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
 	    TransformVisitor.varNum = 0;
@@ -376,7 +376,7 @@ public class TransformVisitorTest {
 	    
 	    // Create the visitor
 	    TypeChecker typeChecker = new TypeChecker();
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(prefixExpression);
 	    TransformVisitor.varNum = 0;
@@ -439,7 +439,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0);
 
 	    // Create the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(returnStatement);
 	    TransformVisitor.varNum = 0;
@@ -500,7 +500,7 @@ public class TransformVisitorTest {
 	            .getBody().statements().get(0);
 
 	    // Create the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(returnStatement);
 	    TransformVisitor.varNum = 0;
@@ -544,7 +544,7 @@ public class TransformVisitorTest {
 	        ((TypeDeclaration) compilationUnit.types().get(0)).modifiers().get(0);
 
 	    // Visit the annotation node
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+	    visitor = new TransformVisitor(null, rewriter, null, null, source);
 	    visitor.visit(singleMemberAnnotation);
 
 	    // Apply the changes made by the rewriter
@@ -584,7 +584,7 @@ public class TransformVisitorTest {
 	        (SuperConstructorInvocation) (((TypeDeclaration) compilationUnit.types().get(0)).getMethods()[0]).getBody().statements().get(0);
 
 	    // Visit the node
-	    visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+	    visitor = new TransformVisitor(null, rewriter, null, null, source);
 	    visitor.visit(superConstructorInvocation);
 
 	    // Apply the changes made by the rewriter
@@ -630,7 +630,7 @@ public class TransformVisitorTest {
 	    		compilationUnit.types().get(0)).getMethods()[0]).getBody()).statements()).get(0);
 
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, null, source);
+	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, source);
 	    visitor.visit(varDecl);
 
 	    // Apply the changes made by the rewriter
@@ -685,7 +685,7 @@ public class TransformVisitorTest {
             (VariableDeclarationStatement) switchStatement.statements().get(1); // 0th case is "case 0:"
         
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, null, source);
+	    visitor = new TransformVisitor(null, rewriter, null, typeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.visit(varDecl);
 
@@ -737,7 +737,7 @@ public class TransformVisitorTest {
 	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, source);
 	    visitor.visit(compilationUnit);
 	    visitor.visit(typeDeclaration);
 	
@@ -774,7 +774,7 @@ public class TransformVisitorTest {
 	    SymbolTable mockRoot = mock(SymbolTable.class);	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(typeDeclaration);
 	    
@@ -802,7 +802,7 @@ public class TransformVisitorTest {
 	    SymbolTable mockRoot = mock(SymbolTable.class);	
 	    TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
 
-	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(mockRoot, rewriter, null, null, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(typeDeclaration);
 	    
@@ -836,7 +836,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 	    
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null, source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) 
 	      		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
 	            		compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -887,7 +887,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    when(typeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 	    
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, null, source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) 
 	    	    ((ReturnStatement)((MethodDeclaration)((TypeDeclaration)
 	    	            compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -949,7 +949,7 @@ public class TransformVisitorTest {
 	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
         
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
+	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(conditionalExpression);
 
@@ -1003,7 +1003,7 @@ public class TransformVisitorTest {
 	            		.getBody().statements().get(0)).fragments().get(0)).getInitializer();
         
 	    // Visit the nodes
-	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, "SVCOMP", source);
+	    visitor = new TransformVisitor(null, rewriter, mockTypeTable, typeChecker, source);
 	    visitor.visit(compilationUnit);
 	    visitor.endVisit(conditionalExpression);
 
@@ -1049,7 +1049,7 @@ public class TransformVisitorTest {
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
 
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, source);
 	    SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation)
 	        		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
 	        		compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -1102,7 +1102,7 @@ public class TransformVisitorTest {
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
 
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, source);
 	    SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation)
 	        		 ((Assignment)(((ExpressionStatement)((MethodDeclaration)((TypeDeclaration)
 		compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -1150,7 +1150,7 @@ public class TransformVisitorTest {
 	    ASTRewrite rewriter = ASTRewrite.create(compilationUnit.getAST());
 
 	    // Set up the visitor
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, null, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, null, null, source);
 	    EnhancedForStatement enhancedForStatement =
 	       		 (EnhancedForStatement)(((MethodDeclaration)((TypeDeclaration)
 					compilationUnit.types().get(0)).bodyDeclarations().get(0))
@@ -1191,7 +1191,7 @@ public class TransformVisitorTest {
 	    TypeTable mockTypeTable = mock(TypeTable.class);
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(null);
 
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, source);
         FieldAccess fieldAccess = (FieldAccess)((VariableDeclarationFragment)((FieldDeclaration)((TypeDeclaration)
         		compilationUnit.types().get(0)).bodyDeclarations().get(0)).fragments().get(0)).getInitializer();
 	    visitor.visit(compilationUnit);
@@ -1236,7 +1236,7 @@ public class TransformVisitorTest {
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(mockType);
 	    when(mockType.getPrimitiveTypeCode()).thenReturn(PrimitiveType.INT);
 
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, source);
         FieldAccess fieldAccess = (FieldAccess)((VariableDeclarationFragment)((FieldDeclaration)((TypeDeclaration)
         		compilationUnit.types().get(0)).bodyDeclarations().get(0)).fragments().get(0)).getInitializer();
 	    visitor.visit(compilationUnit);
@@ -1287,7 +1287,7 @@ public class TransformVisitorTest {
 	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 
 	    // Apply the visitor
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, source);
 	    InstanceofExpression instanceofExpression = (InstanceofExpression)((IfStatement)((MethodDeclaration)((TypeDeclaration)
         		compilationUnit.types().get(0)).bodyDeclarations().get(0))
         		.getBody().statements().get(0)).getExpression();
@@ -1339,7 +1339,7 @@ public class TransformVisitorTest {
 	    when(mockTypeTable.getNodeType(Mockito.any())).thenReturn(null);
 
 	    // Apply the visitor
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, null, source);
 	    PostfixExpression postfixExpression = (PostfixExpression)((ExpressionStatement)((MethodDeclaration)((TypeDeclaration)
         		compilationUnit.types().get(0)).bodyDeclarations().get(0))
         		.getBody().statements().get(0)).getExpression();
@@ -1388,7 +1388,7 @@ public class TransformVisitorTest {
 	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 
 	    // Apply the visitor
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, source);
 	    // Mock behavior for replaceInteger
         QualifiedName qualifiedName = (QualifiedName)
         		((VariableDeclarationFragment)((FieldDeclaration)((TypeDeclaration)
@@ -1452,7 +1452,7 @@ public class TransformVisitorTest {
 
 
 	    // Apply the visitor
-	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(mockSymbolTable, rewriter, mockTypeTable, mockTypeChecker, source);
 	    MethodDeclaration methodDeclaration = (MethodDeclaration)((TypeDeclaration)
         		compilationUnit.types().get(0)).bodyDeclarations().get(1);
 	    SimpleName simpleName = (SimpleName) 
@@ -1511,7 +1511,7 @@ public class TransformVisitorTest {
 	    when(mockTypeChecker.allowedType(Mockito.any(Type.class))).thenReturn(false);
 
 	    // Apply the visitor
-	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, "SVCOMP", source);
+	    TransformVisitor visitor = new TransformVisitor(null, rewriter, mockTypeTable, mockTypeChecker, source);
 	    InfixExpression infixExpression = (InfixExpression)
         		((VariableDeclarationFragment)((VariableDeclarationStatement)((MethodDeclaration)((TypeDeclaration)
         		compilationUnit.types().get(0)).bodyDeclarations().get(0))

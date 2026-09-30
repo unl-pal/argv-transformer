@@ -206,7 +206,7 @@ public class TypeChecker {
 	}
 
 	private static Type arrayElementType(Type type) {
-		return type.isArrayType() ? ((ArrayType) type).getElementType() : null;
+		return (type != null && type.isArrayType()) ? ((ArrayType) type).getElementType() : null;
 	}
 
 	/**

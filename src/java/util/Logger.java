@@ -1,4 +1,4 @@
-package logging;
+package util;
 
 import java.io.PrintStream;
 import java.util.Stack;

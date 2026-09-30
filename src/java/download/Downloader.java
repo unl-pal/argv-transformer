@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import filter.project.JavaProjectFilter;
-import logging.Logger;
+import util.Logger;
 
 /**
  * Class for downloading GitHub projects that meet filter specifications.
